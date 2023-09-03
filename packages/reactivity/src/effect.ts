@@ -3,7 +3,14 @@ import { extend, isArray, isIntegerKey, isMap } from '@docue/shared'
 import { TrackOpTypes, TriggerOpTypes } from './operations'
 import { EffectScope, recordEffectScope } from './effectScope'
 import { ComputedRefImpl } from './computed'
-import { Dep, createDep, newTracked, wasTracked } from './dep'
+import {
+  Dep,
+  createDep,
+  finalizeDepMarkers,
+  initDepMarkers,
+  newTracked,
+  wasTracked
+} from './dep'
 
 // The main WeakMap that stores {target -> key -> dep} connections.
 // Conceptually, it's easier to think of a dependency as a Dep class
@@ -39,6 +46,16 @@ export type DebuggerEvent = {
   effect: ReactiveEffect
 } & DebuggerEventExtraInfo
 
+function cleanupEffect(effect: ReactiveEffect) {
+  const { deps } = effect
+  if (deps.length) {
+    for (let i = 0; i < deps.length; i++) {
+      deps[i].delete(effect)
+    }
+    deps.length = 0
+  }
+}
+
 export interface DebuggerOptions {
   onTrack?: (event: DebuggerEvent) => void
   onTrigger?: (event: DebuggerEvent) => void
@@ -64,18 +81,14 @@ export function effect<T = any>(
   if ((fn as ReactiveEffectRunner).effect) {
     fn = (fn as ReactiveEffectRunner).effect.fn
   }
-
   const _effect = new ReactiveEffect(fn)
-
   if (options) {
     extend(_effect, options)
-    if (options.scope) recordEffectScope(_effect, options.scope)
+    // if (options.scope) recordEffectScope(_effect, options.scope)
   }
-
   if (!options || !options.lazy) {
     _effect.run()
   }
-
   const runner = _effect.run.bind(_effect) as ReactiveEffectRunner
   runner.effect = _effect
   return runner
@@ -90,7 +103,6 @@ export class ReactiveEffect<T = any> {
   active = true
   deps: Dep[] = []
   parent: ReactiveEffect | undefined = undefined
-
   /**
    * Can be attached after creation
    * @internal
@@ -100,23 +112,110 @@ export class ReactiveEffect<T = any> {
    * @internal
    */
   allowRecurse?: boolean
+  /**
+   * @internal
+   */
+  private deferStop?: boolean
 
+  onStop?: () => void
   // dev only
   onTrack?: (event: DebuggerEvent) => void
   // dev only
   onTrigger?: (event: DebuggerEvent) => void
-
   constructor(
     public fn: () => T,
     public scheduler: EffectScheduler | null = null
   ) {}
-
   run() {
-    return this.fn()
+    // if (!this.active) {
+    //   return this.fn()
+    // }
+    let parent: ReactiveEffect | undefined = activeEffect
+    // let lastShouldTrack = shouldTrack
+    while (parent) {
+      if (parent === this) {
+        return
+      }
+      parent = parent.parent
+    }
+
+    try {
+      this.parent = activeEffect
+      activeEffect = this
+      shouldTrack = true
+
+      trackOpBit = 1 << ++effectTrackDepth
+
+      if (effectTrackDepth <= maxMarkerBits) {
+        initDepMarkers(this)
+      } else {
+        cleanupEffect(this)
+      }
+
+      return this.fn()
+    } finally {
+      if (effectTrackDepth <= maxMarkerBits) {
+        finalizeDepMarkers(this)
+      }
+      trackOpBit = 1 << --effectTrackDepth
+      activeEffect = this.parent
+      // shouldTrack = lastShouldTrack
+      this.parent = undefined
+      // if (this.deferStop) {
+      //   this.stop()
+      // }
+    }
+  }
+
+  stop() {
+    // stopped while running itself - defer the cleanup
+    if (activeEffect === this) {
+      this.deferStop = true
+    } else if (this.active) {
+      cleanupEffect(this)
+      if (this.onStop) {
+        this.onStop()
+      }
+      this.active = false
+    }
   }
 }
 
+/**
+ * Stops the effect associated with the given runner.
+ *
+ * @param runner - Association with the effect to stop tracking.
+ */
+export function stop(runner: ReactiveEffectRunner) {
+  runner.effect.stop()
+}
+
 export let shouldTrack = true
+const trackStack: boolean[] = []
+
+/**
+ * Temporarily pauses tracking.
+ */
+export function pauseTracking() {
+  trackStack.push(shouldTrack)
+  shouldTrack = false
+}
+
+/**
+ * Re-enables effect tracking (if it was paused).
+ */
+export function enableTracking() {
+  trackStack.push(shouldTrack)
+  shouldTrack = true
+}
+
+/**
+ * Resets the previous global effect tracking state.
+ */
+export function resetTracking() {
+  const last = trackStack.pop()
+  shouldTrack = last === undefined ? true : last
+}
 
 export function track(target: object, type: TrackOpTypes, key: unknown) {
   if (shouldTrack && activeEffect) {
@@ -128,15 +227,12 @@ export function track(target: object, type: TrackOpTypes, key: unknown) {
     if (!dep) {
       depsMap.set(key, (dep = createDep()))
     }
-
     const eventInfo = __DEV__
       ? { effect: activeEffect, target, type, key }
       : undefined
-
     trackEffects(dep, eventInfo)
   }
 }
-
 export function trackEffects(
   dep: Dep,
   debuggerEventExtraInfo?: DebuggerEventExtraInfo
@@ -191,68 +287,72 @@ export function trigger(
   }
 
   let deps: (Dep | undefined)[] = []
+  if (key === 'length' && isArray(target)) {
+    const newLength = Number(newValue)
+    depsMap.forEach((dep, key) => {
+      if (key === 'length' || key >= newLength) {
+        deps.push(dep)
+      }
+    })
+  } else {
+    // schedule runs for SET | ADD | DELETE
+    if (key !== void 0) {
+      deps.push(depsMap.get(key))
+    }
 
-  // schedule runs for SET | ADD | DELETE
-  if (key !== void 0) {
-    deps.push(depsMap.get(key))
+    switch (type) {
+      case TriggerOpTypes.ADD:
+        if (!isArray(target)) {
+          deps.push(depsMap.get(ITERATE_KEY))
+          //   if (isMap(target)) {
+          //     deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
+          //   }
+        } else if (isIntegerKey(key)) {
+          // new index added to array -> length changes
+          deps.push(depsMap.get('length'))
+        }
+        break
+      case TriggerOpTypes.DELETE:
+        if (!isArray(target)) {
+          deps.push(depsMap.get(ITERATE_KEY))
+          // if (isMap(target)) {
+          //   deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
+          // }
+        }
+        break
+      //   case TriggerOpTypes.SET:
+      //     if (isMap(target)) {
+      //       deps.push(depsMap.get(ITERATE_KEY))
+      //     }
+      //     break
+    }
   }
 
-  // switch (type) {
-  //   case TriggerOpTypes.ADD:
-  //     if (!isArray(target)) {
-  //       deps.push(depsMap.get(ITERATE_KEY))
-  //       if (isMap(target)) {
-  //         deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
-  //       }
-  //     } else if (isIntegerKey(key)) {
-  //       // new index added to array -> length changes
-  //       deps.push(depsMap.get('length'))
-  //     }
-  //     break
-  //   case TriggerOpTypes.DELETE:
-  //     if (!isArray(target)) {
-  //       deps.push(depsMap.get(ITERATE_KEY))
-  //       if (isMap(target)) {
-  //         deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
-  //       }
-  //     }
-  //     break
-  //   case TriggerOpTypes.SET:
-  //     if (isMap(target)) {
-  //       deps.push(depsMap.get(ITERATE_KEY))
-  //     }
-  //     break
-  // }
+  const eventInfo = __DEV__
+    ? { target, type, key, newValue, oldValue, oldTarget }
+    : undefined
 
-  if (deps[0]) {
-    triggerEffects(deps[0])
+  if (deps.length === 1) {
+    if (deps[0]) {
+      if (__DEV__) {
+        triggerEffects(deps[0], eventInfo)
+      } else {
+        triggerEffects(deps[0])
+      }
+    }
+  } else {
+    const effects: ReactiveEffect[] = []
+    for (const dep of deps) {
+      if (dep) {
+        effects.push(...dep)
+      }
+    }
+    if (__DEV__) {
+      triggerEffects(createDep(effects), eventInfo)
+    } else {
+      triggerEffects(createDep(effects))
+    }
   }
-
-  // const eventInfo = __DEV__
-  //   ? { target, type, key, newValue, oldValue, oldTarget }
-  //   : undefined
-
-  // if (deps.length === 1) {
-  //   if (deps[0]) {
-  //     if (__DEV__) {
-  //       triggerEffects(deps[0], eventInfo)
-  //     } else {
-  //       triggerEffects(deps[0])
-  //     }
-  //   }
-  // } else {
-  //   const effects: ReactiveEffect[] = []
-  //   for (const dep of deps) {
-  //     if (dep) {
-  //       effects.push(...dep)
-  //     }
-  //   }
-  //   if (__DEV__) {
-  //     triggerEffects(createDep(effects), eventInfo)
-  //   } else {
-  //     triggerEffects(createDep(effects))
-  //   }
-  // }
 }
 
 export function triggerEffects(
@@ -281,15 +381,14 @@ function triggerEffect(
   effect: ReactiveEffect,
   debuggerEventExtraInfo?: DebuggerEventExtraInfo
 ) {
-  effect.run()
   // if (effect !== activeEffect || effect.allowRecurse) {
-  //   if (__DEV__ && effect.onTrigger) {
-  //     effect.onTrigger(extend({ effect }, debuggerEventExtraInfo))
-  //   }
-  //   if (effect.scheduler) {
-  //     effect.scheduler()
-  //   } else {
-  //     effect.run()
-  //   }
+  if (__DEV__ && effect.onTrigger) {
+    effect.onTrigger(extend({ effect }, debuggerEventExtraInfo))
+  }
+  if (effect.scheduler) {
+    effect.scheduler()
+  } else {
+    effect.run()
+  }
   // }
 }

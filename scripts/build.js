@@ -25,6 +25,7 @@ import { gzipSync, brotliCompressSync } from 'node:zlib'
 import minimist from 'minimist'
 import chalk from 'chalk'
 import execa from 'execa'
+import prettyBytes from 'pretty-bytes'
 
 import { targets as allTargets, fuzzyMatchTarget } from './utils.js'
 import { scanEnums } from './const-enum.js'
@@ -54,7 +55,7 @@ async function run() {
       ? fuzzyMatchTarget(targets, buildAllMatching)
       : allTargets
     await buildAll(resolvedTargets)
-    // await checkAllSizes(resolvedTargets)
+    await checkAllSizes(resolvedTargets)
     if (buildTypes) {
       await execa(
         'pnpm',
@@ -132,4 +133,54 @@ async function build(target) {
     ],
     { stdio: 'inherit' }
   )
+}
+
+async function checkAllSizes(targets) {
+  if (devOnly || (formats && !formats.includes('global'))) {
+    return
+  }
+  console.log()
+  for (const target of targets) {
+    await checkSize(target)
+  }
+  console.log()
+}
+
+async function checkSize(target) {
+  const pkgDir = path.resolve(`packages/${target}`)
+  await checkFileSize(`${pkgDir}/dist/${target}.global.prod.js`)
+  if (!formats || formats.includes('global-runtime')) {
+    await checkFileSize(`${pkgDir}/dist/${target}.runtime.global.prod.js`)
+  }
+}
+
+async function checkFileSize(filePath) {
+  if (!existsSync(filePath)) {
+    return
+  }
+  const file = await fs.readFile(filePath)
+  const fileName = path.basename(filePath)
+
+  const gzipped = gzipSync(file)
+  const brotli = brotliCompressSync(file)
+
+  console.log(
+    `${chalk.gray(chalk.bold(fileName))} min:${prettyBytes(
+      file.length
+    )} / gzip:${prettyBytes(gzipped.length)} / brotli:${prettyBytes(
+      brotli.length
+    )}`
+  )
+
+  if (writeSize)
+    await fs.writeFile(
+      path.resolve(sizeDir, `${fileName}.json`),
+      JSON.stringify({
+        file: fileName,
+        size: file.length,
+        gzip: gzipped.length,
+        brotli: brotli.length
+      }),
+      'utf-8'
+    )
 }
