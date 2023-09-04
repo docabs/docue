@@ -3,6 +3,8 @@ export {
   TriggerOpTypes /* @remove */
 } from './operations'
 
+export { EffectScope, onScopeDispose, getCurrentScope } from './effectScope'
+
 export {
   reactive,
   shallowReactive,

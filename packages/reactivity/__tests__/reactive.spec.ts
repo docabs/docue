@@ -1,4 +1,12 @@
-import { reactive, isReactive, effect, toRaw } from '../src'
+import {
+  reactive,
+  isReactive,
+  effect,
+  toRaw,
+  ref,
+  isRef,
+  markRaw
+} from '../src'
 
 describe('reactivity/reactive', () => {
   test('Object', () => {
@@ -168,5 +176,108 @@ describe('reactivity/reactive', () => {
     const raw = toRaw(obj)
     expect(raw).toBe(obj)
     expect(raw).not.toBe(toRaw(original))
+  })
+
+  test('should not unwrap Ref<T>', () => {
+    const observedNumberRef = reactive(ref(1))
+    const observedObjectRef = reactive(ref({ foo: 1 }))
+
+    expect(isRef(observedNumberRef)).toBe(true)
+    expect(isRef(observedObjectRef)).toBe(true)
+  })
+
+  // test('should unwrap computed refs', () => {
+  //   // readonly
+  //   const a = computed(() => 1)
+  //   // writable
+  //   const b = computed({
+  //     get: () => 1,
+  //     set: () => {}
+  //   })
+  //   const obj = reactive({ a, b })
+  //   // check type
+  //   obj.a + 1
+  //   obj.b + 1
+  //   expect(typeof obj.a).toBe(`number`)
+  //   expect(typeof obj.b).toBe(`number`)
+  // })
+
+  // test('should allow setting property from a ref to another ref', () => {
+  //   const foo = ref(0)
+  //   const bar = ref(1)
+  //   const observed = reactive({ a: foo })
+  //   const dummy = computed(() => observed.a)
+  //   expect(dummy.value).toBe(0)
+
+  //   // @ts-expect-error
+  //   observed.a = bar
+  //   expect(dummy.value).toBe(1)
+
+  //   bar.value++
+  //   expect(dummy.value).toBe(2)
+  // })
+
+  test('non-observable values', () => {
+    const assertValue = (value: any) => {
+      reactive(value)
+      expect(
+        `value cannot be made reactive: ${String(value)}`
+      ).toHaveBeenWarnedLast()
+    }
+
+    // number
+    assertValue(1)
+    // string
+    assertValue('foo')
+    // boolean
+    assertValue(false)
+    // null
+    assertValue(null)
+    // undefined
+    assertValue(undefined)
+    // symbol
+    const s = Symbol()
+    assertValue(s)
+    // bigint
+    const bn = BigInt('9007199254740991')
+    assertValue(bn)
+
+    // built-ins should work and return same value
+    const p = Promise.resolve()
+    expect(reactive(p)).toBe(p)
+    const r = new RegExp('')
+    expect(reactive(r)).toBe(r)
+    const d = new Date()
+    expect(reactive(d)).toBe(d)
+  })
+
+  test('markRaw', () => {
+    const obj = reactive({
+      foo: { a: 1 },
+      bar: markRaw({ b: 2 })
+    })
+    expect(isReactive(obj.foo)).toBe(true)
+    expect(isReactive(obj.bar)).toBe(false)
+  })
+
+  test('should not observe non-extensible objects', () => {
+    const obj = reactive({
+      foo: Object.preventExtensions({ a: 1 }),
+      // sealed or frozen objects are considered non-extensible as well
+      bar: Object.freeze({ a: 1 }),
+      baz: Object.seal({ a: 1 })
+    })
+    expect(isReactive(obj.foo)).toBe(false)
+    expect(isReactive(obj.bar)).toBe(false)
+    expect(isReactive(obj.baz)).toBe(false)
+  })
+
+  test('should not observe objects with __v_skip', () => {
+    const original = {
+      foo: 1,
+      __v_skip: true
+    }
+    const observed = reactive(original)
+    expect(isReactive(observed)).toBe(false)
   })
 })

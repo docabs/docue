@@ -124,8 +124,11 @@ export class ReactiveEffect<T = any> {
   onTrigger?: (event: DebuggerEvent) => void
   constructor(
     public fn: () => T,
-    public scheduler: EffectScheduler | null = null
-  ) {}
+    public scheduler: EffectScheduler | null = null,
+    scope?: EffectScope
+  ) {
+    recordEffectScope(this, scope)
+  }
   run() {
     // if (!this.active) {
     //   return this.fn()
