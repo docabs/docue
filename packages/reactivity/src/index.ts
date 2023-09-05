@@ -10,6 +10,8 @@ export {
   shallowReactive,
   readonly,
   isReactive,
+  isReadonly,
+  isProxy,
   toRaw,
   markRaw
 } from './reactive'
@@ -30,3 +32,5 @@ export {
   type ShallowRef,
   type RefUnwrapBailTypes
 } from './ref'
+
+export { computed } from './computed'

@@ -2,6 +2,7 @@ import {
   hasChanged,
   hasOwn,
   isArray,
+  isIntegerKey,
   isObject,
   isSymbol,
   makeMap
@@ -28,6 +29,7 @@ import {
   trigger
 } from './effect'
 import { isRef } from './ref'
+import { warn } from './warning'
 
 const isNonTrackableKeys = /*#__PURE__*/ makeMap(`__proto__,__v_isRef,__isVue`)
 
@@ -116,14 +118,14 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
 
     const targetIsArray = isArray(target)
 
-    // if (!isReadonly) {
-    if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
-      return Reflect.get(arrayInstrumentations, key, receiver)
+    if (!isReadonly) {
+      if (targetIsArray && hasOwn(arrayInstrumentations, key)) {
+        return Reflect.get(arrayInstrumentations, key, receiver)
+      }
+      if (key === 'hasOwnProperty') {
+        return hasOwnProperty
+      }
     }
-    if (key === 'hasOwnProperty') {
-      return hasOwnProperty
-    }
-    // }
 
     const res = Reflect.get(target, key, receiver)
 
@@ -131,7 +133,14 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
       return res
     }
 
-    track(target, TrackOpTypes.GET, key)
+    if (!isReadonly) {
+      track(target, TrackOpTypes.GET, key)
+    }
+
+    if (isRef(res)) {
+      // ref unwrapping - skip unwrap for Array + integer key.
+      return targetIsArray && isIntegerKey(key) ? res : res.value
+    }
 
     if (isObject(res)) {
       // Convert returned value into a proxy as well. we do the isObject check
@@ -174,15 +183,19 @@ class MutableReactiveHandler extends BaseReactiveHandler {
   ): boolean {
     let oldValue = (target as any)[key]
 
+    if (isReadonly(oldValue) && isRef(oldValue) && !isRef(value)) {
+      return false
+    }
+
     if (!this._shallow) {
       if (!isShallow(value) && !isReadonly(value)) {
         oldValue = toRaw(oldValue)
         value = toRaw(value)
       }
-      // if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
-      //   oldValue.value = value
-      //   return true
-      // }
+      if (!isArray(target) && isRef(oldValue) && !isRef(value)) {
+        oldValue.value = value
+        return true
+      }
     } else {
       // in shallow mode, objects are set as-is regardless of reactive or not
     }
@@ -212,7 +225,31 @@ class MutableReactiveHandler extends BaseReactiveHandler {
   }
 }
 
-class ReadonlyReactiveHandler extends BaseReactiveHandler {}
+class ReadonlyReactiveHandler extends BaseReactiveHandler {
+  constructor(shallow = false) {
+    super(true, shallow)
+  }
+
+  set(target: object, key: string | symbol) {
+    if (__DEV__) {
+      warn(
+        `Set operation on key "${String(key)}" failed: target is readonly.`,
+        target
+      )
+    }
+    return true
+  }
+
+  deleteProperty(target: object, key: string | symbol) {
+    if (__DEV__) {
+      warn(
+        `Delete operation on key "${String(key)}" failed: target is readonly.`,
+        target
+      )
+    }
+    return true
+  }
+}
 
 export const mutableHandlers: ProxyHandler<object> =
   /*#__PURE__*/ new MutableReactiveHandler()

@@ -1,6 +1,6 @@
 import { NOOP, isFunction } from '@docue/shared'
 import { DebuggerOptions, ReactiveEffect } from './effect'
-import { ReactiveFlags } from './reactive'
+import { ReactiveFlags, toRaw } from './reactive'
 import { trackRefValue, triggerRefValue } from './ref'
 
 export type ComputedGetter<T> = (...args: any[]) => T
@@ -39,7 +39,7 @@ export class ComputedRefImpl<T> {
 
   get value() {
     // the computed ref may get wrapped by other proxies e.g. readonly() #3376
-    const self = this
+    const self = toRaw(this)
 
     trackRefValue(self)
     if (self._dirty || !self._cacheable) {

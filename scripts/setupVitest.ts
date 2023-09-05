@@ -39,6 +39,29 @@ expect.extend({
           `expected "${received}" to have been warned last.\n\nActual messages:\n\n - ${msgs}`
       }
     }
+  },
+
+  toHaveBeenWarnedTimes(received: string, n: number) {
+    asserted.add(received)
+    let found = 0
+    warn.mock.calls.forEach(args => {
+      if (args[0].includes(received)) {
+        found++
+      }
+    })
+
+    if (found === n) {
+      return {
+        pass: true,
+        message: () => `expected "${received}" to have been warned ${n} times.`
+      }
+    } else {
+      return {
+        pass: false,
+        message: () =>
+          `expected "${received}" to have been warned ${n} times but got ${found}.`
+      }
+    }
   }
 })
 
