@@ -12,6 +12,7 @@ export {
   readonly,
   isReactive,
   isReadonly,
+  isShallow,
   isProxy,
   toRaw,
   markRaw
@@ -27,7 +28,10 @@ export {
 
 export {
   ref,
+  unref,
   isRef,
+  shallowRef,
+  triggerRef,
   type Ref,
   type UnwrapRef,
   type ShallowRef,

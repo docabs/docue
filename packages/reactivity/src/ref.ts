@@ -7,9 +7,10 @@ import {
   isReadonly
 } from './reactive'
 import { Dep, createDep } from './dep'
-import { hasChanged } from '@docue/shared'
+import { IfAny, hasChanged, isFunction, isObject } from '@docue/shared'
 import {
   activeEffect,
+  getDepFromReactive,
   shouldTrack,
   trackEffects,
   triggerEffects
@@ -120,9 +121,87 @@ class RefImpl<T> {
   }
 }
 
+/**
+ * Force trigger effects that depends on a shallow ref. This is typically used
+ * after making deep mutations to the inner value of a shallow ref.
+ *
+ * @example
+ * ```js
+ * const shallow = shallowRef({
+ *   greet: 'Hello, world'
+ * })
+ *
+ * // Logs "Hello, world" once for the first run-through
+ * watchEffect(() => {
+ *   console.log(shallow.value.greet)
+ * })
+ *
+ * // This won't trigger the effect because the ref is shallow
+ * shallow.value.greet = 'Hello, universe'
+ *
+ * // Logs "Hello, universe"
+ * triggerRef(shallow)
+ * ```
+ *
+ * @param ref - The ref whose tied effects shall be executed.
+ * @see {@link https://vuejs.org/api/reactivity-advanced.html#triggerref}
+ */
+export function triggerRef(ref: Ref) {
+  triggerRefValue(ref, __DEV__ ? ref.value : void 0)
+}
+
+export type MaybeRef<T = any> = T | Ref<T>
+export type MaybeRefOrGetter<T = any> = MaybeRef<T> | (() => T)
+
+/**
+ * Returns the inner value if the argument is a ref, otherwise return the
+ * argument itself. This is a sugar function for
+ * `val = isRef(val) ? val.value : val`.
+ *
+ * @example
+ * ```js
+ * function useFoo(x: number | Ref<number>) {
+ *   const unwrapped = unref(x)
+ *   // unwrapped is guaranteed to be number now
+ * }
+ * ```
+ *
+ * @param ref - Ref or plain value to be converted into the plain value.
+ * @see {@link https://vuejs.org/api/reactivity-utilities.html#unref}
+ */
+export function unref<T>(ref: MaybeRef<T>): T {
+  return isRef(ref) ? ref.value : ref
+}
+
 declare const ShallowRefMarker: unique symbol
 
 export type ShallowRef<T = any> = Ref<T> & { [ShallowRefMarker]?: true }
+
+/**
+ * Shallow version of {@link ref()}.
+ *
+ * @example
+ * ```js
+ * const state = shallowRef({ count: 1 })
+ *
+ * // does NOT trigger change
+ * state.value.count = 2
+ *
+ * // does trigger change
+ * state.value = { count: 2 }
+ * ```
+ *
+ * @param value - The "inner value" for the shallow ref.
+ * @see {@link https://vuejs.org/api/reactivity-advanced.html#shallowref}
+ */
+export function shallowRef<T extends object>(
+  value: T
+): T extends Ref ? T : ShallowRef<T>
+export function shallowRef<T>(value: T): ShallowRef<T>
+export function shallowRef<T = any>(): ShallowRef<T | undefined>
+export function shallowRef(value?: unknown) {
+  return createRef(value, true)
+}
 
 export interface Ref<T = any> {
   value: T
@@ -175,3 +254,122 @@ export type UnwrapRefSimple<T> = T extends
       [P in keyof T]: P extends symbol ? T[P] : UnwrapRef<T[P]>
     }
   : T
+class ObjectRefImpl<T extends object, K extends keyof T> {
+  public readonly __v_isRef = true
+
+  constructor(
+    private readonly _object: T,
+    private readonly _key: K,
+    private readonly _defaultValue?: T[K]
+  ) {}
+
+  get value() {
+    const val = this._object[this._key]
+    return val === undefined ? this._defaultValue! : val
+  }
+
+  set value(newVal) {
+    this._object[this._key] = newVal
+  }
+
+  get dep(): Dep | undefined {
+    return getDepFromReactive(toRaw(this._object), this._key)
+  }
+}
+
+class GetterRefImpl<T> {
+  public readonly __v_isRef = true
+  public readonly __v_isReadonly = true
+  constructor(private readonly _getter: () => T) {}
+  get value() {
+    return this._getter()
+  }
+}
+
+export type ToRef<T> = IfAny<T, Ref<T>, [T] extends [Ref] ? T : Ref<T>>
+
+/**
+ * Used to normalize values / refs / getters into refs.
+ *
+ * @example
+ * ```js
+ * // returns existing refs as-is
+ * toRef(existingRef)
+ *
+ * // creates a ref that calls the getter on .value access
+ * toRef(() => props.foo)
+ *
+ * // creates normal refs from non-function values
+ * // equivalent to ref(1)
+ * toRef(1)
+ * ```
+ *
+ * Can also be used to create a ref for a property on a source reactive object.
+ * The created ref is synced with its source property: mutating the source
+ * property will update the ref, and vice-versa.
+ *
+ * @example
+ * ```js
+ * const state = reactive({
+ *   foo: 1,
+ *   bar: 2
+ * })
+ *
+ * const fooRef = toRef(state, 'foo')
+ *
+ * // mutating the ref updates the original
+ * fooRef.value++
+ * console.log(state.foo) // 2
+ *
+ * // mutating the original also updates the ref
+ * state.foo++
+ * console.log(fooRef.value) // 3
+ * ```
+ *
+ * @param source - A getter, an existing ref, a non-function value, or a
+ *                 reactive object to create a property ref from.
+ * @param [key] - (optional) Name of the property in the reactive object.
+ * @see {@link https://vuejs.org/api/reactivity-utilities.html#toref}
+ */
+export function toRef<T>(
+  value: T
+): T extends () => infer R
+  ? Readonly<Ref<R>>
+  : T extends Ref
+  ? T
+  : Ref<UnwrapRef<T>>
+export function toRef<T extends object, K extends keyof T>(
+  object: T,
+  key: K
+): ToRef<T[K]>
+export function toRef<T extends object, K extends keyof T>(
+  object: T,
+  key: K,
+  defaultValue: T[K]
+): ToRef<Exclude<T[K], undefined>>
+export function toRef(
+  source: Record<string, any> | MaybeRef,
+  key?: string,
+  defaultValue?: unknown
+): Ref {
+  if (isRef(source)) {
+    return source
+  } else if (isFunction(source)) {
+    return new GetterRefImpl(source) as any
+  } else if (isObject(source) && arguments.length > 1) {
+    return propertyToRef(source, key!, defaultValue)
+  } else {
+    return ref(source)
+  }
+}
+
+function propertyToRef(
+  source: Record<string, any>,
+  key: string,
+  defaultValue?: unknown
+) {
+  const val = source[key]
+  return isRef(val)
+    ? val
+    : (new ObjectRefImpl(source, key, defaultValue) as any)
+}
