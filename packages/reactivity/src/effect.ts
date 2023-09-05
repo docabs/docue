@@ -290,7 +290,11 @@ export function trigger(
   }
 
   let deps: (Dep | undefined)[] = []
-  if (key === 'length' && isArray(target)) {
+  if (type === TriggerOpTypes.CLEAR) {
+    // collection being cleared
+    // trigger all effects for target
+    deps = [...depsMap.values()]
+  } else if (key === 'length' && isArray(target)) {
     const newLength = Number(newValue)
     depsMap.forEach((dep, key) => {
       if (key === 'length' || key >= newLength) {
@@ -307,9 +311,9 @@ export function trigger(
       case TriggerOpTypes.ADD:
         if (!isArray(target)) {
           deps.push(depsMap.get(ITERATE_KEY))
-          //   if (isMap(target)) {
-          //     deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
-          //   }
+          if (isMap(target)) {
+            deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
+          }
         } else if (isIntegerKey(key)) {
           // new index added to array -> length changes
           deps.push(depsMap.get('length'))
@@ -318,16 +322,16 @@ export function trigger(
       case TriggerOpTypes.DELETE:
         if (!isArray(target)) {
           deps.push(depsMap.get(ITERATE_KEY))
-          // if (isMap(target)) {
-          //   deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
-          // }
+          if (isMap(target)) {
+            deps.push(depsMap.get(MAP_KEY_ITERATE_KEY))
+          }
         }
         break
-      //   case TriggerOpTypes.SET:
-      //     if (isMap(target)) {
-      //       deps.push(depsMap.get(ITERATE_KEY))
-      //     }
-      //     break
+      case TriggerOpTypes.SET:
+        if (isMap(target)) {
+          deps.push(depsMap.get(ITERATE_KEY))
+        }
+        break
     }
   }
 
