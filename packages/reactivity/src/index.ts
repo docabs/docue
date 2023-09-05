@@ -8,6 +8,7 @@ export { EffectScope, onScopeDispose, getCurrentScope } from './effectScope'
 export {
   reactive,
   shallowReactive,
+  shallowReadonly,
   readonly,
   isReactive,
   isReadonly,

@@ -137,6 +137,10 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
       track(target, TrackOpTypes.GET, key)
     }
 
+    if (shallow) {
+      return res
+    }
+
     if (isRef(res)) {
       // ref unwrapping - skip unwrap for Array + integer key.
       return targetIsArray && isIntegerKey(key) ? res : res.value
@@ -200,9 +204,12 @@ class MutableReactiveHandler extends BaseReactiveHandler {
       // in shallow mode, objects are set as-is regardless of reactive or not
     }
 
-    const hadKey = hasOwn(target, key)
+    const hadKey =
+      isArray(target) && isIntegerKey(key)
+        ? Number(key) < target.length
+        : hasOwn(target, key)
     const result = Reflect.set(target, key, value, receiver)
-
+    // don't trigger if target is something up in the prototype chain of original
     if (target === toRaw(receiver)) {
       if (!hadKey) {
         trigger(target, TriggerOpTypes.ADD, key, value)
