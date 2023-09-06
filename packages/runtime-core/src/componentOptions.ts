@@ -1,5 +1,24 @@
 import { ComputedGetter, WritableComputedOptions } from '@docue/reactivity'
 import { CreateComponentPublicInstance } from './componentPublicInstance'
+import { ComponentInternalOptions } from './component'
+
+/**
+ * Interface for declaring custom options.
+ *
+ * @example
+ * ```ts
+ * declare module '@vue/runtime-core' {
+ *   interface ComponentCustomOptions {
+ *     beforeRouteUpdate?(
+ *       to: Route,
+ *       from: Route,
+ *       next: () => void
+ *     ): void
+ *   }
+ * }
+ * ```
+ */
+export interface ComponentCustomOptions {}
 
 export interface ComponentOptionsBase<
   Props,
@@ -7,7 +26,8 @@ export interface ComponentOptionsBase<
   D,
   C extends ComputedOptions,
   M extends MethodOptions
-> {
+> extends ComponentInternalOptions,
+    ComponentCustomOptions {
   name?: string
 }
 
