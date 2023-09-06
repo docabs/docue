@@ -3,7 +3,10 @@ import {
   effect,
   getCurrentScope,
   onScopeDispose,
-  reactive
+  reactive,
+  ref,
+  ComputedRef,
+  computed
 } from '../src'
 
 describe('reactivity/effect/scope', () => {

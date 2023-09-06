@@ -30,12 +30,22 @@ export {
   ref,
   unref,
   isRef,
+  toRef,
+  toRefs,
   shallowRef,
   triggerRef,
+  customRef,
   type Ref,
   type UnwrapRef,
   type ShallowRef,
   type RefUnwrapBailTypes
 } from './ref'
 
-export { computed } from './computed'
+export {
+  computed,
+  type ComputedRef,
+  type ComputedRefImpl,
+  type WritableComputedRef
+} from './computed'
+
+export { deferredComputed } from './deferredComputed'

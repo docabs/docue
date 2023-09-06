@@ -1,7 +1,18 @@
 import { NOOP, isFunction } from '@docue/shared'
 import { DebuggerOptions, ReactiveEffect } from './effect'
 import { ReactiveFlags, toRaw } from './reactive'
-import { trackRefValue, triggerRefValue } from './ref'
+import { Ref, trackRefValue, triggerRefValue } from './ref'
+
+declare const ComputedRefSymbol: unique symbol
+
+export interface ComputedRef<T = any> extends WritableComputedRef<T> {
+  readonly value: T
+  [ComputedRefSymbol]: true
+}
+
+export interface WritableComputedRef<T> extends Ref<T> {
+  readonly effect: ReactiveEffect<T>
+}
 
 export type ComputedGetter<T> = (...args: any[]) => T
 export type ComputedSetter<T> = (v: T) => void
@@ -15,6 +26,7 @@ export class ComputedRefImpl<T> {
   private _value!: T
   public readonly effect: ReactiveEffect<T>
 
+  public readonly __v_isRef = true
   public readonly [ReactiveFlags.IS_READONLY]: boolean = false
 
   public _dirty = true
@@ -47,6 +59,10 @@ export class ComputedRefImpl<T> {
       self._value = self.effect.run()!
     }
     return self._value
+  }
+
+  set value(newValue: T) {
+    this._setter(newValue)
   }
 }
 
