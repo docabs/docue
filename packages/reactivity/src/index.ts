@@ -15,12 +15,15 @@ export {
   isShallow,
   isProxy,
   toRaw,
-  markRaw
+  markRaw,
+  ReactiveFlags,
+  type UnwrapNestedRefs
 } from './reactive'
 
 export {
   effect,
   stop,
+  pauseTracking,
   ITERATE_KEY,
   type ReactiveEffectRunner,
   type DebuggerEvent
@@ -38,14 +41,17 @@ export {
   type Ref,
   type UnwrapRef,
   type ShallowRef,
-  type RefUnwrapBailTypes
+  type RefUnwrapBailTypes,
+  type ShallowUnwrapRef
 } from './ref'
 
 export {
   computed,
   type ComputedRef,
+  type ComputedGetter,
   type ComputedRefImpl,
-  type WritableComputedRef
+  type WritableComputedRef,
+  type WritableComputedOptions
 } from './computed'
 
 export { deferredComputed } from './deferredComputed'

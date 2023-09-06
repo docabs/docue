@@ -22,7 +22,8 @@
     "types": ["vitest/globals", "puppeteer", "node"],
     "rootDir": ".",
     "paths": {
-      "@docue/*": ["packages/*/src"]
+      "@docue/*": ["packages/*/src"],
+      "docue": ["packages/docue/src"]
     }
   },
   "include": [
