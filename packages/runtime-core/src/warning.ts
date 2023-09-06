@@ -1,8 +1,14 @@
 import { isFunction, isString } from '@docue/shared'
-import { isRef, pauseTracking, toRaw } from '@docue/reactivity'
+import { isRef, pauseTracking, resetTracking, toRaw } from '@docue/reactivity'
 
 import { VNode } from './vnode'
-import { ComponentInternalInstance, ConcreteComponent, Data } from './component'
+import {
+  ComponentInternalInstance,
+  ConcreteComponent,
+  Data,
+  formatComponentName
+} from './component'
+import { callWithErrorHandling, ErrorCodes } from './errorHandling'
 
 type ComponentVNode = VNode & {
   type: ConcreteComponent

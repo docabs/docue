@@ -1,7 +1,7 @@
-// export const EMPTY_OBJ: { readonly [key: string]: any } = __DEV__
-//   ? Object.freeze({})
-//   : {}
-// export const EMPTY_ARR = __DEV__ ? Object.freeze([]) : []
+export const EMPTY_OBJ: { readonly [key: string]: any } = __DEV__
+  ? Object.freeze({})
+  : {}
+export const EMPTY_ARR = __DEV__ ? Object.freeze([]) : []
 
 export const NOOP = () => {}
 
@@ -9,6 +9,9 @@ export const NOOP = () => {}
  * Always return false.
  */
 export const NO = () => false
+
+const onRE = /^on[^a-z]/
+export const isOn = (key: string) => onRE.test(key)
 
 export const extend = Object.assign
 
@@ -80,6 +83,14 @@ const cacheStringFunction = <T extends (str: string) => string>(fn: T): T => {
     return hit || (cache[str] = fn(str))
   }) as T
 }
+
+const hyphenateRE = /\B([A-Z])/g
+/**
+ * @private
+ */
+export const hyphenate = cacheStringFunction((str: string) =>
+  str.replace(hyphenateRE, '-$1').toLowerCase()
+)
 
 /**
  * @private

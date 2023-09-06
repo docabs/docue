@@ -24,6 +24,7 @@ export {
   effect,
   stop,
   pauseTracking,
+  resetTracking,
   ITERATE_KEY,
   type ReactiveEffectRunner,
   type DebuggerEvent
