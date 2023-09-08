@@ -108,6 +108,19 @@ export class EffectScope {
   }
 }
 
+/**
+ * Creates an effect scope object which can capture the reactive effects (i.e.
+ * computed and watchers) created within it so that these effects can be
+ * disposed together. For detailed use cases of this API, please consult its
+ * corresponding {@link https://github.com/vuejs/rfcs/blob/master/active-rfcs/0041-reactivity-effect-scope.md | RFC}.
+ *
+ * @param detached - Can be used to create a "detached" effect scope.
+ * @see {@link https://vuejs.org/api/reactivity-advanced.html#effectscope}
+ */
+export function effectScope(detached?: boolean) {
+  return new EffectScope(detached)
+}
+
 export function recordEffectScope(
   effect: ReactiveEffect,
   scope: EffectScope | undefined = activeEffectScope

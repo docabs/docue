@@ -1,4 +1,5 @@
 import { PatchFlags, ShapeFlags } from '@docue/shared'
+import { createApp, nodeOps, serializeInner } from '@docue/runtime-test'
 import {
   createVNode,
   Comment,
@@ -668,6 +669,7 @@ describe('vnode', () => {
     //     // this will be the name of the component in the h1
     //     name: 'Root Component',
     //     render() {
+    //       debugger
     //       return h('p') // this will be overwritten by the transform
     //     }
     //   }

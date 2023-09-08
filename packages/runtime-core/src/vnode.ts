@@ -80,6 +80,14 @@ export type VNodeNormalizedRef =
   | VNodeNormalizedRefAtom
   | VNodeNormalizedRefAtom[]
 
+type VNodeMountHook = (vnode: VNode) => void
+type VNodeUpdateHook = (vnode: VNode, oldVNode: VNode) => void
+export type VNodeHook =
+  | VNodeMountHook
+  | VNodeUpdateHook
+  | VNodeMountHook[]
+  | VNodeUpdateHook[]
+
 // https://github.com/microsoft/TypeScript/issues/33099
 export type VNodeProps = {
   key?: string | number | symbol

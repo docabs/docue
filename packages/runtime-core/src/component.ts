@@ -1,8 +1,31 @@
-import { isFunction } from '@docue/shared'
-import { EffectScope, ReactiveEffect } from '@docue/reactivity'
+import {
+  EMPTY_OBJ,
+  IfAny,
+  NO,
+  NOOP,
+  ShapeFlags,
+  isArray,
+  isFunction,
+  isObject,
+  isPromise,
+  makeMap
+} from '@docue/shared'
+import {
+  EffectScope,
+  ReactiveEffect,
+  isRef,
+  markRaw,
+  pauseTracking,
+  resetTracking,
+  shallowReadonly
+} from '@docue/reactivity'
 
-import { AppContext } from './apiCreateApp'
-import { EmitsOptions, ObjectEmitsOptions } from './componentEmits'
+import { AppConfig, AppContext, createAppContext } from './apiCreateApp'
+import {
+  EmitsOptions,
+  ObjectEmitsOptions,
+  normalizeEmitsOptions
+} from './componentEmits'
 import {
   ComponentOptions,
   ComputedOptions,
@@ -13,9 +36,34 @@ import {
   ComponentPublicInstanceConstructor
 } from './componentPublicInstance'
 import { LifecycleHooks } from './enums'
-import { VNode } from './vnode'
+import { VNode, VNodeChild, isVNode } from './vnode'
+import { warn } from './warning'
+import { SuspenseBoundary } from './components/Suspense'
+import { SchedulerJob } from './scheduler'
+import { Slots, SlotsType, UnwrapSlotsType, initSlots } from './componentSlots'
+import {
+  ComponentPropsOptions,
+  NormalizedPropsOptions,
+  initProps,
+  normalizePropsOptions
+} from './componentProps'
+import { ErrorCodes, callWithErrorHandling } from './errorHandling'
+import { currentRenderingInstance } from './componentRenderContext'
 
 export type Data = Record<string, unknown>
+
+/**
+ * For extending allowed non-declared props on components in TSX
+ */
+export interface ComponentCustomProps {}
+
+/**
+ * Default allowed non-declared props on component in TSX
+ */
+export interface AllowedComponentProps {
+  class?: unknown
+  style?: unknown
+}
 
 // Note: can't mark this whole interface internal because some public interfaces
 // extend it.
@@ -24,6 +72,22 @@ export interface ComponentInternalOptions {
    * @internal
    */
   __scopeId?: string
+  // /**
+  //  * @internal
+  //  */
+  // __cssModules?: Data
+  // /**
+  //  * @internal
+  //  */
+  // __hmrId?: string
+  // /**
+  //  * Compat build only, for bailing out of certain compatibility behavior
+  //  */
+  // __isBuiltIn?: boolean
+  // /**
+  //  * This one should be exposed so that devtools can make use of it
+  //  */
+  // __file?: string
   /**
    * name inferred from filename
    */
@@ -35,7 +99,17 @@ export interface FunctionalComponent<
   E extends EmitsOptions = {},
   S extends Record<string, any> = any
 > extends ComponentInternalOptions {
+  // use of any here is intentional so it can be a valid JSX Element constructor
+  (
+    props: P,
+    ctx: Omit<SetupContext<E, IfAny<S, {}, SlotsType<S>>>, 'expose'>
+  ): any
+  props?: ComponentPropsOptions<P>
+  emits?: E | (keyof E)[]
+  slots?: IfAny<S, Slots, SlotsType<S>>
+  inheritAttrs?: boolean
   displayName?: string
+  // compatConfig?: CompatConfig
 }
 
 export interface ClassComponent {
@@ -76,6 +150,39 @@ export type Component<
 type LifecycleHook<TFn = Function> = TFn[] | null
 
 /**
+ * @internal
+ */
+export type InternalRenderFunction = {
+  (
+    ctx: ComponentPublicInstance,
+    cache: ComponentInternalInstance['renderCache'],
+    // for compiler-optimized bindings
+    $props: ComponentInternalInstance['props'],
+    $setup: ComponentInternalInstance['setupState'],
+    $data: ComponentInternalInstance['data'],
+    $options: ComponentInternalInstance['ctx']
+  ): VNodeChild
+  _rc?: boolean // isRuntimeCompiled
+
+  // __COMPAT__ only
+  _compatChecked?: boolean // v3 and already checked for v2 compat
+  _compatWrapped?: boolean // is wrapped for v2 compat
+}
+
+// use `E extends any` to force evaluating type to fix #2362
+export type SetupContext<
+  E = EmitsOptions,
+  S extends SlotsType = {}
+> = E extends any
+  ? {
+      // attrs: Data
+      // slots: UnwrapSlotsType<S>
+      // emit: EmitFn<E>
+      expose: (exposed?: Record<string, any>) => void
+    }
+  : never
+
+/**
  * We expose a subset of properties on the internal instance as they are
  * useful for advanced external libraries and tools.
  */
@@ -102,15 +209,15 @@ export interface ComponentInternalInstance {
    * Render effect instance
    */
   effect: ReactiveEffect
-  // /**
-  //  * Bound effect runner to be passed to schedulers
-  //  */
-  // update: SchedulerJob
-  // /**
-  //  * The render function that returns vdom tree.
-  //  * @internal
-  //  */
-  // render: InternalRenderFunction | null
+  /**
+   * Bound effect runner to be passed to schedulers
+   */
+  update: SchedulerJob
+  /**
+   * The render function that returns vdom tree.
+   * @internal
+   */
+  render: InternalRenderFunction | null
   /**
    * SSR render function
    * @internal
@@ -120,7 +227,7 @@ export interface ComponentInternalInstance {
    * Object containing values this component provides for its descendants
    * @internal
    */
-  provides: Data
+  // provides: Data
   /**
    * Tracking reactive effects (e.g. watchers) associated with this component
    * so that they can be automatically stopped on component unmount
@@ -154,11 +261,11 @@ export interface ComponentInternalInstance {
    * @internal
    */
   filters?: Record<string, Function>
-  // /**
-  //  * resolved props options
-  //  * @internal
-  //  */
-  // propsOptions: NormalizedPropsOptions
+  /**
+   * resolved props options
+   * @internal
+   */
+  propsOptions: NormalizedPropsOptions
   /**
    * resolved emits options
    * @internal
@@ -235,10 +342,10 @@ export interface ComponentInternalInstance {
    * @internal
    */
   devtoolsRawSetupState?: any
-  // /**
-  //  * @internal
-  //  */
-  // setupContext: SetupContext | null
+  /**
+   * @internal
+   */
+  setupContext: SetupContext | null
 
   // /**
   //  * suspense related
@@ -338,6 +445,531 @@ export interface ComponentInternalInstance {
   ut?: (vars?: Record<string, string>) => void
 }
 
+let _emptyAppContext: AppContext
+// const emptyAppContext = createAppContext()
+
+let uid = 0
+
+export function createComponentInstance(
+  vnode: VNode,
+  parent: ComponentInternalInstance | null,
+  suspense: SuspenseBoundary | null
+) {
+  // TODO:  有调整防止报错
+  const emptyAppContext = (_emptyAppContext = _emptyAppContext
+    ? _emptyAppContext
+    : createAppContext())
+
+  const type = vnode.type as ConcreteComponent
+  // inherit parent app context - or - if root, adopt from root vnode
+  const appContext = parent
+    ? parent.appContext
+    : vnode.appContext || emptyAppContext
+
+  const instance: ComponentInternalInstance = {
+    uid: uid++,
+    vnode,
+    type,
+    parent,
+    appContext,
+    root: null!, // to be immediately set
+    next: null,
+    subTree: null!, // will be set synchronously right after creation
+    effect: null!,
+    update: null!, // will be set synchronously right after creation
+    scope: new EffectScope(true /* detached */),
+    render: null,
+    proxy: null,
+    exposed: null,
+    exposeProxy: null,
+    withProxy: null,
+    // provides: parent ? parent.provides : Object.create(appContext.provides),
+    accessCache: null!,
+    renderCache: [],
+
+    // local resolved assets
+    components: null,
+    // directives: null,
+
+    // resolved props and emits options
+    propsOptions: normalizePropsOptions(type, appContext),
+    // emitsOptions: normalizeEmitsOptions(type, appContext),
+
+    // emit
+    // emit: null!, // to be set immediately
+    emitted: null,
+
+    // props default value
+    propsDefaults: EMPTY_OBJ,
+
+    // inheritAttrs
+    // inheritAttrs: type.inheritAttrs,
+
+    // state
+    ctx: EMPTY_OBJ,
+    data: EMPTY_OBJ,
+    props: EMPTY_OBJ,
+    attrs: EMPTY_OBJ,
+    // slots: EMPTY_OBJ,
+    refs: EMPTY_OBJ,
+    setupState: EMPTY_OBJ,
+    setupContext: null,
+
+    attrsProxy: null,
+    // slotsProxy: null,
+
+    // suspense related
+    // suspense,
+    suspenseId: suspense ? suspense.pendingId : 0,
+    asyncDep: null,
+    asyncResolved: false,
+
+    // lifecycle hooks
+    // not using enums here because it results in computed properties
+    isMounted: false,
+    isUnmounted: false,
+    isDeactivated: false,
+    bc: null,
+    c: null,
+    bm: null,
+    m: null,
+    bu: null,
+    u: null,
+    um: null,
+    bum: null,
+    da: null,
+    a: null,
+    rtg: null,
+    rtc: null,
+    ec: null,
+    sp: null
+  }
+  if (__DEV__) {
+    // instance.ctx = createDevRenderContext(instance)
+  } else {
+    instance.ctx = { _: instance }
+  }
+  instance.root = parent ? parent.root : instance
+  // instance.emit = emit.bind(null, instance)
+
+  // apply custom element special handling
+  // if (vnode.ce) {
+  //   vnode.ce(instance)
+  // }
+
+  return instance
+}
+
+export let currentInstance: ComponentInternalInstance | null = null
+
+export const getCurrentInstance: () => ComponentInternalInstance | null = () =>
+  currentInstance || currentRenderingInstance
+
+const isBuiltInTag = /*#__PURE__*/ makeMap('slot,component')
+
+export function validateComponentName(name: string, config: AppConfig) {
+  const appIsNativeTag = config.isNativeTag || NO
+  if (isBuiltInTag(name) || appIsNativeTag(name)) {
+    warn(
+      'Do not use built-in or reserved HTML elements as component id: ' + name
+    )
+  }
+}
+
+export function isStatefulComponent(instance: ComponentInternalInstance) {
+  return instance.vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT
+}
+
+export let isInSSRComponentSetup = false
+
+export function setupComponent(
+  instance: ComponentInternalInstance,
+  isSSR = false
+) {
+  isInSSRComponentSetup = isSSR
+
+  const { props, children } = instance.vnode
+  const isStateful = isStatefulComponent(instance)
+  initProps(instance, props, isStateful, isSSR)
+  initSlots(instance, children)
+
+  const setupResult = isStateful
+    ? setupStatefulComponent(instance, isSSR)
+    : undefined
+  isInSSRComponentSetup = false
+  return setupResult
+}
+
+function setupStatefulComponent(
+  instance: ComponentInternalInstance,
+  isSSR: boolean
+) {
+  const Component = instance.type as ComponentOptions
+
+  // if (__DEV__) {
+  //   if (Component.name) {
+  //     validateComponentName(Component.name, instance.appContext.config)
+  //   }
+  //   if (Component.components) {
+  //     const names = Object.keys(Component.components)
+  //     for (let i = 0; i < names.length; i++) {
+  //       validateComponentName(names[i], instance.appContext.config)
+  //     }
+  //   }
+  //   if (Component.directives) {
+  //     const names = Object.keys(Component.directives)
+  //     for (let i = 0; i < names.length; i++) {
+  //       validateDirectiveName(names[i])
+  //     }
+  //   }
+  //   if (Component.compilerOptions && isRuntimeOnly()) {
+  //     warn(
+  //       `"compilerOptions" is only supported when using a build of Vue that ` +
+  //         `includes the runtime compiler. Since you are using a runtime-only ` +
+  //         `build, the options should be passed via your build tool config instead.`
+  //     )
+  //   }
+  // }
+  // 0. create render proxy property access cache
+  instance.accessCache = Object.create(null)
+  // 1. create public instance / render proxy
+  // also mark it raw so it's never observed
+  // instance.proxy = markRaw(new Proxy(instance.ctx, PublicInstanceProxyHandlers))
+  // if (__DEV__) {
+  //   exposePropsOnRenderContext(instance)
+  // }
+  // 2. call setup()
+  const { setup } = Component
+  if (setup) {
+    const setupContext = (instance.setupContext =
+      setup.length > 1 ? createSetupContext(instance) : null)
+    //   setCurrentInstance(instance)
+    //   pauseTracking()
+    const setupResult = callWithErrorHandling(
+      setup,
+      instance,
+      ErrorCodes.SETUP_FUNCTION,
+      [__DEV__ ? shallowReadonly(instance.props) : instance.props, setupContext]
+    )
+    //   resetTracking()
+    //   unsetCurrentInstance()
+    if (isPromise(setupResult)) {
+      //     setupResult.then(unsetCurrentInstance, unsetCurrentInstance)
+      //     if (isSSR) {
+      //       // return the promise so server-renderer can wait on it
+      //       return setupResult
+      //         .then((resolvedResult: unknown) => {
+      //           handleSetupResult(instance, resolvedResult, isSSR)
+      //         })
+      //         .catch(e => {
+      //           handleError(e, instance, ErrorCodes.SETUP_FUNCTION)
+      //         })
+      //     } else if (__FEATURE_SUSPENSE__) {
+      //       // async setup returned Promise.
+      //       // bail here and wait for re-entry.
+      //       instance.asyncDep = setupResult
+      //       if (__DEV__ && !instance.suspense) {
+      //         const name = Component.name ?? 'Anonymous'
+      //         warn(
+      //           `Component <${name}>: setup function returned a promise, but no ` +
+      //             `<Suspense> boundary was found in the parent component tree. ` +
+      //             `A component with async setup() must be nested in a <Suspense> ` +
+      //             `in order to be rendered.`
+      //         )
+      //       }
+      //     } else if (__DEV__) {
+      //       warn(
+      //         `setup() returned a Promise, but the version of Vue you are using ` +
+      //           `does not support it yet.`
+      //       )
+      //     }
+    } else {
+      handleSetupResult(instance, setupResult, isSSR)
+    }
+  } else {
+    finishComponentSetup(instance, isSSR)
+  }
+}
+
+export function handleSetupResult(
+  instance: ComponentInternalInstance,
+  setupResult: unknown,
+  isSSR: boolean
+) {
+  if (isFunction(setupResult)) {
+    // // setup returned an inline render function
+    // if (__SSR__ && (instance.type as ComponentOptions).__ssrInlineRender) {
+    //   // when the function's name is `ssrRender` (compiled by SFC inline mode),
+    //   // set it as ssrRender instead.
+    //   instance.ssrRender = setupResult
+    // } else {
+    instance.render = setupResult as InternalRenderFunction
+    // }
+  } else if (isObject(setupResult)) {
+    // if (__DEV__ && isVNode(setupResult)) {
+    //   warn(
+    //     `setup() should not return VNodes directly - ` +
+    //       `return a render function instead.`
+    //   )
+    // }
+    // // setup returned bindings.
+    // // assuming a render function compiled from template is present.
+    // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+    //   instance.devtoolsRawSetupState = setupResult
+    // }
+    // instance.setupState = proxyRefs(setupResult)
+    // if (__DEV__) {
+    //   exposeSetupStateOnRenderContext(instance)
+    // }
+  } else if (__DEV__ && setupResult !== undefined) {
+    warn(
+      `setup() should return an object. Received: ${
+        setupResult === null ? 'null' : typeof setupResult
+      }`
+    )
+  }
+  finishComponentSetup(instance, isSSR)
+}
+
+type CompileFunction = (
+  template: string | object,
+  options?: CompilerOptions
+) => InternalRenderFunction
+
+let compile: CompileFunction | undefined
+let installWithProxy: (i: ComponentInternalInstance) => void
+
+// /**
+//  * For runtime-dom to register the compiler.
+//  * Note the exported method uses any to avoid d.ts relying on the compiler types.
+//  */
+// export function registerRuntimeCompiler(_compile: any) {
+//   compile = _compile
+//   installWithProxy = i => {
+//     if (i.render!._rc) {
+//       i.withProxy = new Proxy(i.ctx, RuntimeCompiledPublicInstanceProxyHandlers)
+//     }
+//   }
+// }
+
+// dev only
+export const isRuntimeOnly = () => !compile
+
+export function finishComponentSetup(
+  instance: ComponentInternalInstance,
+  isSSR: boolean,
+  skipOptions?: boolean
+) {
+  const Component = instance.type as ComponentOptions
+  // if (__COMPAT__) {
+  //   convertLegacyRenderFn(instance)
+  //   if (__DEV__ && Component.compatConfig) {
+  //     validateCompatConfig(Component.compatConfig)
+  //   }
+  // }
+  // template / render function normalization
+  // could be already set when returned from setup()
+  if (!instance.render) {
+    // only do on-the-fly compile if not in SSR - SSR on-the-fly compilation
+    // is done by server-renderer
+    //   if (!isSSR && compile && !Component.render) {
+    //     const template =
+    //       (__COMPAT__ &&
+    //         instance.vnode.props &&
+    //         instance.vnode.props['inline-template']) ||
+    //       Component.template ||
+    //       resolveMergedOptions(instance).template
+    //     if (template) {
+    //       if (__DEV__) {
+    //         startMeasure(instance, `compile`)
+    //       }
+    //       const { isCustomElement, compilerOptions } = instance.appContext.config
+    //       const { delimiters, compilerOptions: componentCompilerOptions } =
+    //         Component
+    //       const finalCompilerOptions: CompilerOptions = extend(
+    //         extend(
+    //           {
+    //             isCustomElement,
+    //             delimiters
+    //           },
+    //           compilerOptions
+    //         ),
+    //         componentCompilerOptions
+    //       )
+    //       if (__COMPAT__) {
+    //         // pass runtime compat config into the compiler
+    //         finalCompilerOptions.compatConfig = Object.create(globalCompatConfig)
+    //         if (Component.compatConfig) {
+    //           // @ts-expect-error types are not compatible
+    //           extend(finalCompilerOptions.compatConfig, Component.compatConfig)
+    //         }
+    //       }
+    //       Component.render = compile(template, finalCompilerOptions)
+    //       if (__DEV__) {
+    //         endMeasure(instance, `compile`)
+    //       }
+    //     }
+    //   }
+    instance.render = (Component.render || NOOP) as InternalRenderFunction
+    //   // for runtime-compiled render functions using `with` blocks, the render
+    //   // proxy used needs a different `has` handler which is more performant and
+    //   // also only allows a whitelist of globals to fallthrough.
+    //   if (installWithProxy) {
+    //     installWithProxy(instance)
+    //   }
+  }
+  // // support for 2.x options
+  // if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {
+  //   setCurrentInstance(instance)
+  //   pauseTracking()
+  //   try {
+  //     applyOptions(instance)
+  //   } finally {
+  //     resetTracking()
+  //     unsetCurrentInstance()
+  //   }
+  // }
+  // // warn missing template/render
+  // // the runtime compilation of template in SSR is done by server-render
+  // if (__DEV__ && !Component.render && instance.render === NOOP && !isSSR) {
+  //   /* istanbul ignore if */
+  //   if (!compile && Component.template) {
+  //     warn(
+  //       `Component provided template option but ` +
+  //         `runtime compilation is not supported in this build of Vue.` +
+  //         (__ESM_BUNDLER__
+  //           ? ` Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".`
+  //           : __ESM_BROWSER__
+  //           ? ` Use "vue.esm-browser.js" instead.`
+  //           : __GLOBAL__
+  //           ? ` Use "vue.global.js" instead.`
+  //           : ``) /* should not happen */
+  //     )
+  //   } else {
+  //     warn(`Component is missing template or render function.`)
+  //   }
+  // }
+}
+
+// function getAttrsProxy(instance: ComponentInternalInstance): Data {
+//   return (
+//     instance.attrsProxy ||
+//     (instance.attrsProxy = new Proxy(
+//       instance.attrs,
+//       __DEV__
+//         ? {
+//             get(target, key: string) {
+//               markAttrsAccessed()
+//               track(instance, TrackOpTypes.GET, '$attrs')
+//               return target[key]
+//             },
+//             set() {
+//               warn(`setupContext.attrs is readonly.`)
+//               return false
+//             },
+//             deleteProperty() {
+//               warn(`setupContext.attrs is readonly.`)
+//               return false
+//             }
+//           }
+//         : {
+//             get(target, key: string) {
+//               track(instance, TrackOpTypes.GET, '$attrs')
+//               return target[key]
+//             }
+//           }
+//     ))
+//   )
+// }
+
+// /**
+//  * Dev-only
+//  */
+// function getSlotsProxy(instance: ComponentInternalInstance): Slots {
+//   return (
+//     instance.slotsProxy ||
+//     (instance.slotsProxy = new Proxy(instance.slots, {
+//       get(target, key: string) {
+//         track(instance, TrackOpTypes.GET, '$slots')
+//         return target[key]
+//       }
+//     }))
+//   )
+// }
+
+export function createSetupContext(
+  instance: ComponentInternalInstance
+): SetupContext {
+  const expose: SetupContext['expose'] = exposed => {
+    //     if (__DEV__) {
+    //       if (instance.exposed) {
+    //         warn(`expose() should be called only once per setup().`)
+    //       }
+    //       if (exposed != null) {
+    //         let exposedType: string = typeof exposed
+    //         if (exposedType === 'object') {
+    //           if (isArray(exposed)) {
+    //             exposedType = 'array'
+    //           } else if (isRef(exposed)) {
+    //             exposedType = 'ref'
+    //           }
+    //         }
+    //         if (exposedType !== 'object') {
+    //           warn(
+    //             `expose() should be passed a plain object, received ${exposedType}.`
+    //           )
+    //         }
+    //       }
+    //     }
+    //     instance.exposed = exposed || {}
+  }
+  if (__DEV__) {
+    // We use getters in dev in case libs like test-utils overwrite instance
+    // properties (overwrites should not be done in prod)
+    return Object.freeze({
+      // get attrs() {
+      //   return getAttrsProxy(instance)
+      // },
+      // get slots() {
+      //   return getSlotsProxy(instance)
+      // },
+      // get emit() {
+      //   return (event: string, ...args: any[]) => instance.emit(event, ...args)
+      // },
+      expose
+    })
+  } else {
+    return {
+      // get attrs() {
+      //   return getAttrsProxy(instance)
+      // },
+      // slots: instance.slots,
+      // emit: instance.emit,
+      expose
+    }
+  }
+}
+
+// export function getExposeProxy(instance: ComponentInternalInstance) {
+//   if (instance.exposed) {
+//     return (
+//       instance.exposeProxy ||
+//       (instance.exposeProxy = new Proxy(proxyRefs(markRaw(instance.exposed)), {
+//         get(target, key: string) {
+//           if (key in target) {
+//             return target[key]
+//           } else if (key in publicPropertiesMap) {
+//             return publicPropertiesMap[key](instance)
+//           }
+//         },
+//         has(target, key: string) {
+//           return key in target || key in publicPropertiesMap
+//         }
+//       }))
+//     )
+//   }
+// }
+
 const classifyRE = /(?:^|[-_])(\w)/g
 const classify = (str: string): string =>
   str.replace(classifyRE, c => c.toUpperCase()).replace(/[-_]/g, '')
@@ -347,8 +979,8 @@ export function getComponentName(
   includeInferred = true
 ): string | false | undefined {
   return isFunction(Component)
-    ? Component.displayName || Component.name // TODO: typescritp error
-    : Component.name || (includeInferred && Component.__name) // TODO: typescritp error
+    ? Component.displayName || Component.name
+    : Component.name || (includeInferred && Component.__name)
 }
 
 /* istanbul ignore next */
@@ -358,6 +990,28 @@ export function formatComponentName(
   isRoot = false
 ): string {
   let name = getComponentName(Component)
+  if (!name && Component.__file) {
+    const match = Component.__file.match(/([^/\\]+)\.\w+$/)
+    if (match) {
+      name = match[1]
+    }
+  }
+
+  if (!name && instance && instance.parent) {
+    // try to infer the name based on reverse resolution
+    const inferFromRegistry = (registry: Record<string, any> | undefined) => {
+      for (const key in registry) {
+        if (registry[key] === Component) {
+          return key
+        }
+      }
+    }
+    name =
+      inferFromRegistry(
+        instance.components ||
+          (instance.parent.type as ComponentOptions).components
+      ) || inferFromRegistry(instance.appContext.components)
+  }
 
   return name ? classify(name) : isRoot ? `App` : `Anonymous`
 }

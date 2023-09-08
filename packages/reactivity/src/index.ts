@@ -3,7 +3,12 @@ export {
   TriggerOpTypes /* @remove */
 } from './operations'
 
-export { EffectScope, onScopeDispose, getCurrentScope } from './effectScope'
+export {
+  EffectScope,
+  onScopeDispose,
+  getCurrentScope,
+  effectScope
+} from './effectScope'
 
 export {
   reactive,
@@ -21,6 +26,7 @@ export {
 } from './reactive'
 
 export {
+  ReactiveEffect,
   effect,
   stop,
   pauseTracking,
@@ -39,6 +45,8 @@ export {
   shallowRef,
   triggerRef,
   customRef,
+  proxyRefs,
+  toValue,
   type Ref,
   type UnwrapRef,
   type ShallowRef,

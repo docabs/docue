@@ -1,0 +1,38 @@
+import { createApp, nodeOps, serializeInner } from '@docue/runtime-test'
+import { defineComponent } from '../src/apiDefineComponent'
+
+describe('api: createApp', () => {
+  test('mount', () => {
+    const Comp = defineComponent({
+      props: {
+        count: {
+          default: 0
+        }
+      },
+      setup(props) {
+        return () => props.count
+      }
+    })
+
+    const root1 = nodeOps.createElement('div')
+    createApp(Comp).mount(root1)
+    expect(serializeInner(root1)).toBe(`0`)
+    //#5571 mount multiple apps to the same host element
+    createApp(Comp).mount(root1)
+    expect(
+      `There is already an app instance mounted on the host container`
+    ).toHaveBeenWarned()
+
+    // mount with props
+    const root2 = nodeOps.createElement('div')
+    const app2 = createApp(Comp, { count: 1 })
+    app2.mount(root2)
+    expect(serializeInner(root2)).toBe(`1`)
+
+    // remount warning
+    const root3 = nodeOps.createElement('div')
+    app2.mount(root3)
+    expect(serializeInner(root3)).toBe(``)
+    expect(`already been mounted`).toHaveBeenWarned()
+  })
+})
