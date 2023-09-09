@@ -29,7 +29,9 @@ import {
   VNodeHook,
   VNodeProps,
   cloneIfMounted,
-  normalizeVNode
+  normalizeVNode,
+  isSameVNodeType,
+  Static
 } from './vnode'
 import { warn } from './warning'
 import { SchedulerJob, queueJob } from './scheduler'
@@ -109,7 +111,7 @@ export interface RendererInternals<
 > {
   p: PatchFn
   // um: UnmountFn
-  // r: RemoveFn
+  r: RemoveFn
   // m: MoveFn
   // mt: MountComponentFn
   // mc: MountChildrenFn
@@ -186,7 +188,7 @@ type UnmountFn = (
   optimized?: boolean
 ) => void
 
-// type RemoveFn = (vnode: VNode) => void
+type RemoveFn = (vnode: VNode) => void
 
 type UnmountChildrenFn = (
   children: VNode[],
@@ -239,7 +241,7 @@ export interface RendererInternals<
 > {
   // p: PatchFn
   um: UnmountFn
-  // r: RemoveFn
+  r: RemoveFn
   // m: MoveFn
   // mt: MountComponentFn
   // mc: MountChildrenFn
@@ -310,7 +312,7 @@ function baseCreateRenderer(
 
   const {
     insert: hostInsert,
-    //   remove: hostRemove,
+    remove: hostRemove,
     patchProp: hostPatchProp,
     createElement: hostCreateElement,
     createText: hostCreateText,
@@ -339,16 +341,16 @@ function baseCreateRenderer(
     if (n1 === n2) {
       return
     }
-    //   // patching & not same type, unmount old tree
-    //   if (n1 && !isSameVNodeType(n1, n2)) {
-    //     anchor = getNextHostNode(n1)
-    //     unmount(n1, parentComponent, parentSuspense, true)
-    //     n1 = null
-    //   }
-    //   if (n2.patchFlag === PatchFlags.BAIL) {
-    //     optimized = false
-    //     n2.dynamicChildren = null
-    //   }
+    // patching & not same type, unmount old tree
+    if (n1 && !isSameVNodeType(n1, n2)) {
+      anchor = getNextHostNode(n1)
+      unmount(n1, parentComponent, parentSuspense, true)
+      n1 = null
+    }
+    if (n2.patchFlag === PatchFlags.BAIL) {
+      optimized = false
+      n2.dynamicChildren = null
+    }
     const { type, ref, shapeFlag } = n2
     switch (type) {
       case Text:
@@ -1581,45 +1583,45 @@ function baseCreateRenderer(
         hostSetElementText(container, c2 as string)
       }
     } else {
-      //     if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      //       // prev children was array
-      //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      //         // two arrays, cannot assume anything, do full diff
-      //         patchKeyedChildren(
-      //           c1 as VNode[],
-      //           c2 as VNodeArrayChildren,
-      //           container,
-      //           anchor,
-      //           parentComponent,
-      //           parentSuspense,
-      //           isSVG,
-      //           slotScopeIds,
-      //           optimized
-      //         )
-      //       } else {
-      //         // no new children, just unmount old
-      //         unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
-      //       }
-      //     } else {
-      //       // prev children was text OR null
-      //       // new children is array OR null
-      //       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
-      //         hostSetElementText(container, '')
-      //       }
-      //       // mount new if array
-      //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      //         mountChildren(
-      //           c2 as VNodeArrayChildren,
-      //           container,
-      //           anchor,
-      //           parentComponent,
-      //           parentSuspense,
-      //           isSVG,
-      //           slotScopeIds,
-      //           optimized
-      //         )
-      //       }
-      //     }
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        // prev children was array
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // two arrays, cannot assume anything, do full diff
+          patchKeyedChildren(
+            c1 as VNode[],
+            c2 as VNodeArrayChildren,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            isSVG,
+            slotScopeIds,
+            optimized
+          )
+        } else {
+          //         // no new children, just unmount old
+          //         unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
+        }
+      } else {
+        // prev children was text OR null
+        // new children is array OR null
+        if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+          //         hostSetElementText(container, '')
+        }
+        //       // mount new if array
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          //         mountChildren(
+          //           c2 as VNodeArrayChildren,
+          //           container,
+          //           anchor,
+          //           parentComponent,
+          //           parentSuspense,
+          //           isSVG,
+          //           slotScopeIds,
+          //           optimized
+          //         )
+        }
+      }
     }
   }
 
@@ -1682,246 +1684,237 @@ function baseCreateRenderer(
   //   }
   // }
 
-  // // can be all-keyed or mixed
-  // const patchKeyedChildren = (
-  //   c1: VNode[],
-  //   c2: VNodeArrayChildren,
-  //   container: RendererElement,
-  //   parentAnchor: RendererNode | null,
-  //   parentComponent: ComponentInternalInstance | null,
-  //   parentSuspense: SuspenseBoundary | null,
-  //   isSVG: boolean,
-  //   slotScopeIds: string[] | null,
-  //   optimized: boolean
-  // ) => {
-  //   let i = 0
-  //   const l2 = c2.length
-  //   let e1 = c1.length - 1 // prev ending index
-  //   let e2 = l2 - 1 // next ending index
-
-  //   // 1. sync from start
-  //   // (a b) c
-  //   // (a b) d e
-  //   while (i <= e1 && i <= e2) {
-  //     const n1 = c1[i]
-  //     const n2 = (c2[i] = optimized
-  //       ? cloneIfMounted(c2[i] as VNode)
-  //       : normalizeVNode(c2[i]))
-  //     if (isSameVNodeType(n1, n2)) {
-  //       patch(
-  //         n1,
-  //         n2,
-  //         container,
-  //         null,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG,
-  //         slotScopeIds,
-  //         optimized
-  //       )
-  //     } else {
-  //       break
-  //     }
-  //     i++
-  //   }
-
-  //   // 2. sync from end
-  //   // a (b c)
-  //   // d e (b c)
-  //   while (i <= e1 && i <= e2) {
-  //     const n1 = c1[e1]
-  //     const n2 = (c2[e2] = optimized
-  //       ? cloneIfMounted(c2[e2] as VNode)
-  //       : normalizeVNode(c2[e2]))
-  //     if (isSameVNodeType(n1, n2)) {
-  //       patch(
-  //         n1,
-  //         n2,
-  //         container,
-  //         null,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG,
-  //         slotScopeIds,
-  //         optimized
-  //       )
-  //     } else {
-  //       break
-  //     }
-  //     e1--
-  //     e2--
-  //   }
-
-  //   // 3. common sequence + mount
-  //   // (a b)
-  //   // (a b) c
-  //   // i = 2, e1 = 1, e2 = 2
-  //   // (a b)
-  //   // c (a b)
-  //   // i = 0, e1 = -1, e2 = 0
-  //   if (i > e1) {
-  //     if (i <= e2) {
-  //       const nextPos = e2 + 1
-  //       const anchor = nextPos < l2 ? (c2[nextPos] as VNode).el : parentAnchor
-  //       while (i <= e2) {
-  //         patch(
-  //           null,
-  //           (c2[i] = optimized
-  //             ? cloneIfMounted(c2[i] as VNode)
-  //             : normalizeVNode(c2[i])),
-  //           container,
-  //           anchor,
-  //           parentComponent,
-  //           parentSuspense,
-  //           isSVG,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //         i++
-  //       }
-  //     }
-  //   }
-
-  //   // 4. common sequence + unmount
-  //   // (a b) c
-  //   // (a b)
-  //   // i = 2, e1 = 2, e2 = 1
-  //   // a (b c)
-  //   // (b c)
-  //   // i = 0, e1 = 0, e2 = -1
-  //   else if (i > e2) {
-  //     while (i <= e1) {
-  //       unmount(c1[i], parentComponent, parentSuspense, true)
-  //       i++
-  //     }
-  //   }
-
-  //   // 5. unknown sequence
-  //   // [i ... e1 + 1]: a b [c d e] f g
-  //   // [i ... e2 + 1]: a b [e d c h] f g
-  //   // i = 2, e1 = 4, e2 = 5
-  //   else {
-  //     const s1 = i // prev starting index
-  //     const s2 = i // next starting index
-
-  //     // 5.1 build key:index map for newChildren
-  //     const keyToNewIndexMap: Map<string | number | symbol, number> = new Map()
-  //     for (i = s2; i <= e2; i++) {
-  //       const nextChild = (c2[i] = optimized
-  //         ? cloneIfMounted(c2[i] as VNode)
-  //         : normalizeVNode(c2[i]))
-  //       if (nextChild.key != null) {
-  //         if (__DEV__ && keyToNewIndexMap.has(nextChild.key)) {
-  //           warn(
-  //             `Duplicate keys found during update:`,
-  //             JSON.stringify(nextChild.key),
-  //             `Make sure keys are unique.`
-  //           )
-  //         }
-  //         keyToNewIndexMap.set(nextChild.key, i)
-  //       }
-  //     }
-
-  //     // 5.2 loop through old children left to be patched and try to patch
-  //     // matching nodes & remove nodes that are no longer present
-  //     let j
-  //     let patched = 0
-  //     const toBePatched = e2 - s2 + 1
-  //     let moved = false
-  //     // used to track whether any node has moved
-  //     let maxNewIndexSoFar = 0
-  //     // works as Map<newIndex, oldIndex>
-  //     // Note that oldIndex is offset by +1
-  //     // and oldIndex = 0 is a special value indicating the new node has
-  //     // no corresponding old node.
-  //     // used for determining longest stable subsequence
-  //     const newIndexToOldIndexMap = new Array(toBePatched)
-  //     for (i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0
-
-  //     for (i = s1; i <= e1; i++) {
-  //       const prevChild = c1[i]
-  //       if (patched >= toBePatched) {
-  //         // all new children have been patched so this can only be a removal
-  //         unmount(prevChild, parentComponent, parentSuspense, true)
-  //         continue
-  //       }
-  //       let newIndex
-  //       if (prevChild.key != null) {
-  //         newIndex = keyToNewIndexMap.get(prevChild.key)
-  //       } else {
-  //         // key-less node, try to locate a key-less node of the same type
-  //         for (j = s2; j <= e2; j++) {
-  //           if (
-  //             newIndexToOldIndexMap[j - s2] === 0 &&
-  //             isSameVNodeType(prevChild, c2[j] as VNode)
-  //           ) {
-  //             newIndex = j
-  //             break
-  //           }
-  //         }
-  //       }
-  //       if (newIndex === undefined) {
-  //         unmount(prevChild, parentComponent, parentSuspense, true)
-  //       } else {
-  //         newIndexToOldIndexMap[newIndex - s2] = i + 1
-  //         if (newIndex >= maxNewIndexSoFar) {
-  //           maxNewIndexSoFar = newIndex
-  //         } else {
-  //           moved = true
-  //         }
-  //         patch(
-  //           prevChild,
-  //           c2[newIndex] as VNode,
-  //           container,
-  //           null,
-  //           parentComponent,
-  //           parentSuspense,
-  //           isSVG,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //         patched++
-  //       }
-  //     }
-
-  //     // 5.3 move and mount
-  //     // generate longest stable subsequence only when nodes have moved
-  //     const increasingNewIndexSequence = moved
-  //       ? getSequence(newIndexToOldIndexMap)
-  //       : EMPTY_ARR
-  //     j = increasingNewIndexSequence.length - 1
-  //     // looping backwards so that we can use last patched node as anchor
-  //     for (i = toBePatched - 1; i >= 0; i--) {
-  //       const nextIndex = s2 + i
-  //       const nextChild = c2[nextIndex] as VNode
-  //       const anchor =
-  //         nextIndex + 1 < l2 ? (c2[nextIndex + 1] as VNode).el : parentAnchor
-  //       if (newIndexToOldIndexMap[i] === 0) {
-  //         // mount new
-  //         patch(
-  //           null,
-  //           nextChild,
-  //           container,
-  //           anchor,
-  //           parentComponent,
-  //           parentSuspense,
-  //           isSVG,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //       } else if (moved) {
-  //         // move if:
-  //         // There is no stable subsequence (e.g. a reverse)
-  //         // OR current node is not among the stable sequence
-  //         if (j < 0 || i !== increasingNewIndexSequence[j]) {
-  //           move(nextChild, container, anchor, MoveType.REORDER)
-  //         } else {
-  //           j--
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  // can be all-keyed or mixed
+  const patchKeyedChildren = (
+    c1: VNode[],
+    c2: VNodeArrayChildren,
+    container: RendererElement,
+    parentAnchor: RendererNode | null,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    isSVG: boolean,
+    slotScopeIds: string[] | null,
+    optimized: boolean
+  ) => {
+    let i = 0
+    const l2 = c2.length
+    let e1 = c1.length - 1 // prev ending index
+    let e2 = l2 - 1 // next ending index
+    // 1. sync from start
+    // (a b) c
+    // (a b) d e
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[i]
+      const n2 = (c2[i] = optimized
+        ? cloneIfMounted(c2[i] as VNode)
+        : normalizeVNode(c2[i]))
+      if (isSameVNodeType(n1, n2)) {
+        patch(
+          n1,
+          n2,
+          container,
+          null,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+      } else {
+        break
+      }
+      i++
+    }
+    // 2. sync from end
+    // a (b c)
+    // d e (b c)
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[e1]
+      const n2 = (c2[e2] = optimized
+        ? cloneIfMounted(c2[e2] as VNode)
+        : normalizeVNode(c2[e2]))
+      if (isSameVNodeType(n1, n2)) {
+        patch(
+          n1,
+          n2,
+          container,
+          null,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+      } else {
+        break
+      }
+      e1--
+      e2--
+    }
+    // 3. common sequence + mount
+    // (a b)
+    // (a b) c
+    // i = 2, e1 = 1, e2 = 2
+    // (a b)
+    // c (a b)
+    // i = 0, e1 = -1, e2 = 0
+    if (i > e1) {
+      if (i <= e2) {
+        const nextPos = e2 + 1
+        const anchor = nextPos < l2 ? (c2[nextPos] as VNode).el : parentAnchor
+        while (i <= e2) {
+          patch(
+            null,
+            (c2[i] = optimized
+              ? cloneIfMounted(c2[i] as VNode)
+              : normalizeVNode(c2[i])),
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            isSVG,
+            slotScopeIds,
+            optimized
+          )
+          i++
+        }
+      }
+    }
+    // 4. common sequence + unmount
+    // (a b) c
+    // (a b)
+    // i = 2, e1 = 2, e2 = 1
+    // a (b c)
+    // (b c)
+    // i = 0, e1 = 0, e2 = -1
+    else if (i > e2) {
+      while (i <= e1) {
+        unmount(c1[i], parentComponent, parentSuspense, true)
+        i++
+      }
+    }
+    // 5. unknown sequence
+    // [i ... e1 + 1]: a b [c d e] f g
+    // [i ... e2 + 1]: a b [e d c h] f g
+    // i = 2, e1 = 4, e2 = 5
+    else {
+      const s1 = i // prev starting index
+      const s2 = i // next starting index
+      // 5.1 build key:index map for newChildren
+      const keyToNewIndexMap: Map<string | number | symbol, number> = new Map()
+      //     for (i = s2; i <= e2; i++) {
+      //       const nextChild = (c2[i] = optimized
+      //         ? cloneIfMounted(c2[i] as VNode)
+      //         : normalizeVNode(c2[i]))
+      //       if (nextChild.key != null) {
+      //         if (__DEV__ && keyToNewIndexMap.has(nextChild.key)) {
+      //           warn(
+      //             `Duplicate keys found during update:`,
+      //             JSON.stringify(nextChild.key),
+      //             `Make sure keys are unique.`
+      //           )
+      //         }
+      //         keyToNewIndexMap.set(nextChild.key, i)
+      //       }
+      //     }
+      //     // 5.2 loop through old children left to be patched and try to patch
+      //     // matching nodes & remove nodes that are no longer present
+      //     let j
+      //     let patched = 0
+      //     const toBePatched = e2 - s2 + 1
+      //     let moved = false
+      //     // used to track whether any node has moved
+      //     let maxNewIndexSoFar = 0
+      //     // works as Map<newIndex, oldIndex>
+      //     // Note that oldIndex is offset by +1
+      //     // and oldIndex = 0 is a special value indicating the new node has
+      //     // no corresponding old node.
+      //     // used for determining longest stable subsequence
+      //     const newIndexToOldIndexMap = new Array(toBePatched)
+      //     for (i = 0; i < toBePatched; i++) newIndexToOldIndexMap[i] = 0
+      //     for (i = s1; i <= e1; i++) {
+      //       const prevChild = c1[i]
+      //       if (patched >= toBePatched) {
+      //         // all new children have been patched so this can only be a removal
+      //         unmount(prevChild, parentComponent, parentSuspense, true)
+      //         continue
+      //       }
+      //       let newIndex
+      //       if (prevChild.key != null) {
+      //         newIndex = keyToNewIndexMap.get(prevChild.key)
+      //       } else {
+      //         // key-less node, try to locate a key-less node of the same type
+      //         for (j = s2; j <= e2; j++) {
+      //           if (
+      //             newIndexToOldIndexMap[j - s2] === 0 &&
+      //             isSameVNodeType(prevChild, c2[j] as VNode)
+      //           ) {
+      //             newIndex = j
+      //             break
+      //           }
+      //         }
+      //       }
+      //       if (newIndex === undefined) {
+      //         unmount(prevChild, parentComponent, parentSuspense, true)
+      //       } else {
+      //         newIndexToOldIndexMap[newIndex - s2] = i + 1
+      //         if (newIndex >= maxNewIndexSoFar) {
+      //           maxNewIndexSoFar = newIndex
+      //         } else {
+      //           moved = true
+      //         }
+      //         patch(
+      //           prevChild,
+      //           c2[newIndex] as VNode,
+      //           container,
+      //           null,
+      //           parentComponent,
+      //           parentSuspense,
+      //           isSVG,
+      //           slotScopeIds,
+      //           optimized
+      //         )
+      //         patched++
+      //       }
+      //     }
+      //     // 5.3 move and mount
+      //     // generate longest stable subsequence only when nodes have moved
+      //     const increasingNewIndexSequence = moved
+      //       ? getSequence(newIndexToOldIndexMap)
+      //       : EMPTY_ARR
+      //     j = increasingNewIndexSequence.length - 1
+      //     // looping backwards so that we can use last patched node as anchor
+      //     for (i = toBePatched - 1; i >= 0; i--) {
+      //       const nextIndex = s2 + i
+      //       const nextChild = c2[nextIndex] as VNode
+      //       const anchor =
+      //         nextIndex + 1 < l2 ? (c2[nextIndex + 1] as VNode).el : parentAnchor
+      //       if (newIndexToOldIndexMap[i] === 0) {
+      //         // mount new
+      //         patch(
+      //           null,
+      //           nextChild,
+      //           container,
+      //           anchor,
+      //           parentComponent,
+      //           parentSuspense,
+      //           isSVG,
+      //           slotScopeIds,
+      //           optimized
+      //         )
+      //       } else if (moved) {
+      //         // move if:
+      //         // There is no stable subsequence (e.g. a reverse)
+      //         // OR current node is not among the stable sequence
+      //         if (j < 0 || i !== increasingNewIndexSequence[j]) {
+      //           move(nextChild, container, anchor, MoveType.REORDER)
+      //         } else {
+      //           j--
+      //         }
+      //       }
+      //     }
+    }
+  }
 
   // const move: MoveFn = (
   //   vnode,
@@ -2065,9 +2058,9 @@ function baseCreateRenderer(
       ) {
         unmountChildren(children as VNode[], parentComponent, parentSuspense)
       }
-      //   if (doRemove) {
-      //     remove(vnode)
-      //   }
+      if (doRemove) {
+        remove(vnode)
+      }
     }
     // if (
     //   (shouldInvokeVnodeHook &&
@@ -2082,142 +2075,142 @@ function baseCreateRenderer(
     // }
   }
 
-  // const remove: RemoveFn = vnode => {
-  //   const { type, el, anchor, transition } = vnode
-  //   if (type === Fragment) {
-  //     if (
-  //       __DEV__ &&
-  //       vnode.patchFlag > 0 &&
-  //       vnode.patchFlag & PatchFlags.DEV_ROOT_FRAGMENT &&
-  //       transition &&
-  //       !transition.persisted
-  //     ) {
-  //       ;(vnode.children as VNode[]).forEach(child => {
-  //         if (child.type === Comment) {
-  //           hostRemove(child.el!)
-  //         } else {
-  //           remove(child)
-  //         }
-  //       })
-  //     } else {
-  //       removeFragment(el!, anchor!)
-  //     }
-  //     return
-  //   }
+  const remove: RemoveFn = vnode => {
+    const { type, el, anchor, transition } = vnode
+    if (type === Fragment) {
+      if (
+        __DEV__ &&
+        vnode.patchFlag > 0 &&
+        vnode.patchFlag & PatchFlags.DEV_ROOT_FRAGMENT &&
+        transition &&
+        !transition.persisted
+      ) {
+        ;(vnode.children as VNode[]).forEach(child => {
+          if (child.type === Comment) {
+            hostRemove(child.el!)
+          } else {
+            remove(child)
+          }
+        })
+      } else {
+        removeFragment(el!, anchor!)
+      }
+      return
+    }
 
-  //   if (type === Static) {
-  //     removeStaticNode(vnode)
-  //     return
-  //   }
+    if (type === Static) {
+      // removeStaticNode(vnode)
+      return
+    }
 
-  //   const performRemove = () => {
-  //     hostRemove(el!)
-  //     if (transition && !transition.persisted && transition.afterLeave) {
-  //       transition.afterLeave()
-  //     }
-  //   }
+    const performRemove = () => {
+      hostRemove(el!)
+      if (transition && !transition.persisted && transition.afterLeave) {
+        transition.afterLeave()
+      }
+    }
 
-  //   if (
-  //     vnode.shapeFlag & ShapeFlags.ELEMENT &&
-  //     transition &&
-  //     !transition.persisted
-  //   ) {
-  //     const { leave, delayLeave } = transition
-  //     const performLeave = () => leave(el!, performRemove)
-  //     if (delayLeave) {
-  //       delayLeave(vnode.el!, performRemove, performLeave)
-  //     } else {
-  //       performLeave()
-  //     }
-  //   } else {
-  //     performRemove()
-  //   }
-  // }
+    if (
+      vnode.shapeFlag & ShapeFlags.ELEMENT &&
+      transition &&
+      !transition.persisted
+    ) {
+      const { leave, delayLeave } = transition
+      const performLeave = () => leave(el!, performRemove)
+      if (delayLeave) {
+        delayLeave(vnode.el!, performRemove, performLeave)
+      } else {
+        performLeave()
+      }
+    } else {
+      performRemove()
+    }
+  }
 
-  // const removeFragment = (cur: RendererNode, end: RendererNode) => {
-  //   // For fragments, directly remove all contained DOM nodes.
-  //   // (fragment child nodes cannot have transition)
-  //   let next
-  //   while (cur !== end) {
-  //     next = hostNextSibling(cur)!
-  //     hostRemove(cur)
-  //     cur = next
-  //   }
-  //   hostRemove(end)
-  // }
+  const removeFragment = (cur: RendererNode, end: RendererNode) => {
+    // For fragments, directly remove all contained DOM nodes.
+    // (fragment child nodes cannot have transition)
+    let next
+    while (cur !== end) {
+      next = hostNextSibling(cur)!
+      hostRemove(cur)
+      cur = next
+    }
+    hostRemove(end)
+  }
 
-  // const unmountComponent = (
-  //   instance: ComponentInternalInstance,
-  //   parentSuspense: SuspenseBoundary | null,
-  //   doRemove?: boolean
-  // ) => {
-  //   if (__DEV__ && instance.type.__hmrId) {
-  //     unregisterHMR(instance)
-  //   }
+  const unmountComponent = (
+    instance: ComponentInternalInstance,
+    parentSuspense: SuspenseBoundary | null,
+    doRemove?: boolean
+  ) => {
+    if (__DEV__ && instance.type.__hmrId) {
+      unregisterHMR(instance)
+    }
 
-  //   const { bum, scope, update, subTree, um } = instance
+    const { bum, scope, update, subTree, um } = instance
 
-  //   // beforeUnmount hook
-  //   if (bum) {
-  //     invokeArrayFns(bum)
-  //   }
+    // beforeUnmount hook
+    if (bum) {
+      invokeArrayFns(bum)
+    }
 
-  //   if (
-  //     __COMPAT__ &&
-  //     isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
-  //   ) {
-  //     instance.emit('hook:beforeDestroy')
-  //   }
+    if (
+      __COMPAT__ &&
+      isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
+    ) {
+      instance.emit('hook:beforeDestroy')
+    }
 
-  //   // stop effects in component scope
-  //   scope.stop()
+    // stop effects in component scope
+    scope.stop()
 
-  //   // update may be null if a component is unmounted before its async
-  //   // setup has resolved.
-  //   if (update) {
-  //     // so that scheduler will no longer invoke it
-  //     update.active = false
-  //     unmount(subTree, instance, parentSuspense, doRemove)
-  //   }
-  //   // unmounted hook
-  //   if (um) {
-  //     queuePostRenderEffect(um, parentSuspense)
-  //   }
-  //   if (
-  //     __COMPAT__ &&
-  //     isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
-  //   ) {
-  //     queuePostRenderEffect(
-  //       () => instance.emit('hook:destroyed'),
-  //       parentSuspense
-  //     )
-  //   }
-  //   queuePostRenderEffect(() => {
-  //     instance.isUnmounted = true
-  //   }, parentSuspense)
+    // update may be null if a component is unmounted before its async
+    // setup has resolved.
+    if (update) {
+      // so that scheduler will no longer invoke it
+      update.active = false
+      unmount(subTree, instance, parentSuspense, doRemove)
+    }
+    // unmounted hook
+    if (um) {
+      queuePostRenderEffect(um, parentSuspense)
+    }
+    if (
+      __COMPAT__ &&
+      isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
+    ) {
+      queuePostRenderEffect(
+        () => instance.emit('hook:destroyed'),
+        parentSuspense
+      )
+    }
+    queuePostRenderEffect(() => {
+      instance.isUnmounted = true
+    }, parentSuspense)
 
-  //   // A component with async dep inside a pending suspense is unmounted before
-  //   // its async dep resolves. This should remove the dep from the suspense, and
-  //   // cause the suspense to resolve immediately if that was the last dep.
-  //   if (
-  //     __FEATURE_SUSPENSE__ &&
-  //     parentSuspense &&
-  //     parentSuspense.pendingBranch &&
-  //     !parentSuspense.isUnmounted &&
-  //     instance.asyncDep &&
-  //     !instance.asyncResolved &&
-  //     instance.suspenseId === parentSuspense.pendingId
-  //   ) {
-  //     parentSuspense.deps--
-  //     if (parentSuspense.deps === 0) {
-  //       parentSuspense.resolve()
-  //     }
-  //   }
+    // A component with async dep inside a pending suspense is unmounted before
+    // its async dep resolves. This should remove the dep from the suspense, and
+    // cause the suspense to resolve immediately if that was the last dep.
+    if (
+      __FEATURE_SUSPENSE__ &&
+      parentSuspense &&
+      parentSuspense.pendingBranch &&
+      !parentSuspense.isUnmounted &&
+      instance.asyncDep &&
+      !instance.asyncResolved &&
+      instance.suspenseId === parentSuspense.pendingId
+    ) {
+      parentSuspense.deps--
+      if (parentSuspense.deps === 0) {
+        parentSuspense.resolve()
+      }
+    }
 
-  //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-  //     devtoolsComponentRemoved(instance)
-  //   }
-  // }
+    if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+      devtoolsComponentRemoved(instance)
+    }
+  }
 
   const unmountChildren: UnmountChildrenFn = (
     children,
