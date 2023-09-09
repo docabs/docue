@@ -23,6 +23,14 @@ type TraceEntry = {
 
 type ComponentTraceStack = TraceEntry[]
 
+export function pushWarningContext(vnode: VNode) {
+  stack.push(vnode)
+}
+
+export function popWarningContext() {
+  stack.pop()
+}
+
 export function warn(msg: string, ...args: any[]) {
   if (!__DEV__) return
 

@@ -2,17 +2,35 @@
 // logic - they are never directly operated on and always passed to the node op
 // functions provided via options, so the internal constraint is really just
 
-import { ShapeFlags, getGlobalThis } from '@docue/shared'
+import {
+  EMPTY_OBJ,
+  PatchFlags,
+  ShapeFlags,
+  getGlobalThis,
+  invokeArrayFns,
+  isReservedProp
+} from '@docue/shared'
 import { ReactiveEffect } from '@docue/reactivity'
 import { CreateAppFunction, createAppAPI } from './apiCreateApp'
 import {
   ComponentInternalInstance,
+  Data,
   createComponentInstance,
   setupComponent
 } from './component'
 import { SuspenseBoundary } from './components/Suspense'
 import { RootHydrateFunction, createHydrationFunctions } from './hydration'
-import { VNode, VNodeArrayChildren, VNodeHook, VNodeProps } from './vnode'
+import {
+  Text,
+  Comment,
+  Fragment,
+  VNode,
+  VNodeArrayChildren,
+  VNodeHook,
+  VNodeProps,
+  cloneIfMounted,
+  normalizeVNode
+} from './vnode'
 import { warn } from './warning'
 import { SchedulerJob, queueJob } from './scheduler'
 import { renderComponentRoot } from './componentRenderUtils'
@@ -37,30 +55,30 @@ export interface RendererOptions<
   HostNode = RendererNode,
   HostElement = RendererElement
 > {
-  // patchProp(
-  //   el: HostElement,
-  //   key: string,
-  //   prevValue: any,
-  //   nextValue: any,
-  //   isSVG?: boolean,
-  //   prevChildren?: VNode<HostNode, HostElement>[],
-  //   parentComponent?: ComponentInternalInstance | null,
-  //   parentSuspense?: SuspenseBoundary | null,
-  //   unmountChildren?: UnmountChildrenFn
-  // ): void
-  // insert(el: HostNode, parent: HostElement, anchor?: HostNode | null): void
-  // remove(el: HostNode): void
+  patchProp(
+    el: HostElement,
+    key: string,
+    prevValue: any,
+    nextValue: any,
+    isSVG?: boolean,
+    prevChildren?: VNode<HostNode, HostElement>[],
+    parentComponent?: ComponentInternalInstance | null,
+    parentSuspense?: SuspenseBoundary | null,
+    unmountChildren?: UnmountChildrenFn
+  ): void
+  insert(el: HostNode, parent: HostElement, anchor?: HostNode | null): void
+  remove(el: HostNode): void
   createElement(
     type: string,
     isSVG?: boolean,
     isCustomizedBuiltIn?: string,
     vnodeProps?: (VNodeProps & { [key: string]: any }) | null
   ): HostElement
-  // createText(text: string): HostNode
+  createText(text: string): HostNode
   // createComment(text: string): HostNode
-  // setText(node: HostNode, text: string): void
+  setText(node: HostNode, text: string): void
   setElementText(node: HostElement, text: string): void
-  // parentNode(node: HostNode): HostElement | null
+  parentNode(node: HostNode): HostElement | null
   nextSibling(node: HostNode): HostNode | null
   // querySelector?(selector: string): HostElement | null
   // setScopeId?(el: HostElement, id: string): void
@@ -95,9 +113,9 @@ export interface RendererInternals<
   // m: MoveFn
   // mt: MountComponentFn
   // mc: MountChildrenFn
-  // pc: PatchChildrenFn
+  pc: PatchChildrenFn
   // pbc: PatchBlockChildrenFn
-  // n: NextFn
+  n: NextFn
   o: RendererOptions<HostNode, HostElement>
 }
 
@@ -128,17 +146,17 @@ type MountChildrenFn = (
   start?: number
 ) => void
 
-// type PatchChildrenFn = (
-//   n1: VNode | null,
-//   n2: VNode,
-//   container: RendererElement,
-//   anchor: RendererNode | null,
-//   parentComponent: ComponentInternalInstance | null,
-//   parentSuspense: SuspenseBoundary | null,
-//   isSVG: boolean,
-//   slotScopeIds: string[] | null,
-//   optimized: boolean
-// ) => void
+type PatchChildrenFn = (
+  n1: VNode | null,
+  n2: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null,
+  parentComponent: ComponentInternalInstance | null,
+  parentSuspense: SuspenseBoundary | null,
+  isSVG: boolean,
+  slotScopeIds: string[] | null,
+  optimized: boolean
+) => void
 
 // type PatchBlockChildrenFn = (
 //   oldChildren: VNode[],
@@ -158,26 +176,26 @@ type MountChildrenFn = (
 //   parentSuspense?: SuspenseBoundary | null
 // ) => void
 
-// type NextFn = (vnode: VNode) => RendererNode | null
+type NextFn = (vnode: VNode) => RendererNode | null
 
-// type UnmountFn = (
-//   vnode: VNode,
-//   parentComponent: ComponentInternalInstance | null,
-//   parentSuspense: SuspenseBoundary | null,
-//   doRemove?: boolean,
-//   optimized?: boolean
-// ) => void
+type UnmountFn = (
+  vnode: VNode,
+  parentComponent: ComponentInternalInstance | null,
+  parentSuspense: SuspenseBoundary | null,
+  doRemove?: boolean,
+  optimized?: boolean
+) => void
 
 // type RemoveFn = (vnode: VNode) => void
 
-// type UnmountChildrenFn = (
-//   children: VNode[],
-//   parentComponent: ComponentInternalInstance | null,
-//   parentSuspense: SuspenseBoundary | null,
-//   doRemove?: boolean,
-//   optimized?: boolean,
-//   start?: number
-// ) => void
+type UnmountChildrenFn = (
+  children: VNode[],
+  parentComponent: ComponentInternalInstance | null,
+  parentSuspense: SuspenseBoundary | null,
+  doRemove?: boolean,
+  optimized?: boolean,
+  start?: number
+) => void
 
 export type MountComponentFn = (
   initialVNode: VNode,
@@ -189,12 +207,12 @@ export type MountComponentFn = (
   optimized: boolean
 ) => void
 
-// type ProcessTextOrCommentFn = (
-//   n1: VNode | null,
-//   n2: VNode,
-//   container: RendererElement,
-//   anchor: RendererNode | null
-// ) => void
+type ProcessTextOrCommentFn = (
+  n1: VNode | null,
+  n2: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void
 
 export type SetupRenderEffectFn = (
   instance: ComponentInternalInstance,
@@ -220,14 +238,14 @@ export interface RendererInternals<
   HostElement = RendererElement
 > {
   // p: PatchFn
-  // um: UnmountFn
+  um: UnmountFn
   // r: RemoveFn
   // m: MoveFn
   // mt: MountComponentFn
   // mc: MountChildrenFn
-  // pc: PatchChildrenFn
+  pc: PatchChildrenFn
   // pbc: PatchBlockChildrenFn
-  // n: NextFn
+  n: NextFn
   o: RendererOptions<HostNode, HostElement>
 }
 
@@ -291,16 +309,16 @@ function baseCreateRenderer(
   // }
 
   const {
-    //   insert: hostInsert,
+    insert: hostInsert,
     //   remove: hostRemove,
-    //   patchProp: hostPatchProp,
+    patchProp: hostPatchProp,
     createElement: hostCreateElement,
-    //   createText: hostCreateText,
+    createText: hostCreateText,
     //   createComment: hostCreateComment,
-    //   setText: hostSetText,
+    setText: hostSetText,
     setElementText: hostSetElementText,
-    //   parentNode: hostParentNode,
-    //   nextSibling: hostNextSibling,
+    parentNode: hostParentNode,
+    nextSibling: hostNextSibling,
     //   setScopeId: hostSetScopeId = NOOP,
     insertStaticContent: hostInsertStaticContent
   } = options
@@ -333,9 +351,9 @@ function baseCreateRenderer(
     //   }
     const { type, ref, shapeFlag } = n2
     switch (type) {
-      //     case Text:
-      //       processText(n1, n2, container, anchor)
-      //       break
+      case Text:
+        processText(n1, n2, container, anchor)
+        break
       //     case Comment:
       //       processCommentNode(n1, n2, container, anchor)
       //       break
@@ -346,19 +364,19 @@ function baseCreateRenderer(
       //         patchStaticNode(n1, n2, container, isSVG)
       //       }
       //       break
-      //     case Fragment:
-      //       processFragment(
-      //         n1,
-      //         n2,
-      //         container,
-      //         anchor,
-      //         parentComponent,
-      //         parentSuspense,
-      //         isSVG,
-      //         slotScopeIds,
-      //         optimized
-      //       )
-      //       break
+      // case Fragment:
+      //   processFragment(
+      //     n1,
+      //     n2,
+      //     container,
+      //     anchor,
+      //     parentComponent,
+      //     parentSuspense,
+      //     isSVG,
+      //     slotScopeIds,
+      //     optimized
+      //   )
+      //   break
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(
@@ -420,20 +438,20 @@ function baseCreateRenderer(
     //   }
   }
 
-  // const processText: ProcessTextOrCommentFn = (n1, n2, container, anchor) => {
-  //   if (n1 == null) {
-  //     hostInsert(
-  //       (n2.el = hostCreateText(n2.children as string)),
-  //       container,
-  //       anchor
-  //     )
-  //   } else {
-  //     const el = (n2.el = n1.el!)
-  //     if (n2.children !== n1.children) {
-  //       hostSetText(el, n2.children as string)
-  //     }
-  //   }
-  // }
+  const processText: ProcessTextOrCommentFn = (n1, n2, container, anchor) => {
+    if (n1 == null) {
+      hostInsert(
+        (n2.el = hostCreateText(n2.children as string)),
+        container,
+        anchor
+      )
+    } else {
+      const el = (n2.el = n1.el!)
+      if (n2.children !== n1.children) {
+        hostSetText(el, n2.children as string)
+      }
+    }
+  }
 
   // const processCommentNode: ProcessTextOrCommentFn = (
   //   n1,
@@ -546,15 +564,15 @@ function baseCreateRenderer(
         optimized
       )
     } else {
-      // patchElement(
-      //   n1,
-      //   n2,
-      //   parentComponent,
-      //   parentSuspense,
-      //   isSVG,
-      //   slotScopeIds,
-      //   optimized
-      // )
+      patchElement(
+        n1,
+        n2,
+        parentComponent,
+        parentSuspense,
+        isSVG,
+        slotScopeIds,
+        optimized
+      )
     }
   }
 
@@ -592,79 +610,79 @@ function baseCreateRenderer(
         slotScopeIds,
         optimized
       )
-      // }
-      //   if (dirs) {
-      //     invokeDirectiveHook(vnode, null, parentComponent, 'created')
-      //   }
-      //   // scopeId
-      //   setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent)
-      //   // props
-      //   if (props) {
-      //     for (const key in props) {
-      //       if (key !== 'value' && !isReservedProp(key)) {
-      //         hostPatchProp(
-      //           el,
-      //           key,
-      //           null,
-      //           props[key],
-      //           isSVG,
-      //           vnode.children as VNode[],
-      //           parentComponent,
-      //           parentSuspense,
-      //           unmountChildren
-      //         )
-      //       }
-      //     }
-      //     /**
-      //      * Special case for setting value on DOM elements:
-      //      * - it can be order-sensitive (e.g. should be set *after* min/max, #2325, #4024)
-      //      * - it needs to be forced (#1471)
-      //      * #2353 proposes adding another renderer option to configure this, but
-      //      * the properties affects are so finite it is worth special casing it
-      //      * here to reduce the complexity. (Special casing it also should not
-      //      * affect non-DOM renderers)
-      //      */
-      //     if ('value' in props) {
-      //       hostPatchProp(el, 'value', null, props.value)
-      //     }
-      //     if ((vnodeHook = props.onVnodeBeforeMount)) {
-      //       invokeVNodeHook(vnodeHook, parentComponent, vnode)
-      //     }
-      //   }
-      //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-      //     Object.defineProperty(el, '__vnode', {
-      //       value: vnode,
-      //       enumerable: false
-      //     })
-      //     Object.defineProperty(el, '__vueParentComponent', {
-      //       value: parentComponent,
-      //       enumerable: false
-      //     })
-      //   }
-      //   if (dirs) {
-      //     invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount')
-      //   }
-      //   // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
-      //   // #1689 For inside suspense + suspense resolved case, just call it
-      //   const needCallTransitionHooks =
-      //     (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
-      //     transition &&
-      //     !transition.persisted
-      //   if (needCallTransitionHooks) {
-      //     transition!.beforeEnter(el)
-      //   }
-      //   hostInsert(el, container, anchor)
-      //   if (
-      //     (vnodeHook = props && props.onVnodeMounted) ||
-      //     needCallTransitionHooks ||
-      //     dirs
-      //   ) {
-      //     queuePostRenderEffect(() => {
-      //       vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
-      //       needCallTransitionHooks && transition!.enter(el)
-      //       dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
-      //     }, parentSuspense)
     }
+    //   if (dirs) {
+    //     invokeDirectiveHook(vnode, null, parentComponent, 'created')
+    //   }
+    //   // scopeId
+    //   setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent)
+    //   // props
+    if (props) {
+      for (const key in props) {
+        if (key !== 'value' && !isReservedProp(key)) {
+          hostPatchProp(
+            el,
+            key,
+            null,
+            props[key],
+            isSVG,
+            vnode.children as VNode[],
+            parentComponent,
+            parentSuspense,
+            unmountChildren
+          )
+        }
+      }
+      // /**
+      //  * Special case for setting value on DOM elements:
+      //  * - it can be order-sensitive (e.g. should be set *after* min/max, #2325, #4024)
+      //  * - it needs to be forced (#1471)
+      //  * #2353 proposes adding another renderer option to configure this, but
+      //  * the properties affects are so finite it is worth special casing it
+      //  * here to reduce the complexity. (Special casing it also should not
+      //  * affect non-DOM renderers)
+      //  */
+      // if ('value' in props) {
+      //   hostPatchProp(el, 'value', null, props.value)
+      // }
+      // if ((vnodeHook = props.onVnodeBeforeMount)) {
+      //   invokeVNodeHook(vnodeHook, parentComponent, vnode)
+      // }
+    }
+    //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+    //     Object.defineProperty(el, '__vnode', {
+    //       value: vnode,
+    //       enumerable: false
+    //     })
+    //     Object.defineProperty(el, '__vueParentComponent', {
+    //       value: parentComponent,
+    //       enumerable: false
+    //     })
+    //   }
+    //   if (dirs) {
+    //     invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount')
+    //   }
+    //   // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
+    //   // #1689 For inside suspense + suspense resolved case, just call it
+    //   const needCallTransitionHooks =
+    //     (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
+    //     transition &&
+    //     !transition.persisted
+    //   if (needCallTransitionHooks) {
+    //     transition!.beforeEnter(el)
+    //   }
+    hostInsert(el, container, anchor)
+    //   if (
+    //     (vnodeHook = props && props.onVnodeMounted) ||
+    //     needCallTransitionHooks ||
+    //     dirs
+    //   ) {
+    //     queuePostRenderEffect(() => {
+    //       vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
+    //       needCallTransitionHooks && transition!.enter(el)
+    //       dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
+    //     }, parentSuspense)
+    // }
   }
 
   // const setScopeId = (
@@ -716,178 +734,173 @@ function baseCreateRenderer(
     optimized,
     start = 0
   ) => {
-    //   for (let i = start; i < children.length; i++) {
-    //     const child = (children[i] = optimized
-    //       ? cloneIfMounted(children[i] as VNode)
-    //       : normalizeVNode(children[i]))
-    //     patch(
-    //       null,
-    //       child,
-    //       container,
-    //       anchor,
-    //       parentComponent,
-    //       parentSuspense,
-    //       isSVG,
-    //       slotScopeIds,
-    //       optimized
-    //     )
-    //   }
+    for (let i = start; i < children.length; i++) {
+      const child = (children[i] = optimized
+        ? cloneIfMounted(children[i] as VNode)
+        : normalizeVNode(children[i]))
+      patch(
+        null,
+        child,
+        container,
+        anchor,
+        parentComponent,
+        parentSuspense,
+        isSVG,
+        slotScopeIds,
+        optimized
+      )
+    }
   }
 
-  // const patchElement = (
-  //   n1: VNode,
-  //   n2: VNode,
-  //   parentComponent: ComponentInternalInstance | null,
-  //   parentSuspense: SuspenseBoundary | null,
-  //   isSVG: boolean,
-  //   slotScopeIds: string[] | null,
-  //   optimized: boolean
-  // ) => {
-  //   const el = (n2.el = n1.el!)
-  //   let { patchFlag, dynamicChildren, dirs } = n2
-  //   // #1426 take the old vnode's patch flag into account since user may clone a
-  //   // compiler-generated vnode, which de-opts to FULL_PROPS
-  //   patchFlag |= n1.patchFlag & PatchFlags.FULL_PROPS
-  //   const oldProps = n1.props || EMPTY_OBJ
-  //   const newProps = n2.props || EMPTY_OBJ
-  //   let vnodeHook: VNodeHook | undefined | null
+  const patchElement = (
+    n1: VNode,
+    n2: VNode,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    isSVG: boolean,
+    slotScopeIds: string[] | null,
+    optimized: boolean
+  ) => {
+    const el = (n2.el = n1.el!)
+    let { patchFlag, dynamicChildren, dirs } = n2
+    // #1426 take the old vnode's patch flag into account since user may clone a
+    // compiler-generated vnode, which de-opts to FULL_PROPS
+    patchFlag |= n1.patchFlag & PatchFlags.FULL_PROPS
+    const oldProps = n1.props || EMPTY_OBJ
+    const newProps = n2.props || EMPTY_OBJ
+    let vnodeHook: VNodeHook | undefined | null
+    // disable recurse in beforeUpdate hooks
+    //   parentComponent && toggleRecurse(parentComponent, false)
+    //   if ((vnodeHook = newProps.onVnodeBeforeUpdate)) {
+    //     invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
+    //   }
+    //   if (dirs) {
+    //     invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
+    //   }
+    //   parentComponent && toggleRecurse(parentComponent, true)
+    //   if (__DEV__ && isHmrUpdating) {
+    //     // HMR updated, force full diff
+    //     patchFlag = 0
+    //     optimized = false
+    //     dynamicChildren = null
+    //   }
 
-  //   // disable recurse in beforeUpdate hooks
-  //   parentComponent && toggleRecurse(parentComponent, false)
-  //   if ((vnodeHook = newProps.onVnodeBeforeUpdate)) {
-  //     invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
-  //   }
-  //   if (dirs) {
-  //     invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
-  //   }
-  //   parentComponent && toggleRecurse(parentComponent, true)
+    const areChildrenSVG = isSVG && n2.type !== 'foreignObject'
+    if (dynamicChildren) {
+      //     patchBlockChildren(
+      //       n1.dynamicChildren!,
+      //       dynamicChildren,
+      //       el,
+      //       parentComponent,
+      //       parentSuspense,
+      //       areChildrenSVG,
+      //       slotScopeIds
+      //     )
+      //     if (__DEV__) {
+      //       // necessary for HMR
+      //       traverseStaticChildren(n1, n2)
+      //     }
+    } else if (!optimized) {
+      // full diff
+      patchChildren(
+        n1,
+        n2,
+        el,
+        null,
+        parentComponent,
+        parentSuspense,
+        areChildrenSVG,
+        slotScopeIds,
+        false
+      )
+    }
 
-  //   if (__DEV__ && isHmrUpdating) {
-  //     // HMR updated, force full diff
-  //     patchFlag = 0
-  //     optimized = false
-  //     dynamicChildren = null
-  //   }
+    if (patchFlag > 0) {
+      // the presence of a patchFlag means this element's render code was
+      // generated by the compiler and can take the fast path.
+      // in this path old node and new node are guaranteed to have the same shape
+      // (i.e. at the exact same position in the source template)
+      if (patchFlag & PatchFlags.FULL_PROPS) {
+        // element props contain dynamic keys, full diff needed
+        // patchProps(
+        //   el,
+        //   n2,
+        //   oldProps,
+        //   newProps,
+        //   parentComponent,
+        //   parentSuspense,
+        //   isSVG
+        // )
+      } else {
+        // class
+        // this flag is matched when the element has dynamic class bindings.
+        if (patchFlag & PatchFlags.CLASS) {
+          if (oldProps.class !== newProps.class) {
+            hostPatchProp(el, 'class', null, newProps.class, isSVG)
+          }
+        }
+        // style
+        // this flag is matched when the element has dynamic style bindings
+        if (patchFlag & PatchFlags.STYLE) {
+          hostPatchProp(el, 'style', oldProps.style, newProps.style, isSVG)
+        }
+        // props
+        // This flag is matched when the element has dynamic prop/attr bindings
+        // other than class and style. The keys of dynamic prop/attrs are saved for
+        // faster iteration.
+        // Note dynamic keys like :[foo]="bar" will cause this optimization to
+        // bail out and go through a full diff because we need to unset the old key
+        if (patchFlag & PatchFlags.PROPS) {
+          // if the flag is present then dynamicProps must be non-null
+          const propsToUpdate = n2.dynamicProps!
+          for (let i = 0; i < propsToUpdate.length; i++) {
+            const key = propsToUpdate[i]
+            const prev = oldProps[key]
+            const next = newProps[key]
+            // #1471 force patch value
+            if (next !== prev || key === 'value') {
+              hostPatchProp(
+                el,
+                key,
+                prev,
+                next,
+                isSVG,
+                n1.children as VNode[],
+                parentComponent,
+                parentSuspense,
+                unmountChildren
+              )
+            }
+          }
+        }
+      }
+      // text
+      // This flag is matched when the element has only dynamic text children.
+      if (patchFlag & PatchFlags.TEXT) {
+        if (n1.children !== n2.children) {
+          hostSetElementText(el, n2.children as string)
+        }
+      }
+    } else if (!optimized && dynamicChildren == null) {
+      // unoptimized, full diff
+      patchProps(
+        el,
+        n2,
+        oldProps,
+        newProps,
+        parentComponent,
+        parentSuspense,
+        isSVG
+      )
+    }
 
-  //   const areChildrenSVG = isSVG && n2.type !== 'foreignObject'
-  //   if (dynamicChildren) {
-  //     patchBlockChildren(
-  //       n1.dynamicChildren!,
-  //       dynamicChildren,
-  //       el,
-  //       parentComponent,
-  //       parentSuspense,
-  //       areChildrenSVG,
-  //       slotScopeIds
-  //     )
-  //     if (__DEV__) {
-  //       // necessary for HMR
-  //       traverseStaticChildren(n1, n2)
-  //     }
-  //   } else if (!optimized) {
-  //     // full diff
-  //     patchChildren(
-  //       n1,
-  //       n2,
-  //       el,
-  //       null,
-  //       parentComponent,
-  //       parentSuspense,
-  //       areChildrenSVG,
-  //       slotScopeIds,
-  //       false
-  //     )
-  //   }
-
-  //   if (patchFlag > 0) {
-  //     // the presence of a patchFlag means this element's render code was
-  //     // generated by the compiler and can take the fast path.
-  //     // in this path old node and new node are guaranteed to have the same shape
-  //     // (i.e. at the exact same position in the source template)
-  //     if (patchFlag & PatchFlags.FULL_PROPS) {
-  //       // element props contain dynamic keys, full diff needed
-  //       patchProps(
-  //         el,
-  //         n2,
-  //         oldProps,
-  //         newProps,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG
-  //       )
-  //     } else {
-  //       // class
-  //       // this flag is matched when the element has dynamic class bindings.
-  //       if (patchFlag & PatchFlags.CLASS) {
-  //         if (oldProps.class !== newProps.class) {
-  //           hostPatchProp(el, 'class', null, newProps.class, isSVG)
-  //         }
-  //       }
-
-  //       // style
-  //       // this flag is matched when the element has dynamic style bindings
-  //       if (patchFlag & PatchFlags.STYLE) {
-  //         hostPatchProp(el, 'style', oldProps.style, newProps.style, isSVG)
-  //       }
-
-  //       // props
-  //       // This flag is matched when the element has dynamic prop/attr bindings
-  //       // other than class and style. The keys of dynamic prop/attrs are saved for
-  //       // faster iteration.
-  //       // Note dynamic keys like :[foo]="bar" will cause this optimization to
-  //       // bail out and go through a full diff because we need to unset the old key
-  //       if (patchFlag & PatchFlags.PROPS) {
-  //         // if the flag is present then dynamicProps must be non-null
-  //         const propsToUpdate = n2.dynamicProps!
-  //         for (let i = 0; i < propsToUpdate.length; i++) {
-  //           const key = propsToUpdate[i]
-  //           const prev = oldProps[key]
-  //           const next = newProps[key]
-  //           // #1471 force patch value
-  //           if (next !== prev || key === 'value') {
-  //             hostPatchProp(
-  //               el,
-  //               key,
-  //               prev,
-  //               next,
-  //               isSVG,
-  //               n1.children as VNode[],
-  //               parentComponent,
-  //               parentSuspense,
-  //               unmountChildren
-  //             )
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     // text
-  //     // This flag is matched when the element has only dynamic text children.
-  //     if (patchFlag & PatchFlags.TEXT) {
-  //       if (n1.children !== n2.children) {
-  //         hostSetElementText(el, n2.children as string)
-  //       }
-  //     }
-  //   } else if (!optimized && dynamicChildren == null) {
-  //     // unoptimized, full diff
-  //     patchProps(
-  //       el,
-  //       n2,
-  //       oldProps,
-  //       newProps,
-  //       parentComponent,
-  //       parentSuspense,
-  //       isSVG
-  //     )
-  //   }
-
-  //   if ((vnodeHook = newProps.onVnodeUpdated) || dirs) {
-  //     queuePostRenderEffect(() => {
-  //       vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
-  //       dirs && invokeDirectiveHook(n2, n1, parentComponent, 'updated')
-  //     }, parentSuspense)
-  //   }
-  // }
+    // if ((vnodeHook = newProps.onVnodeUpdated) || dirs) {
+    //   queuePostRenderEffect(() => {
+    //     vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
+    //     dirs && invokeDirectiveHook(n2, n1, parentComponent, 'updated')
+    //   }, parentSuspense)
+    // }
+  }
 
   // // The fast path for blocks.
   // const patchBlockChildren: PatchBlockChildrenFn = (
@@ -933,58 +946,58 @@ function baseCreateRenderer(
   //   }
   // }
 
-  // const patchProps = (
-  //   el: RendererElement,
-  //   vnode: VNode,
-  //   oldProps: Data,
-  //   newProps: Data,
-  //   parentComponent: ComponentInternalInstance | null,
-  //   parentSuspense: SuspenseBoundary | null,
-  //   isSVG: boolean
-  // ) => {
-  //   if (oldProps !== newProps) {
-  //     if (oldProps !== EMPTY_OBJ) {
-  //       for (const key in oldProps) {
-  //         if (!isReservedProp(key) && !(key in newProps)) {
-  //           hostPatchProp(
-  //             el,
-  //             key,
-  //             oldProps[key],
-  //             null,
-  //             isSVG,
-  //             vnode.children as VNode[],
-  //             parentComponent,
-  //             parentSuspense,
-  //             unmountChildren
-  //           )
-  //         }
-  //       }
-  //     }
-  //     for (const key in newProps) {
-  //       // empty string is not valid prop
-  //       if (isReservedProp(key)) continue
-  //       const next = newProps[key]
-  //       const prev = oldProps[key]
-  //       // defer patching value
-  //       if (next !== prev && key !== 'value') {
-  //         hostPatchProp(
-  //           el,
-  //           key,
-  //           prev,
-  //           next,
-  //           isSVG,
-  //           vnode.children as VNode[],
-  //           parentComponent,
-  //           parentSuspense,
-  //           unmountChildren
-  //         )
-  //       }
-  //     }
-  //     if ('value' in newProps) {
-  //       hostPatchProp(el, 'value', oldProps.value, newProps.value)
-  //     }
-  //   }
-  // }
+  const patchProps = (
+    el: RendererElement,
+    vnode: VNode,
+    oldProps: Data,
+    newProps: Data,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    isSVG: boolean
+  ) => {
+    if (oldProps !== newProps) {
+      if (oldProps !== EMPTY_OBJ) {
+        for (const key in oldProps) {
+          if (!isReservedProp(key) && !(key in newProps)) {
+            hostPatchProp(
+              el,
+              key,
+              oldProps[key],
+              null,
+              isSVG,
+              vnode.children as VNode[],
+              parentComponent,
+              parentSuspense,
+              unmountChildren
+            )
+          }
+        }
+      }
+      for (const key in newProps) {
+        // empty string is not valid prop
+        if (isReservedProp(key)) continue
+        const next = newProps[key]
+        const prev = oldProps[key]
+        // defer patching value
+        if (next !== prev && key !== 'value') {
+          hostPatchProp(
+            el,
+            key,
+            prev,
+            next,
+            isSVG,
+            vnode.children as VNode[],
+            parentComponent,
+            parentSuspense,
+            unmountChildren
+          )
+        }
+      }
+      // if ('value' in newProps) {
+      //   hostPatchProp(el, 'value', oldProps.value, newProps.value)
+      // }
+    }
+  }
 
   // const processFragment = (
   //   n1: VNode | null,
@@ -1195,39 +1208,39 @@ function baseCreateRenderer(
     //   }
   }
 
-  // const updateComponent = (n1: VNode, n2: VNode, optimized: boolean) => {
-  //   const instance = (n2.component = n1.component)!
-  //   if (shouldUpdateComponent(n1, n2, optimized)) {
-  //     if (
-  //       __FEATURE_SUSPENSE__ &&
-  //       instance.asyncDep &&
-  //       !instance.asyncResolved
-  //     ) {
-  //       // async & still pending - just update props and slots
-  //       // since the component's reactive effect for render isn't set-up yet
-  //       if (__DEV__) {
-  //         pushWarningContext(n2)
-  //       }
-  //       updateComponentPreRender(instance, n2, optimized)
-  //       if (__DEV__) {
-  //         popWarningContext()
-  //       }
-  //       return
-  //     } else {
-  //       // normal update
-  //       instance.next = n2
-  //       // in case the child component is also queued, remove it to avoid
-  //       // double updating the same child component in the same flush.
-  //       invalidateJob(instance.update)
-  //       // instance.update is the reactive effect.
-  //       instance.update()
-  //     }
-  //   } else {
-  //     // no update needed. just copy over properties
-  //     n2.el = n1.el
-  //     instance.vnode = n2
-  //   }
-  // }
+  const updateComponent = (n1: VNode, n2: VNode, optimized: boolean) => {
+    const instance = (n2.component = n1.component)!
+    // if (shouldUpdateComponent(n1, n2, optimized)) {
+    //   if (
+    //     __FEATURE_SUSPENSE__ &&
+    //     instance.asyncDep &&
+    //     !instance.asyncResolved
+    //   ) {
+    //     // async & still pending - just update props and slots
+    //     // since the component's reactive effect for render isn't set-up yet
+    //     if (__DEV__) {
+    //       pushWarningContext(n2)
+    //     }
+    //     updateComponentPreRender(instance, n2, optimized)
+    //     if (__DEV__) {
+    //       popWarningContext()
+    //     }
+    //     return
+    //   } else {
+    //     // normal update
+    //     instance.next = n2
+    //     // in case the child component is also queued, remove it to avoid
+    //     // double updating the same child component in the same flush.
+    //     invalidateJob(instance.update)
+    //     // instance.update is the reactive effect.
+    //     instance.update()
+    //   }
+    // } else {
+    //   // no update needed. just copy over properties
+    //   n2.el = n1.el
+    //   instance.vnode = n2
+    // }
+  }
 
   const setupRenderEffect: SetupRenderEffectFn = (
     instance,
@@ -1321,80 +1334,80 @@ function baseCreateRenderer(
           //         if (__DEV__) {
           //           endMeasure(instance, `patch`)
           //         }
-          // initialVNode.el = subTree.el
+          initialVNode.el = subTree.el
         }
-        //       // mounted hook
-        //       if (m) {
-        //         queuePostRenderEffect(m, parentSuspense)
-        //       }
-        //       // onVnodeMounted
-        //       if (
-        //         !isAsyncWrapperVNode &&
-        //         (vnodeHook = props && props.onVnodeMounted)
-        //       ) {
-        //         const scopedInitialVNode = initialVNode
-        //         queuePostRenderEffect(
-        //           () => invokeVNodeHook(vnodeHook!, parent, scopedInitialVNode),
-        //           parentSuspense
-        //         )
-        //       }
-        //       if (
-        //         __COMPAT__ &&
-        //         isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
-        //       ) {
-        //         queuePostRenderEffect(
-        //           () => instance.emit('hook:mounted'),
-        //           parentSuspense
-        //         )
-        //       }
-        //       // activated hook for keep-alive roots.
-        //       // #1742 activated hook must be accessed after first render
-        //       // since the hook may be injected by a child keep-alive
-        //       if (
-        //         initialVNode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE ||
-        //         (parent &&
-        //           isAsyncWrapper(parent.vnode) &&
-        //           parent.vnode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE)
-        //       ) {
-        //         instance.a && queuePostRenderEffect(instance.a, parentSuspense)
-        //         if (
-        //           __COMPAT__ &&
-        //           isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
-        //         ) {
-        //           queuePostRenderEffect(
-        //             () => instance.emit('hook:activated'),
-        //             parentSuspense
-        //           )
-        //         }
-        //       }
-        //       instance.isMounted = true
+        // mounted hook
+        // if (m) {
+        //   queuePostRenderEffect(m, parentSuspense)
+        // }
+        // // onVnodeMounted
+        // if (
+        //   !isAsyncWrapperVNode &&
+        //   (vnodeHook = props && props.onVnodeMounted)
+        // ) {
+        //   const scopedInitialVNode = initialVNode
+        //   queuePostRenderEffect(
+        //     () => invokeVNodeHook(vnodeHook!, parent, scopedInitialVNode),
+        //     parentSuspense
+        //   )
+        // }
+        // if (
+        //   __COMPAT__ &&
+        //   isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
+        // ) {
+        //   queuePostRenderEffect(
+        //     () => instance.emit('hook:mounted'),
+        //     parentSuspense
+        //   )
+        // }
+        // // activated hook for keep-alive roots.
+        // // #1742 activated hook must be accessed after first render
+        // // since the hook may be injected by a child keep-alive
+        // if (
+        //   initialVNode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE ||
+        //   (parent &&
+        //     isAsyncWrapper(parent.vnode) &&
+        //     parent.vnode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE)
+        // ) {
+        //   instance.a && queuePostRenderEffect(instance.a, parentSuspense)
+        //   if (
+        //     __COMPAT__ &&
+        //     isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
+        //   ) {
+        //     queuePostRenderEffect(
+        //       () => instance.emit('hook:activated'),
+        //       parentSuspense
+        //     )
+        //   }
+        // }
+        instance.isMounted = true
         //       if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
         //         devtoolsComponentAdded(instance)
         //       }
         //       // #2458: deference mount-only object parameters to prevent memleaks
         //       initialVNode = container = anchor = null as any
       } else {
-        //       // updateComponent
-        //       // This is triggered by mutation of component's own state (next: null)
-        //       // OR parent calling processComponent (next: VNode)
-        //       let { next, bu, u, parent, vnode } = instance
-        //       let originNext = next
-        //       let vnodeHook: VNodeHook | null | undefined
+        // updateComponent
+        // This is triggered by mutation of component's own state (next: null)
+        // OR parent calling processComponent (next: VNode)
+        let { next, bu, u, parent, vnode } = instance
+        let originNext = next
+        let vnodeHook: VNodeHook | null | undefined
         //       if (__DEV__) {
         //         pushWarningContext(next || instance.vnode)
         //       }
-        //       // Disallow component effect recursion during pre-lifecycle hooks.
-        //       toggleRecurse(instance, false)
-        //       if (next) {
-        //         next.el = vnode.el
-        //         updateComponentPreRender(instance, next, optimized)
-        //       } else {
-        //         next = vnode
-        //       }
-        //       // beforeUpdate hook
-        //       if (bu) {
-        //         invokeArrayFns(bu)
-        //       }
+        // Disallow component effect recursion during pre-lifecycle hooks.
+        // toggleRecurse(instance, false)
+        if (next) {
+          next.el = vnode.el
+          // updateComponentPreRender(instance, next, optimized)
+        } else {
+          next = vnode
+        }
+        // beforeUpdate hook
+        if (bu) {
+          invokeArrayFns(bu)
+        }
         //       // onVnodeBeforeUpdate
         //       if ((vnodeHook = next.props && next.props.onVnodeBeforeUpdate)) {
         //         invokeVNodeHook(vnodeHook, parent, next, vnode)
@@ -1410,47 +1423,47 @@ function baseCreateRenderer(
         //       if (__DEV__) {
         //         startMeasure(instance, `render`)
         //       }
-        //       const nextTree = renderComponentRoot(instance)
+        const nextTree = renderComponentRoot(instance)
         //       if (__DEV__) {
         //         endMeasure(instance, `render`)
         //       }
-        //       const prevTree = instance.subTree
-        //       instance.subTree = nextTree
+        const prevTree = instance.subTree
+        instance.subTree = nextTree
         //       if (__DEV__) {
         //         startMeasure(instance, `patch`)
         //       }
-        //       patch(
-        //         prevTree,
-        //         nextTree,
-        //         // parent may have changed if it's in a teleport
-        //         hostParentNode(prevTree.el!)!,
-        //         // anchor may have changed if it's in a fragment
-        //         getNextHostNode(prevTree),
-        //         instance,
-        //         parentSuspense,
-        //         isSVG
-        //       )
+        patch(
+          prevTree,
+          nextTree,
+          // parent may have changed if it's in a teleport
+          hostParentNode(prevTree.el!)!,
+          // anchor may have changed if it's in a fragment
+          getNextHostNode(prevTree),
+          instance,
+          parentSuspense,
+          isSVG
+        )
         //       if (__DEV__) {
         //         endMeasure(instance, `patch`)
         //       }
-        //       next.el = nextTree.el
-        //       if (originNext === null) {
-        //         // self-triggered update. In case of HOC, update parent component
-        //         // vnode el. HOC is indicated by parent instance's subTree pointing
-        //         // to child component's vnode
-        //         updateHOCHostEl(instance, nextTree.el)
-        //       }
-        //       // updated hook
-        //       if (u) {
-        //         queuePostRenderEffect(u, parentSuspense)
-        //       }
-        //       // onVnodeUpdated
-        //       if ((vnodeHook = next.props && next.props.onVnodeUpdated)) {
-        //         queuePostRenderEffect(
-        //           () => invokeVNodeHook(vnodeHook!, parent, next!, vnode),
-        //           parentSuspense
-        //         )
-        //       }
+        next.el = nextTree.el
+        if (originNext === null) {
+          // self-triggered update. In case of HOC, update parent component
+          // vnode el. HOC is indicated by parent instance's subTree pointing
+          // to child component's vnode
+          // updateHOCHostEl(instance, nextTree.el)
+        }
+        // updated hook
+        if (u) {
+          // queuePostRenderEffect(u, parentSuspense)
+        }
+        // onVnodeUpdated
+        if ((vnodeHook = next.props && next.props.onVnodeUpdated)) {
+          // queuePostRenderEffect(
+          //   () => invokeVNodeHook(vnodeHook!, parent, next!, vnode),
+          //   parentSuspense
+          // )
+        }
         //       if (
         //         __COMPAT__ &&
         //         isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
@@ -1510,107 +1523,105 @@ function baseCreateRenderer(
   //   resetTracking()
   // }
 
-  // const patchChildren: PatchChildrenFn = (
-  //   n1,
-  //   n2,
-  //   container,
-  //   anchor,
-  //   parentComponent,
-  //   parentSuspense,
-  //   isSVG,
-  //   slotScopeIds,
-  //   optimized = false
-  // ) => {
-  //   const c1 = n1 && n1.children
-  //   const prevShapeFlag = n1 ? n1.shapeFlag : 0
-  //   const c2 = n2.children
-
-  //   const { patchFlag, shapeFlag } = n2
-  //   // fast path
-  //   if (patchFlag > 0) {
-  //     if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
-  //       // this could be either fully-keyed or mixed (some keyed some not)
-  //       // presence of patchFlag means children are guaranteed to be arrays
-  //       patchKeyedChildren(
-  //         c1 as VNode[],
-  //         c2 as VNodeArrayChildren,
-  //         container,
-  //         anchor,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG,
-  //         slotScopeIds,
-  //         optimized
-  //       )
-  //       return
-  //     } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
-  //       // unkeyed
-  //       patchUnkeyedChildren(
-  //         c1 as VNode[],
-  //         c2 as VNodeArrayChildren,
-  //         container,
-  //         anchor,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG,
-  //         slotScopeIds,
-  //         optimized
-  //       )
-  //       return
-  //     }
-  //   }
-
-  //   // children has 3 possibilities: text, array or no children.
-  //   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
-  //     // text children fast path
-  //     if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-  //       unmountChildren(c1 as VNode[], parentComponent, parentSuspense)
-  //     }
-  //     if (c2 !== c1) {
-  //       hostSetElementText(container, c2 as string)
-  //     }
-  //   } else {
-  //     if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-  //       // prev children was array
-  //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-  //         // two arrays, cannot assume anything, do full diff
-  //         patchKeyedChildren(
-  //           c1 as VNode[],
-  //           c2 as VNodeArrayChildren,
-  //           container,
-  //           anchor,
-  //           parentComponent,
-  //           parentSuspense,
-  //           isSVG,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //       } else {
-  //         // no new children, just unmount old
-  //         unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
-  //       }
-  //     } else {
-  //       // prev children was text OR null
-  //       // new children is array OR null
-  //       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
-  //         hostSetElementText(container, '')
-  //       }
-  //       // mount new if array
-  //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-  //         mountChildren(
-  //           c2 as VNodeArrayChildren,
-  //           container,
-  //           anchor,
-  //           parentComponent,
-  //           parentSuspense,
-  //           isSVG,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //       }
-  //     }
-  //   }
-  // }
+  const patchChildren: PatchChildrenFn = (
+    n1,
+    n2,
+    container,
+    anchor,
+    parentComponent,
+    parentSuspense,
+    isSVG,
+    slotScopeIds,
+    optimized = false
+  ) => {
+    const c1 = n1 && n1.children
+    const prevShapeFlag = n1 ? n1.shapeFlag : 0
+    const c2 = n2.children
+    const { patchFlag, shapeFlag } = n2
+    // fast path
+    if (patchFlag > 0) {
+      if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
+        //       // this could be either fully-keyed or mixed (some keyed some not)
+        //       // presence of patchFlag means children are guaranteed to be arrays
+        //       patchKeyedChildren(
+        //         c1 as VNode[],
+        //         c2 as VNodeArrayChildren,
+        //         container,
+        //         anchor,
+        //         parentComponent,
+        //         parentSuspense,
+        //         isSVG,
+        //         slotScopeIds,
+        //         optimized
+        //       )
+        //       return
+      } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
+        //       // unkeyed
+        //       patchUnkeyedChildren(
+        //         c1 as VNode[],
+        //         c2 as VNodeArrayChildren,
+        //         container,
+        //         anchor,
+        //         parentComponent,
+        //         parentSuspense,
+        //         isSVG,
+        //         slotScopeIds,
+        //         optimized
+        //       )
+        //       return
+      }
+    }
+    //   // children has 3 possibilities: text, array or no children.
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      // text children fast path
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        unmountChildren(c1 as VNode[], parentComponent, parentSuspense)
+      }
+      if (c2 !== c1) {
+        hostSetElementText(container, c2 as string)
+      }
+    } else {
+      //     if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      //       // prev children was array
+      //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      //         // two arrays, cannot assume anything, do full diff
+      //         patchKeyedChildren(
+      //           c1 as VNode[],
+      //           c2 as VNodeArrayChildren,
+      //           container,
+      //           anchor,
+      //           parentComponent,
+      //           parentSuspense,
+      //           isSVG,
+      //           slotScopeIds,
+      //           optimized
+      //         )
+      //       } else {
+      //         // no new children, just unmount old
+      //         unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
+      //       }
+      //     } else {
+      //       // prev children was text OR null
+      //       // new children is array OR null
+      //       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      //         hostSetElementText(container, '')
+      //       }
+      //       // mount new if array
+      //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      //         mountChildren(
+      //           c2 as VNodeArrayChildren,
+      //           container,
+      //           anchor,
+      //           parentComponent,
+      //           parentSuspense,
+      //           isSVG,
+      //           slotScopeIds,
+      //           optimized
+      //         )
+      //       }
+      //     }
+    }
+  }
 
   // const patchUnkeyedChildren = (
   //   c1: VNode[],
@@ -1979,105 +1990,97 @@ function baseCreateRenderer(
   //   }
   // }
 
-  // const unmount: UnmountFn = (
-  //   vnode,
-  //   parentComponent,
-  //   parentSuspense,
-  //   doRemove = false,
-  //   optimized = false
-  // ) => {
-  //   const {
-  //     type,
-  //     props,
-  //     ref,
-  //     children,
-  //     dynamicChildren,
-  //     shapeFlag,
-  //     patchFlag,
-  //     dirs
-  //   } = vnode
-  //   // unset ref
-  //   if (ref != null) {
-  //     setRef(ref, null, parentSuspense, vnode, true)
-  //   }
-
-  //   if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
-  //     ;(parentComponent!.ctx as KeepAliveContext).deactivate(vnode)
-  //     return
-  //   }
-
-  //   const shouldInvokeDirs = shapeFlag & ShapeFlags.ELEMENT && dirs
-  //   const shouldInvokeVnodeHook = !isAsyncWrapper(vnode)
-
-  //   let vnodeHook: VNodeHook | undefined | null
-  //   if (
-  //     shouldInvokeVnodeHook &&
-  //     (vnodeHook = props && props.onVnodeBeforeUnmount)
-  //   ) {
-  //     invokeVNodeHook(vnodeHook, parentComponent, vnode)
-  //   }
-
-  //   if (shapeFlag & ShapeFlags.COMPONENT) {
-  //     unmountComponent(vnode.component!, parentSuspense, doRemove)
-  //   } else {
-  //     if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
-  //       vnode.suspense!.unmount(parentSuspense, doRemove)
-  //       return
-  //     }
-
-  //     if (shouldInvokeDirs) {
-  //       invokeDirectiveHook(vnode, null, parentComponent, 'beforeUnmount')
-  //     }
-
-  //     if (shapeFlag & ShapeFlags.TELEPORT) {
-  //       ;(vnode.type as typeof TeleportImpl).remove(
-  //         vnode,
-  //         parentComponent,
-  //         parentSuspense,
-  //         optimized,
-  //         internals,
-  //         doRemove
-  //       )
-  //     } else if (
-  //       dynamicChildren &&
-  //       // #1153: fast path should not be taken for non-stable (v-for) fragments
-  //       (type !== Fragment ||
-  //         (patchFlag > 0 && patchFlag & PatchFlags.STABLE_FRAGMENT))
-  //     ) {
-  //       // fast path for block nodes: only need to unmount dynamic children.
-  //       unmountChildren(
-  //         dynamicChildren,
-  //         parentComponent,
-  //         parentSuspense,
-  //         false,
-  //         true
-  //       )
-  //     } else if (
-  //       (type === Fragment &&
-  //         patchFlag &
-  //           (PatchFlags.KEYED_FRAGMENT | PatchFlags.UNKEYED_FRAGMENT)) ||
-  //       (!optimized && shapeFlag & ShapeFlags.ARRAY_CHILDREN)
-  //     ) {
-  //       unmountChildren(children as VNode[], parentComponent, parentSuspense)
-  //     }
-
-  //     if (doRemove) {
-  //       remove(vnode)
-  //     }
-  //   }
-
-  //   if (
-  //     (shouldInvokeVnodeHook &&
-  //       (vnodeHook = props && props.onVnodeUnmounted)) ||
-  //     shouldInvokeDirs
-  //   ) {
-  //     queuePostRenderEffect(() => {
-  //       vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
-  //       shouldInvokeDirs &&
-  //         invokeDirectiveHook(vnode, null, parentComponent, 'unmounted')
-  //     }, parentSuspense)
-  //   }
-  // }
+  const unmount: UnmountFn = (
+    vnode,
+    parentComponent,
+    parentSuspense,
+    doRemove = false,
+    optimized = false
+  ) => {
+    const {
+      type,
+      props,
+      ref,
+      children,
+      dynamicChildren,
+      shapeFlag,
+      patchFlag,
+      dirs
+    } = vnode
+    // unset ref
+    // if (ref != null) {
+    //   setRef(ref, null, parentSuspense, vnode, true)
+    // }
+    // if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
+    //   ;(parentComponent!.ctx as KeepAliveContext).deactivate(vnode)
+    //   return
+    // }
+    // const shouldInvokeDirs = shapeFlag & ShapeFlags.ELEMENT && dirs
+    // const shouldInvokeVnodeHook = !isAsyncWrapper(vnode)
+    // let vnodeHook: VNodeHook | undefined | null
+    // if (
+    //   shouldInvokeVnodeHook &&
+    //   (vnodeHook = props && props.onVnodeBeforeUnmount)
+    // ) {
+    //   invokeVNodeHook(vnodeHook, parentComponent, vnode)
+    // }
+    if (shapeFlag & ShapeFlags.COMPONENT) {
+      // unmountComponent(vnode.component!, parentSuspense, doRemove)
+    } else {
+      //   if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
+      //     vnode.suspense!.unmount(parentSuspense, doRemove)
+      //     return
+      //   }
+      //   if (shouldInvokeDirs) {
+      //     invokeDirectiveHook(vnode, null, parentComponent, 'beforeUnmount')
+      //   }
+      if (shapeFlag & ShapeFlags.TELEPORT) {
+        //     ;(vnode.type as typeof TeleportImpl).remove(
+        //       vnode,
+        //       parentComponent,
+        //       parentSuspense,
+        //       optimized,
+        //       internals,
+        //       doRemove
+        //     )
+      } else if (
+        dynamicChildren &&
+        // #1153: fast path should not be taken for non-stable (v-for) fragments
+        (type !== Fragment ||
+          (patchFlag > 0 && patchFlag & PatchFlags.STABLE_FRAGMENT))
+      ) {
+        //     // fast path for block nodes: only need to unmount dynamic children.
+        //     unmountChildren(
+        //       dynamicChildren,
+        //       parentComponent,
+        //       parentSuspense,
+        //       false,
+        //       true
+        //     )
+      } else if (
+        (type === Fragment &&
+          patchFlag &
+            (PatchFlags.KEYED_FRAGMENT | PatchFlags.UNKEYED_FRAGMENT)) ||
+        (!optimized && shapeFlag & ShapeFlags.ARRAY_CHILDREN)
+      ) {
+        unmountChildren(children as VNode[], parentComponent, parentSuspense)
+      }
+      //   if (doRemove) {
+      //     remove(vnode)
+      //   }
+    }
+    // if (
+    //   (shouldInvokeVnodeHook &&
+    //     (vnodeHook = props && props.onVnodeUnmounted)) ||
+    //   shouldInvokeDirs
+    // ) {
+    //   queuePostRenderEffect(() => {
+    //     vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
+    //     shouldInvokeDirs &&
+    //       invokeDirectiveHook(vnode, null, parentComponent, 'unmounted')
+    //   }, parentSuspense)
+    // }
+  }
 
   // const remove: RemoveFn = vnode => {
   //   const { type, el, anchor, transition } = vnode
@@ -2216,28 +2219,28 @@ function baseCreateRenderer(
   //   }
   // }
 
-  // const unmountChildren: UnmountChildrenFn = (
-  //   children,
-  //   parentComponent,
-  //   parentSuspense,
-  //   doRemove = false,
-  //   optimized = false,
-  //   start = 0
-  // ) => {
-  //   for (let i = start; i < children.length; i++) {
-  //     unmount(children[i], parentComponent, parentSuspense, doRemove, optimized)
-  //   }
-  // }
+  const unmountChildren: UnmountChildrenFn = (
+    children,
+    parentComponent,
+    parentSuspense,
+    doRemove = false,
+    optimized = false,
+    start = 0
+  ) => {
+    for (let i = start; i < children.length; i++) {
+      unmount(children[i], parentComponent, parentSuspense, doRemove, optimized)
+    }
+  }
 
-  // const getNextHostNode: NextFn = vnode => {
-  //   if (vnode.shapeFlag & ShapeFlags.COMPONENT) {
-  //     return getNextHostNode(vnode.component!.subTree)
-  //   }
-  //   if (__FEATURE_SUSPENSE__ && vnode.shapeFlag & ShapeFlags.SUSPENSE) {
-  //     return vnode.suspense!.next()
-  //   }
-  //   return hostNextSibling((vnode.anchor || vnode.el)!)
-  // }
+  const getNextHostNode: NextFn = vnode => {
+    if (vnode.shapeFlag & ShapeFlags.COMPONENT) {
+      return getNextHostNode(vnode.component!.subTree)
+    }
+    if (__FEATURE_SUSPENSE__ && vnode.shapeFlag & ShapeFlags.SUSPENSE) {
+      return vnode.suspense!.next()
+    }
+    return hostNextSibling((vnode.anchor || vnode.el)!)
+  }
 
   const render: RootRenderFunction = (vnode, container, isSVG) => {
     if (vnode == null) {

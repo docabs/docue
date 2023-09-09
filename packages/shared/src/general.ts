@@ -130,11 +130,11 @@ export const capitalize = cacheStringFunction(<T extends string>(str: T) => {
 export const hasChanged = (value: any, oldValue: any): boolean =>
   !Object.is(value, oldValue)
 
-// export const invokeArrayFns = (fns: Function[], arg?: any) => {
-//   for (let i = 0; i < fns.length; i++) {
-//     fns[i](arg)
-//   }
-// }
+export const invokeArrayFns = (fns: Function[], arg?: any) => {
+  for (let i = 0; i < fns.length; i++) {
+    fns[i](arg)
+  }
+}
 
 export const def = (obj: object, key: string | symbol, value: any) => {
   Object.defineProperty(obj, key, {

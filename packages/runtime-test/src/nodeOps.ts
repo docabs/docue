@@ -61,15 +61,15 @@ export function logNodeOp(op: NodeOp) {
   recordedNodeOps.push(op)
 }
 
-// export function resetOps() {
-//   recordedNodeOps = []
-// }
+export function resetOps() {
+  recordedNodeOps = []
+}
 
-// export function dumpOps(): NodeOp[] {
-//   const ops = recordedNodeOps.slice()
-//   resetOps()
-//   return ops
-// }
+export function dumpOps(): NodeOp[] {
+  const ops = recordedNodeOps.slice()
+  resetOps()
+  return ops
+}
 
 function createElement(tag: string): TestElement {
   const node: TestElement = {
@@ -92,23 +92,23 @@ function createElement(tag: string): TestElement {
   return node
 }
 
-// function createText(text: string): TestText {
-//   const node: TestText = {
-//     id: nodeId++,
-//     type: TestNodeTypes.TEXT,
-//     text,
-//     parentNode: null
-//   }
-//   logNodeOp({
-//     type: NodeOpTypes.CREATE,
-//     nodeType: TestNodeTypes.TEXT,
-//     targetNode: node,
-//     text
-//   })
-//   // avoid test nodes from being observed
-//   markRaw(node)
-//   return node
-// }
+function createText(text: string): TestText {
+  const node: TestText = {
+    id: nodeId++,
+    type: TestNodeTypes.TEXT,
+    text,
+    parentNode: null
+  }
+  logNodeOp({
+    type: NodeOpTypes.CREATE,
+    nodeType: TestNodeTypes.TEXT,
+    targetNode: node,
+    text
+  })
+  // avoid test nodes from being observed
+  markRaw(node)
+  return node
+}
 
 // function createComment(text: string): TestComment {
 //   const node: TestComment = {
@@ -128,92 +128,92 @@ function createElement(tag: string): TestElement {
 //   return node
 // }
 
-// function setText(node: TestText, text: string) {
-//   logNodeOp({
-//     type: NodeOpTypes.SET_TEXT,
-//     targetNode: node,
-//     text
-//   })
-//   node.text = text
-// }
+function setText(node: TestText, text: string) {
+  logNodeOp({
+    type: NodeOpTypes.SET_TEXT,
+    targetNode: node,
+    text
+  })
+  node.text = text
+}
 
-// function insert(child: TestNode, parent: TestElement, ref?: TestNode | null) {
-//   let refIndex
-//   if (ref) {
-//     refIndex = parent.children.indexOf(ref)
-//     if (refIndex === -1) {
-//       console.error('ref: ', ref)
-//       console.error('parent: ', parent)
-//       throw new Error('ref is not a child of parent')
-//     }
-//   }
-//   logNodeOp({
-//     type: NodeOpTypes.INSERT,
-//     targetNode: child,
-//     parentNode: parent,
-//     refNode: ref
-//   })
-//   // remove the node first, but don't log it as a REMOVE op
-//   remove(child, false)
-//   // re-calculate the ref index because the child's removal may have affected it
-//   refIndex = ref ? parent.children.indexOf(ref) : -1
-//   if (refIndex === -1) {
-//     parent.children.push(child)
-//     child.parentNode = parent
-//   } else {
-//     parent.children.splice(refIndex, 0, child)
-//     child.parentNode = parent
-//   }
-// }
+function insert(child: TestNode, parent: TestElement, ref?: TestNode | null) {
+  let refIndex
+  if (ref) {
+    refIndex = parent.children.indexOf(ref)
+    if (refIndex === -1) {
+      console.error('ref: ', ref)
+      console.error('parent: ', parent)
+      throw new Error('ref is not a child of parent')
+    }
+  }
+  logNodeOp({
+    type: NodeOpTypes.INSERT,
+    targetNode: child,
+    parentNode: parent,
+    refNode: ref
+  })
+  // remove the node first, but don't log it as a REMOVE op
+  remove(child, false)
+  // re-calculate the ref index because the child's removal may have affected it
+  refIndex = ref ? parent.children.indexOf(ref) : -1
+  if (refIndex === -1) {
+    parent.children.push(child)
+    child.parentNode = parent
+  } else {
+    parent.children.splice(refIndex, 0, child)
+    child.parentNode = parent
+  }
+}
 
-// function remove(child: TestNode, logOp = true) {
-//   const parent = child.parentNode
-//   if (parent) {
-//     if (logOp) {
-//       logNodeOp({
-//         type: NodeOpTypes.REMOVE,
-//         targetNode: child,
-//         parentNode: parent
-//       })
-//     }
-//     const i = parent.children.indexOf(child)
-//     if (i > -1) {
-//       parent.children.splice(i, 1)
-//     } else {
-//       console.error('target: ', child)
-//       console.error('parent: ', parent)
-//       throw Error('target is not a childNode of parent')
-//     }
-//     child.parentNode = null
-//   }
-// }
+function remove(child: TestNode, logOp = true) {
+  const parent = child.parentNode
+  if (parent) {
+    if (logOp) {
+      logNodeOp({
+        type: NodeOpTypes.REMOVE,
+        targetNode: child,
+        parentNode: parent
+      })
+    }
+    const i = parent.children.indexOf(child)
+    if (i > -1) {
+      parent.children.splice(i, 1)
+    } else {
+      console.error('target: ', child)
+      console.error('parent: ', parent)
+      throw Error('target is not a childNode of parent')
+    }
+    child.parentNode = null
+  }
+}
 
-// function setElementText(el: TestElement, text: string) {
-//   logNodeOp({
-//     type: NodeOpTypes.SET_ELEMENT_TEXT,
-//     targetNode: el,
-//     text
-//   })
-//   el.children.forEach(c => {
-//     c.parentNode = null
-//   })
-//   if (!text) {
-//     el.children = []
-//   } else {
-//     el.children = [
-//       {
-//         id: nodeId++,
-//         type: TestNodeTypes.TEXT,
-//         text,
-//         parentNode: el
-//       }
-//     ]
-//   }
-// }
+function setElementText(el: TestElement, text: string) {
+  logNodeOp({
+    type: NodeOpTypes.SET_ELEMENT_TEXT,
+    targetNode: el,
+    text
+  })
+  el.children.forEach(c => {
+    c.parentNode = null
+  })
+  if (!text) {
+    el.children = []
+  } else {
+    el.children = [
+      {
+        id: nodeId++,
+        type: TestNodeTypes.TEXT,
+        text,
+        parentNode: el
+      }
+    ]
+  }
+}
 
-// function parentNode(node: TestNode): TestElement | null {
-//   return node.parentNode
-// }
+function parentNode(node: TestNode): TestElement | null {
+  return node.parentNode
+}
 
 function nextSibling(node: TestNode): TestNode | null {
   const parent = node.parentNode
@@ -233,14 +233,14 @@ function nextSibling(node: TestNode): TestNode | null {
 // }
 
 export const nodeOps = {
-  // insert,
-  // remove,
+  insert,
+  remove,
   createElement,
-  // createText,
+  createText,
   // createComment,
-  // setText,
-  // setElementText,
-  // parentNode,
+  setText,
+  setElementText,
+  parentNode,
   nextSibling
   // querySelector,
   // setScopeId
