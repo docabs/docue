@@ -1,3 +1,4 @@
+import { isArray } from '@docue/shared'
 import { ComponentInternalInstance } from './component'
 import { ErrorCodes, callWithErrorHandling } from './errorHandling'
 
@@ -38,9 +39,9 @@ let isFlushPending = false
 const queue: SchedulerJob[] = []
 let flushIndex = 0
 
-// const pendingPostFlushCbs: SchedulerJob[] = []
-// let activePostFlushCbs: SchedulerJob[] | null = null
-// let postFlushIndex = 0
+const pendingPostFlushCbs: SchedulerJob[] = []
+let activePostFlushCbs: SchedulerJob[] | null = null
+let postFlushIndex = 0
 
 const resolvedPromise = /*#__PURE__*/ Promise.resolve() as Promise<any>
 let currentFlushPromise: Promise<void> | null = null
@@ -101,6 +102,90 @@ function queueFlush() {
   if (!isFlushing && !isFlushPending) {
     isFlushPending = true
     currentFlushPromise = resolvedPromise.then(flushJobs)
+  }
+}
+
+export function invalidateJob(job: SchedulerJob) {
+  const i = queue.indexOf(job)
+  if (i > flushIndex) {
+    queue.splice(i, 1)
+  }
+}
+
+export function queuePostFlushCb(cb: SchedulerJobs) {
+  if (!isArray(cb)) {
+    if (
+      !activePostFlushCbs ||
+      !activePostFlushCbs.includes(
+        cb,
+        cb.allowRecurse ? postFlushIndex + 1 : postFlushIndex
+      )
+    ) {
+      pendingPostFlushCbs.push(cb)
+    }
+  } else {
+    // if cb is an array, it is a component lifecycle hook which can only be
+    // triggered by a job, which is already deduped in the main queue, so
+    // we can skip duplicate check here to improve perf
+    pendingPostFlushCbs.push(...cb)
+  }
+  queueFlush()
+}
+
+// export function flushPreFlushCbs(
+//   seen?: CountMap,
+//   // if currently flushing, skip the current job itself
+//   i = isFlushing ? flushIndex + 1 : 0
+// ) {
+//   if (__DEV__) {
+//     seen = seen || new Map()
+//   }
+//   for (; i < queue.length; i++) {
+//     const cb = queue[i]
+//     if (cb && cb.pre) {
+//       if (__DEV__ && checkRecursiveUpdates(seen!, cb)) {
+//         continue
+//       }
+//       queue.splice(i, 1)
+//       i--
+//       cb()
+//     }
+//   }
+// }
+
+export function flushPostFlushCbs(seen?: CountMap) {
+  if (pendingPostFlushCbs.length) {
+    const deduped = [...new Set(pendingPostFlushCbs)]
+    pendingPostFlushCbs.length = 0
+
+    // #1947 already has active queue, nested flushPostFlushCbs call
+    if (activePostFlushCbs) {
+      activePostFlushCbs.push(...deduped)
+      return
+    }
+
+    activePostFlushCbs = deduped
+    if (__DEV__) {
+      seen = seen || new Map()
+    }
+
+    activePostFlushCbs.sort((a, b) => getId(a) - getId(b))
+
+    for (
+      postFlushIndex = 0;
+      postFlushIndex < activePostFlushCbs.length;
+      postFlushIndex++
+    ) {
+      // if (
+      //   __DEV__ &&
+      //   checkRecursiveUpdates(seen!, activePostFlushCbs[postFlushIndex])
+      // ) {
+      //   continue
+      // }
+      activePostFlushCbs[postFlushIndex]()
+    }
+    activePostFlushCbs = null
+    postFlushIndex = 0
   }
 }
 

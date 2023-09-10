@@ -7,14 +7,12 @@ import {
   TestText,
   ref,
   reactive,
-  // dumpOps,
-  // resetOps,
+  dumpOps,
+  resetOps,
   NodeOpTypes,
   nextTick,
   serialize,
-  triggerEvent,
-  resetOps,
-  dumpOps
+  triggerEvent
 } from '../src'
 
 describe('test renderer', () => {
