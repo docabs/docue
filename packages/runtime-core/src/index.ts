@@ -299,7 +299,7 @@ export {
   createBlock,
   setBlockTracking,
   createTextVNode,
-  // createCommentVNode,
+  createCommentVNode,
   // createStaticVNode,
   // createElementVNode,
   // createElementBlock,

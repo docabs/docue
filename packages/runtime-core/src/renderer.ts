@@ -82,7 +82,7 @@ export interface RendererOptions<
     vnodeProps?: (VNodeProps & { [key: string]: any }) | null
   ): HostElement
   createText(text: string): HostNode
-  // createComment(text: string): HostNode
+  createComment(text: string): HostNode
   setText(node: HostNode, text: string): void
   setElementText(node: HostElement, text: string): void
   parentNode(node: HostNode): HostElement | null
@@ -165,15 +165,15 @@ type PatchChildrenFn = (
   optimized: boolean
 ) => void
 
-// type PatchBlockChildrenFn = (
-//   oldChildren: VNode[],
-//   newChildren: VNode[],
-//   fallbackContainer: RendererElement,
-//   parentComponent: ComponentInternalInstance | null,
-//   parentSuspense: SuspenseBoundary | null,
-//   isSVG: boolean,
-//   slotScopeIds: string[] | null
-// ) => void
+type PatchBlockChildrenFn = (
+  oldChildren: VNode[],
+  newChildren: VNode[],
+  fallbackContainer: RendererElement,
+  parentComponent: ComponentInternalInstance | null,
+  parentSuspense: SuspenseBoundary | null,
+  isSVG: boolean,
+  slotScopeIds: string[] | null
+) => void
 
 type MoveFn = (
   vnode: VNode,
@@ -329,7 +329,7 @@ function baseCreateRenderer(
     patchProp: hostPatchProp,
     createElement: hostCreateElement,
     createText: hostCreateText,
-    //   createComment: hostCreateComment,
+    createComment: hostCreateComment,
     setText: hostSetText,
     setElementText: hostSetElementText,
     parentNode: hostParentNode,
@@ -369,9 +369,9 @@ function baseCreateRenderer(
       case Text:
         processText(n1, n2, container, anchor)
         break
-      //     case Comment:
-      //       processCommentNode(n1, n2, container, anchor)
-      //       break
+      case Comment:
+        processCommentNode(n1, n2, container, anchor)
+        break
       //     case Static:
       //       if (n1 == null) {
       //         mountStaticNode(n2, container, anchor, isSVG)
@@ -379,19 +379,19 @@ function baseCreateRenderer(
       //         patchStaticNode(n1, n2, container, isSVG)
       //       }
       //       break
-      // case Fragment:
-      //   processFragment(
-      //     n1,
-      //     n2,
-      //     container,
-      //     anchor,
-      //     parentComponent,
-      //     parentSuspense,
-      //     isSVG,
-      //     slotScopeIds,
-      //     optimized
-      //   )
-      //   break
+      case Fragment:
+        processFragment(
+          n1,
+          n2,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+        break
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
           processElement(
@@ -468,23 +468,23 @@ function baseCreateRenderer(
     }
   }
 
-  // const processCommentNode: ProcessTextOrCommentFn = (
-  //   n1,
-  //   n2,
-  //   container,
-  //   anchor
-  // ) => {
-  //   if (n1 == null) {
-  //     hostInsert(
-  //       (n2.el = hostCreateComment((n2.children as string) || '')),
-  //       container,
-  //       anchor
-  //     )
-  //   } else {
-  //     // there's no support for dynamic comments
-  //     n2.el = n1.el
-  //   }
-  // }
+  const processCommentNode: ProcessTextOrCommentFn = (
+    n1,
+    n2,
+    container,
+    anchor
+  ) => {
+    if (n1 == null) {
+      hostInsert(
+        (n2.el = hostCreateComment((n2.children as string) || '')),
+        container,
+        anchor
+      )
+    } else {
+      // there's no support for dynamic comments
+      n2.el = n1.el
+    }
+  }
 
   // const mountStaticNode = (
   //   n2: VNode,
@@ -917,49 +917,49 @@ function baseCreateRenderer(
     // }
   }
 
-  // // The fast path for blocks.
-  // const patchBlockChildren: PatchBlockChildrenFn = (
-  //   oldChildren,
-  //   newChildren,
-  //   fallbackContainer,
-  //   parentComponent,
-  //   parentSuspense,
-  //   isSVG,
-  //   slotScopeIds
-  // ) => {
-  //   for (let i = 0; i < newChildren.length; i++) {
-  //     const oldVNode = oldChildren[i]
-  //     const newVNode = newChildren[i]
-  //     // Determine the container (parent element) for the patch.
-  //     const container =
-  //       // oldVNode may be an errored async setup() component inside Suspense
-  //       // which will not have a mounted element
-  //       oldVNode.el &&
-  //       // - In the case of a Fragment, we need to provide the actual parent
-  //       // of the Fragment itself so it can move its children.
-  //       (oldVNode.type === Fragment ||
-  //         // - In the case of different nodes, there is going to be a replacement
-  //         // which also requires the correct parent container
-  //         !isSameVNodeType(oldVNode, newVNode) ||
-  //         // - In the case of a component, it could contain anything.
-  //         oldVNode.shapeFlag & (ShapeFlags.COMPONENT | ShapeFlags.TELEPORT))
-  //         ? hostParentNode(oldVNode.el)!
-  //         : // In other cases, the parent container is not actually used so we
-  //           // just pass the block element here to avoid a DOM parentNode call.
-  //           fallbackContainer
-  //     patch(
-  //       oldVNode,
-  //       newVNode,
-  //       container,
-  //       null,
-  //       parentComponent,
-  //       parentSuspense,
-  //       isSVG,
-  //       slotScopeIds,
-  //       true
-  //     )
-  //   }
-  // }
+  // The fast path for blocks.
+  const patchBlockChildren: PatchBlockChildrenFn = (
+    oldChildren,
+    newChildren,
+    fallbackContainer,
+    parentComponent,
+    parentSuspense,
+    isSVG,
+    slotScopeIds
+  ) => {
+    for (let i = 0; i < newChildren.length; i++) {
+      const oldVNode = oldChildren[i]
+      const newVNode = newChildren[i]
+      // Determine the container (parent element) for the patch.
+      const container =
+        // oldVNode may be an errored async setup() component inside Suspense
+        // which will not have a mounted element
+        oldVNode.el &&
+        // - In the case of a Fragment, we need to provide the actual parent
+        // of the Fragment itself so it can move its children.
+        (oldVNode.type === Fragment ||
+          // - In the case of different nodes, there is going to be a replacement
+          // which also requires the correct parent container
+          !isSameVNodeType(oldVNode, newVNode) ||
+          // - In the case of a component, it could contain anything.
+          oldVNode.shapeFlag & (ShapeFlags.COMPONENT | ShapeFlags.TELEPORT))
+          ? hostParentNode(oldVNode.el)!
+          : // In other cases, the parent container is not actually used so we
+            // just pass the block element here to avoid a DOM parentNode call.
+            fallbackContainer
+      patch(
+        oldVNode,
+        newVNode,
+        container,
+        null,
+        parentComponent,
+        parentSuspense,
+        isSVG,
+        slotScopeIds,
+        true
+      )
+    }
+  }
 
   const patchProps = (
     el: RendererElement,
@@ -1014,108 +1014,104 @@ function baseCreateRenderer(
     }
   }
 
-  // const processFragment = (
-  //   n1: VNode | null,
-  //   n2: VNode,
-  //   container: RendererElement,
-  //   anchor: RendererNode | null,
-  //   parentComponent: ComponentInternalInstance | null,
-  //   parentSuspense: SuspenseBoundary | null,
-  //   isSVG: boolean,
-  //   slotScopeIds: string[] | null,
-  //   optimized: boolean
-  // ) => {
-  //   const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(''))!
-  //   const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateText(''))!
-
-  //   let { patchFlag, dynamicChildren, slotScopeIds: fragmentSlotScopeIds } = n2
-
-  //   if (
-  //     __DEV__ &&
-  //     // #5523 dev root fragment may inherit directives
-  //     (isHmrUpdating || patchFlag & PatchFlags.DEV_ROOT_FRAGMENT)
-  //   ) {
-  //     // HMR updated / Dev root fragment (w/ comments), force full diff
-  //     patchFlag = 0
-  //     optimized = false
-  //     dynamicChildren = null
-  //   }
-
-  //   // check if this is a slot fragment with :slotted scope ids
-  //   if (fragmentSlotScopeIds) {
-  //     slotScopeIds = slotScopeIds
-  //       ? slotScopeIds.concat(fragmentSlotScopeIds)
-  //       : fragmentSlotScopeIds
-  //   }
-
-  //   if (n1 == null) {
-  //     hostInsert(fragmentStartAnchor, container, anchor)
-  //     hostInsert(fragmentEndAnchor, container, anchor)
-  //     // a fragment can only have array children
-  //     // since they are either generated by the compiler, or implicitly created
-  //     // from arrays.
-  //     mountChildren(
-  //       n2.children as VNodeArrayChildren,
-  //       container,
-  //       fragmentEndAnchor,
-  //       parentComponent,
-  //       parentSuspense,
-  //       isSVG,
-  //       slotScopeIds,
-  //       optimized
-  //     )
-  //   } else {
-  //     if (
-  //       patchFlag > 0 &&
-  //       patchFlag & PatchFlags.STABLE_FRAGMENT &&
-  //       dynamicChildren &&
-  //       // #2715 the previous fragment could've been a BAILed one as a result
-  //       // of renderSlot() with no valid children
-  //       n1.dynamicChildren
-  //     ) {
-  //       // a stable fragment (template root or <template v-for>) doesn't need to
-  //       // patch children order, but it may contain dynamicChildren.
-  //       patchBlockChildren(
-  //         n1.dynamicChildren,
-  //         dynamicChildren,
-  //         container,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG,
-  //         slotScopeIds
-  //       )
-  //       if (__DEV__) {
-  //         // necessary for HMR
-  //         traverseStaticChildren(n1, n2)
-  //       } else if (
-  //         // #2080 if the stable fragment has a key, it's a <template v-for> that may
-  //         //  get moved around. Make sure all root level vnodes inherit el.
-  //         // #2134 or if it's a component root, it may also get moved around
-  //         // as the component is being moved.
-  //         n2.key != null ||
-  //         (parentComponent && n2 === parentComponent.subTree)
-  //       ) {
-  //         traverseStaticChildren(n1, n2, true /* shallow */)
-  //       }
-  //     } else {
-  //       // keyed / unkeyed, or manual fragments.
-  //       // for keyed & unkeyed, since they are compiler generated from v-for,
-  //       // each child is guaranteed to be a block so the fragment will never
-  //       // have dynamicChildren.
-  //       patchChildren(
-  //         n1,
-  //         n2,
-  //         container,
-  //         fragmentEndAnchor,
-  //         parentComponent,
-  //         parentSuspense,
-  //         isSVG,
-  //         slotScopeIds,
-  //         optimized
-  //       )
-  //     }
-  //   }
-  // }
+  const processFragment = (
+    n1: VNode | null,
+    n2: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    isSVG: boolean,
+    slotScopeIds: string[] | null,
+    optimized: boolean
+  ) => {
+    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(''))!
+    const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateText(''))!
+    let { patchFlag, dynamicChildren, slotScopeIds: fragmentSlotScopeIds } = n2
+    //   if (
+    //     __DEV__ &&
+    //     // #5523 dev root fragment may inherit directives
+    //     (isHmrUpdating || patchFlag & PatchFlags.DEV_ROOT_FRAGMENT)
+    //   ) {
+    //     // HMR updated / Dev root fragment (w/ comments), force full diff
+    //     patchFlag = 0
+    //     optimized = false
+    //     dynamicChildren = null
+    //   }
+    //   // check if this is a slot fragment with :slotted scope ids
+    //   if (fragmentSlotScopeIds) {
+    //     slotScopeIds = slotScopeIds
+    //       ? slotScopeIds.concat(fragmentSlotScopeIds)
+    //       : fragmentSlotScopeIds
+    //   }
+    if (n1 == null) {
+      hostInsert(fragmentStartAnchor, container, anchor)
+      hostInsert(fragmentEndAnchor, container, anchor)
+      // a fragment can only have array children
+      // since they are either generated by the compiler, or implicitly created
+      // from arrays.
+      mountChildren(
+        n2.children as VNodeArrayChildren,
+        container,
+        fragmentEndAnchor,
+        parentComponent,
+        parentSuspense,
+        isSVG,
+        slotScopeIds,
+        optimized
+      )
+    } else {
+      if (
+        patchFlag > 0 &&
+        patchFlag & PatchFlags.STABLE_FRAGMENT &&
+        dynamicChildren &&
+        // #2715 the previous fragment could've been a BAILed one as a result
+        // of renderSlot() with no valid children
+        n1.dynamicChildren
+      ) {
+        // a stable fragment (template root or <template v-for>) doesn't need to
+        // patch children order, but it may contain dynamicChildren.
+        patchBlockChildren(
+          n1.dynamicChildren,
+          dynamicChildren,
+          container,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds
+        )
+        if (__DEV__) {
+          // necessary for HMR
+          traverseStaticChildren(n1, n2)
+        } else if (
+          // #2080 if the stable fragment has a key, it's a <template v-for> that may
+          //  get moved around. Make sure all root level vnodes inherit el.
+          // #2134 or if it's a component root, it may also get moved around
+          // as the component is being moved.
+          n2.key != null ||
+          (parentComponent && n2 === parentComponent.subTree)
+        ) {
+          traverseStaticChildren(n1, n2, true /* shallow */)
+        }
+      } else {
+        // keyed / unkeyed, or manual fragments.
+        // for keyed & unkeyed, since they are compiler generated from v-for,
+        // each child is guaranteed to be a block so the fragment will never
+        // have dynamicChildren.
+        patchChildren(
+          n1,
+          n2,
+          container,
+          fragmentEndAnchor,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+      }
+    }
+  }
 
   const processComponent = (
     n1: VNode | null,
@@ -1556,34 +1552,34 @@ function baseCreateRenderer(
     // fast path
     if (patchFlag > 0) {
       if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
-        //       // this could be either fully-keyed or mixed (some keyed some not)
-        //       // presence of patchFlag means children are guaranteed to be arrays
-        //       patchKeyedChildren(
-        //         c1 as VNode[],
-        //         c2 as VNodeArrayChildren,
-        //         container,
-        //         anchor,
-        //         parentComponent,
-        //         parentSuspense,
-        //         isSVG,
-        //         slotScopeIds,
-        //         optimized
-        //       )
-        //       return
+        // this could be either fully-keyed or mixed (some keyed some not)
+        // presence of patchFlag means children are guaranteed to be arrays
+        // patchKeyedChildren(
+        //   c1 as VNode[],
+        //   c2 as VNodeArrayChildren,
+        //   container,
+        //   anchor,
+        //   parentComponent,
+        //   parentSuspense,
+        //   isSVG,
+        //   slotScopeIds,
+        //   optimized
+        // )
+        // return
       } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
-        //       // unkeyed
-        //       patchUnkeyedChildren(
-        //         c1 as VNode[],
-        //         c2 as VNodeArrayChildren,
-        //         container,
-        //         anchor,
-        //         parentComponent,
-        //         parentSuspense,
-        //         isSVG,
-        //         slotScopeIds,
-        //         optimized
-        //       )
-        //       return
+        // unkeyed
+        // patchUnkeyedChildren(
+        //   c1 as VNode[],
+        //   c2 as VNodeArrayChildren,
+        //   container,
+        //   anchor,
+        //   parentComponent,
+        //   parentSuspense,
+        //   isSVG,
+        //   slotScopeIds,
+        //   optimized
+        // )
+        // return
       }
     }
     //   // children has 3 possibilities: text, array or no children.
@@ -1612,8 +1608,8 @@ function baseCreateRenderer(
             optimized
           )
         } else {
-          //         // no new children, just unmount old
-          //         unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
+          // no new children, just unmount old
+          unmountChildren(c1 as VNode[], parentComponent, parentSuspense, true)
         }
       } else {
         // prev children was text OR null
@@ -1638,64 +1634,64 @@ function baseCreateRenderer(
     }
   }
 
-  // const patchUnkeyedChildren = (
-  //   c1: VNode[],
-  //   c2: VNodeArrayChildren,
-  //   container: RendererElement,
-  //   anchor: RendererNode | null,
-  //   parentComponent: ComponentInternalInstance | null,
-  //   parentSuspense: SuspenseBoundary | null,
-  //   isSVG: boolean,
-  //   slotScopeIds: string[] | null,
-  //   optimized: boolean
-  // ) => {
-  //   c1 = c1 || EMPTY_ARR
-  //   c2 = c2 || EMPTY_ARR
-  //   const oldLength = c1.length
-  //   const newLength = c2.length
-  //   const commonLength = Math.min(oldLength, newLength)
-  //   let i
-  //   for (i = 0; i < commonLength; i++) {
-  //     const nextChild = (c2[i] = optimized
-  //       ? cloneIfMounted(c2[i] as VNode)
-  //       : normalizeVNode(c2[i]))
-  //     patch(
-  //       c1[i],
-  //       nextChild,
-  //       container,
-  //       null,
-  //       parentComponent,
-  //       parentSuspense,
-  //       isSVG,
-  //       slotScopeIds,
-  //       optimized
-  //     )
-  //   }
-  //   if (oldLength > newLength) {
-  //     // remove old
-  //     unmountChildren(
-  //       c1,
-  //       parentComponent,
-  //       parentSuspense,
-  //       true,
-  //       false,
-  //       commonLength
-  //     )
-  //   } else {
-  //     // mount new
-  //     mountChildren(
-  //       c2,
-  //       container,
-  //       anchor,
-  //       parentComponent,
-  //       parentSuspense,
-  //       isSVG,
-  //       slotScopeIds,
-  //       optimized,
-  //       commonLength
-  //     )
-  //   }
-  // }
+  const patchUnkeyedChildren = (
+    c1: VNode[],
+    c2: VNodeArrayChildren,
+    container: RendererElement,
+    anchor: RendererNode | null,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    isSVG: boolean,
+    slotScopeIds: string[] | null,
+    optimized: boolean
+  ) => {
+    c1 = c1 || EMPTY_ARR
+    c2 = c2 || EMPTY_ARR
+    const oldLength = c1.length
+    const newLength = c2.length
+    const commonLength = Math.min(oldLength, newLength)
+    let i
+    for (i = 0; i < commonLength; i++) {
+      const nextChild = (c2[i] = optimized
+        ? cloneIfMounted(c2[i] as VNode)
+        : normalizeVNode(c2[i]))
+      patch(
+        c1[i],
+        nextChild,
+        container,
+        null,
+        parentComponent,
+        parentSuspense,
+        isSVG,
+        slotScopeIds,
+        optimized
+      )
+    }
+    if (oldLength > newLength) {
+      // remove old
+      unmountChildren(
+        c1,
+        parentComponent,
+        parentSuspense,
+        true,
+        false,
+        commonLength
+      )
+    } else {
+      // mount new
+      mountChildren(
+        c2,
+        container,
+        anchor,
+        parentComponent,
+        parentSuspense,
+        isSVG,
+        slotScopeIds,
+        optimized,
+        commonLength
+      )
+    }
+  }
 
   // can be all-keyed or mixed
   const patchKeyedChildren = (
@@ -1972,25 +1968,25 @@ function baseCreateRenderer(
       shapeFlag & ShapeFlags.ELEMENT &&
       transition
     if (needTransition) {
-      if (moveType === MoveType.ENTER) {
-        transition!.beforeEnter(el!)
-        hostInsert(el!, container, anchor)
-        queuePostRenderEffect(() => transition!.enter(el!), parentSuspense)
-      } else {
-        const { leave, delayLeave, afterLeave } = transition!
-        const remove = () => hostInsert(el!, container, anchor)
-        const performLeave = () => {
-          leave(el!, () => {
-            remove()
-            afterLeave && afterLeave()
-          })
-        }
-        if (delayLeave) {
-          delayLeave(el!, remove, performLeave)
-        } else {
-          performLeave()
-        }
-      }
+      // if (moveType === MoveType.ENTER) {
+      //   transition!.beforeEnter(el!)
+      //   hostInsert(el!, container, anchor)
+      //   queuePostRenderEffect(() => transition!.enter(el!), parentSuspense)
+      // } else {
+      //   const { leave, delayLeave, afterLeave } = transition!
+      //   const remove = () => hostInsert(el!, container, anchor)
+      //   const performLeave = () => {
+      //     leave(el!, () => {
+      //       remove()
+      //       afterLeave && afterLeave()
+      //     })
+      //   }
+      //   if (delayLeave) {
+      //     delayLeave(el!, remove, performLeave)
+      //   } else {
+      //     performLeave()
+      //   }
+      // }
     } else {
       hostInsert(el!, container, anchor)
     }
@@ -2055,21 +2051,21 @@ function baseCreateRenderer(
         (type !== Fragment ||
           (patchFlag > 0 && patchFlag & PatchFlags.STABLE_FRAGMENT))
       ) {
-        //     // fast path for block nodes: only need to unmount dynamic children.
-        //     unmountChildren(
-        //       dynamicChildren,
-        //       parentComponent,
-        //       parentSuspense,
-        //       false,
-        //       true
-        //     )
+        // // fast path for block nodes: only need to unmount dynamic children.
+        // unmountChildren(
+        //   dynamicChildren,
+        //   parentComponent,
+        //   parentSuspense,
+        //   false,
+        //   true
+        // )
       } else if (
         (type === Fragment &&
           patchFlag &
             (PatchFlags.KEYED_FRAGMENT | PatchFlags.UNKEYED_FRAGMENT)) ||
         (!optimized && shapeFlag & ShapeFlags.ARRAY_CHILDREN)
       ) {
-        unmountChildren(children as VNode[], parentComponent, parentSuspense)
+        // unmountChildren(children as VNode[], parentComponent, parentSuspense)
       }
       if (doRemove) {
         remove(vnode)
@@ -2250,9 +2246,9 @@ function baseCreateRenderer(
 
   const render: RootRenderFunction = (vnode, container, isSVG) => {
     if (vnode == null) {
-      // if (container._vnode) {
-      //   unmount(container._vnode, null, null, true)
-      // }
+      if (container._vnode) {
+        unmount(container._vnode, null, null, true)
+      }
     } else {
       patch(container._vnode || null, vnode, container, null, null, null, isSVG)
     }

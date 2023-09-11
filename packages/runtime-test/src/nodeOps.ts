@@ -110,23 +110,23 @@ function createText(text: string): TestText {
   return node
 }
 
-// function createComment(text: string): TestComment {
-//   const node: TestComment = {
-//     id: nodeId++,
-//     type: TestNodeTypes.COMMENT,
-//     text,
-//     parentNode: null
-//   }
-//   logNodeOp({
-//     type: NodeOpTypes.CREATE,
-//     nodeType: TestNodeTypes.COMMENT,
-//     targetNode: node,
-//     text
-//   })
-//   // avoid test nodes from being observed
-//   markRaw(node)
-//   return node
-// }
+function createComment(text: string): TestComment {
+  const node: TestComment = {
+    id: nodeId++,
+    type: TestNodeTypes.COMMENT,
+    text,
+    parentNode: null
+  }
+  logNodeOp({
+    type: NodeOpTypes.CREATE,
+    nodeType: TestNodeTypes.COMMENT,
+    targetNode: node,
+    text
+  })
+  // avoid test nodes from being observed
+  markRaw(node)
+  return node
+}
 
 function setText(node: TestText, text: string) {
   logNodeOp({
@@ -237,7 +237,7 @@ export const nodeOps = {
   remove,
   createElement,
   createText,
-  // createComment,
+  createComment,
   setText,
   setElementText,
   parentNode,

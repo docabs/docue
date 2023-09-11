@@ -678,6 +678,34 @@ export function createTextVNode(text: string = ' ', flag: number = 0): VNode {
   return createVNode(Text, null, text, flag)
 }
 
+// /**
+//  * @private
+//  */
+// export function createStaticVNode(
+//   content: string,
+//   numberOfNodes: number
+// ): VNode {
+//   // A static vnode can contain multiple stringified elements, and the number
+//   // of elements is necessary for hydration.
+//   const vnode = createVNode(Static, null, content)
+//   vnode.staticCount = numberOfNodes
+//   return vnode
+// }
+
+/**
+ * @private
+ */
+export function createCommentVNode(
+  text: string = '',
+  // when used as the v-else branch, the comment node must be created as a
+  // block to ensure correct updates.
+  asBlock: boolean = false
+): VNode {
+  return asBlock
+    ? (openBlock(), createBlock(Comment, null, text))
+    : createVNode(Comment, null, text)
+}
+
 export function normalizeVNode(child: VNodeChild): VNode {
   if (child == null || typeof child === 'boolean') {
     // empty placeholder
