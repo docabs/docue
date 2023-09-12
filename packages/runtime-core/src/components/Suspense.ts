@@ -2,6 +2,7 @@ import { isArray } from '@docue/shared'
 import { ComponentInternalInstance } from '../component'
 import { MoveType, SetupRenderEffectFn } from '../renderer'
 import { RendererElement, RendererNode, VNode } from '../vnode'
+import { queuePostFlushCb } from '../scheduler'
 
 export interface SuspenseProps {
   onResolve?: () => void

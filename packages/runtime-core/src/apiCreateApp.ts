@@ -12,6 +12,7 @@ import { warn } from './warning'
 import { VNode, cloneVNode, createVNode } from './vnode'
 import { version } from '.'
 import { extend, isFunction, isObject } from '@docue/shared'
+import { ComponentOptions, MergedComponentOptions } from './componentOptions'
 
 export interface App<HostElement = any> {
   version: string
@@ -64,14 +65,14 @@ export interface App<HostElement = any> {
   // _createRoot?(options: ComponentOptions): ComponentPublicInstance
 }
 
-// export type OptionMergeFunction = (to: unknown, from: unknown) => any
+export type OptionMergeFunction = (to: unknown, from: unknown) => any
 
 export interface AppConfig {
   // @private
   readonly isNativeTag?: (tag: string) => boolean
 
   // performance: boolean
-  // optionMergeStrategies: Record<string, OptionMergeFunction>
+  optionMergeStrategies: Record<string, OptionMergeFunction>
   // globalProperties: ComponentCustomProperties & Record<string, any>
   errorHandler?: (
     err: unknown,
@@ -111,13 +112,13 @@ export interface AppContext {
   // directives: Record<string, Directive>
   // provides: Record<string | symbol, any>
 
-  // /**
-  //  * Cache for merged/normalized component options
-  //  * Each app instance has its own cache because app-level global mixins and
-  //  * optionMergeStrategies can affect merge behavior.
-  //  * @internal
-  //  */
-  // optionsCache: WeakMap<ComponentOptions, MergedComponentOptions>
+  /**
+   * Cache for merged/normalized component options
+   * Each app instance has its own cache because app-level global mixins and
+   * optionMergeStrategies can affect merge behavior.
+   * @internal
+   */
+  optionsCache: WeakMap<ComponentOptions, MergedComponentOptions>
   // /**
   //  * Cache for normalized props options
   //  * @internal

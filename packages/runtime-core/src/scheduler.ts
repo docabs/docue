@@ -204,9 +204,9 @@ const comparator = (a: SchedulerJob, b: SchedulerJob): number => {
 function flushJobs(seen?: CountMap) {
   isFlushPending = false
   isFlushing = true
-  // if (__DEV__) {
-  //   seen = seen || new Map()
-  // }
+  if (__DEV__) {
+    seen = seen || new Map()
+  }
   // Sort queue before flush.
   // This ensures that:
   // 1. Components are updated from parent to child. (because parent is always
@@ -235,15 +235,15 @@ function flushJobs(seen?: CountMap) {
       }
     }
   } finally {
-    //   flushIndex = 0
-    //   queue.length = 0
-    //   flushPostFlushCbs(seen)
-    //   isFlushing = false
-    //   currentFlushPromise = null
-    //   // some postFlushCb queued jobs!
-    //   // keep flushing until it drains.
-    //   if (queue.length || pendingPostFlushCbs.length) {
-    //     flushJobs(seen)
-    //   }
+    flushIndex = 0
+    queue.length = 0
+    flushPostFlushCbs(seen)
+    isFlushing = false
+    currentFlushPromise = null
+    // some postFlushCb queued jobs!
+    // keep flushing until it drains.
+    if (queue.length || pendingPostFlushCbs.length) {
+      flushJobs(seen)
+    }
   }
 }

@@ -16,6 +16,7 @@ import {
   isRef,
   markRaw,
   pauseTracking,
+  proxyRefs,
   resetTracking,
   shallowReadonly
 } from '@docue/reactivity'
@@ -33,7 +34,8 @@ import {
 } from './componentOptions'
 import {
   ComponentPublicInstance,
-  ComponentPublicInstanceConstructor
+  ComponentPublicInstanceConstructor,
+  publicPropertiesMap
 } from './componentPublicInstance'
 import { LifecycleHooks } from './enums'
 import { VNode, VNodeChild, isVNode } from './vnode'
@@ -146,6 +148,8 @@ export type Component<
 > =
   | ConcreteComponent<Props, RawBindings, D, C, M>
   | ComponentPublicInstanceConstructor<Props>
+
+export type { ComponentOptions }
 
 type LifecycleHook<TFn = Function> = TFn[] | null
 
@@ -445,6 +449,7 @@ export interface ComponentInternalInstance {
   ut?: (vars?: Record<string, string>) => void
 }
 
+// TODO: 防止编译时报错
 let _emptyAppContext: AppContext
 // const emptyAppContext = createAppContext()
 
@@ -717,7 +722,7 @@ export function handleSetupResult(
     // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
     //   instance.devtoolsRawSetupState = setupResult
     // }
-    // instance.setupState = proxyRefs(setupResult)
+    instance.setupState = proxyRefs(setupResult)
     // if (__DEV__) {
     //   exposeSetupStateOnRenderContext(instance)
     // }
@@ -950,25 +955,25 @@ export function createSetupContext(
   }
 }
 
-// export function getExposeProxy(instance: ComponentInternalInstance) {
-//   if (instance.exposed) {
-//     return (
-//       instance.exposeProxy ||
-//       (instance.exposeProxy = new Proxy(proxyRefs(markRaw(instance.exposed)), {
-//         get(target, key: string) {
-//           if (key in target) {
-//             return target[key]
-//           } else if (key in publicPropertiesMap) {
-//             return publicPropertiesMap[key](instance)
-//           }
-//         },
-//         has(target, key: string) {
-//           return key in target || key in publicPropertiesMap
-//         }
-//       }))
-//     )
-//   }
-// }
+export function getExposeProxy(instance: ComponentInternalInstance) {
+  if (instance.exposed) {
+    return (
+      instance.exposeProxy ||
+      (instance.exposeProxy = new Proxy(proxyRefs(markRaw(instance.exposed)), {
+        get(target, key: string) {
+          if (key in target) {
+            return target[key]
+          } else if (key in publicPropertiesMap) {
+            return publicPropertiesMap[key](instance)
+          }
+        },
+        has(target, key: string) {
+          return key in target || key in publicPropertiesMap
+        }
+      }))
+    )
+  }
+}
 
 const classifyRE = /(?:^|[-_])(\w)/g
 const classify = (str: string): string =>

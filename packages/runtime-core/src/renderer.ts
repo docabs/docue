@@ -42,6 +42,7 @@ import { warn } from './warning'
 import { SchedulerJob, queueJob, queuePostFlushCb } from './scheduler'
 import { renderComponentRoot } from './componentRenderUtils'
 import { isHmrUpdating } from './hmr'
+import { setRef } from './rendererTemplateRef'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -447,10 +448,10 @@ function baseCreateRenderer(
           warn('Invalid VNode type:', type, `(${typeof type})`)
         }
     }
-    //   // set ref
-    //   if (ref != null && parentComponent) {
-    //     setRef(ref, n1 && n1.ref, parentSuspense, n2 || n1, !n2)
-    //   }
+    // set ref
+    if (ref != null && parentComponent) {
+      setRef(ref, n1 && n1.ref, parentSuspense, n2 || n1, !n2)
+    }
   }
 
   const processText: ProcessTextOrCommentFn = (n1, n2, container, anchor) => {
