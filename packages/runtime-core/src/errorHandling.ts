@@ -70,7 +70,7 @@ export function callWithErrorHandling(
   try {
     res = args ? fn(...args) : fn()
   } catch (err) {
-    // handleError(err, instance, type)
+    handleError(err, instance, type)
   }
   return res
 }

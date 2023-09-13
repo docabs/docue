@@ -28,6 +28,7 @@ export {
 export {
   ReactiveEffect,
   effect,
+  track,
   stop,
   pauseTracking,
   resetTracking,

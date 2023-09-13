@@ -35,6 +35,7 @@ import {
 import {
   ComponentPublicInstance,
   ComponentPublicInstanceConstructor,
+  PublicInstanceProxyHandlers,
   publicPropertiesMap
 } from './componentPublicInstance'
 import { LifecycleHooks } from './enums'
@@ -74,10 +75,10 @@ export interface ComponentInternalOptions {
    * @internal
    */
   __scopeId?: string
-  // /**
-  //  * @internal
-  //  */
-  // __cssModules?: Data
+  /**
+   * @internal
+   */
+  __cssModules?: Data
   // /**
   //  * @internal
   //  */
@@ -549,11 +550,11 @@ export function createComponentInstance(
     ec: null,
     sp: null
   }
-  if (__DEV__) {
-    // instance.ctx = createDevRenderContext(instance)
-  } else {
-    instance.ctx = { _: instance }
-  }
+  // if (__DEV__) {
+  //   instance.ctx = createDevRenderContext(instance)
+  // } else {
+  instance.ctx = { _: instance }
+  // }
   instance.root = parent ? parent.root : instance
   // instance.emit = emit.bind(null, instance)
 
@@ -639,7 +640,7 @@ function setupStatefulComponent(
   instance.accessCache = Object.create(null)
   // 1. create public instance / render proxy
   // also mark it raw so it's never observed
-  // instance.proxy = markRaw(new Proxy(instance.ctx, PublicInstanceProxyHandlers))
+  instance.proxy = markRaw(new Proxy(instance.ctx, PublicInstanceProxyHandlers))
   // if (__DEV__) {
   //   exposePropsOnRenderContext(instance)
   // }
@@ -816,12 +817,12 @@ export function finishComponentSetup(
     //     }
     //   }
     instance.render = (Component.render || NOOP) as InternalRenderFunction
-    //   // for runtime-compiled render functions using `with` blocks, the render
-    //   // proxy used needs a different `has` handler which is more performant and
-    //   // also only allows a whitelist of globals to fallthrough.
-    //   if (installWithProxy) {
-    //     installWithProxy(instance)
-    //   }
+    // for runtime-compiled render functions using `with` blocks, the render
+    // proxy used needs a different `has` handler which is more performant and
+    // also only allows a whitelist of globals to fallthrough.
+    // if (installWithProxy) {
+    //   installWithProxy(instance)
+    // }
   }
   // // support for 2.x options
   // if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {

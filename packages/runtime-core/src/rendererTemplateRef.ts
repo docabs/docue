@@ -27,7 +27,6 @@ export function setRef(
   vnode: VNode,
   isUnmount = false
 ) {
-  debugger
   if (isArray(rawRef)) {
     rawRef.forEach((r, i) =>
       setRef(

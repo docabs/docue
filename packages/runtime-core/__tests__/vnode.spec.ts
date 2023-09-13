@@ -657,26 +657,25 @@ describe('vnode', () => {
         shapeFlag: ShapeFlags.ELEMENT | ShapeFlags.TEXT_CHILDREN
       })
     })
-    // test('receive component instance as 2nd arg', () => {
-    //   transformVNodeArgs((args, instance) => {
-    //     if (instance) {
-    //       return ['h1', null, instance.type.name]
-    //     } else {
-    //       return args
-    //     }
-    //   })
-    //   const App = {
-    //     // this will be the name of the component in the h1
-    //     name: 'Root Component',
-    //     render() {
-    //       debugger
-    //       return h('p') // this will be overwritten by the transform
-    //     }
-    //   }
-    //   const root = nodeOps.createElement('div')
-    //   createApp(App).mount(root)
-    //   expect(serializeInner(root)).toBe('<h1>Root Component</h1>')
-    // })
+    test('receive component instance as 2nd arg', () => {
+      transformVNodeArgs((args, instance) => {
+        if (instance) {
+          return ['h1', null, instance.type.name]
+        } else {
+          return args
+        }
+      })
+      const App = {
+        // this will be the name of the component in the h1
+        name: 'Root Component',
+        render() {
+          return h('p') // this will be overwritten by the transform
+        }
+      }
+      const root = nodeOps.createElement('div')
+      createApp(App).mount(root)
+      expect(serializeInner(root)).toBe('<h1>Root Component</h1>')
+    })
     test('should not be observable', () => {
       const a = createVNode('div')
       const b = reactive(a)

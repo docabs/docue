@@ -529,7 +529,7 @@ export type OptionTypesType<
 //   }
 // }
 
-// export let shouldCacheAccess = true
+export let shouldCacheAccess = true
 
 // export function applyOptions(instance: ComponentInternalInstance) {
 //   const options = resolveMergedOptions(instance)

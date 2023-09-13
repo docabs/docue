@@ -14,7 +14,8 @@ import {
   ComponentOptionsMixin,
   ComponentOptionsWithObjectProps,
   ComputedOptions,
-  MethodOptions
+  MethodOptions,
+  RenderFunction
 } from './componentOptions'
 import { extend, isFunction } from '@docue/shared'
 import {
@@ -96,29 +97,29 @@ export type DefineComponent<
   > &
   PP
 
-// // defineComponent is a utility that is primarily used for type inference
-// // when declaring components. Type inference is provided in the component
-// // options (provided as the argument). The returned value has artificial types
-// // for TSX / manual render function / IDE support.
+// defineComponent is a utility that is primarily used for type inference
+// when declaring components. Type inference is provided in the component
+// options (provided as the argument). The returned value has artificial types
+// for TSX / manual render function / IDE support.
 
-// // overload 1: direct setup function
-// // (uses user defined props interface)
-// export function defineComponent<
-//   Props extends Record<string, any>,
-//   E extends EmitsOptions = {},
-//   EE extends string = string,
-//   S extends SlotsType = {}
-// >(
-//   setup: (
-//     props: Props,
-//     ctx: SetupContext<E, S>
-//   ) => RenderFunction | Promise<RenderFunction>,
-//   options?: Pick<ComponentOptions, 'name' | 'inheritAttrs'> & {
-//     props?: (keyof Props)[]
-//     emits?: E | EE[]
-//     slots?: S
-//   }
-// ): (props: Props & EmitsToProps<E>) => any
+// overload 1: direct setup function
+// (uses user defined props interface)
+export function defineComponent<
+  Props extends Record<string, any>,
+  E extends EmitsOptions = {},
+  EE extends string = string,
+  S extends SlotsType = {}
+>(
+  setup: (
+    props: Props,
+    ctx: SetupContext<E, S>
+  ) => RenderFunction | Promise<RenderFunction>,
+  options?: Pick<ComponentOptions, 'name' | 'inheritAttrs'> & {
+    props?: (keyof Props)[]
+    emits?: E | EE[]
+    slots?: S
+  }
+): (props: Props & EmitsToProps<E>) => any
 // export function defineComponent<
 //   Props extends Record<string, any>,
 //   E extends EmitsOptions = {},

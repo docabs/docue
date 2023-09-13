@@ -39,7 +39,13 @@ import {
   Static
 } from './vnode'
 import { warn } from './warning'
-import { SchedulerJob, queueJob, queuePostFlushCb } from './scheduler'
+import {
+  SchedulerJob,
+  flushPostFlushCbs,
+  flushPreFlushCbs,
+  queueJob,
+  queuePostFlushCb
+} from './scheduler'
 import { renderComponentRoot } from './componentRenderUtils'
 import { isHmrUpdating } from './hmr'
 import { setRef } from './rendererTemplateRef'
@@ -1147,7 +1153,7 @@ function baseCreateRenderer(
       )
       //     }
     } else {
-      // updateComponent(n1, n2, optimized)
+      updateComponent(n1, n2, optimized)
     }
   }
 
@@ -2011,9 +2017,9 @@ function baseCreateRenderer(
       dirs
     } = vnode
     // unset ref
-    // if (ref != null) {
-    //   setRef(ref, null, parentSuspense, vnode, true)
-    // }
+    if (ref != null) {
+      setRef(ref, null, parentSuspense, vnode, true)
+    }
     // if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
     //   ;(parentComponent!.ctx as KeepAliveContext).deactivate(vnode)
     //   return
@@ -2253,8 +2259,8 @@ function baseCreateRenderer(
     } else {
       patch(container._vnode || null, vnode, container, null, null, null, isSVG)
     }
-    //   flushPreFlushCbs()
-    //   flushPostFlushCbs()
+    flushPreFlushCbs()
+    flushPostFlushCbs()
     container._vnode = vnode
   }
 

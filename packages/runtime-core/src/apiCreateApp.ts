@@ -4,7 +4,10 @@ import {
   Data,
   validateComponentName
 } from './component'
-import { ComponentPublicInstance } from './componentPublicInstance'
+import {
+  ComponentCustomProperties,
+  ComponentPublicInstance
+} from './componentPublicInstance'
 import { RootHydrateFunction } from './hydration'
 import { RootRenderFunction } from './renderer'
 import { ObjectEmitsOptions } from './componentEmits'
@@ -12,7 +15,11 @@ import { warn } from './warning'
 import { VNode, cloneVNode, createVNode } from './vnode'
 import { version } from '.'
 import { extend, isFunction, isObject } from '@docue/shared'
-import { ComponentOptions, MergedComponentOptions } from './componentOptions'
+import {
+  ComponentOptions,
+  MergedComponentOptions,
+  RuntimeCompilerOptions
+} from './componentOptions'
 
 export interface App<HostElement = any> {
   version: string
@@ -73,7 +80,7 @@ export interface AppConfig {
 
   // performance: boolean
   optionMergeStrategies: Record<string, OptionMergeFunction>
-  // globalProperties: ComponentCustomProperties & Record<string, any>
+  globalProperties: ComponentCustomProperties & Record<string, any>
   errorHandler?: (
     err: unknown,
     instance: ComponentPublicInstance | null,
@@ -85,11 +92,11 @@ export interface AppConfig {
     trace: string
   ) => void
 
-  // // /**
-  // //  * Options to pass to `@vue/compiler-dom`.
-  // //  * Only supported in runtime compiler build.
-  // //  */
-  // // compilerOptions: RuntimeCompilerOptions
+  /**
+   * Options to pass to `@docue/compiler-dom`.
+   * Only supported in runtime compiler build.
+   */
+  compilerOptions: RuntimeCompilerOptions
 
   // /**
   //  * @deprecated use config.compilerOptions.isCustomElement
@@ -160,18 +167,18 @@ export function createAppContext(): AppContext {
       // isNativeTag: NO,
       // performance: false,
       // globalProperties: {},
-      // optionMergeStrategies: {},
+      optionMergeStrategies: {},
       // errorHandler: undefined,
       // warnHandler: undefined,
-      // compilerOptions: {}
+      compilerOptions: {}
     },
     // mixins: [],
-    components: {}
+    components: {},
     // directives: {},
     // provides: Object.create(null),
     // optionsCache: new WeakMap(),
     // propsCache: new WeakMap(),
-    // emitsCache: new WeakMap()
+    emitsCache: new WeakMap()
   }
 }
 
