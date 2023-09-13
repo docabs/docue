@@ -166,7 +166,7 @@ export function createAppContext(): AppContext {
     config: {
       // isNativeTag: NO,
       // performance: false,
-      // globalProperties: {},
+      globalProperties: {},
       optionMergeStrategies: {},
       // errorHandler: undefined,
       // warnHandler: undefined,

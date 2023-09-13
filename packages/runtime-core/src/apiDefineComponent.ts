@@ -13,6 +13,7 @@ import {
   ComponentOptionsBase,
   ComponentOptionsMixin,
   ComponentOptionsWithObjectProps,
+  ComponentOptionsWithoutProps,
   ComputedOptions,
   MethodOptions,
   RenderFunction
@@ -120,69 +121,69 @@ export function defineComponent<
     slots?: S
   }
 ): (props: Props & EmitsToProps<E>) => any
-// export function defineComponent<
-//   Props extends Record<string, any>,
-//   E extends EmitsOptions = {},
-//   EE extends string = string,
-//   S extends SlotsType = {}
-// >(
-//   setup: (
-//     props: Props,
-//     ctx: SetupContext<E, S>
-//   ) => RenderFunction | Promise<RenderFunction>,
-//   options?: Pick<ComponentOptions, 'name' | 'inheritAttrs'> & {
-//     props?: ComponentObjectPropsOptions<Props>
-//     emits?: E | EE[]
-//     slots?: S
-//   }
-// ): (props: Props & EmitsToProps<E>) => any
+export function defineComponent<
+  Props extends Record<string, any>,
+  E extends EmitsOptions = {},
+  EE extends string = string,
+  S extends SlotsType = {}
+>(
+  setup: (
+    props: Props,
+    ctx: SetupContext<E, S>
+  ) => RenderFunction | Promise<RenderFunction>,
+  options?: Pick<ComponentOptions, 'name' | 'inheritAttrs'> & {
+    props?: ComponentObjectPropsOptions<Props>
+    emits?: E | EE[]
+    slots?: S
+  }
+): (props: Props & EmitsToProps<E>) => any
 
-// // overload 2: object format with no props
-// // (uses user defined props interface)
-// // return type is for Vetur and TSX support
-// export function defineComponent<
-//   Props = {},
-//   RawBindings = {},
-//   D = {},
-//   C extends ComputedOptions = {},
-//   M extends MethodOptions = {},
-//   Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   E extends EmitsOptions = {},
-//   EE extends string = string,
-//   S extends SlotsType = {},
-//   I extends ComponentInjectOptions = {},
-//   II extends string = string
-// >(
-//   options: ComponentOptionsWithoutProps<
-//     Props,
-//     RawBindings,
-//     D,
-//     C,
-//     M,
-//     Mixin,
-//     Extends,
-//     E,
-//     EE,
-//     I,
-//     II,
-//     S
-//   >
-// ): DefineComponent<
-//   Props,
-//   RawBindings,
-//   D,
-//   C,
-//   M,
-//   Mixin,
-//   Extends,
-//   E,
-//   EE,
-//   PublicProps,
-//   ResolveProps<Props, E>,
-//   ExtractDefaultPropTypes<Props>,
-//   S
-// >
+// overload 2: object format with no props
+// (uses user defined props interface)
+// return type is for Vetur and TSX support
+export function defineComponent<
+  Props = {},
+  RawBindings = {},
+  D = {},
+  C extends ComputedOptions = {},
+  M extends MethodOptions = {},
+  Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+  Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+  E extends EmitsOptions = {},
+  EE extends string = string,
+  S extends SlotsType = {},
+  I extends ComponentInjectOptions = {},
+  II extends string = string
+>(
+  options: ComponentOptionsWithoutProps<
+    Props,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    I,
+    II,
+    S
+  >
+): DefineComponent<
+  Props,
+  RawBindings,
+  D,
+  C,
+  M,
+  Mixin,
+  Extends,
+  E,
+  EE,
+  PublicProps,
+  ResolveProps<Props, E>,
+  ExtractDefaultPropTypes<Props>,
+  S
+>
 
 // // overload 3: object format with array props declaration
 // // props inferred as { [key in PropNames]?: any }

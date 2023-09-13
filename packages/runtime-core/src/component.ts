@@ -927,7 +927,7 @@ export function createSetupContext(
     //         }
     //       }
     //     }
-    //     instance.exposed = exposed || {}
+    instance.exposed = exposed || {}
   }
   if (__DEV__) {
     // We use getters in dev in case libs like test-utils overwrite instance

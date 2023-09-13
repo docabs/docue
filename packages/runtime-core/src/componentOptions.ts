@@ -154,53 +154,53 @@ export interface RuntimeCompilerOptions {
   // delimiters?: [string, string]
 }
 
-// export type ComponentOptionsWithoutProps<
-//   Props = {},
-//   RawBindings = {},
-//   D = {},
-//   C extends ComputedOptions = {},
-//   M extends MethodOptions = {},
-//   Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   E extends EmitsOptions = EmitsOptions,
-//   EE extends string = string,
-//   I extends ComponentInjectOptions = {},
-//   II extends string = string,
-//   S extends SlotsType = {},
-//   PE = Props & EmitsToProps<E>
-// > = ComponentOptionsBase<
-//   PE,
-//   RawBindings,
-//   D,
-//   C,
-//   M,
-//   Mixin,
-//   Extends,
-//   E,
-//   EE,
-//   {},
-//   I,
-//   II,
-//   S
-// > & {
-//   props?: undefined
-// } & ThisType<
-//     CreateComponentPublicInstance<
-//       PE,
-//       RawBindings,
-//       D,
-//       C,
-//       M,
-//       Mixin,
-//       Extends,
-//       E,
-//       PE,
-//       {},
-//       false,
-//       I,
-//       S
-//     >
-//   >
+export type ComponentOptionsWithoutProps<
+  Props = {},
+  RawBindings = {},
+  D = {},
+  C extends ComputedOptions = {},
+  M extends MethodOptions = {},
+  Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+  Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+  E extends EmitsOptions = EmitsOptions,
+  EE extends string = string,
+  I extends ComponentInjectOptions = {},
+  II extends string = string,
+  S extends SlotsType = {},
+  PE = Props & EmitsToProps<E>
+> = ComponentOptionsBase<
+  PE,
+  RawBindings,
+  D,
+  C,
+  M,
+  Mixin,
+  Extends,
+  E,
+  EE,
+  {},
+  I,
+  II,
+  S
+> & {
+  props?: undefined
+} & ThisType<
+    CreateComponentPublicInstance<
+      PE,
+      RawBindings,
+      D,
+      C,
+      M,
+      Mixin,
+      Extends,
+      E,
+      PE,
+      {},
+      false,
+      I,
+      S
+    >
+  >
 
 // export type ComponentOptionsWithArrayProps<
 //   PropNames extends string = string,
@@ -399,30 +399,30 @@ interface LegacyOptions<
   // compatConfig?: CompatConfig
   // // allow any custom options
   // [key: string]: any
-  // // state
-  // // Limitation: we cannot expose RawBindings on the `this` context for data
-  // // since that leads to some sort of circular inference and breaks ThisType
-  // // for the entire component.
-  // data?: (
-  //   this: CreateComponentPublicInstance<
-  //     Props,
-  //     {},
-  //     {},
-  //     {},
-  //     MethodOptions,
-  //     Mixin,
-  //     Extends
-  //   >,
-  //   vm: CreateComponentPublicInstance<
-  //     Props,
-  //     {},
-  //     {},
-  //     {},
-  //     MethodOptions,
-  //     Mixin,
-  //     Extends
-  //   >
-  // ) => D
+  // state
+  // Limitation: we cannot expose RawBindings on the `this` context for data
+  // since that leads to some sort of circular inference and breaks ThisType
+  // for the entire component.
+  data?: (
+    this: CreateComponentPublicInstance<
+      Props,
+      {},
+      {},
+      {},
+      MethodOptions,
+      Mixin,
+      Extends
+    >,
+    vm: CreateComponentPublicInstance<
+      Props,
+      {},
+      {},
+      {},
+      MethodOptions,
+      Mixin,
+      Extends
+    >
+  ) => D
   // computed?: C
   // methods?: M
   // watch?: ComponentWatchOptions

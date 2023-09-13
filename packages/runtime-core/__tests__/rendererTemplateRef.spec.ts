@@ -327,46 +327,46 @@ describe('api: template refs', () => {
   //   expect(spy.mock.calls[1][0]).toBe('p')
   // })
 
-  // // #2078
-  // test('handling multiple merged refs', async () => {
-  //   const Foo = {
-  //     render: () => h('div', 'foo')
-  //   }
-  //   const Bar = {
-  //     render: () => h('div', 'bar')
-  //   }
+  // #2078
+  test('handling multiple merged refs', async () => {
+    const Foo = {
+      render: () => h('div', 'foo')
+    }
+    const Bar = {
+      render: () => h('div', 'bar')
+    }
 
-  //   const viewRef = shallowRef<any>(Foo)
-  //   const elRef1 = ref()
-  //   const elRef2 = ref()
+    const viewRef = shallowRef<any>(Foo)
+    const elRef1 = ref()
+    const elRef2 = ref()
 
-  //   const App = {
-  //     render() {
-  //       if (!viewRef.value) {
-  //         return null
-  //       }
-  //       const view = h(viewRef.value, { ref: elRef1 })
-  //       return h(view, { ref: elRef2 })
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
+    const App = {
+      render() {
+        if (!viewRef.value) {
+          return null
+        }
+        const view = h(viewRef.value, { ref: elRef1 })
+        return h(view, { ref: elRef2 })
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
 
-  //   expect(serializeInner(elRef1.value.$el)).toBe('foo')
-  //   expect(elRef1.value).toBe(elRef2.value)
+    expect(serializeInner(elRef1.value.$el)).toBe('foo')
+    expect(elRef1.value).toBe(elRef2.value)
 
-  //   viewRef.value = Bar
-  //   await nextTick()
-  //   expect(serializeInner(elRef1.value.$el)).toBe('bar')
-  //   expect(elRef1.value).toBe(elRef2.value)
+    viewRef.value = Bar
+    await nextTick()
+    expect(serializeInner(elRef1.value.$el)).toBe('bar')
+    expect(elRef1.value).toBe(elRef2.value)
 
-  //   viewRef.value = null
-  //   await nextTick()
-  //   expect(elRef1.value).toBeNull()
-  //   expect(elRef1.value).toBe(elRef2.value)
-  // })
+    viewRef.value = null
+    await nextTick()
+    expect(elRef1.value).toBeNull()
+    expect(elRef1.value).toBe(elRef2.value)
+  })
 
-  // // compiled output of <script setup> inline mode
+  // compiled output of <script setup> inline mode
   // test('raw ref with ref_key', () => {
   //   let refs: any
 
@@ -394,149 +394,149 @@ describe('api: template refs', () => {
   //   expect(serializeInner(refs.el)).toBe('hello')
   // })
 
-  // // compiled output of v-for + template ref
-  // test('ref in v-for', async () => {
-  //   const show = ref(true)
-  //   const list = reactive([1, 2, 3])
-  //   const listRefs = ref([])
-  //   const mapRefs = () => listRefs.value.map(n => serializeInner(n))
+  // compiled output of v-for + template ref
+  test('ref in v-for', async () => {
+    const show = ref(true)
+    const list = reactive([1, 2, 3])
+    const listRefs = ref([])
+    const mapRefs = () => listRefs.value.map(n => serializeInner(n))
 
-  //   const App = {
-  //     render() {
-  //       return show.value
-  //         ? h(
-  //             'ul',
-  //             list.map(i =>
-  //               h(
-  //                 'li',
-  //                 {
-  //                   ref: listRefs,
-  //                   ref_for: true
-  //                 },
-  //                 i
-  //               )
-  //             )
-  //           )
-  //         : null
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
+    const App = {
+      render() {
+        return show.value
+          ? h(
+              'ul',
+              list.map(i =>
+                h(
+                  'li',
+                  {
+                    ref: listRefs,
+                    ref_for: true
+                  },
+                  i
+                )
+              )
+            )
+          : null
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
 
-  //   expect(mapRefs()).toMatchObject(['1', '2', '3'])
+    expect(mapRefs()).toMatchObject(['1', '2', '3'])
 
-  //   list.push(4)
-  //   await nextTick()
-  //   expect(mapRefs()).toMatchObject(['1', '2', '3', '4'])
+    list.push(4)
+    await nextTick()
+    expect(mapRefs()).toMatchObject(['1', '2', '3', '4'])
 
-  //   list.shift()
-  //   await nextTick()
-  //   expect(mapRefs()).toMatchObject(['2', '3', '4'])
+    list.shift()
+    await nextTick()
+    expect(mapRefs()).toMatchObject(['2', '3', '4'])
 
-  //   show.value = !show.value
-  //   await nextTick()
+    show.value = !show.value
+    await nextTick()
 
-  //   expect(mapRefs()).toMatchObject([])
+    expect(mapRefs()).toMatchObject([])
 
-  //   show.value = !show.value
-  //   await nextTick()
-  //   expect(mapRefs()).toMatchObject(['2', '3', '4'])
-  // })
+    show.value = !show.value
+    await nextTick()
+    expect(mapRefs()).toMatchObject(['2', '3', '4'])
+  })
 
-  // test('named ref in v-for', async () => {
-  //   const show = ref(true)
-  //   const list = reactive([1, 2, 3])
-  //   const listRefs = ref([])
-  //   const mapRefs = () => listRefs.value.map(n => serializeInner(n))
+  test('named ref in v-for', async () => {
+    const show = ref(true)
+    const list = reactive([1, 2, 3])
+    const listRefs = ref([])
+    const mapRefs = () => listRefs.value.map(n => serializeInner(n))
 
-  //   const App = {
-  //     setup() {
-  //       return { listRefs }
-  //     },
-  //     render() {
-  //       return show.value
-  //         ? h(
-  //             'ul',
-  //             list.map(i =>
-  //               h(
-  //                 'li',
-  //                 {
-  //                   ref: 'listRefs',
-  //                   ref_for: true
-  //                 },
-  //                 i
-  //               )
-  //             )
-  //           )
-  //         : null
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
+    const App = {
+      setup() {
+        return { listRefs }
+      },
+      render() {
+        return show.value
+          ? h(
+              'ul',
+              list.map(i =>
+                h(
+                  'li',
+                  {
+                    ref: 'listRefs',
+                    ref_for: true
+                  },
+                  i
+                )
+              )
+            )
+          : null
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
 
-  //   expect(mapRefs()).toMatchObject(['1', '2', '3'])
+    expect(mapRefs()).toMatchObject(['1', '2', '3'])
 
-  //   list.push(4)
-  //   await nextTick()
-  //   expect(mapRefs()).toMatchObject(['1', '2', '3', '4'])
+    list.push(4)
+    await nextTick()
+    expect(mapRefs()).toMatchObject(['1', '2', '3', '4'])
 
-  //   list.shift()
-  //   await nextTick()
-  //   expect(mapRefs()).toMatchObject(['2', '3', '4'])
+    list.shift()
+    await nextTick()
+    expect(mapRefs()).toMatchObject(['2', '3', '4'])
 
-  //   show.value = !show.value
-  //   await nextTick()
+    show.value = !show.value
+    await nextTick()
 
-  //   expect(mapRefs()).toMatchObject([])
+    expect(mapRefs()).toMatchObject([])
 
-  //   show.value = !show.value
-  //   await nextTick()
-  //   expect(mapRefs()).toMatchObject(['2', '3', '4'])
-  // })
+    show.value = !show.value
+    await nextTick()
+    expect(mapRefs()).toMatchObject(['2', '3', '4'])
+  })
 
-  // // #6697 v-for ref behaves differently under production and development
-  // test('named ref in v-for , should be responsive when rendering', async () => {
-  //   const list = ref([1, 2, 3])
-  //   const listRefs = ref([])
-  //   const App = {
-  //     setup() {
-  //       return { listRefs }
-  //     },
-  //     render() {
-  //       return h('div', null, [
-  //         h('div', null, String(listRefs.value)),
-  //         h(
-  //           'ul',
-  //           list.value.map(i =>
-  //             h(
-  //               'li',
-  //               {
-  //                 ref: 'listRefs',
-  //                 ref_for: true
-  //               },
-  //               i
-  //             )
-  //           )
-  //         )
-  //       ])
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
+  // #6697 v-for ref behaves differently under production and development
+  test('named ref in v-for , should be responsive when rendering', async () => {
+    const list = ref([1, 2, 3])
+    const listRefs = ref([])
+    const App = {
+      setup() {
+        return { listRefs }
+      },
+      render() {
+        return h('div', null, [
+          h('div', null, String(listRefs.value)),
+          h(
+            'ul',
+            list.value.map(i =>
+              h(
+                'li',
+                {
+                  ref: 'listRefs',
+                  ref_for: true
+                },
+                i
+              )
+            )
+          )
+        ])
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
 
-  //   await nextTick()
-  //   expect(String(listRefs.value)).toBe(
-  //     '[object Object],[object Object],[object Object]'
-  //   )
-  //   expect(serializeInner(root)).toBe(
-  //     '<div><div>[object Object],[object Object],[object Object]</div><ul><li>1</li><li>2</li><li>3</li></ul></div>'
-  //   )
+    await nextTick()
+    expect(String(listRefs.value)).toBe(
+      '[object Object],[object Object],[object Object]'
+    )
+    expect(serializeInner(root)).toBe(
+      '<div><div>[object Object],[object Object],[object Object]</div><ul><li>1</li><li>2</li><li>3</li></ul></div>'
+    )
 
-  //   list.value.splice(0, 1)
-  //   await nextTick()
-  //   expect(String(listRefs.value)).toBe('[object Object],[object Object]')
-  //   expect(serializeInner(root)).toBe(
-  //     '<div><div>[object Object],[object Object]</div><ul><li>2</li><li>3</li></ul></div>'
-  //   )
-  // })
+    list.value.splice(0, 1)
+    await nextTick()
+    expect(String(listRefs.value)).toBe('[object Object],[object Object]')
+    expect(serializeInner(root)).toBe(
+      '<div><div>[object Object],[object Object]</div><ul><li>2</li><li>3</li></ul></div>'
+    )
+  })
 })

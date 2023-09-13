@@ -1506,10 +1506,10 @@ function baseCreateRenderer(
       instance.scope // track it in component's effect scope
     ))
     const update: SchedulerJob = (instance.update = () => effect.run())
-    //   update.id = instance.uid
-    //   // allowRecurse
-    //   // #1801, #2043 component render effects should allow recursive updates
-    //   toggleRecurse(instance, true)
+    update.id = instance.uid
+    // allowRecurse
+    // #1801, #2043 component render effects should allow recursive updates
+    toggleRecurse(instance, true)
     //   if (__DEV__) {
     //     effect.onTrack = instance.rtc
     //       ? e => invokeArrayFns(instance.rtc!, e)
@@ -2072,7 +2072,7 @@ function baseCreateRenderer(
             (PatchFlags.KEYED_FRAGMENT | PatchFlags.UNKEYED_FRAGMENT)) ||
         (!optimized && shapeFlag & ShapeFlags.ARRAY_CHILDREN)
       ) {
-        // unmountChildren(children as VNode[], parentComponent, parentSuspense)
+        unmountChildren(children as VNode[], parentComponent, parentSuspense)
       }
       if (doRemove) {
         remove(vnode)

@@ -199,6 +199,8 @@ export type ComponentPublicInstance<
   S extends SlotsType = {}
 > = {
   $data: D
+  $root: ComponentPublicInstance | null
+  $parent: ComponentPublicInstance | null
 } & P &
   ShallowUnwrapRef<B> &
   UnwrapNestedRefs<D> &
