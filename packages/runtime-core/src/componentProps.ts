@@ -1,18 +1,30 @@
 import {
+  EMPTY_ARR,
   EMPTY_OBJ,
   IfAny,
   PatchFlags,
   camelize,
+  capitalize,
   def,
   extend,
   hasOwn,
+  hyphenate,
   isArray,
   isFunction,
   isObject,
   isOn,
-  isReservedProp
+  isReservedProp,
+  makeMap,
+  toRawType
 } from '@docue/shared'
-import { ComponentInternalInstance, ConcreteComponent, Data } from './component'
+import {
+  ComponentInternalInstance,
+  ComponentOptions,
+  ConcreteComponent,
+  Data,
+  setCurrentInstance,
+  unsetCurrentInstance
+} from './component'
 import { InternalObjectKey } from './vnode'
 import {
   TriggerOpTypes,
@@ -187,10 +199,10 @@ export function initProps(
       props[key] = undefined
     }
   }
-  // // validation
-  // if (__DEV__) {
-  //   validateProps(rawProps || {}, props, instance)
-  // }
+  // validation
+  if (__DEV__) {
+    validateProps(rawProps || {}, props, instance)
+  }
   if (isStateful) {
     // stateful
     instance.props = isSSR ? props : shallowReactive(props)
@@ -235,52 +247,52 @@ export function updateProps(
     (optimized || patchFlag > 0) &&
     !(patchFlag & PatchFlags.FULL_PROPS)
   ) {
-    //     if (patchFlag & PatchFlags.PROPS) {
-    //       // Compiler-generated props & no keys change, just set the updated
-    //       // the props.
-    //       const propsToUpdate = instance.vnode.dynamicProps!
-    //       for (let i = 0; i < propsToUpdate.length; i++) {
-    //         let key = propsToUpdate[i]
-    //         // skip if the prop key is a declared emit event listener
-    //         if (isEmitListener(instance.emitsOptions, key)) {
-    //           continue
-    //         }
-    //         // PROPS flag guarantees rawProps to be non-null
-    //         const value = rawProps![key]
-    //         if (options) {
-    //           // attr / props separation was done on init and will be consistent
-    //           // in this code path, so just check if attrs have it.
-    //           if (hasOwn(attrs, key)) {
-    //             if (value !== attrs[key]) {
-    //               attrs[key] = value
-    //               hasAttrsChanged = true
-    //             }
-    //           } else {
-    //             const camelizedKey = camelize(key)
-    //             props[camelizedKey] = resolvePropValue(
-    //               options,
-    //               rawCurrentProps,
-    //               camelizedKey,
-    //               value,
-    //               instance,
-    //               false /* isAbsent */
-    //             )
-    //           }
-    //         } else {
-    //           if (__COMPAT__) {
-    //             if (isOn(key) && key.endsWith('Native')) {
-    //               key = key.slice(0, -6) // remove Native postfix
-    //             } else if (shouldSkipAttr(key, instance)) {
-    //               continue
-    //             }
-    //           }
-    //           if (value !== attrs[key]) {
-    //             attrs[key] = value
-    //             hasAttrsChanged = true
-    //           }
-    //         }
-    //       }
-    //     }
+    if (patchFlag & PatchFlags.PROPS) {
+      // Compiler-generated props & no keys change, just set the updated
+      // the props.
+      const propsToUpdate = instance.vnode.dynamicProps!
+      //       for (let i = 0; i < propsToUpdate.length; i++) {
+      //         let key = propsToUpdate[i]
+      //         // skip if the prop key is a declared emit event listener
+      //         if (isEmitListener(instance.emitsOptions, key)) {
+      //           continue
+      //         }
+      //         // PROPS flag guarantees rawProps to be non-null
+      //         const value = rawProps![key]
+      //         if (options) {
+      //           // attr / props separation was done on init and will be consistent
+      //           // in this code path, so just check if attrs have it.
+      //           if (hasOwn(attrs, key)) {
+      //             if (value !== attrs[key]) {
+      //               attrs[key] = value
+      //               hasAttrsChanged = true
+      //             }
+      //           } else {
+      //             const camelizedKey = camelize(key)
+      //             props[camelizedKey] = resolvePropValue(
+      //               options,
+      //               rawCurrentProps,
+      //               camelizedKey,
+      //               value,
+      //               instance,
+      //               false /* isAbsent */
+      //             )
+      //           }
+      //         } else {
+      //           if (__COMPAT__) {
+      //             if (isOn(key) && key.endsWith('Native')) {
+      //               key = key.slice(0, -6) // remove Native postfix
+      //             } else if (shouldSkipAttr(key, instance)) {
+      //               continue
+      //             }
+      //           }
+      //           if (value !== attrs[key]) {
+      //             attrs[key] = value
+      //             hasAttrsChanged = true
+      //           }
+      //         }
+      //       }
+    }
   } else {
     // full props update.
     if (setFullProps(instance, rawProps, props, attrs)) {
@@ -290,58 +302,58 @@ export function updateProps(
     // the props object
     let kebabKey: string
     for (const key in rawCurrentProps) {
-      // if (
-      //   !rawProps ||
-      //   // for camelCase
-      //   (!hasOwn(rawProps, key) &&
-      //     // it's possible the original props was passed in as kebab-case
-      //     // and converted to camelCase (#955)
-      //     ((kebabKey = hyphenate(key)) === key || !hasOwn(rawProps, kebabKey)))
-      // ) {
-      //   if (options) {
-      //     if (
-      //       rawPrevProps &&
-      //       // for camelCase
-      //       (rawPrevProps[key] !== undefined ||
-      //         // for kebab-case
-      //         rawPrevProps[kebabKey!] !== undefined)
-      //     ) {
-      //       props[key] = resolvePropValue(
-      //         options,
-      //         rawCurrentProps,
-      //         key,
-      //         undefined,
-      //         instance,
-      //         true /* isAbsent */
-      //       )
-      //     }
-      //   } else {
-      //     delete props[key]
-      //   }
-      // }
+      if (
+        !rawProps ||
+        // for camelCase
+        (!hasOwn(rawProps, key) &&
+          // it's possible the original props was passed in as kebab-case
+          // and converted to camelCase (#955)
+          ((kebabKey = hyphenate(key)) === key || !hasOwn(rawProps, kebabKey)))
+      ) {
+        if (options) {
+          if (
+            rawPrevProps &&
+            // for camelCase
+            (rawPrevProps[key] !== undefined ||
+              // for kebab-case
+              rawPrevProps[kebabKey!] !== undefined)
+          ) {
+            props[key] = resolvePropValue(
+              options,
+              rawCurrentProps,
+              key,
+              undefined,
+              instance,
+              true /* isAbsent */
+            )
+          }
+        } else {
+          delete props[key]
+        }
+      }
     }
     // in the case of functional component w/o props declaration, props and
     // attrs point to the same object so it should already have been updated.
-    // if (attrs !== rawCurrentProps) {
-    //   for (const key in attrs) {
-    //     if (
-    //       !rawProps ||
-    //       (!hasOwn(rawProps, key) &&
-    //         (!__COMPAT__ || !hasOwn(rawProps, key + 'Native')))
-    //     ) {
-    //       delete attrs[key]
-    //       hasAttrsChanged = true
-    //     }
-    //   }
-    // }
+    if (attrs !== rawCurrentProps) {
+      for (const key in attrs) {
+        if (
+          !rawProps ||
+          (!hasOwn(rawProps, key) &&
+            (!__COMPAT__ || !hasOwn(rawProps, key + 'Native')))
+        ) {
+          delete attrs[key]
+          hasAttrsChanged = true
+        }
+      }
+    }
   }
   // trigger updates for $attrs in case it's used in component slots
   if (hasAttrsChanged) {
     trigger(instance, TriggerOpTypes.SET, '$attrs')
   }
-  //   if (__DEV__) {
-  //     validateProps(rawProps || {}, props, instance)
-  //   }
+  if (__DEV__) {
+    validateProps(rawProps || {}, props, instance)
+  }
 }
 
 function setFullProps(
@@ -440,36 +452,37 @@ function resolvePropValue(
         !opt.skipFactory &&
         isFunction(defaultValue)
       ) {
-        //         const { propsDefaults } = instance
-        //         if (key in propsDefaults) {
-        //           value = propsDefaults[key]
-        //         } else {
-        //           setCurrentInstance(instance)
-        //           value = propsDefaults[key] = defaultValue.call(
-        //             __COMPAT__ &&
-        //               isCompatEnabled(DeprecationTypes.PROPS_DEFAULT_THIS, instance)
-        //               ? createPropsDefaultThis(instance, props, key)
-        //               : null,
-        //             props
-        //           )
-        //           unsetCurrentInstance()
-        //         }
+        const { propsDefaults } = instance
+        if (key in propsDefaults) {
+          value = propsDefaults[key]
+        } else {
+          setCurrentInstance(instance)
+          value = propsDefaults[key] = defaultValue.call(
+            // __COMPAT__ &&
+            //   isCompatEnabled(DeprecationTypes.PROPS_DEFAULT_THIS, instance)
+            //   ? createPropsDefaultThis(instance, props, key)
+            //   :
+            null,
+            props
+          )
+          unsetCurrentInstance()
+        }
       } else {
         value = defaultValue
       }
     }
 
-    // // boolean casting
-    // if (opt[BooleanFlags.shouldCast]) {
-    //   if (isAbsent && !hasDefault) {
-    //     value = false
-    //   } else if (
-    //     opt[BooleanFlags.shouldCastTrue] &&
-    //     (value === '' || value === hyphenate(key))
-    //   ) {
-    //     value = true
-    //   }
-    // }
+    // boolean casting
+    if (opt[BooleanFlags.shouldCast]) {
+      if (isAbsent && !hasDefault) {
+        value = false
+      } else if (
+        opt[BooleanFlags.shouldCastTrue] &&
+        (value === '' || value === hyphenate(key))
+      ) {
+        value = true
+      }
+    }
   }
   return value
 }
@@ -489,42 +502,42 @@ export function normalizePropsOptions(
   const needCastKeys: NormalizedPropsOptions[1] = []
   // apply mixin/extends props
   let hasExtends = false
-  //   if (__FEATURE_OPTIONS_API__ && !isFunction(comp)) {
-  //     const extendProps = (raw: ComponentOptions) => {
-  //       if (__COMPAT__ && isFunction(raw)) {
-  //         raw = raw.options
-  //       }
-  //       hasExtends = true
-  //       const [props, keys] = normalizePropsOptions(raw, appContext, true)
-  //       extend(normalized, props)
-  //       if (keys) needCastKeys.push(...keys)
-  //     }
-  //     if (!asMixin && appContext.mixins.length) {
-  //       appContext.mixins.forEach(extendProps)
-  //     }
-  //     if (comp.extends) {
-  //       extendProps(comp.extends)
-  //     }
-  //     if (comp.mixins) {
-  //       comp.mixins.forEach(extendProps)
-  //     }
-  //   }
-  //   if (!raw && !hasExtends) {
-  //     if (isObject(comp)) {
-  //       cache.set(comp, EMPTY_ARR as any)
-  //     }
-  //     return EMPTY_ARR as any
-  //   }
+  if (__FEATURE_OPTIONS_API__ && !isFunction(comp)) {
+    const extendProps = (raw: ComponentOptions) => {
+      // if (__COMPAT__ && isFunction(raw)) {
+      //   raw = raw.options
+      // }
+      hasExtends = true
+      const [props, keys] = normalizePropsOptions(raw, appContext, true)
+      extend(normalized, props)
+      if (keys) needCastKeys.push(...keys)
+    }
+    // if (!asMixin && appContext.mixins.length) {
+    //   appContext.mixins.forEach(extendProps)
+    // }
+    // if (comp.extends) {
+    //   extendProps(comp.extends)
+    // }
+    // if (comp.mixins) {
+    //   comp.mixins.forEach(extendProps)
+    // }
+  }
+  if (!raw && !hasExtends) {
+    // if (isObject(comp)) {
+    //   cache.set(comp, EMPTY_ARR as any)
+    // }
+    return EMPTY_ARR as any
+  }
   if (isArray(raw)) {
-    //     for (let i = 0; i < raw.length; i++) {
-    //       if (__DEV__ && !isString(raw[i])) {
-    //         warn(`props must be strings when using array syntax.`, raw[i])
-    //       }
-    //       const normalizedKey = camelize(raw[i])
-    //       if (validatePropName(normalizedKey)) {
-    //         normalized[normalizedKey] = EMPTY_OBJ
-    //       }
-    //     }
+    for (let i = 0; i < raw.length; i++) {
+      // if (__DEV__ && !isString(raw[i])) {
+      //   warn(`props must be strings when using array syntax.`, raw[i])
+      // }
+      const normalizedKey = camelize(raw[i])
+      if (validatePropName(normalizedKey)) {
+        normalized[normalizedKey] = EMPTY_OBJ
+      }
+    }
   } else if (raw) {
     if (__DEV__ && !isObject(raw)) {
       warn(`invalid props options`, raw)
@@ -588,161 +601,161 @@ function getTypeIndex(
   return -1
 }
 
-// /**
-//  * dev only
-//  */
-// function validateProps(
-//   rawProps: Data,
-//   props: Data,
-//   instance: ComponentInternalInstance
-// ) {
-//   const resolvedValues = toRaw(props)
-//   const options = instance.propsOptions[0]
-//   for (const key in options) {
-//     let opt = options[key]
-//     if (opt == null) continue
-//     validateProp(
-//       key,
-//       resolvedValues[key],
-//       opt,
-//       !hasOwn(rawProps, key) && !hasOwn(rawProps, hyphenate(key))
-//     )
-//   }
-// }
+/**
+ * dev only
+ */
+function validateProps(
+  rawProps: Data,
+  props: Data,
+  instance: ComponentInternalInstance
+) {
+  const resolvedValues = toRaw(props)
+  const options = instance.propsOptions[0]
+  for (const key in options) {
+    let opt = options[key]
+    if (opt == null) continue
+    validateProp(
+      key,
+      resolvedValues[key],
+      opt,
+      !hasOwn(rawProps, key) && !hasOwn(rawProps, hyphenate(key))
+    )
+  }
+}
 
-// /**
-//  * dev only
-//  */
-// function validateProp(
-//   name: string,
-//   value: unknown,
-//   prop: PropOptions,
-//   isAbsent: boolean
-// ) {
-//   const { type, required, validator, skipCheck } = prop
-//   // required!
-//   if (required && isAbsent) {
-//     warn('Missing required prop: "' + name + '"')
-//     return
-//   }
-//   // missing but optional
-//   if (value == null && !required) {
-//     return
-//   }
-//   // type check
-//   if (type != null && type !== true && !skipCheck) {
-//     let isValid = false
-//     const types = isArray(type) ? type : [type]
-//     const expectedTypes = []
-//     // value is valid as long as one of the specified types match
-//     for (let i = 0; i < types.length && !isValid; i++) {
-//       const { valid, expectedType } = assertType(value, types[i])
-//       expectedTypes.push(expectedType || '')
-//       isValid = valid
-//     }
-//     if (!isValid) {
-//       warn(getInvalidTypeMessage(name, value, expectedTypes))
-//       return
-//     }
-//   }
-//   // custom validator
-//   if (validator && !validator(value)) {
-//     warn('Invalid prop: custom validator check failed for prop "' + name + '".')
-//   }
-// }
+/**
+ * dev only
+ */
+function validateProp(
+  name: string,
+  value: unknown,
+  prop: PropOptions,
+  isAbsent: boolean
+) {
+  const { type, required, validator, skipCheck } = prop
+  // required!
+  if (required && isAbsent) {
+    warn('Missing required prop: "' + name + '"')
+    return
+  }
+  // missing but optional
+  if (value == null && !required) {
+    return
+  }
+  // type check
+  if (type != null && type !== true && !skipCheck) {
+    let isValid = false
+    const types = isArray(type) ? type : [type]
+    const expectedTypes = []
+    // value is valid as long as one of the specified types match
+    for (let i = 0; i < types.length && !isValid; i++) {
+      const { valid, expectedType } = assertType(value, types[i])
+      expectedTypes.push(expectedType || '')
+      isValid = valid
+    }
+    if (!isValid) {
+      warn(getInvalidTypeMessage(name, value, expectedTypes))
+      return
+    }
+  }
+  // custom validator
+  if (validator && !validator(value)) {
+    warn('Invalid prop: custom validator check failed for prop "' + name + '".')
+  }
+}
 
-// const isSimpleType = /*#__PURE__*/ makeMap(
-//   'String,Number,Boolean,Function,Symbol,BigInt'
-// )
+const isSimpleType = /*#__PURE__*/ makeMap(
+  'String,Number,Boolean,Function,Symbol,BigInt'
+)
 
-// type AssertionResult = {
-//   valid: boolean
-//   expectedType: string
-// }
+type AssertionResult = {
+  valid: boolean
+  expectedType: string
+}
 
-// /**
-//  * dev only
-//  */
-// function assertType(value: unknown, type: PropConstructor): AssertionResult {
-//   let valid
-//   const expectedType = getType(type)
-//   if (isSimpleType(expectedType)) {
-//     const t = typeof value
-//     valid = t === expectedType.toLowerCase()
-//     // for primitive wrapper objects
-//     if (!valid && t === 'object') {
-//       valid = value instanceof type
-//     }
-//   } else if (expectedType === 'Object') {
-//     valid = isObject(value)
-//   } else if (expectedType === 'Array') {
-//     valid = isArray(value)
-//   } else if (expectedType === 'null') {
-//     valid = value === null
-//   } else {
-//     valid = value instanceof type
-//   }
-//   return {
-//     valid,
-//     expectedType
-//   }
-// }
+/**
+ * dev only
+ */
+function assertType(value: unknown, type: PropConstructor): AssertionResult {
+  let valid
+  const expectedType = getType(type)
+  if (isSimpleType(expectedType)) {
+    const t = typeof value
+    valid = t === expectedType.toLowerCase()
+    // for primitive wrapper objects
+    if (!valid && t === 'object') {
+      valid = value instanceof type
+    }
+  } else if (expectedType === 'Object') {
+    valid = isObject(value)
+  } else if (expectedType === 'Array') {
+    valid = isArray(value)
+  } else if (expectedType === 'null') {
+    valid = value === null
+  } else {
+    valid = value instanceof type
+  }
+  return {
+    valid,
+    expectedType
+  }
+}
 
-// /**
-//  * dev only
-//  */
-// function getInvalidTypeMessage(
-//   name: string,
-//   value: unknown,
-//   expectedTypes: string[]
-// ): string {
-//   let message =
-//     `Invalid prop: type check failed for prop "${name}".` +
-//     ` Expected ${expectedTypes.map(capitalize).join(' | ')}`
-//   const expectedType = expectedTypes[0]
-//   const receivedType = toRawType(value)
-//   const expectedValue = styleValue(value, expectedType)
-//   const receivedValue = styleValue(value, receivedType)
-//   // check if we need to specify expected value
-//   if (
-//     expectedTypes.length === 1 &&
-//     isExplicable(expectedType) &&
-//     !isBoolean(expectedType, receivedType)
-//   ) {
-//     message += ` with value ${expectedValue}`
-//   }
-//   message += `, got ${receivedType} `
-//   // check if we need to specify received value
-//   if (isExplicable(receivedType)) {
-//     message += `with value ${receivedValue}.`
-//   }
-//   return message
-// }
+/**
+ * dev only
+ */
+function getInvalidTypeMessage(
+  name: string,
+  value: unknown,
+  expectedTypes: string[]
+): string {
+  let message =
+    `Invalid prop: type check failed for prop "${name}".` +
+    ` Expected ${expectedTypes.map(capitalize).join(' | ')}`
+  const expectedType = expectedTypes[0]
+  const receivedType = toRawType(value)
+  const expectedValue = styleValue(value, expectedType)
+  const receivedValue = styleValue(value, receivedType)
+  // check if we need to specify expected value
+  if (
+    expectedTypes.length === 1 &&
+    isExplicable(expectedType) &&
+    !isBoolean(expectedType, receivedType)
+  ) {
+    message += ` with value ${expectedValue}`
+  }
+  message += `, got ${receivedType} `
+  // check if we need to specify received value
+  if (isExplicable(receivedType)) {
+    message += `with value ${receivedValue}.`
+  }
+  return message
+}
 
-// /**
-//  * dev only
-//  */
-// function styleValue(value: unknown, type: string): string {
-//   if (type === 'String') {
-//     return `"${value}"`
-//   } else if (type === 'Number') {
-//     return `${Number(value)}`
-//   } else {
-//     return `${value}`
-//   }
-// }
+/**
+ * dev only
+ */
+function styleValue(value: unknown, type: string): string {
+  if (type === 'String') {
+    return `"${value}"`
+  } else if (type === 'Number') {
+    return `${Number(value)}`
+  } else {
+    return `${value}`
+  }
+}
 
-// /**
-//  * dev only
-//  */
-// function isExplicable(type: string): boolean {
-//   const explicitTypes = ['string', 'number', 'boolean']
-//   return explicitTypes.some(elem => type.toLowerCase() === elem)
-// }
+/**
+ * dev only
+ */
+function isExplicable(type: string): boolean {
+  const explicitTypes = ['string', 'number', 'boolean']
+  return explicitTypes.some(elem => type.toLowerCase() === elem)
+}
 
-// /**
-//  * dev only
-//  */
-// function isBoolean(...args: string[]): boolean {
-//   return args.some(elem => elem.toLowerCase() === 'boolean')
-// }
+/**
+ * dev only
+ */
+function isBoolean(...args: string[]): boolean {
+  return args.some(elem => elem.toLowerCase() === 'boolean')
+}

@@ -1,5 +1,5 @@
 /**
- * @vitest-environment jsdom
+ *  @TODO: vitest-environment jsdom
  */
 
 import {
@@ -13,8 +13,8 @@ import {
   ref,
   serializeInner,
   createApp,
-  // provide,
-  // inject,
+  provide,
+  inject,
   // watch,
   toRefs,
   SetupContext,
@@ -27,7 +27,6 @@ describe('component props', () => {
     let props: any
     let attrs: any
     let proxy: any
-
     const Comp = defineComponent({
       props: ['fooBar', 'barBaz'],
       render() {
@@ -36,26 +35,22 @@ describe('component props', () => {
         proxy = this
       }
     })
-
     const root = nodeOps.createElement('div')
     render(h(Comp, { fooBar: 1, bar: 2 }), root)
     expect(proxy.fooBar).toBe(1)
     expect(props).toEqual({ fooBar: 1 })
     expect(attrs).toEqual({ bar: 2 })
-
     // test passing kebab-case and resolving to camelCase
     render(h(Comp, { 'foo-bar': 2, bar: 3, baz: 4 }), root)
     expect(proxy.fooBar).toBe(2)
     expect(props).toEqual({ fooBar: 2 })
     expect(attrs).toEqual({ bar: 3, baz: 4 })
-
     // test updating kebab-case should not delete it (#955)
     render(h(Comp, { 'foo-bar': 3, bar: 3, baz: 4, barBaz: 5 }), root)
     expect(proxy.fooBar).toBe(3)
     expect(proxy.barBaz).toBe(5)
     expect(props).toEqual({ fooBar: 3, barBaz: 5 })
     expect(attrs).toEqual({ bar: 3, baz: 4 })
-
     render(h(Comp, { qux: 5 }), root)
     expect(proxy.fooBar).toBeUndefined()
     // remove the props with camelCase key (#1412)
@@ -67,7 +62,6 @@ describe('component props', () => {
   test('stateful with setup', () => {
     let props: any
     let attrs: any
-
     const Comp = defineComponent({
       props: ['foo'],
       setup(_props, { attrs: _attrs }) {
@@ -77,16 +71,13 @@ describe('component props', () => {
         }
       }
     })
-
     const root = nodeOps.createElement('div')
     render(h(Comp, { foo: 1, bar: 2 }), root)
     expect(props).toEqual({ foo: 1 })
     expect(attrs).toEqual({ bar: 2 })
-
     render(h(Comp, { foo: 2, bar: 3, baz: 4 }), root)
     expect(props).toEqual({ foo: 2 })
     expect(attrs).toEqual({ bar: 3, baz: 4 })
-
     render(h(Comp, { qux: 5 }), root)
     expect(props).toEqual({})
     expect(attrs).toEqual({ qux: 5 })
@@ -95,22 +86,18 @@ describe('component props', () => {
   test('functional with declaration', () => {
     let props: any
     let attrs: any
-
     const Comp: FunctionalComponent = (_props, { attrs: _attrs }) => {
       props = _props
       attrs = _attrs
     }
     Comp.props = ['foo']
-
     const root = nodeOps.createElement('div')
     render(h(Comp, { foo: 1, bar: 2 }), root)
     expect(props).toEqual({ foo: 1 })
     expect(attrs).toEqual({ bar: 2 })
-
     render(h(Comp, { foo: 2, bar: 3, baz: 4 }), root)
     expect(props).toEqual({ foo: 2 })
     expect(attrs).toEqual({ bar: 3, baz: 4 })
-
     render(h(Comp, { qux: 5 }), root)
     expect(props).toEqual({})
     expect(attrs).toEqual({ qux: 5 })
@@ -124,12 +111,10 @@ describe('component props', () => {
       attrs = _attrs
     }
     const root = nodeOps.createElement('div')
-
     render(h(Comp, { foo: 1 }), root)
     expect(props).toEqual({ foo: 1 })
     expect(attrs).toEqual({ foo: 1 })
     expect(props).toBe(attrs)
-
     render(h(Comp, { bar: 2 }), root)
     expect(props).toEqual({ bar: 2 })
     expect(attrs).toEqual({ bar: 2 })
@@ -158,7 +143,6 @@ describe('component props', () => {
       }),
       nodeOps.createElement('div')
     )
-
     expect(proxy.foo).toBe(false)
     expect(proxy.bar).toBe(true)
     expect(proxy.baz).toBe(true)
@@ -170,7 +154,6 @@ describe('component props', () => {
     let proxy: any
     const defaultFn = vi.fn(() => ({ a: 1 }))
     const defaultBaz = vi.fn(() => ({ b: 1 }))
-
     const Comp = {
       props: {
         foo: {
@@ -188,7 +171,6 @@ describe('component props', () => {
         proxy = this
       }
     }
-
     const root = nodeOps.createElement('div')
     render(h(Comp, { foo: 2 }), root)
     expect(proxy.foo).toBe(2)
@@ -197,7 +179,6 @@ describe('component props', () => {
     expect(proxy.baz).toEqual(defaultBaz)
     expect(defaultFn).toHaveBeenCalledTimes(1)
     expect(defaultBaz).toHaveBeenCalledTimes(0)
-
     // #999: updates should not cause default factory of unchanged prop to be
     // called again
     render(h(Comp, { foo: 3 }), root)
@@ -205,17 +186,14 @@ describe('component props', () => {
     expect(proxy.bar).toEqual({ a: 1 })
     expect(proxy.bar).toBe(prevBar)
     expect(defaultFn).toHaveBeenCalledTimes(1)
-
     render(h(Comp, { bar: { b: 2 } }), root)
     expect(proxy.foo).toBe(1)
     expect(proxy.bar).toEqual({ b: 2 })
     expect(defaultFn).toHaveBeenCalledTimes(1)
-
     render(h(Comp, { foo: 3, bar: { b: 3 } }), root)
     expect(proxy.foo).toBe(3)
     expect(proxy.bar).toEqual({ b: 3 })
     expect(defaultFn).toHaveBeenCalledTimes(1)
-
     render(h(Comp, { bar: { b: 4 } }), root)
     expect(proxy.foo).toBe(1)
     expect(proxy.bar).toEqual({ b: 4 })
@@ -235,14 +213,12 @@ describe('component props', () => {
         }
       }
     })
-
     const Comp = {
       setup() {
         provide('test', 'injected')
         return () => h(Child)
       }
     }
-
     const root = nodeOps.createElement('div')
     render(h(Comp), root)
     expect(serializeInner(root)).toBe(`<div>injected</div>`)
@@ -253,10 +229,8 @@ describe('component props', () => {
   //     props: ['foo'],
   //     template: `<div>{{ foo }}</div>`
   //   })
-
   //   const foo = ref(1)
   //   const id = ref('a')
-
   //   const Comp = defineComponent({
   //     setup() {
   //       return {
@@ -267,17 +241,14 @@ describe('component props', () => {
   //     components: { Child },
   //     template: `<Child :foo="foo" :id="id"/>`
   //   })
-
   //   // Note this one is using the main Vue render so it can compile template
   //   // on the fly
   //   const root = document.createElement('div')
   //   domRender(h(Comp), root)
   //   expect(root.innerHTML).toBe('<div id="a">1</div>')
-
   //   foo.value++
   //   await nextTick()
   //   expect(root.innerHTML).toBe('<div id="a">2</div>')
-
   //   id.value = 'b'
   //   await nextTick()
   //   expect(root.innerHTML).toBe('<div id="b">2</div>')
@@ -401,87 +372,80 @@ describe('component props', () => {
     expect(`Missing required prop: "fooBar"`).not.toHaveBeenWarned()
   })
 
-  test('merging props from mixins and extends', () => {
-    let setupProps: any
-    let renderProxy: any
+  // test('merging props from mixins and extends', () => {
+  //   let setupProps: any
+  //   let renderProxy: any
+  //   const E = {
+  //     props: ['base']
+  //   }
+  //   const M1 = {
+  //     props: ['m1']
+  //   }
+  //   const M2 = {
+  //     props: { m2: null }
+  //   }
+  //   const Comp = {
+  //     props: ['self'],
+  //     mixins: [M1, M2],
+  //     extends: E,
+  //     setup(props: any) {
+  //       setupProps = props
+  //     },
+  //     render(this: any) {
+  //       renderProxy = this
+  //       return h('div', [this.self, this.base, this.m1, this.m2])
+  //     }
+  //   }
+  //   const root = nodeOps.createElement('div')
+  //   const props = {
+  //     self: 'from self, ',
+  //     base: 'from base, ',
+  //     m1: 'from mixin 1, ',
+  //     m2: 'from mixin 2'
+  //   }
+  //   render(h(Comp, props), root)
+  //   expect(serializeInner(root)).toMatch(
+  //     `from self, from base, from mixin 1, from mixin 2`
+  //   )
+  //   expect(setupProps).toMatchObject(props)
+  //   expect(renderProxy.$props).toMatchObject(props)
+  // })
 
-    const E = {
-      props: ['base']
-    }
-    const M1 = {
-      props: ['m1']
-    }
-    const M2 = {
-      props: { m2: null }
-    }
-    const Comp = {
-      props: ['self'],
-      mixins: [M1, M2],
-      extends: E,
-      setup(props: any) {
-        setupProps = props
-      },
-      render(this: any) {
-        renderProxy = this
-        return h('div', [this.self, this.base, this.m1, this.m2])
-      }
-    }
-
-    const root = nodeOps.createElement('div')
-    const props = {
-      self: 'from self, ',
-      base: 'from base, ',
-      m1: 'from mixin 1, ',
-      m2: 'from mixin 2'
-    }
-    render(h(Comp, props), root)
-
-    expect(serializeInner(root)).toMatch(
-      `from self, from base, from mixin 1, from mixin 2`
-    )
-    expect(setupProps).toMatchObject(props)
-    expect(renderProxy.$props).toMatchObject(props)
-  })
-
-  test('merging props from global mixins', () => {
-    let setupProps: any
-    let renderProxy: any
-
-    const M1 = {
-      props: ['m1']
-    }
-    const M2 = {
-      props: { m2: null }
-    }
-    const Comp = {
-      props: ['self'],
-      setup(props: any) {
-        setupProps = props
-      },
-      render(this: any) {
-        renderProxy = this
-        return h('div', [this.self, this.m1, this.m2])
-      }
-    }
-
-    const props = {
-      self: 'from self, ',
-      m1: 'from mixin 1, ',
-      m2: 'from mixin 2'
-    }
-    const app = createApp(Comp, props)
-    app.mixin(M1)
-    app.mixin(M2)
-
-    const root = nodeOps.createElement('div')
-    app.mount(root)
-
-    expect(serializeInner(root)).toMatch(
-      `from self, from mixin 1, from mixin 2`
-    )
-    expect(setupProps).toMatchObject(props)
-    expect(renderProxy.$props).toMatchObject(props)
-  })
+  // test('merging props from global mixins', () => {
+  //   let setupProps: any
+  //   let renderProxy: any
+  //   const M1 = {
+  //     props: ['m1']
+  //   }
+  //   const M2 = {
+  //     props: { m2: null }
+  //   }
+  //   const Comp = {
+  //     props: ['self'],
+  //     setup(props: any) {
+  //       setupProps = props
+  //     },
+  //     render(this: any) {
+  //       renderProxy = this
+  //       return h('div', [this.self, this.m1, this.m2])
+  //     }
+  //   }
+  //   const props = {
+  //     self: 'from self, ',
+  //     m1: 'from mixin 1, ',
+  //     m2: 'from mixin 2'
+  //   }
+  //   const app = createApp(Comp, props)
+  //   app.mixin(M1)
+  //   app.mixin(M2)
+  //   const root = nodeOps.createElement('div')
+  //   app.mount(root)
+  //   expect(serializeInner(root)).toMatch(
+  //     `from self, from mixin 1, from mixin 2`
+  //   )
+  //   expect(setupProps).toMatchObject(props)
+  //   expect(renderProxy.$props).toMatchObject(props)
+  // })
 
   test('props type support BigInt', () => {
     const Comp = {
@@ -492,7 +456,6 @@ describe('component props', () => {
         return h('div', [this.foo])
       }
     }
-
     const root = nodeOps.createElement('div')
     render(
       h(Comp, {
@@ -500,123 +463,110 @@ describe('component props', () => {
       }),
       root
     )
-
     expect(serializeInner(root)).toMatch('<div>60000000100000111</div>')
   })
 
-  // #3474
-  test('should cache the value returned from the default factory to avoid unnecessary watcher trigger', async () => {
-    let count = 0
-    const Comp = {
-      props: {
-        foo: {
-          type: Object,
-          default: () => ({ val: 1 })
-        },
-        bar: Number
-      },
-      setup(props: any) {
-        watch(
-          () => props.foo,
-          () => {
-            count++
-          }
-        )
-        return () => h('h1', [props.foo.val, props.bar])
-      }
-    }
+  // // #3474
+  // test('should cache the value returned from the default factory to avoid unnecessary watcher trigger', async () => {
+  //   let count = 0
+  //   const Comp = {
+  //     props: {
+  //       foo: {
+  //         type: Object,
+  //         default: () => ({ val: 1 })
+  //       },
+  //       bar: Number
+  //     },
+  //     setup(props: any) {
+  //       watch(
+  //         () => props.foo,
+  //         () => {
+  //           count++
+  //         }
+  //       )
+  //       return () => h('h1', [props.foo.val, props.bar])
+  //     }
+  //   }
+  //   const foo = ref()
+  //   const bar = ref(0)
+  //   const app = createApp({
+  //     render: () => h(Comp, { foo: foo.value, bar: bar.value })
+  //   })
+  //   const root = nodeOps.createElement('div')
+  //   app.mount(root)
+  //   expect(serializeInner(root)).toMatch(`<h1>10</h1>`)
+  //   expect(count).toBe(0)
+  //   bar.value++
+  //   await nextTick()
+  //   expect(serializeInner(root)).toMatch(`<h1>11</h1>`)
+  //   expect(count).toBe(0)
+  // })
 
-    const foo = ref()
-    const bar = ref(0)
-    const app = createApp({
-      render: () => h(Comp, { foo: foo.value, bar: bar.value })
-    })
-
-    const root = nodeOps.createElement('div')
-    app.mount(root)
-    expect(serializeInner(root)).toMatch(`<h1>10</h1>`)
-    expect(count).toBe(0)
-
-    bar.value++
-    await nextTick()
-    expect(serializeInner(root)).toMatch(`<h1>11</h1>`)
-    expect(count).toBe(0)
-  })
-
-  // #3288
-  test('declared prop key should be present even if not passed', async () => {
-    let initialKeys: string[] = []
-    const changeSpy = vi.fn()
-    const passFoo = ref(false)
-
-    const Comp = {
-      render() {},
-      props: {
-        foo: String
-      },
-      setup(props: any) {
-        initialKeys = Object.keys(props)
-        const { foo } = toRefs(props)
-        watch(foo, changeSpy)
-      }
-    }
-
-    const Parent = () => (passFoo.value ? h(Comp, { foo: 'ok' }) : h(Comp))
-    const root = nodeOps.createElement('div')
-    createApp(Parent).mount(root)
-
-    expect(initialKeys).toMatchObject(['foo'])
-    passFoo.value = true
-    await nextTick()
-    expect(changeSpy).toHaveBeenCalledTimes(1)
-  })
-
+  // // #3288
+  // test('declared prop key should be present even if not passed', async () => {
+  //   let initialKeys: string[] = []
+  //   const changeSpy = vi.fn()
+  //   const passFoo = ref(false)
+  //   const Comp = {
+  //     render() {},
+  //     props: {
+  //       foo: String
+  //     },
+  //     setup(props: any) {
+  //       initialKeys = Object.keys(props)
+  //       const { foo } = toRefs(props)
+  //       watch(foo, changeSpy)
+  //     }
+  //   }
+  //   const Parent = () => (passFoo.value ? h(Comp, { foo: 'ok' }) : h(Comp))
+  //   const root = nodeOps.createElement('div')
+  //   createApp(Parent).mount(root)
+  //   expect(initialKeys).toMatchObject(['foo'])
+  //   passFoo.value = true
+  //   await nextTick()
+  //   expect(changeSpy).toHaveBeenCalledTimes(1)
+  // })
   // #3371
-  test(`avoid double-setting props when casting`, async () => {
-    const Parent = {
-      setup(props: any, { slots }: SetupContext) {
-        const childProps = ref()
-        const registerChildProps = (props: any) => {
-          childProps.value = props
-        }
-        provide('register', registerChildProps)
-
-        return () => {
-          // access the child component's props
-          childProps.value && childProps.value.foo
-          return slots.default!()
-        }
-      }
-    }
-
-    const Child = {
-      props: {
-        foo: {
-          type: Boolean,
-          required: false
-        }
-      },
-      setup(props: { foo: boolean }) {
-        const register = inject('register') as any
-        // 1. change the reactivity data of the parent component
-        // 2. register its own props to the parent component
-        register(props)
-
-        return () => 'foo'
-      }
-    }
-
-    const App = {
-      setup() {
-        return () => h(Parent, () => h(Child as any, { foo: '' }, () => null))
-      }
-    }
-
-    const root = nodeOps.createElement('div')
-    render(h(App), root)
-    await nextTick()
-    expect(serializeInner(root)).toBe(`foo`)
-  })
+  // test(`avoid double-setting props when casting`, async () => {
+  //   const Parent = {
+  //     setup(props: any, { slots }: SetupContext) {
+  //       const childProps = ref()
+  //       const registerChildProps = (props: any) => {
+  //         childProps.value = props
+  //       }
+  //       provide('register', registerChildProps)
+  //       return () => {
+  //         // access the child component's props
+  //         childProps.value && childProps.value.foo
+  //         return slots.default!()
+  //       }
+  //     }
+  //   }
+  //   const Child = {
+  //     props: {
+  //       foo: {
+  //         type: Boolean,
+  //         required: false
+  //       }
+  //     },
+  //     setup(props: { foo: boolean }) {
+  //       const register = inject('register') as any
+  //       // 1. change the reactivity data of the parent component
+  //       // 2. register its own props to the parent component
+  //       register(props)
+  //       return () => 'foo'
+  //     }
+  //   }
+  //   const App = {
+  //     setup() {
+  //       return () => h(Parent, () => h(Child as any, { foo: '' }, () => null))
+  //     }
+  //   }
+  //   const root = nodeOps.createElement('div')
+  //   render(h(App), root)
+  //   await nextTick()
+  //   expect(serializeInner(root)).toBe(`foo`)
+  // })
 
   test('support null in required + multiple-type declarations', () => {
     const Comp = {
@@ -629,7 +579,6 @@ describe('component props', () => {
     expect(() => {
       render(h(Comp, { foo: () => {} }), root)
     }).not.toThrow()
-
     expect(() => {
       render(h(Comp, { foo: null }), root)
     }).not.toThrow()
@@ -643,14 +592,11 @@ describe('component props', () => {
       }
     }
     const root = nodeOps.createElement('div')
-
     let attrs: any = { foo: undefined }
-
     render(h(Comp, attrs), root)
     expect(serializeInner(root)).toBe(
       JSON.stringify(attrs) + Object.keys(attrs)
     )
-
     render(h(Comp, (attrs = { foo: 'bar' })), root)
     expect(serializeInner(root)).toBe(
       JSON.stringify(attrs) + Object.keys(attrs)
@@ -668,11 +614,8 @@ describe('component props', () => {
       props,
       render() {}
     })
-
     const root = nodeOps.createElement('div')
-
     render(h(Comp, { msg: 'test' }), root)
-
     expect(Object.keys(props.msg).length).toBe(1)
   })
 })

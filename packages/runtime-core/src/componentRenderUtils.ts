@@ -5,7 +5,13 @@ import {
   FunctionalComponent
 } from './component'
 import { setCurrentRenderingInstance } from './componentRenderContext'
-import { VNode, cloneVNode, createVNode, normalizeVNode } from './vnode'
+import {
+  VNode,
+  Comment,
+  cloneVNode,
+  createVNode,
+  normalizeVNode
+} from './vnode'
 import { warn } from './warning'
 import { ErrorCodes } from './errorHandling'
 import { isEmitListener } from './componentEmits'

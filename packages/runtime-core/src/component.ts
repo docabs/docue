@@ -13,12 +13,14 @@ import {
 import {
   EffectScope,
   ReactiveEffect,
+  TrackOpTypes,
   isRef,
   markRaw,
   pauseTracking,
   proxyRefs,
   resetTracking,
-  shallowReadonly
+  shallowReadonly,
+  track
 } from '@docue/reactivity'
 
 import { AppConfig, AppContext, createAppContext } from './apiCreateApp'
@@ -53,6 +55,7 @@ import {
 } from './componentProps'
 import { ErrorCodes, callWithErrorHandling } from './errorHandling'
 import { currentRenderingInstance } from './componentRenderContext'
+import { markAttrsAccessed } from './componentRenderUtils'
 
 export type Data = Record<string, unknown>
 
@@ -181,7 +184,7 @@ export type SetupContext<
   S extends SlotsType = {}
 > = E extends any
   ? {
-      // attrs: Data
+      attrs: Data
       // slots: UnwrapSlotsType<S>
       // emit: EmitFn<E>
       expose: (exposed?: Record<string, any>) => void
@@ -707,7 +710,7 @@ function setupStatefulComponent(
       [__DEV__ ? shallowReadonly(instance.props) : instance.props, setupContext]
     )
     //   resetTracking()
-    //   unsetCurrentInstance()
+    unsetCurrentInstance()
     if (isPromise(setupResult)) {
       //     setupResult.then(unsetCurrentInstance, unsetCurrentInstance)
       //     if (isSSR) {
@@ -881,7 +884,7 @@ export function finishComponentSetup(
       applyOptions(instance)
     } finally {
       // resetTracking()
-      // unsetCurrentInstance()
+      unsetCurrentInstance()
     }
   }
   // // warn missing template/render
@@ -906,36 +909,36 @@ export function finishComponentSetup(
   // }
 }
 
-// function getAttrsProxy(instance: ComponentInternalInstance): Data {
-//   return (
-//     instance.attrsProxy ||
-//     (instance.attrsProxy = new Proxy(
-//       instance.attrs,
-//       __DEV__
-//         ? {
-//             get(target, key: string) {
-//               markAttrsAccessed()
-//               track(instance, TrackOpTypes.GET, '$attrs')
-//               return target[key]
-//             },
-//             set() {
-//               warn(`setupContext.attrs is readonly.`)
-//               return false
-//             },
-//             deleteProperty() {
-//               warn(`setupContext.attrs is readonly.`)
-//               return false
-//             }
-//           }
-//         : {
-//             get(target, key: string) {
-//               track(instance, TrackOpTypes.GET, '$attrs')
-//               return target[key]
-//             }
-//           }
-//     ))
-//   )
-// }
+function getAttrsProxy(instance: ComponentInternalInstance): Data {
+  return (
+    instance.attrsProxy ||
+    (instance.attrsProxy = new Proxy(
+      instance.attrs,
+      __DEV__
+        ? {
+            get(target, key: string) {
+              // markAttrsAccessed()
+              track(instance, TrackOpTypes.GET, '$attrs')
+              return target[key]
+            },
+            set() {
+              warn(`setupContext.attrs is readonly.`)
+              return false
+            },
+            deleteProperty() {
+              warn(`setupContext.attrs is readonly.`)
+              return false
+            }
+          }
+        : {
+            get(target, key: string) {
+              track(instance, TrackOpTypes.GET, '$attrs')
+              return target[key]
+            }
+          }
+    ))
+  )
+}
 
 // /**
 //  * Dev-only
@@ -978,31 +981,31 @@ export function createSetupContext(
     }
     instance.exposed = exposed || {}
   }
-  if (__DEV__) {
-    // We use getters in dev in case libs like test-utils overwrite instance
-    // properties (overwrites should not be done in prod)
-    return Object.freeze({
-      // get attrs() {
-      //   return getAttrsProxy(instance)
-      // },
-      // get slots() {
-      //   return getSlotsProxy(instance)
-      // },
-      // get emit() {
-      //   return (event: string, ...args: any[]) => instance.emit(event, ...args)
-      // },
-      expose
-    })
-  } else {
-    return {
-      // get attrs() {
-      //   return getAttrsProxy(instance)
-      // },
-      // slots: instance.slots,
-      // emit: instance.emit,
-      expose
-    }
+  // if (__DEV__) {
+  // We use getters in dev in case libs like test-utils overwrite instance
+  // properties (overwrites should not be done in prod)
+  // return Object.freeze({
+  // get attrs() {
+  //   return getAttrsProxy(instance)
+  // },
+  // get slots() {
+  //   return getSlotsProxy(instance)
+  // },
+  // get emit() {
+  //   return (event: string, ...args: any[]) => instance.emit(event, ...args)
+  // },
+  // expose
+  // })
+  // } else {
+  return {
+    get attrs() {
+      return getAttrsProxy(instance)
+    },
+    // slots: instance.slots,
+    // emit: instance.emit,
+    expose
   }
+  // }
 }
 
 export function getExposeProxy(instance: ComponentInternalInstance) {
