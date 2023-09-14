@@ -15,6 +15,7 @@ import {
   ComputedOptions,
   ExtractComputedReturns,
   InjectToObject,
+  MergedComponentOptionsOverride,
   MethodOptions,
   OptionTypesKeys,
   OptionTypesType,
@@ -198,9 +199,30 @@ export type ComponentPublicInstance<
   I extends ComponentInjectOptions = {},
   S extends SlotsType = {}
 > = {
+  $: ComponentInternalInstance
   $data: D
+  $props: Prettify<
+    MakeDefaultsOptional extends true
+      ? Partial<Defaults> & Omit<P & PublicProps, keyof Defaults>
+      : P & PublicProps
+  >
+  $attrs: Data
+  $refs: Data
+  // $slots: UnwrapSlotsType<S>
   $root: ComponentPublicInstance | null
   $parent: ComponentPublicInstance | null
+  // $emit: EmitFn<E>
+  $el: any
+  $options: Options & MergedComponentOptionsOverride
+  // $forceUpdate: () => void
+  // $nextTick: typeof nextTick
+  // $watch<T extends string | ((...args: any) => any)>(
+  //   source: T,
+  //   cb: T extends (...args: any) => infer R
+  //     ? (...args: [R, R]) => any
+  //     : (...args: any) => any,
+  //   options?: WatchOptions
+  // ): WatchStopHandle
 } & P &
   ShallowUnwrapRef<B> &
   UnwrapNestedRefs<D> &

@@ -233,7 +233,7 @@ export interface ComponentInternalInstance {
    * Object containing values this component provides for its descendants
    * @internal
    */
-  // provides: Data
+  provides: Data
   /**
    * Tracking reactive effects (e.g. watchers) associated with this component
    * so that they can be automatically stopped on component unmount
@@ -490,7 +490,7 @@ export function createComponentInstance(
     exposed: null,
     exposeProxy: null,
     withProxy: null,
-    // provides: parent ? parent.provides : Object.create(appContext.provides),
+    provides: parent ? parent.provides : Object.create(appContext.provides),
     accessCache: null!,
     renderCache: [],
 
@@ -572,6 +572,54 @@ export let currentInstance: ComponentInternalInstance | null = null
 export const getCurrentInstance: () => ComponentInternalInstance | null = () =>
   currentInstance || currentRenderingInstance
 
+type GlobalInstanceSetter = ((
+  instance: ComponentInternalInstance | null
+) => void) & { version?: string }
+
+let internalSetCurrentInstance: GlobalInstanceSetter
+// let globalCurrentInstanceSetters: GlobalInstanceSetter[]
+// let settersKey = '__VUE_INSTANCE_SETTERS__'
+
+/**
+ * The following makes getCurrentInstance() usage across multiple copies of Vue
+ * work. Some cases of how this can happen are summarized in #7590. In principle
+ * the duplication should be avoided, but in practice there are often cases
+ * where the user is unable to resolve on their own, especially in complicated
+ * SSR setups.
+ *
+ * Note this fix is technically incomplete, as we still rely on other singletons
+ * for effectScope and global reactive dependency maps. However, it does make
+ * some of the most common cases work. It also warns if the duplication is
+ * found during browser execution.
+ */
+// if (__SSR__) {
+//   if (!(globalCurrentInstanceSetters = getGlobalThis()[settersKey])) {
+//     globalCurrentInstanceSetters = getGlobalThis()[settersKey] = []
+//   }
+//   globalCurrentInstanceSetters.push(i => (currentInstance = i))
+//   internalSetCurrentInstance = instance => {
+//     if (globalCurrentInstanceSetters.length > 1) {
+//       globalCurrentInstanceSetters.forEach(s => s(instance))
+//     } else {
+//       globalCurrentInstanceSetters[0](instance)
+//     }
+//   }
+// } else {
+internalSetCurrentInstance = i => {
+  currentInstance = i
+}
+// }
+
+export const setCurrentInstance = (instance: ComponentInternalInstance) => {
+  internalSetCurrentInstance(instance)
+  instance.scope.on()
+}
+
+export const unsetCurrentInstance = () => {
+  currentInstance && currentInstance.scope.off()
+  internalSetCurrentInstance(null)
+}
+
 const isBuiltInTag = /*#__PURE__*/ makeMap('slot,component')
 
 export function validateComponentName(name: string, config: AppConfig) {
@@ -650,7 +698,7 @@ function setupStatefulComponent(
   if (setup) {
     const setupContext = (instance.setupContext =
       setup.length > 1 ? createSetupContext(instance) : null)
-    //   setCurrentInstance(instance)
+    setCurrentInstance(instance)
     //   pauseTracking()
     const setupResult = callWithErrorHandling(
       setup,
@@ -827,7 +875,7 @@ export function finishComponentSetup(
   }
   // support for 2.x options
   if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {
-    // setCurrentInstance(instance)
+    setCurrentInstance(instance)
     // pauseTracking()
     try {
       applyOptions(instance)

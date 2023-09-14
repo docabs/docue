@@ -118,7 +118,7 @@ export interface AppContext {
   // mixins: ComponentOptions[]
   components: Record<string, Component>
   // directives: Record<string, Directive>
-  // provides: Record<string | symbol, any>
+  provides: Record<string | symbol, any>
 
   /**
    * Cache for merged/normalized component options
@@ -176,7 +176,7 @@ export function createAppContext(): AppContext {
     // mixins: [],
     components: {},
     // directives: {},
-    // provides: Object.create(null),
+    provides: Object.create(null),
     optionsCache: new WeakMap(),
     // propsCache: new WeakMap(),
     emitsCache: new WeakMap()

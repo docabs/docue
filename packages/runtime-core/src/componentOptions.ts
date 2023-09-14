@@ -1,6 +1,8 @@
 import {
   ComputedGetter,
+  Ref,
   WritableComputedOptions,
+  isRef,
   reactive
 } from '@docue/reactivity'
 import {
@@ -35,6 +37,7 @@ import {
 } from './componentProps'
 import { OptionMergeFunction } from './apiCreateApp'
 import { warn } from './warning'
+import { inject } from './apiInject'
 
 /**
  * Interface for declaring custom options.
@@ -379,9 +382,9 @@ export type ExtractComputedReturns<T extends any> = {
 
 // type ComponentWatchOptions = Record<string, ComponentWatchOptionItem>
 
-// export type ComponentProvideOptions = ObjectProvideOptions | Function
+export type ComponentProvideOptions = ObjectProvideOptions | Function
 
-// type ObjectProvideOptions = Record<string | symbol, unknown>
+type ObjectProvideOptions = Record<string | symbol, unknown>
 
 export type ComponentInjectOptions = string[] | ObjectInjectOptions
 
@@ -441,8 +444,8 @@ interface LegacyOptions<
   // computed?: C
   // methods?: M
   // watch?: ComponentWatchOptions
-  // provide?: ComponentProvideOptions
-  // inject?: I | II[]
+  provide?: ComponentProvideOptions
+  inject?: I | II[]
   // // assets
   // filters?: Record<string, Function>
   // // composition
@@ -525,24 +528,24 @@ export type OptionTypesType<
   Defaults: Defaults
 }
 
-// const enum OptionTypes {
-//   PROPS = 'Props',
-//   DATA = 'Data',
-//   COMPUTED = 'Computed',
-//   METHODS = 'Methods',
-//   INJECT = 'Inject'
-// }
+const enum OptionTypes {
+  PROPS = 'Props',
+  DATA = 'Data',
+  COMPUTED = 'Computed',
+  METHODS = 'Methods',
+  INJECT = 'Inject'
+}
 
-// function createDuplicateChecker() {
-//   const cache = Object.create(null)
-//   return (type: OptionTypes, key: string) => {
-//     if (cache[key]) {
-//       warn(`${type} property "${key}" is already defined in ${cache[key]}.`)
-//     } else {
-//       cache[key] = type
-//     }
-//   }
-// }
+function createDuplicateChecker() {
+  const cache = Object.create(null)
+  return (type: OptionTypes, key: string) => {
+    if (cache[key]) {
+      warn(`${type} property "${key}" is already defined in ${cache[key]}.`)
+    } else {
+      cache[key] = type
+    }
+  }
+}
 
 export let shouldCacheAccess = true
 
@@ -566,8 +569,8 @@ export function applyOptions(instance: ComponentInternalInstance) {
     // computed: computedOptions,
     // methods,
     // watch: watchOptions,
-    // provide: provideOptions,
-    // inject: injectOptions,
+    provide: provideOptions,
+    inject: injectOptions,
     // lifecycle
     // created,
     // beforeMount,
@@ -594,7 +597,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
     // filters
   } = options
 
-  // const checkDuplicateProperties = __DEV__ ? createDuplicateChecker() : null
+  const checkDuplicateProperties = __DEV__ ? createDuplicateChecker() : null
 
   // if (__DEV__) {
   //   const [propsOptions] = instance.propsOptions
@@ -613,9 +616,9 @@ export function applyOptions(instance: ComponentInternalInstance) {
   // - computed
   // - watch (deferred since it relies on `this` access)
 
-  // if (injectOptions) {
-  //   resolveInjections(injectOptions, ctx, checkDuplicateProperties)
-  // }
+  if (injectOptions) {
+    resolveInjections(injectOptions, ctx, checkDuplicateProperties)
+  }
 
   // if (methods) {
   //   for (const key in methods) {
@@ -815,46 +818,46 @@ export function applyOptions(instance: ComponentInternalInstance) {
   // }
 }
 
-// export function resolveInjections(
-//   injectOptions: ComponentInjectOptions,
-//   ctx: any,
-//   checkDuplicateProperties = NOOP as any
-// ) {
-//   if (isArray(injectOptions)) {
-//     injectOptions = normalizeInject(injectOptions)!
-//   }
-//   for (const key in injectOptions) {
-//     const opt = injectOptions[key]
-//     let injected: unknown
-//     if (isObject(opt)) {
-//       if ('default' in opt) {
-//         injected = inject(
-//           opt.from || key,
-//           opt.default,
-//           true /* treat default function as factory */
-//         )
-//       } else {
-//         injected = inject(opt.from || key)
-//       }
-//     } else {
-//       injected = inject(opt)
-//     }
-//     if (isRef(injected)) {
-//       // unwrap injected refs (ref #4196)
-//       Object.defineProperty(ctx, key, {
-//         enumerable: true,
-//         configurable: true,
-//         get: () => (injected as Ref).value,
-//         set: v => ((injected as Ref).value = v)
-//       })
-//     } else {
-//       ctx[key] = injected
-//     }
-//     if (__DEV__) {
-//       checkDuplicateProperties!(OptionTypes.INJECT, key)
-//     }
-//   }
-// }
+export function resolveInjections(
+  injectOptions: ComponentInjectOptions,
+  ctx: any,
+  checkDuplicateProperties = NOOP as any
+) {
+  if (isArray(injectOptions)) {
+    injectOptions = normalizeInject(injectOptions)!
+  }
+  for (const key in injectOptions) {
+    const opt = injectOptions[key]
+    let injected: unknown
+    if (isObject(opt)) {
+      if ('default' in opt) {
+        injected = inject(
+          opt.from || key,
+          opt.default,
+          true /* treat default function as factory */
+        )
+      } else {
+        injected = inject(opt.from || key)
+      }
+    } else {
+      injected = inject(opt)
+    }
+    if (isRef(injected)) {
+      // unwrap injected refs (ref #4196)
+      Object.defineProperty(ctx, key, {
+        enumerable: true,
+        configurable: true,
+        get: () => (injected as Ref).value,
+        set: v => ((injected as Ref).value = v)
+      })
+    } else {
+      ctx[key] = injected
+    }
+    // if (__DEV__) {
+    //   checkDuplicateProperties!(OptionTypes.INJECT, key)
+    // }
+  }
+}
 
 // function callHook(
 //   hook: Function,
@@ -1054,18 +1057,18 @@ export function resolveMergedOptions(
 //   return mergeObjectOptions(normalizeInject(to), normalizeInject(from))
 // }
 
-// function normalizeInject(
-//   raw: ComponentInjectOptions | undefined
-// ): ObjectInjectOptions | undefined {
-//   if (isArray(raw)) {
-//     const res: ObjectInjectOptions = {}
-//     for (let i = 0; i < raw.length; i++) {
-//       res[raw[i]] = raw[i]
-//     }
-//     return res
-//   }
-//   return raw
-// }
+function normalizeInject(
+  raw: ComponentInjectOptions | undefined
+): ObjectInjectOptions | undefined {
+  if (isArray(raw)) {
+    const res: ObjectInjectOptions = {}
+    for (let i = 0; i < raw.length; i++) {
+      res[raw[i]] = raw[i]
+    }
+    return res
+  }
+  return raw
+}
 
 // function mergeAsArray<T = Function>(to: T[] | T | undefined, from: T | T[]) {
 //   return to ? [...new Set([].concat(to as any, from as any))] : from
