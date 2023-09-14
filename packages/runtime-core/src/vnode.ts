@@ -36,6 +36,7 @@ import {
   currentScopeId,
   currentRenderingInstance
 } from './componentRenderContext'
+import { ErrorCodes, callWithAsyncErrorHandling } from './errorHandling'
 
 export const Fragment = Symbol.for('v-fgt') as any as {
   __isFragment: true
@@ -96,12 +97,12 @@ export type VNodeProps = {
   ref_key?: string
 
   // vnode hooks
-  // onVnodeBeforeMount?: VNodeMountHook | VNodeMountHook[]
-  // onVnodeMounted?: VNodeMountHook | VNodeMountHook[]
-  // onVnodeBeforeUpdate?: VNodeUpdateHook | VNodeUpdateHook[]
-  // onVnodeUpdated?: VNodeUpdateHook | VNodeUpdateHook[]
-  // onVnodeBeforeUnmount?: VNodeMountHook | VNodeMountHook[]
-  // onVnodeUnmounted?: VNodeMountHook | VNodeMountHook[]
+  onVnodeBeforeMount?: VNodeMountHook | VNodeMountHook[]
+  onVnodeMounted?: VNodeMountHook | VNodeMountHook[]
+  onVnodeBeforeUpdate?: VNodeUpdateHook | VNodeUpdateHook[]
+  onVnodeUpdated?: VNodeUpdateHook | VNodeUpdateHook[]
+  onVnodeBeforeUnmount?: VNodeMountHook | VNodeMountHook[]
+  onVnodeUnmounted?: VNodeMountHook | VNodeMountHook[]
 }
 
 // Renderer Node can technically be any object in the context of core renderer
@@ -820,4 +821,16 @@ export function mergeProps(...args: (Data & VNodeProps)[]) {
     }
   }
   return ret
+}
+
+export function invokeVNodeHook(
+  hook: VNodeHook,
+  instance: ComponentInternalInstance | null,
+  vnode: VNode,
+  prevVNode: VNode | null = null
+) {
+  callWithAsyncErrorHandling(hook, instance, ErrorCodes.VNODE_HOOK, [
+    vnode,
+    prevVNode
+  ])
 }

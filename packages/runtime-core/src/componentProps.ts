@@ -1,6 +1,7 @@
 import {
   EMPTY_OBJ,
   IfAny,
+  PatchFlags,
   camelize,
   def,
   extend,
@@ -13,7 +14,12 @@ import {
 } from '@docue/shared'
 import { ComponentInternalInstance, ConcreteComponent, Data } from './component'
 import { InternalObjectKey } from './vnode'
-import { shallowReactive, toRaw } from '@docue/reactivity'
+import {
+  TriggerOpTypes,
+  shallowReactive,
+  toRaw,
+  trigger
+} from '@docue/reactivity'
 import { isEmitListener } from './componentEmits'
 import { warn } from './warning'
 import { AppContext } from './apiCreateApp'
@@ -189,13 +195,13 @@ export function initProps(
     // stateful
     instance.props = isSSR ? props : shallowReactive(props)
   } else {
-    //   if (!instance.type.props) {
-    //     // functional w/ optional props, props === attrs
-    //     instance.props = attrs
-    //   } else {
-    //     // functional w/ declared props
-    //     instance.props = props
-    //   }
+    if (!instance.type.props) {
+      // functional w/ optional props, props === attrs
+      instance.props = attrs
+    } else {
+      // functional w/ declared props
+      instance.props = props
+    }
   }
   instance.attrs = attrs
 }
@@ -207,139 +213,136 @@ function isInHmrContext(instance: ComponentInternalInstance | null) {
   }
 }
 
-// export function updateProps(
-//   instance: ComponentInternalInstance,
-//   rawProps: Data | null,
-//   rawPrevProps: Data | null,
-//   optimized: boolean
-// ) {
-//   const {
-//     props,
-//     attrs,
-//     vnode: { patchFlag }
-//   } = instance
-//   const rawCurrentProps = toRaw(props)
-//   const [options] = instance.propsOptions
-//   let hasAttrsChanged = false
-
-//   if (
-//     // always force full diff in dev
-//     // - #1942 if hmr is enabled with sfc component
-//     // - vite#872 non-sfc component used by sfc component
-//     !(__DEV__ && isInHmrContext(instance)) &&
-//     (optimized || patchFlag > 0) &&
-//     !(patchFlag & PatchFlags.FULL_PROPS)
-//   ) {
-//     if (patchFlag & PatchFlags.PROPS) {
-//       // Compiler-generated props & no keys change, just set the updated
-//       // the props.
-//       const propsToUpdate = instance.vnode.dynamicProps!
-//       for (let i = 0; i < propsToUpdate.length; i++) {
-//         let key = propsToUpdate[i]
-//         // skip if the prop key is a declared emit event listener
-//         if (isEmitListener(instance.emitsOptions, key)) {
-//           continue
-//         }
-//         // PROPS flag guarantees rawProps to be non-null
-//         const value = rawProps![key]
-//         if (options) {
-//           // attr / props separation was done on init and will be consistent
-//           // in this code path, so just check if attrs have it.
-//           if (hasOwn(attrs, key)) {
-//             if (value !== attrs[key]) {
-//               attrs[key] = value
-//               hasAttrsChanged = true
-//             }
-//           } else {
-//             const camelizedKey = camelize(key)
-//             props[camelizedKey] = resolvePropValue(
-//               options,
-//               rawCurrentProps,
-//               camelizedKey,
-//               value,
-//               instance,
-//               false /* isAbsent */
-//             )
-//           }
-//         } else {
-//           if (__COMPAT__) {
-//             if (isOn(key) && key.endsWith('Native')) {
-//               key = key.slice(0, -6) // remove Native postfix
-//             } else if (shouldSkipAttr(key, instance)) {
-//               continue
-//             }
-//           }
-//           if (value !== attrs[key]) {
-//             attrs[key] = value
-//             hasAttrsChanged = true
-//           }
-//         }
-//       }
-//     }
-//   } else {
-//     // full props update.
-//     if (setFullProps(instance, rawProps, props, attrs)) {
-//       hasAttrsChanged = true
-//     }
-//     // in case of dynamic props, check if we need to delete keys from
-//     // the props object
-//     let kebabKey: string
-//     for (const key in rawCurrentProps) {
-//       if (
-//         !rawProps ||
-//         // for camelCase
-//         (!hasOwn(rawProps, key) &&
-//           // it's possible the original props was passed in as kebab-case
-//           // and converted to camelCase (#955)
-//           ((kebabKey = hyphenate(key)) === key || !hasOwn(rawProps, kebabKey)))
-//       ) {
-//         if (options) {
-//           if (
-//             rawPrevProps &&
-//             // for camelCase
-//             (rawPrevProps[key] !== undefined ||
-//               // for kebab-case
-//               rawPrevProps[kebabKey!] !== undefined)
-//           ) {
-//             props[key] = resolvePropValue(
-//               options,
-//               rawCurrentProps,
-//               key,
-//               undefined,
-//               instance,
-//               true /* isAbsent */
-//             )
-//           }
-//         } else {
-//           delete props[key]
-//         }
-//       }
-//     }
-//     // in the case of functional component w/o props declaration, props and
-//     // attrs point to the same object so it should already have been updated.
-//     if (attrs !== rawCurrentProps) {
-//       for (const key in attrs) {
-//         if (
-//           !rawProps ||
-//           (!hasOwn(rawProps, key) &&
-//             (!__COMPAT__ || !hasOwn(rawProps, key + 'Native')))
-//         ) {
-//           delete attrs[key]
-//           hasAttrsChanged = true
-//         }
-//       }
-//     }
-//   }
-
-//   // trigger updates for $attrs in case it's used in component slots
-//   if (hasAttrsChanged) {
-//     trigger(instance, TriggerOpTypes.SET, '$attrs')
-//   }
-
-//   if (__DEV__) {
-//     validateProps(rawProps || {}, props, instance)
-//   }
-// }
+export function updateProps(
+  instance: ComponentInternalInstance,
+  rawProps: Data | null,
+  rawPrevProps: Data | null,
+  optimized: boolean
+) {
+  const {
+    props,
+    attrs,
+    vnode: { patchFlag }
+  } = instance
+  const rawCurrentProps = toRaw(props)
+  const [options] = instance.propsOptions
+  let hasAttrsChanged = false
+  if (
+    // always force full diff in dev
+    // - #1942 if hmr is enabled with sfc component
+    // - vite#872 non-sfc component used by sfc component
+    !(__DEV__ && isInHmrContext(instance)) &&
+    (optimized || patchFlag > 0) &&
+    !(patchFlag & PatchFlags.FULL_PROPS)
+  ) {
+    //     if (patchFlag & PatchFlags.PROPS) {
+    //       // Compiler-generated props & no keys change, just set the updated
+    //       // the props.
+    //       const propsToUpdate = instance.vnode.dynamicProps!
+    //       for (let i = 0; i < propsToUpdate.length; i++) {
+    //         let key = propsToUpdate[i]
+    //         // skip if the prop key is a declared emit event listener
+    //         if (isEmitListener(instance.emitsOptions, key)) {
+    //           continue
+    //         }
+    //         // PROPS flag guarantees rawProps to be non-null
+    //         const value = rawProps![key]
+    //         if (options) {
+    //           // attr / props separation was done on init and will be consistent
+    //           // in this code path, so just check if attrs have it.
+    //           if (hasOwn(attrs, key)) {
+    //             if (value !== attrs[key]) {
+    //               attrs[key] = value
+    //               hasAttrsChanged = true
+    //             }
+    //           } else {
+    //             const camelizedKey = camelize(key)
+    //             props[camelizedKey] = resolvePropValue(
+    //               options,
+    //               rawCurrentProps,
+    //               camelizedKey,
+    //               value,
+    //               instance,
+    //               false /* isAbsent */
+    //             )
+    //           }
+    //         } else {
+    //           if (__COMPAT__) {
+    //             if (isOn(key) && key.endsWith('Native')) {
+    //               key = key.slice(0, -6) // remove Native postfix
+    //             } else if (shouldSkipAttr(key, instance)) {
+    //               continue
+    //             }
+    //           }
+    //           if (value !== attrs[key]) {
+    //             attrs[key] = value
+    //             hasAttrsChanged = true
+    //           }
+    //         }
+    //       }
+    //     }
+  } else {
+    // full props update.
+    if (setFullProps(instance, rawProps, props, attrs)) {
+      hasAttrsChanged = true
+    }
+    // in case of dynamic props, check if we need to delete keys from
+    // the props object
+    let kebabKey: string
+    for (const key in rawCurrentProps) {
+      // if (
+      //   !rawProps ||
+      //   // for camelCase
+      //   (!hasOwn(rawProps, key) &&
+      //     // it's possible the original props was passed in as kebab-case
+      //     // and converted to camelCase (#955)
+      //     ((kebabKey = hyphenate(key)) === key || !hasOwn(rawProps, kebabKey)))
+      // ) {
+      //   if (options) {
+      //     if (
+      //       rawPrevProps &&
+      //       // for camelCase
+      //       (rawPrevProps[key] !== undefined ||
+      //         // for kebab-case
+      //         rawPrevProps[kebabKey!] !== undefined)
+      //     ) {
+      //       props[key] = resolvePropValue(
+      //         options,
+      //         rawCurrentProps,
+      //         key,
+      //         undefined,
+      //         instance,
+      //         true /* isAbsent */
+      //       )
+      //     }
+      //   } else {
+      //     delete props[key]
+      //   }
+      // }
+    }
+    // in the case of functional component w/o props declaration, props and
+    // attrs point to the same object so it should already have been updated.
+    // if (attrs !== rawCurrentProps) {
+    //   for (const key in attrs) {
+    //     if (
+    //       !rawProps ||
+    //       (!hasOwn(rawProps, key) &&
+    //         (!__COMPAT__ || !hasOwn(rawProps, key + 'Native')))
+    //     ) {
+    //       delete attrs[key]
+    //       hasAttrsChanged = true
+    //     }
+    //   }
+    // }
+  }
+  // trigger updates for $attrs in case it's used in component slots
+  if (hasAttrsChanged) {
+    trigger(instance, TriggerOpTypes.SET, '$attrs')
+  }
+  //   if (__DEV__) {
+  //     validateProps(rawProps || {}, props, instance)
+  //   }
+}
 
 function setFullProps(
   instance: ComponentInternalInstance,

@@ -36,19 +36,26 @@ import {
   cloneIfMounted,
   normalizeVNode,
   isSameVNodeType,
-  Static
+  Static,
+  invokeVNodeHook
 } from './vnode'
 import { warn } from './warning'
 import {
   SchedulerJob,
   flushPostFlushCbs,
   flushPreFlushCbs,
+  invalidateJob,
   queueJob,
   queuePostFlushCb
 } from './scheduler'
-import { renderComponentRoot } from './componentRenderUtils'
+import {
+  renderComponentRoot,
+  shouldUpdateComponent
+} from './componentRenderUtils'
 import { isHmrUpdating } from './hmr'
 import { setRef } from './rendererTemplateRef'
+import { isAsyncWrapper } from './apiAsyncComponent'
+import { updateProps } from './componentProps'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -667,9 +674,9 @@ function baseCreateRenderer(
       // if ('value' in props) {
       //   hostPatchProp(el, 'value', null, props.value)
       // }
-      // if ((vnodeHook = props.onVnodeBeforeMount)) {
-      //   invokeVNodeHook(vnodeHook, parentComponent, vnode)
-      // }
+      if ((vnodeHook = props.onVnodeBeforeMount)) {
+        invokeVNodeHook(vnodeHook, parentComponent, vnode)
+      }
     }
     //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
     //     Object.defineProperty(el, '__vnode', {
@@ -694,17 +701,17 @@ function baseCreateRenderer(
     //     transition!.beforeEnter(el)
     //   }
     hostInsert(el, container, anchor)
-    //   if (
-    //     (vnodeHook = props && props.onVnodeMounted) ||
-    //     needCallTransitionHooks ||
-    //     dirs
-    //   ) {
-    //     queuePostRenderEffect(() => {
-    //       vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
-    //       needCallTransitionHooks && transition!.enter(el)
-    //       dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
-    //     }, parentSuspense)
-    // }
+    if (
+      (vnodeHook = props && props.onVnodeMounted) ||
+      // needCallTransitionHooks ||
+      dirs
+    ) {
+      queuePostRenderEffect(() => {
+        vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
+        // needCallTransitionHooks && transition!.enter(el)
+        // dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
+      }, parentSuspense)
+    }
   }
 
   // const setScopeId = (
@@ -793,9 +800,9 @@ function baseCreateRenderer(
     let vnodeHook: VNodeHook | undefined | null
     // disable recurse in beforeUpdate hooks
     //   parentComponent && toggleRecurse(parentComponent, false)
-    //   if ((vnodeHook = newProps.onVnodeBeforeUpdate)) {
-    //     invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
-    //   }
+    if ((vnodeHook = newProps.onVnodeBeforeUpdate)) {
+      invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
+    }
     //   if (dirs) {
     //     invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
     //   }
@@ -916,12 +923,12 @@ function baseCreateRenderer(
       )
     }
 
-    // if ((vnodeHook = newProps.onVnodeUpdated) || dirs) {
-    //   queuePostRenderEffect(() => {
-    //     vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
-    //     dirs && invokeDirectiveHook(n2, n1, parentComponent, 'updated')
-    //   }, parentSuspense)
-    // }
+    if ((vnodeHook = newProps.onVnodeUpdated) || dirs) {
+      queuePostRenderEffect(() => {
+        vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
+        // dirs && invokeDirectiveHook(n2, n1, parentComponent, 'updated')
+      }, parentSuspense)
+    }
   }
 
   // The fast path for blocks.
@@ -1228,36 +1235,36 @@ function baseCreateRenderer(
 
   const updateComponent = (n1: VNode, n2: VNode, optimized: boolean) => {
     const instance = (n2.component = n1.component)!
-    // if (shouldUpdateComponent(n1, n2, optimized)) {
-    //   if (
-    //     __FEATURE_SUSPENSE__ &&
-    //     instance.asyncDep &&
-    //     !instance.asyncResolved
-    //   ) {
-    //     // async & still pending - just update props and slots
-    //     // since the component's reactive effect for render isn't set-up yet
-    //     if (__DEV__) {
-    //       pushWarningContext(n2)
-    //     }
-    //     updateComponentPreRender(instance, n2, optimized)
-    //     if (__DEV__) {
-    //       popWarningContext()
-    //     }
-    //     return
-    //   } else {
-    //     // normal update
-    //     instance.next = n2
-    //     // in case the child component is also queued, remove it to avoid
-    //     // double updating the same child component in the same flush.
-    //     invalidateJob(instance.update)
-    //     // instance.update is the reactive effect.
-    //     instance.update()
-    //   }
-    // } else {
-    //   // no update needed. just copy over properties
-    //   n2.el = n1.el
-    //   instance.vnode = n2
-    // }
+    if (shouldUpdateComponent(n1, n2, optimized)) {
+      //   if (
+      //     __FEATURE_SUSPENSE__ &&
+      //     instance.asyncDep &&
+      //     !instance.asyncResolved
+      //   ) {
+      //     // async & still pending - just update props and slots
+      //     // since the component's reactive effect for render isn't set-up yet
+      //     if (__DEV__) {
+      //       pushWarningContext(n2)
+      //     }
+      //     updateComponentPreRender(instance, n2, optimized)
+      //     if (__DEV__) {
+      //       popWarningContext()
+      //     }
+      //     return
+      //   } else {
+      //     // normal update
+      instance.next = n2
+      // in case the child component is also queued, remove it to avoid
+      // double updating the same child component in the same flush.
+      invalidateJob(instance.update)
+      // instance.update is the reactive effect.
+      instance.update()
+      //   }
+    } else {
+      //   // no update needed. just copy over properties
+      //   n2.el = n1.el
+      //   instance.vnode = n2
+    }
   }
 
   const setupRenderEffect: SetupRenderEffectFn = (
@@ -1273,20 +1280,20 @@ function baseCreateRenderer(
       if (!instance.isMounted) {
         let vnodeHook: VNodeHook | null | undefined
         const { el, props } = initialVNode
-        //       const { bm, m, parent } = instance
-        //       const isAsyncWrapperVNode = isAsyncWrapper(initialVNode)
+        const { bm, m, parent } = instance
+        const isAsyncWrapperVNode = isAsyncWrapper(initialVNode)
         //       toggleRecurse(instance, false)
-        //       // beforeMount hook
+        // beforeMount hook
         //       if (bm) {
         //         invokeArrayFns(bm)
         //       }
-        //       // onVnodeBeforeMount
-        //       if (
-        //         !isAsyncWrapperVNode &&
-        //         (vnodeHook = props && props.onVnodeBeforeMount)
-        //       ) {
-        //         invokeVNodeHook(vnodeHook, parent, initialVNode)
-        //       }
+        // onVnodeBeforeMount
+        if (
+          !isAsyncWrapperVNode &&
+          (vnodeHook = props && props.onVnodeBeforeMount)
+        ) {
+          invokeVNodeHook(vnodeHook, parent, initialVNode)
+        }
         //       if (
         //         __COMPAT__ &&
         //         isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
@@ -1358,17 +1365,17 @@ function baseCreateRenderer(
         // if (m) {
         //   queuePostRenderEffect(m, parentSuspense)
         // }
-        // // onVnodeMounted
-        // if (
-        //   !isAsyncWrapperVNode &&
-        //   (vnodeHook = props && props.onVnodeMounted)
-        // ) {
-        //   const scopedInitialVNode = initialVNode
-        //   queuePostRenderEffect(
-        //     () => invokeVNodeHook(vnodeHook!, parent, scopedInitialVNode),
-        //     parentSuspense
-        //   )
-        // }
+        // onVnodeMounted
+        if (
+          !isAsyncWrapperVNode &&
+          (vnodeHook = props && props.onVnodeMounted)
+        ) {
+          const scopedInitialVNode = initialVNode
+          queuePostRenderEffect(
+            () => invokeVNodeHook(vnodeHook!, parent, scopedInitialVNode),
+            parentSuspense
+          )
+        }
         // if (
         //   __COMPAT__ &&
         //   isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
@@ -1418,7 +1425,7 @@ function baseCreateRenderer(
         // toggleRecurse(instance, false)
         if (next) {
           next.el = vnode.el
-          // updateComponentPreRender(instance, next, optimized)
+          updateComponentPreRender(instance, next, optimized)
         } else {
           next = vnode
         }
@@ -1426,10 +1433,10 @@ function baseCreateRenderer(
         if (bu) {
           invokeArrayFns(bu)
         }
-        //       // onVnodeBeforeUpdate
-        //       if ((vnodeHook = next.props && next.props.onVnodeBeforeUpdate)) {
-        //         invokeVNodeHook(vnodeHook, parent, next, vnode)
-        //       }
+        // onVnodeBeforeUpdate
+        if ((vnodeHook = next.props && next.props.onVnodeBeforeUpdate)) {
+          invokeVNodeHook(vnodeHook, parent, next, vnode)
+        }
         //       if (
         //         __COMPAT__ &&
         //         isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
@@ -1477,10 +1484,10 @@ function baseCreateRenderer(
         }
         // onVnodeUpdated
         if ((vnodeHook = next.props && next.props.onVnodeUpdated)) {
-          // queuePostRenderEffect(
-          //   () => invokeVNodeHook(vnodeHook!, parent, next!, vnode),
-          //   parentSuspense
-          // )
+          queuePostRenderEffect(
+            () => invokeVNodeHook(vnodeHook!, parent, next!, vnode),
+            parentSuspense
+          )
         }
         //       if (
         //         __COMPAT__ &&
@@ -1522,24 +1529,23 @@ function baseCreateRenderer(
     update()
   }
 
-  // const updateComponentPreRender = (
-  //   instance: ComponentInternalInstance,
-  //   nextVNode: VNode,
-  //   optimized: boolean
-  // ) => {
-  //   nextVNode.component = instance
-  //   const prevProps = instance.vnode.props
-  //   instance.vnode = nextVNode
-  //   instance.next = null
-  //   updateProps(instance, nextVNode.props, prevProps, optimized)
-  //   updateSlots(instance, nextVNode.children, optimized)
-
-  //   pauseTracking()
-  //   // props update may have triggered pre-flush watchers.
-  //   // flush them before the render update.
-  //   flushPreFlushCbs()
-  //   resetTracking()
-  // }
+  const updateComponentPreRender = (
+    instance: ComponentInternalInstance,
+    nextVNode: VNode,
+    optimized: boolean
+  ) => {
+    nextVNode.component = instance
+    const prevProps = instance.vnode.props
+    instance.vnode = nextVNode
+    instance.next = null
+    updateProps(instance, nextVNode.props, prevProps, optimized)
+    // updateSlots(instance, nextVNode.children, optimized)
+    //   pauseTracking()
+    //   // props update may have triggered pre-flush watchers.
+    //   // flush them before the render update.
+    flushPreFlushCbs()
+    //   resetTracking()
+  }
 
   const patchChildren: PatchChildrenFn = (
     n1,
@@ -2025,14 +2031,14 @@ function baseCreateRenderer(
     //   return
     // }
     // const shouldInvokeDirs = shapeFlag & ShapeFlags.ELEMENT && dirs
-    // const shouldInvokeVnodeHook = !isAsyncWrapper(vnode)
-    // let vnodeHook: VNodeHook | undefined | null
-    // if (
-    //   shouldInvokeVnodeHook &&
-    //   (vnodeHook = props && props.onVnodeBeforeUnmount)
-    // ) {
-    //   invokeVNodeHook(vnodeHook, parentComponent, vnode)
-    // }
+    const shouldInvokeVnodeHook = !isAsyncWrapper(vnode)
+    let vnodeHook: VNodeHook | undefined | null
+    if (
+      shouldInvokeVnodeHook &&
+      (vnodeHook = props && props.onVnodeBeforeUnmount)
+    ) {
+      invokeVNodeHook(vnodeHook, parentComponent, vnode)
+    }
     if (shapeFlag & ShapeFlags.COMPONENT) {
       // unmountComponent(vnode.component!, parentSuspense, doRemove)
     } else {
@@ -2078,17 +2084,17 @@ function baseCreateRenderer(
         remove(vnode)
       }
     }
-    // if (
-    //   (shouldInvokeVnodeHook &&
-    //     (vnodeHook = props && props.onVnodeUnmounted)) ||
-    //   shouldInvokeDirs
-    // ) {
-    //   queuePostRenderEffect(() => {
-    //     vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
-    //     shouldInvokeDirs &&
-    //       invokeDirectiveHook(vnode, null, parentComponent, 'unmounted')
-    //   }, parentSuspense)
-    // }
+    if (
+      shouldInvokeVnodeHook &&
+      (vnodeHook = props && props.onVnodeUnmounted)
+      // || shouldInvokeDirs
+    ) {
+      queuePostRenderEffect(() => {
+        vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
+        // shouldInvokeDirs &&
+        //   invokeDirectiveHook(vnode, null, parentComponent, 'unmounted')
+      }, parentSuspense)
+    }
   }
 
   const remove: RemoveFn = vnode => {

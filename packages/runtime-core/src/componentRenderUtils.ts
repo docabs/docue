@@ -1,9 +1,14 @@
-import { ShapeFlags, isOn } from '@docue/shared'
-import { ComponentInternalInstance, FunctionalComponent } from './component'
+import { PatchFlags, ShapeFlags, isOn } from '@docue/shared'
+import {
+  ComponentInternalInstance,
+  Data,
+  FunctionalComponent
+} from './component'
 import { setCurrentRenderingInstance } from './componentRenderContext'
 import { VNode, cloneVNode, createVNode, normalizeVNode } from './vnode'
 import { warn } from './warning'
 import { ErrorCodes } from './errorHandling'
+import { isEmitListener } from './componentEmits'
 
 /**
  * dev only flag to track whether $attrs was used during render.
@@ -220,3 +225,180 @@ export function renderComponentRoot(
 
   return result
 }
+
+// /**
+//  * dev only
+//  * In dev mode, template root level comments are rendered, which turns the
+//  * template into a fragment root, but we need to locate the single element
+//  * root for attrs and scope id processing.
+//  */
+// const getChildRoot = (vnode: VNode): [VNode, SetRootFn] => {
+//   const rawChildren = vnode.children as VNodeArrayChildren
+//   const dynamicChildren = vnode.dynamicChildren
+//   const childRoot = filterSingleRoot(rawChildren)
+//   if (!childRoot) {
+//     return [vnode, undefined]
+//   }
+//   const index = rawChildren.indexOf(childRoot)
+//   const dynamicIndex = dynamicChildren ? dynamicChildren.indexOf(childRoot) : -1
+//   const setRoot: SetRootFn = (updatedRoot: VNode) => {
+//     rawChildren[index] = updatedRoot
+//     if (dynamicChildren) {
+//       if (dynamicIndex > -1) {
+//         dynamicChildren[dynamicIndex] = updatedRoot
+//       } else if (updatedRoot.patchFlag > 0) {
+//         vnode.dynamicChildren = [...dynamicChildren, updatedRoot]
+//       }
+//     }
+//   }
+//   return [normalizeVNode(childRoot), setRoot]
+// }
+
+// export function filterSingleRoot(
+//   children: VNodeArrayChildren
+// ): VNode | undefined {
+//   let singleRoot
+//   for (let i = 0; i < children.length; i++) {
+//     const child = children[i]
+//     if (isVNode(child)) {
+//       // ignore user comment
+//       if (child.type !== Comment || child.children === 'v-if') {
+//         if (singleRoot) {
+//           // has more than 1 non-comment child, return now
+//           return
+//         } else {
+//           singleRoot = child
+//         }
+//       }
+//     } else {
+//       return
+//     }
+//   }
+//   return singleRoot
+// }
+
+// const getFunctionalFallthrough = (attrs: Data): Data | undefined => {
+//   let res: Data | undefined
+//   for (const key in attrs) {
+//     if (key === 'class' || key === 'style' || isOn(key)) {
+//       ;(res || (res = {}))[key] = attrs[key]
+//     }
+//   }
+//   return res
+// }
+
+// const filterModelListeners = (attrs: Data, props: NormalizedProps): Data => {
+//   const res: Data = {}
+//   for (const key in attrs) {
+//     if (!isModelListener(key) || !(key.slice(9) in props)) {
+//       res[key] = attrs[key]
+//     }
+//   }
+//   return res
+// }
+
+// const isElementRoot = (vnode: VNode) => {
+//   return (
+//     vnode.shapeFlag & (ShapeFlags.COMPONENT | ShapeFlags.ELEMENT) ||
+//     vnode.type === Comment // potential v-if branch switch
+//   )
+// }
+
+export function shouldUpdateComponent(
+  prevVNode: VNode,
+  nextVNode: VNode,
+  optimized?: boolean
+): boolean {
+  const { props: prevProps, children: prevChildren, component } = prevVNode
+  const { props: nextProps, children: nextChildren, patchFlag } = nextVNode
+  const emits = component!.emitsOptions
+
+  // Parent component's render function was hot-updated. Since this may have
+  // caused the child component's slots content to have changed, we need to
+  // force the child to update as well.
+  // if (__DEV__ && (prevChildren || nextChildren) && isHmrUpdating) {
+  //   return true
+  // }
+
+  // force child update for runtime directive or transition on component vnode.
+  if (nextVNode.dirs || nextVNode.transition) {
+    return true
+  }
+
+  if (optimized && patchFlag >= 0) {
+    if (patchFlag & PatchFlags.DYNAMIC_SLOTS) {
+      // slot content that references values that might have changed,
+      // e.g. in a v-for
+      return true
+    }
+    if (patchFlag & PatchFlags.FULL_PROPS) {
+      if (!prevProps) {
+        return !!nextProps
+      }
+      // presence of this flag indicates props are always non-null
+      return hasPropsChanged(prevProps, nextProps!, emits)
+    } else if (patchFlag & PatchFlags.PROPS) {
+      const dynamicProps = nextVNode.dynamicProps!
+      for (let i = 0; i < dynamicProps.length; i++) {
+        const key = dynamicProps[i]
+        if (
+          nextProps![key] !== prevProps![key] &&
+          !isEmitListener(emits, key)
+        ) {
+          return true
+        }
+      }
+    }
+  } else {
+    // this path is only taken by manually written render functions
+    // so presence of any children leads to a forced update
+    if (prevChildren || nextChildren) {
+      if (!nextChildren || !(nextChildren as any).$stable) {
+        return true
+      }
+    }
+    if (prevProps === nextProps) {
+      return false
+    }
+    if (!prevProps) {
+      return !!nextProps
+    }
+    if (!nextProps) {
+      return true
+    }
+    return hasPropsChanged(prevProps, nextProps, emits)
+  }
+
+  return false
+}
+
+function hasPropsChanged(
+  prevProps: Data,
+  nextProps: Data,
+  emitsOptions: ComponentInternalInstance['emitsOptions']
+): boolean {
+  const nextKeys = Object.keys(nextProps)
+  if (nextKeys.length !== Object.keys(prevProps).length) {
+    return true
+  }
+  for (let i = 0; i < nextKeys.length; i++) {
+    const key = nextKeys[i]
+    if (
+      nextProps[key] !== prevProps[key] &&
+      !isEmitListener(emitsOptions, key)
+    ) {
+      return true
+    }
+  }
+  return false
+}
+
+// export function updateHOCHostEl(
+//   { vnode, parent }: ComponentInternalInstance,
+//   el: typeof vnode.el // HostNode
+// ) {
+//   while (parent && parent.subTree === vnode) {
+//     ;(vnode = parent.vnode).el = el
+//     parent = parent.parent
+//   }
+// }
