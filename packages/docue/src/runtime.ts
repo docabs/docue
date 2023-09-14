@@ -12,7 +12,7 @@ if (__DEV__) {
 export const compile = () => {
   // if (__DEV__) {
   //   warn(
-  //     `Runtime compilation is not supported in this build of Vue.` +
+  //     `Runtime compilation is not supported in this build of Docue.` +
   //       (__ESM_BUNDLER__
   //         ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
   //         : __ESM_BROWSER__

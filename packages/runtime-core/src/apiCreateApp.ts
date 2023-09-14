@@ -2,6 +2,7 @@ import {
   Component,
   ConcreteComponent,
   Data,
+  getExposeProxy,
   validateComponentName
 } from './component'
 import {
@@ -176,7 +177,7 @@ export function createAppContext(): AppContext {
     components: {},
     // directives: {},
     // provides: Object.create(null),
-    // optionsCache: new WeakMap(),
+    optionsCache: new WeakMap(),
     // propsCache: new WeakMap(),
     emitsCache: new WeakMap()
   }
@@ -299,7 +300,7 @@ export function createAppAPI<HostElement>(
       ): any {
         if (!isMounted) {
           //   // #5571
-          //   if (__DEV__ && (rootContainer as any).__vue_app__) {
+          //   if (__DEV__ && (rootContainer as any).__docue_app__) {
           //     warn(
           //       `There is already an app instance mounted on the host container.\n` +
           //         ` If you want to mount another app on the same host container,` +
@@ -324,12 +325,12 @@ export function createAppAPI<HostElement>(
           isMounted = true
           //   app._container = rootContainer
           //   // for devtools and telemetry
-          //   ;(rootContainer as any).__vue_app__ = app
+          //   ;(rootContainer as any).__docue_app__ = app
           //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
           //     app._instance = vnode.component
           //     devtoolsInitApp(app, version)
           //   }
-          //   return getExposeProxy(vnode.component!) || vnode.component!.proxy
+          return getExposeProxy(vnode.component!) || vnode.component!.proxy
           // } else if (__DEV__) {
           //   warn(
           //     `App has already been mounted.\n` +
@@ -346,7 +347,7 @@ export function createAppAPI<HostElement>(
         //     app._instance = null
         //     devtoolsUnmountApp(app)
         //   }
-        //   delete app._container.__vue_app__
+        //   delete app._container.__docue_app__
         // } else if (__DEV__) {
         //   warn(`Cannot unmount an app that is not mounted.`)
         // }

@@ -282,7 +282,7 @@ export type { SuspenseBoundary } from './components/Suspense'
 // user code should avoid relying on them.
 
 // For compiler generated code
-// should sync with '@vue/compiler-core/src/runtimeHelpers.ts'
+// should sync with '@docue/compiler-core/src/runtimeHelpers.ts'
 // export {
 //   withCtx,
 //   pushScopeId,
@@ -320,7 +320,7 @@ export { transformVNodeArgs } from './vnode'
 
 // SSR -------------------------------------------------------------------------
 
-// **IMPORTANT** These APIs are exposed solely for @vue/server-renderer and may
+// **IMPORTANT** These APIs are exposed solely for @docue/server-renderer and may
 // change without notice between versions. User code should never rely on them.
 
 import { createComponentInstance, setupComponent } from './component'
@@ -338,7 +338,7 @@ const _ssrUtils = {
 }
 
 /**
- * SSR utils for \@vue/server-renderer. Only exposed in ssr-possible builds.
+ * SSR utils for \@docue/server-renderer. Only exposed in ssr-possible builds.
  * @internal
  */
 export const ssrUtils = (__SSR__ ? _ssrUtils : null) as typeof _ssrUtils

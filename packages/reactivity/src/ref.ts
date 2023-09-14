@@ -342,10 +342,10 @@ type BaseTypes = string | number | boolean
 /**
  * This is a special exported interface for other packages to declare
  * additional types that should bail out for ref unwrapping. For example
- * \@vue/runtime-dom can declare it like so in its d.ts:
+ * \@docue/runtime-dom can declare it like so in its d.ts:
  *
  * ``` ts
- * declare module '@vue/reactivity' {
+ * declare module '@docue/reactivity' {
  *   export interface RefUnwrapBailTypes {
  *     runtimeDOMBailTypes: Node | Window
  *   }

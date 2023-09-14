@@ -30,7 +30,8 @@ import {
 import {
   ComponentOptions,
   ComputedOptions,
-  MethodOptions
+  MethodOptions,
+  applyOptions
 } from './componentOptions'
 import {
   ComponentPublicInstance,
@@ -630,7 +631,7 @@ function setupStatefulComponent(
   //   }
   //   if (Component.compilerOptions && isRuntimeOnly()) {
   //     warn(
-  //       `"compilerOptions" is only supported when using a build of Vue that ` +
+  //       `"compilerOptions" is only supported when using a build of Docue that ` +
   //         `includes the runtime compiler. Since you are using a runtime-only ` +
   //         `build, the options should be passed via your build tool config instead.`
   //     )
@@ -685,7 +686,7 @@ function setupStatefulComponent(
       //       }
       //     } else if (__DEV__) {
       //       warn(
-      //         `setup() returned a Promise, but the version of Vue you are using ` +
+      //         `setup() returned a Promise, but the version of Docue you are using ` +
       //           `does not support it yet.`
       //       )
       //     }
@@ -743,7 +744,7 @@ type CompileFunction = (
 ) => InternalRenderFunction
 
 let compile: CompileFunction | undefined
-let installWithProxy: (i: ComponentInternalInstance) => void
+// let installWithProxy: (i: ComponentInternalInstance) => void
 
 // /**
 //  * For runtime-dom to register the compiler.
@@ -824,17 +825,17 @@ export function finishComponentSetup(
     //   installWithProxy(instance)
     // }
   }
-  // // support for 2.x options
-  // if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {
-  //   setCurrentInstance(instance)
-  //   pauseTracking()
-  //   try {
-  //     applyOptions(instance)
-  //   } finally {
-  //     resetTracking()
-  //     unsetCurrentInstance()
-  //   }
-  // }
+  // support for 2.x options
+  if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {
+    // setCurrentInstance(instance)
+    // pauseTracking()
+    try {
+      applyOptions(instance)
+    } finally {
+      // resetTracking()
+      // unsetCurrentInstance()
+    }
+  }
   // // warn missing template/render
   // // the runtime compilation of template in SSR is done by server-render
   // if (__DEV__ && !Component.render && instance.render === NOOP && !isSSR) {
@@ -842,13 +843,13 @@ export function finishComponentSetup(
   //   if (!compile && Component.template) {
   //     warn(
   //       `Component provided template option but ` +
-  //         `runtime compilation is not supported in this build of Vue.` +
+  //         `runtime compilation is not supported in this build of Docue.` +
   //         (__ESM_BUNDLER__
-  //           ? ` Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".`
+  //           ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
   //           : __ESM_BROWSER__
-  //           ? ` Use "vue.esm-browser.js" instead.`
+  //           ? ` Use "docue.esm-browser.js" instead.`
   //           : __GLOBAL__
-  //           ? ` Use "vue.global.js" instead.`
+  //           ? ` Use "docue.global.js" instead.`
   //           : ``) /* should not happen */
   //     )
   //   } else {
@@ -907,26 +908,26 @@ export function createSetupContext(
   instance: ComponentInternalInstance
 ): SetupContext {
   const expose: SetupContext['expose'] = exposed => {
-    //     if (__DEV__) {
-    //       if (instance.exposed) {
-    //         warn(`expose() should be called only once per setup().`)
-    //       }
-    //       if (exposed != null) {
-    //         let exposedType: string = typeof exposed
-    //         if (exposedType === 'object') {
-    //           if (isArray(exposed)) {
-    //             exposedType = 'array'
-    //           } else if (isRef(exposed)) {
-    //             exposedType = 'ref'
-    //           }
-    //         }
-    //         if (exposedType !== 'object') {
-    //           warn(
-    //             `expose() should be passed a plain object, received ${exposedType}.`
-    //           )
-    //         }
-    //       }
-    //     }
+    if (__DEV__) {
+      if (instance.exposed) {
+        warn(`expose() should be called only once per setup().`)
+      }
+      if (exposed != null) {
+        let exposedType: string = typeof exposed
+        if (exposedType === 'object') {
+          if (isArray(exposed)) {
+            exposedType = 'array'
+          } else if (isRef(exposed)) {
+            exposedType = 'ref'
+          }
+        }
+        if (exposedType !== 'object') {
+          warn(
+            `expose() should be passed a plain object, received ${exposedType}.`
+          )
+        }
+      }
+    }
     instance.exposed = exposed || {}
   }
   if (__DEV__) {

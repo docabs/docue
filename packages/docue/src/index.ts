@@ -71,10 +71,10 @@ if (__DEV__) {
 
 //   // The wildcard import results in a huge object with every export
 //   // with keys that cannot be mangled, and can be quite heavy size-wise.
-//   // In the global build we know `Vue` is available globally so we can avoid
+//   // In the global build we know `Docue` is available globally so we can avoid
 //   // the wildcard object.
 //   const render = (
-//     __GLOBAL__ ? new Function(code)() : new Function('Vue', code)(runtimeDom)
+//     __GLOBAL__ ? new Function(code)() : new Function('Docue', code)(runtimeDom)
 //   ) as RenderFunction
 
 //   // mark the function as runtime compiled
@@ -86,4 +86,4 @@ if (__DEV__) {
 // registerRuntimeCompiler(compileToFunction)
 
 // export { compileToFunction as compile }
-// export * from '@vue/runtime-dom'
+// export * from '@docue/runtime-dom'

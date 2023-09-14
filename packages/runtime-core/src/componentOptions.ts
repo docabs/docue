@@ -1,17 +1,31 @@
-import { ComputedGetter, WritableComputedOptions } from '@docue/reactivity'
+import {
+  ComputedGetter,
+  WritableComputedOptions,
+  reactive
+} from '@docue/reactivity'
 import {
   CreateComponentPublicInstance,
   IntersectionMixin,
-  UnwrapMixinsType
+  UnwrapMixinsType,
+  isReservedPrefix
 } from './componentPublicInstance'
 import {
   ComponentInternalInstance,
   ComponentInternalOptions,
   ConcreteComponent,
+  InternalRenderFunction,
   SetupContext
 } from './component'
 import { VNodeChild } from './vnode'
-import { LooseRequired, Prettify, isObject } from '@docue/shared'
+import {
+  LooseRequired,
+  NOOP,
+  Prettify,
+  isArray,
+  isFunction,
+  isObject,
+  isPromise
+} from '@docue/shared'
 import { SlotsType } from './componentSlots'
 import { EmitsOptions, EmitsToProps } from './componentEmits'
 import {
@@ -20,13 +34,14 @@ import {
   ExtractPropTypes
 } from './componentProps'
 import { OptionMergeFunction } from './apiCreateApp'
+import { warn } from './warning'
 
 /**
  * Interface for declaring custom options.
  *
  * @example
  * ```ts
- * declare module '@vue/runtime-core' {
+ * declare module '@docue/runtime-core' {
  *   interface ComponentCustomOptions {
  *     beforeRouteUpdate?(
  *       to: Route,
@@ -531,274 +546,274 @@ export type OptionTypesType<
 
 export let shouldCacheAccess = true
 
-// export function applyOptions(instance: ComponentInternalInstance) {
-//   const options = resolveMergedOptions(instance)
-//   const publicThis = instance.proxy! as any
-//   const ctx = instance.ctx
+export function applyOptions(instance: ComponentInternalInstance) {
+  const options = resolveMergedOptions(instance)
+  const publicThis = instance.proxy! as any
+  const ctx = instance.ctx
 
-//   // do not cache property access on public proxy during state initialization
-//   shouldCacheAccess = false
+  // do not cache property access on public proxy during state initialization
+  shouldCacheAccess = false
 
-//   // call beforeCreate first before accessing other options since
-//   // the hook may mutate resolved options (#2791)
-//   if (options.beforeCreate) {
-//     callHook(options.beforeCreate, instance, LifecycleHooks.BEFORE_CREATE)
-//   }
+  // call beforeCreate first before accessing other options since
+  // the hook may mutate resolved options (#2791)
+  // if (options.beforeCreate) {
+  //   callHook(options.beforeCreate, instance, LifecycleHooks.BEFORE_CREATE)
+  // }
 
-//   const {
-//     // state
-//     data: dataOptions,
-//     computed: computedOptions,
-//     methods,
-//     watch: watchOptions,
-//     provide: provideOptions,
-//     inject: injectOptions,
-//     // lifecycle
-//     created,
-//     beforeMount,
-//     mounted,
-//     beforeUpdate,
-//     updated,
-//     activated,
-//     deactivated,
-//     beforeDestroy,
-//     beforeUnmount,
-//     destroyed,
-//     unmounted,
-//     render,
-//     renderTracked,
-//     renderTriggered,
-//     errorCaptured,
-//     serverPrefetch,
-//     // public API
-//     expose,
-//     inheritAttrs,
-//     // assets
-//     components,
-//     directives,
-//     filters
-//   } = options
+  const {
+    // state
+    data: dataOptions,
+    // computed: computedOptions,
+    // methods,
+    // watch: watchOptions,
+    // provide: provideOptions,
+    // inject: injectOptions,
+    // lifecycle
+    // created,
+    // beforeMount,
+    // mounted,
+    // beforeUpdate,
+    // updated,
+    // activated,
+    // deactivated,
+    // beforeDestroy,
+    // beforeUnmount,
+    // destroyed,
+    // unmounted,
+    render,
+    // renderTracked,
+    // renderTriggered,
+    // errorCaptured,
+    // serverPrefetch,
+    // public API
+    expose,
+    inheritAttrs
+    // assets,
+    // components,
+    // directives,
+    // filters
+  } = options
 
-//   const checkDuplicateProperties = __DEV__ ? createDuplicateChecker() : null
+  // const checkDuplicateProperties = __DEV__ ? createDuplicateChecker() : null
 
-//   if (__DEV__) {
-//     const [propsOptions] = instance.propsOptions
-//     if (propsOptions) {
-//       for (const key in propsOptions) {
-//         checkDuplicateProperties!(OptionTypes.PROPS, key)
-//       }
-//     }
-//   }
+  // if (__DEV__) {
+  //   const [propsOptions] = instance.propsOptions
+  //   if (propsOptions) {
+  //     for (const key in propsOptions) {
+  //       checkDuplicateProperties!(OptionTypes.PROPS, key)
+  //     }
+  //   }
+  // }
 
-//   // options initialization order (to be consistent with Vue 2):
-//   // - props (already done outside of this function)
-//   // - inject
-//   // - methods
-//   // - data (deferred since it relies on `this` access)
-//   // - computed
-//   // - watch (deferred since it relies on `this` access)
+  // options initialization order (to be consistent with Docue 2):
+  // - props (already done outside of this function)
+  // - inject
+  // - methods
+  // - data (deferred since it relies on `this` access)
+  // - computed
+  // - watch (deferred since it relies on `this` access)
 
-//   if (injectOptions) {
-//     resolveInjections(injectOptions, ctx, checkDuplicateProperties)
-//   }
+  // if (injectOptions) {
+  //   resolveInjections(injectOptions, ctx, checkDuplicateProperties)
+  // }
 
-//   if (methods) {
-//     for (const key in methods) {
-//       const methodHandler = (methods as MethodOptions)[key]
-//       if (isFunction(methodHandler)) {
-//         // In dev mode, we use the `createRenderContext` function to define
-//         // methods to the proxy target, and those are read-only but
-//         // reconfigurable, so it needs to be redefined here
-//         if (__DEV__) {
-//           Object.defineProperty(ctx, key, {
-//             value: methodHandler.bind(publicThis),
-//             configurable: true,
-//             enumerable: true,
-//             writable: true
-//           })
-//         } else {
-//           ctx[key] = methodHandler.bind(publicThis)
-//         }
-//         if (__DEV__) {
-//           checkDuplicateProperties!(OptionTypes.METHODS, key)
-//         }
-//       } else if (__DEV__) {
-//         warn(
-//           `Method "${key}" has type "${typeof methodHandler}" in the component definition. ` +
-//             `Did you reference the function correctly?`
-//         )
-//       }
-//     }
-//   }
+  // if (methods) {
+  //   for (const key in methods) {
+  //     const methodHandler = (methods as MethodOptions)[key]
+  //     if (isFunction(methodHandler)) {
+  //       // In dev mode, we use the `createRenderContext` function to define
+  //       // methods to the proxy target, and those are read-only but
+  //       // reconfigurable, so it needs to be redefined here
+  //       if (__DEV__) {
+  //         Object.defineProperty(ctx, key, {
+  //           value: methodHandler.bind(publicThis),
+  //           configurable: true,
+  //           enumerable: true,
+  //           writable: true
+  //         })
+  //       } else {
+  //         ctx[key] = methodHandler.bind(publicThis)
+  //       }
+  //       if (__DEV__) {
+  //         checkDuplicateProperties!(OptionTypes.METHODS, key)
+  //       }
+  //     } else if (__DEV__) {
+  //       warn(
+  //         `Method "${key}" has type "${typeof methodHandler}" in the component definition. ` +
+  //           `Did you reference the function correctly?`
+  //       )
+  //     }
+  //   }
+  // }
 
-//   if (dataOptions) {
-//     if (__DEV__ && !isFunction(dataOptions)) {
-//       warn(
-//         `The data option must be a function. ` +
-//           `Plain object usage is no longer supported.`
-//       )
-//     }
-//     const data = dataOptions.call(publicThis, publicThis)
-//     if (__DEV__ && isPromise(data)) {
-//       warn(
-//         `data() returned a Promise - note data() cannot be async; If you ` +
-//           `intend to perform data fetching before component renders, use ` +
-//           `async setup() + <Suspense>.`
-//       )
-//     }
-//     if (!isObject(data)) {
-//       __DEV__ && warn(`data() should return an object.`)
-//     } else {
-//       instance.data = reactive(data)
-//       if (__DEV__) {
-//         for (const key in data) {
-//           checkDuplicateProperties!(OptionTypes.DATA, key)
-//           // expose data on ctx during dev
-//           if (!isReservedPrefix(key[0])) {
-//             Object.defineProperty(ctx, key, {
-//               configurable: true,
-//               enumerable: true,
-//               get: () => data[key],
-//               set: NOOP
-//             })
-//           }
-//         }
-//       }
-//     }
-//   }
+  if (dataOptions) {
+    if (__DEV__ && !isFunction(dataOptions)) {
+      warn(
+        `The data option must be a function. ` +
+          `Plain object usage is no longer supported.`
+      )
+    }
+    const data = dataOptions.call(publicThis, publicThis)
+    if (__DEV__ && isPromise(data)) {
+      warn(
+        `data() returned a Promise - note data() cannot be async; If you ` +
+          `intend to perform data fetching before component renders, use ` +
+          `async setup() + <Suspense>.`
+      )
+    }
+    if (!isObject(data)) {
+      __DEV__ && warn(`data() should return an object.`)
+    } else {
+      instance.data = reactive(data)
+      // if (__DEV__) {
+      //   for (const key in data) {
+      //     checkDuplicateProperties!(OptionTypes.DATA, key)
+      //     // expose data on ctx during dev
+      //     if (!isReservedPrefix(key[0])) {
+      //       Object.defineProperty(ctx, key, {
+      //         configurable: true,
+      //         enumerable: true,
+      //         get: () => data[key],
+      //         set: NOOP
+      //       })
+      //     }
+      //   }
+      // }
+    }
+  }
 
-//   // state initialization complete at this point - start caching access
-//   shouldCacheAccess = true
+  // state initialization complete at this point - start caching access
+  shouldCacheAccess = true
 
-//   if (computedOptions) {
-//     for (const key in computedOptions) {
-//       const opt = (computedOptions as ComputedOptions)[key]
-//       const get = isFunction(opt)
-//         ? opt.bind(publicThis, publicThis)
-//         : isFunction(opt.get)
-//         ? opt.get.bind(publicThis, publicThis)
-//         : NOOP
-//       if (__DEV__ && get === NOOP) {
-//         warn(`Computed property "${key}" has no getter.`)
-//       }
-//       const set =
-//         !isFunction(opt) && isFunction(opt.set)
-//           ? opt.set.bind(publicThis)
-//           : __DEV__
-//           ? () => {
-//               warn(
-//                 `Write operation failed: computed property "${key}" is readonly.`
-//               )
-//             }
-//           : NOOP
-//       const c = computed({
-//         get,
-//         set
-//       })
-//       Object.defineProperty(ctx, key, {
-//         enumerable: true,
-//         configurable: true,
-//         get: () => c.value,
-//         set: v => (c.value = v)
-//       })
-//       if (__DEV__) {
-//         checkDuplicateProperties!(OptionTypes.COMPUTED, key)
-//       }
-//     }
-//   }
+  // if (computedOptions) {
+  //   for (const key in computedOptions) {
+  //     const opt = (computedOptions as ComputedOptions)[key]
+  //     const get = isFunction(opt)
+  //       ? opt.bind(publicThis, publicThis)
+  //       : isFunction(opt.get)
+  //       ? opt.get.bind(publicThis, publicThis)
+  //       : NOOP
+  //     if (__DEV__ && get === NOOP) {
+  //       warn(`Computed property "${key}" has no getter.`)
+  //     }
+  //     const set =
+  //       !isFunction(opt) && isFunction(opt.set)
+  //         ? opt.set.bind(publicThis)
+  //         : __DEV__
+  //         ? () => {
+  //             warn(
+  //               `Write operation failed: computed property "${key}" is readonly.`
+  //             )
+  //           }
+  //         : NOOP
+  //     const c = computed({
+  //       get,
+  //       set
+  //     })
+  //     Object.defineProperty(ctx, key, {
+  //       enumerable: true,
+  //       configurable: true,
+  //       get: () => c.value,
+  //       set: v => (c.value = v)
+  //     })
+  //     if (__DEV__) {
+  //       checkDuplicateProperties!(OptionTypes.COMPUTED, key)
+  //     }
+  //   }
+  // }
 
-//   if (watchOptions) {
-//     for (const key in watchOptions) {
-//       createWatcher(watchOptions[key], ctx, publicThis, key)
-//     }
-//   }
+  // if (watchOptions) {
+  //   for (const key in watchOptions) {
+  //     createWatcher(watchOptions[key], ctx, publicThis, key)
+  //   }
+  // }
 
-//   if (provideOptions) {
-//     const provides = isFunction(provideOptions)
-//       ? provideOptions.call(publicThis)
-//       : provideOptions
-//     Reflect.ownKeys(provides).forEach(key => {
-//       provide(key, provides[key])
-//     })
-//   }
+  // if (provideOptions) {
+  //   const provides = isFunction(provideOptions)
+  //     ? provideOptions.call(publicThis)
+  //     : provideOptions
+  //   Reflect.ownKeys(provides).forEach(key => {
+  //     provide(key, provides[key])
+  //   })
+  // }
 
-//   if (created) {
-//     callHook(created, instance, LifecycleHooks.CREATED)
-//   }
+  // if (created) {
+  //   callHook(created, instance, LifecycleHooks.CREATED)
+  // }
 
-//   function registerLifecycleHook(
-//     register: Function,
-//     hook?: Function | Function[]
-//   ) {
-//     if (isArray(hook)) {
-//       hook.forEach(_hook => register(_hook.bind(publicThis)))
-//     } else if (hook) {
-//       register(hook.bind(publicThis))
-//     }
-//   }
+  // function registerLifecycleHook(
+  //   register: Function,
+  //   hook?: Function | Function[]
+  // ) {
+  //   if (isArray(hook)) {
+  //     hook.forEach(_hook => register(_hook.bind(publicThis)))
+  //   } else if (hook) {
+  //     register(hook.bind(publicThis))
+  //   }
+  // }
 
-//   registerLifecycleHook(onBeforeMount, beforeMount)
-//   registerLifecycleHook(onMounted, mounted)
-//   registerLifecycleHook(onBeforeUpdate, beforeUpdate)
-//   registerLifecycleHook(onUpdated, updated)
-//   registerLifecycleHook(onActivated, activated)
-//   registerLifecycleHook(onDeactivated, deactivated)
-//   registerLifecycleHook(onErrorCaptured, errorCaptured)
-//   registerLifecycleHook(onRenderTracked, renderTracked)
-//   registerLifecycleHook(onRenderTriggered, renderTriggered)
-//   registerLifecycleHook(onBeforeUnmount, beforeUnmount)
-//   registerLifecycleHook(onUnmounted, unmounted)
-//   registerLifecycleHook(onServerPrefetch, serverPrefetch)
+  // registerLifecycleHook(onBeforeMount, beforeMount)
+  // registerLifecycleHook(onMounted, mounted)
+  // registerLifecycleHook(onBeforeUpdate, beforeUpdate)
+  // registerLifecycleHook(onUpdated, updated)
+  // registerLifecycleHook(onActivated, activated)
+  // registerLifecycleHook(onDeactivated, deactivated)
+  // registerLifecycleHook(onErrorCaptured, errorCaptured)
+  // registerLifecycleHook(onRenderTracked, renderTracked)
+  // registerLifecycleHook(onRenderTriggered, renderTriggered)
+  // registerLifecycleHook(onBeforeUnmount, beforeUnmount)
+  // registerLifecycleHook(onUnmounted, unmounted)
+  // registerLifecycleHook(onServerPrefetch, serverPrefetch)
 
-//   if (__COMPAT__) {
-//     if (
-//       beforeDestroy &&
-//       softAssertCompatEnabled(DeprecationTypes.OPTIONS_BEFORE_DESTROY, instance)
-//     ) {
-//       registerLifecycleHook(onBeforeUnmount, beforeDestroy)
-//     }
-//     if (
-//       destroyed &&
-//       softAssertCompatEnabled(DeprecationTypes.OPTIONS_DESTROYED, instance)
-//     ) {
-//       registerLifecycleHook(onUnmounted, destroyed)
-//     }
-//   }
+  // if (__COMPAT__) {
+  //   if (
+  //     beforeDestroy &&
+  //     softAssertCompatEnabled(DeprecationTypes.OPTIONS_BEFORE_DESTROY, instance)
+  //   ) {
+  //     registerLifecycleHook(onBeforeUnmount, beforeDestroy)
+  //   }
+  //   if (
+  //     destroyed &&
+  //     softAssertCompatEnabled(DeprecationTypes.OPTIONS_DESTROYED, instance)
+  //   ) {
+  //     registerLifecycleHook(onUnmounted, destroyed)
+  //   }
+  // }
 
-//   if (isArray(expose)) {
-//     if (expose.length) {
-//       const exposed = instance.exposed || (instance.exposed = {})
-//       expose.forEach(key => {
-//         Object.defineProperty(exposed, key, {
-//           get: () => publicThis[key],
-//           set: val => (publicThis[key] = val)
-//         })
-//       })
-//     } else if (!instance.exposed) {
-//       instance.exposed = {}
-//     }
-//   }
+  if (isArray(expose)) {
+    if (expose.length) {
+      const exposed = instance.exposed || (instance.exposed = {})
+      expose.forEach(key => {
+        Object.defineProperty(exposed, key, {
+          get: () => publicThis[key],
+          set: val => (publicThis[key] = val)
+        })
+      })
+    } else if (!instance.exposed) {
+      instance.exposed = {}
+    }
+  }
 
-//   // options that are handled when creating the instance but also need to be
-//   // applied from mixins
-//   if (render && instance.render === NOOP) {
-//     instance.render = render as InternalRenderFunction
-//   }
-//   if (inheritAttrs != null) {
-//     instance.inheritAttrs = inheritAttrs
-//   }
+  // // options that are handled when creating the instance but also need to be
+  // // applied from mixins
+  // if (render && instance.render === NOOP) {
+  //   instance.render = render as InternalRenderFunction
+  // }
+  // if (inheritAttrs != null) {
+  //   instance.inheritAttrs = inheritAttrs
+  // }
 
-//   // asset options.
-//   if (components) instance.components = components as any
-//   if (directives) instance.directives = directives
-//   if (
-//     __COMPAT__ &&
-//     filters &&
-//     isCompatEnabled(DeprecationTypes.FILTERS, instance)
-//   ) {
-//     instance.filters = filters
-//   }
-// }
+  // // asset options.
+  // if (components) instance.components = components as any
+  // if (directives) instance.directives = directives
+  // if (
+  //   __COMPAT__ &&
+  //   filters &&
+  //   isCompatEnabled(DeprecationTypes.FILTERS, instance)
+  // ) {
+  //   instance.filters = filters
+  // }
+}
 
 // export function resolveInjections(
 //   injectOptions: ComponentInjectOptions,

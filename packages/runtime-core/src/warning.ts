@@ -59,7 +59,7 @@ export function warn(msg: string, ...args: any[]) {
       ]
     )
   } else {
-    const warnArgs = [`[Vue warn]: ${msg}`, ...args]
+    const warnArgs = [`[Docue warn]: ${msg}`, ...args]
     /* istanbul ignore if */
     if (
       trace.length &&

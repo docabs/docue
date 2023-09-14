@@ -47,10 +47,10 @@ import { currentRenderingInstance } from './componentRenderContext'
  * @example
  * Here is an example of adding a property `$router` to every component instance:
  * ```ts
- * import { createApp } from 'vue'
- * import { Router, createRouter } from 'vue-router'
+ * import { createApp } from 'docue'
+ * import { Router, createRouter } from 'docue-router'
  *
- * declare module '@vue/runtime-core' {
+ * declare module '@docue/runtime-core' {
  *   interface ComponentCustomProperties {
  *     $router: Router
  *   }
@@ -215,7 +215,7 @@ export type PublicPropertiesMap = Record<
 >
 
 /**
- * #2437 In Vue 3, functional components do not have a public instance proxy but
+ * #2437 In Docue 3, functional components do not have a public instance proxy but
  * they exist in the internal parent chain. For code that relies on traversing
  * public $parent chains, skip functional ones and go to the parent instead.
  */
@@ -274,7 +274,7 @@ export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
     const { ctx, setupState, data, props, accessCache, type, appContext } =
       instance
 
-    // for internal formatters to know that this is a Vue instance
+    // for internal formatters to know that this is a Docue instance
     if (__DEV__ && key === '__isDocue') {
       return true
     }
@@ -334,7 +334,7 @@ export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
       // }
       return publicGetter(instance)
     } else if (
-      // css module (injected by vue-loader)
+      // css module (injected by docue-loader)
       (cssModule = type.__cssModules) &&
       (cssModule = cssModule[key])
     ) {
