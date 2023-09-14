@@ -185,53 +185,53 @@ export function defineComponent<
   S
 >
 
-// // overload 3: object format with array props declaration
-// // props inferred as { [key in PropNames]?: any }
-// // return type is for Vetur and TSX support
-// export function defineComponent<
-//   PropNames extends string,
-//   RawBindings,
-//   D,
-//   C extends ComputedOptions = {},
-//   M extends MethodOptions = {},
-//   Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   E extends EmitsOptions = {},
-//   EE extends string = string,
-//   S extends SlotsType = {},
-//   I extends ComponentInjectOptions = {},
-//   II extends string = string,
-//   Props = Readonly<{ [key in PropNames]?: any }>
-// >(
-//   options: ComponentOptionsWithArrayProps<
-//     PropNames,
-//     RawBindings,
-//     D,
-//     C,
-//     M,
-//     Mixin,
-//     Extends,
-//     E,
-//     EE,
-//     I,
-//     II,
-//     S
-//   >
-// ): DefineComponent<
-//   Props,
-//   RawBindings,
-//   D,
-//   C,
-//   M,
-//   Mixin,
-//   Extends,
-//   E,
-//   EE,
-//   PublicProps,
-//   ResolveProps<Props, E>,
-//   ExtractDefaultPropTypes<Props>,
-//   S
-// >
+// overload 3: object format with array props declaration
+// props inferred as { [key in PropNames]?: any }
+// return type is for Vetur and TSX support
+export function defineComponent<
+  PropNames extends string,
+  RawBindings,
+  D,
+  C extends ComputedOptions = {},
+  M extends MethodOptions = {},
+  Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+  Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+  E extends EmitsOptions = {},
+  EE extends string = string,
+  S extends SlotsType = {},
+  I extends ComponentInjectOptions = {},
+  II extends string = string,
+  Props = Readonly<{ [key in PropNames]?: any }>
+>(
+  options: ComponentOptionsWithArrayProps<
+    PropNames,
+    RawBindings,
+    D,
+    C,
+    M,
+    Mixin,
+    Extends,
+    E,
+    EE,
+    I,
+    II,
+    S
+  >
+): DefineComponent<
+  Props,
+  RawBindings,
+  D,
+  C,
+  M,
+  Mixin,
+  Extends,
+  E,
+  EE,
+  PublicProps,
+  ResolveProps<Props, E>,
+  ExtractDefaultPropTypes<Props>,
+  S
+>
 
 // overload 4: object format with object props declaration
 // see `ExtractPropTypes` in ./componentProps.ts

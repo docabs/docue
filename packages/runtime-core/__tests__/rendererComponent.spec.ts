@@ -6,8 +6,8 @@ import {
   serializeInner,
   nextTick,
   VNode,
-  // provide,
-  // inject,
+  provide,
+  inject,
   Ref,
   // watch,
   SetupContext
@@ -22,41 +22,40 @@ describe('renderer: component', () => {
 
     const Parent = {
       render: () => {
-        return h('div')
         // let Parent first rerender
-        // return (parentVnode = h(Child))
+        return (parentVnode = h(Child))
       }
     }
 
-    // const Child = {
-    //   render: () => {
-    //     return value.value
-    //       ? (childVnode1 = h('div'))
-    //       : (childVnode2 = h('span'))
-    //   }
-    // }
+    const Child = {
+      render: () => {
+        return value.value
+          ? (childVnode1 = h('div'))
+          : (childVnode2 = h('span'))
+      }
+    }
 
     const root = nodeOps.createElement('div')
     render(h(Parent), root)
     expect(serializeInner(root)).toBe(`<div></div>`)
-    // expect(parentVnode!.el).toBe(childVnode1!.el)
+    expect(parentVnode!.el).toBe(childVnode1!.el)
 
-    // value.value = false
-    // await nextTick()
-    // expect(serializeInner(root)).toBe(`<span></span>`)
-    // expect(parentVnode!.el).toBe(childVnode2!.el)
+    value.value = false
+    await nextTick()
+    expect(serializeInner(root)).toBe(`<span></span>`)
+    expect(parentVnode!.el).toBe(childVnode2!.el)
   })
 
-  // it('should create an Component with props', () => {
-  //   const Comp = {
-  //     render: () => {
-  //       return h('div')
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp, { id: 'foo', class: 'bar' }), root)
-  //   expect(serializeInner(root)).toBe(`<div id="foo" class="bar"></div>`)
-  // })
+  it('should create an Component with props', () => {
+    const Comp = {
+      render: () => {
+        return h('div')
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(Comp, { id: 'foo', class: 'bar' }), root)
+    expect(serializeInner(root)).toBe(`<div id="foo" class="bar"></div>`)
+  })
 
   // it('should create an Component with direct text children', () => {
   //   const Comp = {

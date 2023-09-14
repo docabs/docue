@@ -98,9 +98,9 @@ export function renderComponentRoot(
             )
           : render(props, null as any /* we know it doesn't need it */)
       )
-      // fallthroughAttrs = Component.props
-      //   ? attrs
-      //   : getFunctionalFallthrough(attrs)
+      fallthroughAttrs = Component.props
+        ? attrs
+        : getFunctionalFallthrough(attrs)
     }
   } catch (err) {
     // blockStack.length = 0
@@ -136,7 +136,7 @@ export function renderComponentRoot(
         //           propsOptions
         //         )
         //       }
-        //       root = cloneVNode(root, fallthroughAttrs)
+        root = cloneVNode(root, fallthroughAttrs)
       } else if (__DEV__ && !accessedAttrs && root.type !== Comment) {
         //       const allAttrs = Object.keys(attrs)
         //       const eventAttrs: string[] = []
@@ -283,15 +283,15 @@ export function renderComponentRoot(
 //   return singleRoot
 // }
 
-// const getFunctionalFallthrough = (attrs: Data): Data | undefined => {
-//   let res: Data | undefined
-//   for (const key in attrs) {
-//     if (key === 'class' || key === 'style' || isOn(key)) {
-//       ;(res || (res = {}))[key] = attrs[key]
-//     }
-//   }
-//   return res
-// }
+const getFunctionalFallthrough = (attrs: Data): Data | undefined => {
+  let res: Data | undefined
+  for (const key in attrs) {
+    if (key === 'class' || key === 'style' || isOn(key)) {
+      ;(res || (res = {}))[key] = attrs[key]
+    }
+  }
+  return res
+}
 
 // const filterModelListeners = (attrs: Data, props: NormalizedProps): Data => {
 //   const res: Data = {}

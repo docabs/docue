@@ -27,6 +27,7 @@
     "esbuild": "^0.19.2",
     "esbuild-plugin-polyfill-node": "^0.3.0",
     "execa": "^4.1.0",
+    "jsdom": "^22.1.0",
     "magic-string": "^0.30.3",
     "minimist": "^1.2.8",
     "nx": "16.0.3",

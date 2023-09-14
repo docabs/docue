@@ -3,7 +3,8 @@ import {
   Ref,
   WritableComputedOptions,
   isRef,
-  reactive
+  reactive,
+  computed
 } from '@docue/reactivity'
 import {
   CreateComponentPublicInstance,
@@ -37,7 +38,7 @@ import {
 } from './componentProps'
 import { OptionMergeFunction } from './apiCreateApp'
 import { warn } from './warning'
-import { inject } from './apiInject'
+import { inject, provide } from './apiInject'
 
 /**
  * Interface for declaring custom options.
@@ -220,53 +221,53 @@ export type ComponentOptionsWithoutProps<
     >
   >
 
-// export type ComponentOptionsWithArrayProps<
-//   PropNames extends string = string,
-//   RawBindings = {},
-//   D = {},
-//   C extends ComputedOptions = {},
-//   M extends MethodOptions = {},
-//   Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
-//   E extends EmitsOptions = EmitsOptions,
-//   EE extends string = string,
-//   I extends ComponentInjectOptions = {},
-//   II extends string = string,
-//   S extends SlotsType = {},
-//   Props = Prettify<Readonly<{ [key in PropNames]?: any } & EmitsToProps<E>>>
-// > = ComponentOptionsBase<
-//   Props,
-//   RawBindings,
-//   D,
-//   C,
-//   M,
-//   Mixin,
-//   Extends,
-//   E,
-//   EE,
-//   {},
-//   I,
-//   II,
-//   S
-// > & {
-//   props: PropNames[]
-// } & ThisType<
-//     CreateComponentPublicInstance<
-//       Props,
-//       RawBindings,
-//       D,
-//       C,
-//       M,
-//       Mixin,
-//       Extends,
-//       E,
-//       Props,
-//       {},
-//       false,
-//       I,
-//       S
-//     >
-//   >
+export type ComponentOptionsWithArrayProps<
+  PropNames extends string = string,
+  RawBindings = {},
+  D = {},
+  C extends ComputedOptions = {},
+  M extends MethodOptions = {},
+  Mixin extends ComponentOptionsMixin = ComponentOptionsMixin,
+  Extends extends ComponentOptionsMixin = ComponentOptionsMixin,
+  E extends EmitsOptions = EmitsOptions,
+  EE extends string = string,
+  I extends ComponentInjectOptions = {},
+  II extends string = string,
+  S extends SlotsType = {},
+  Props = Prettify<Readonly<{ [key in PropNames]?: any } & EmitsToProps<E>>>
+> = ComponentOptionsBase<
+  Props,
+  RawBindings,
+  D,
+  C,
+  M,
+  Mixin,
+  Extends,
+  E,
+  EE,
+  {},
+  I,
+  II,
+  S
+> & {
+  props: PropNames[]
+} & ThisType<
+    CreateComponentPublicInstance<
+      Props,
+      RawBindings,
+      D,
+      C,
+      M,
+      Mixin,
+      Extends,
+      E,
+      Props,
+      {},
+      false,
+      I,
+      S
+    >
+  >
 
 export type ComponentOptionsWithObjectProps<
   PropsOptions = ComponentObjectPropsOptions,
@@ -441,8 +442,8 @@ interface LegacyOptions<
       Extends
     >
   ) => D
-  // computed?: C
-  // methods?: M
+  computed?: C
+  methods?: M
   // watch?: ComponentWatchOptions
   provide?: ComponentProvideOptions
   inject?: I | II[]
@@ -566,8 +567,8 @@ export function applyOptions(instance: ComponentInternalInstance) {
   const {
     // state
     data: dataOptions,
-    // computed: computedOptions,
-    // methods,
+    computed: computedOptions,
+    methods,
     // watch: watchOptions,
     provide: provideOptions,
     inject: injectOptions,
@@ -620,34 +621,34 @@ export function applyOptions(instance: ComponentInternalInstance) {
     resolveInjections(injectOptions, ctx, checkDuplicateProperties)
   }
 
-  // if (methods) {
-  //   for (const key in methods) {
-  //     const methodHandler = (methods as MethodOptions)[key]
-  //     if (isFunction(methodHandler)) {
-  //       // In dev mode, we use the `createRenderContext` function to define
-  //       // methods to the proxy target, and those are read-only but
-  //       // reconfigurable, so it needs to be redefined here
-  //       if (__DEV__) {
-  //         Object.defineProperty(ctx, key, {
-  //           value: methodHandler.bind(publicThis),
-  //           configurable: true,
-  //           enumerable: true,
-  //           writable: true
-  //         })
-  //       } else {
-  //         ctx[key] = methodHandler.bind(publicThis)
-  //       }
-  //       if (__DEV__) {
-  //         checkDuplicateProperties!(OptionTypes.METHODS, key)
-  //       }
-  //     } else if (__DEV__) {
-  //       warn(
-  //         `Method "${key}" has type "${typeof methodHandler}" in the component definition. ` +
-  //           `Did you reference the function correctly?`
-  //       )
-  //     }
-  //   }
-  // }
+  if (methods) {
+    for (const key in methods) {
+      const methodHandler = (methods as MethodOptions)[key]
+      if (isFunction(methodHandler)) {
+        // In dev mode, we use the `createRenderContext` function to define
+        // methods to the proxy target, and those are read-only but
+        // reconfigurable, so it needs to be redefined here
+        if (__DEV__) {
+          Object.defineProperty(ctx, key, {
+            value: methodHandler.bind(publicThis),
+            configurable: true,
+            enumerable: true,
+            writable: true
+          })
+        } else {
+          ctx[key] = methodHandler.bind(publicThis)
+        }
+        if (__DEV__) {
+          checkDuplicateProperties!(OptionTypes.METHODS, key)
+        }
+      } else if (__DEV__) {
+        warn(
+          `Method "${key}" has type "${typeof methodHandler}" in the component definition. ` +
+            `Did you reference the function correctly?`
+        )
+      }
+    }
+  }
 
   if (dataOptions) {
     if (__DEV__ && !isFunction(dataOptions)) {
@@ -688,42 +689,42 @@ export function applyOptions(instance: ComponentInternalInstance) {
   // state initialization complete at this point - start caching access
   shouldCacheAccess = true
 
-  // if (computedOptions) {
-  //   for (const key in computedOptions) {
-  //     const opt = (computedOptions as ComputedOptions)[key]
-  //     const get = isFunction(opt)
-  //       ? opt.bind(publicThis, publicThis)
-  //       : isFunction(opt.get)
-  //       ? opt.get.bind(publicThis, publicThis)
-  //       : NOOP
-  //     if (__DEV__ && get === NOOP) {
-  //       warn(`Computed property "${key}" has no getter.`)
-  //     }
-  //     const set =
-  //       !isFunction(opt) && isFunction(opt.set)
-  //         ? opt.set.bind(publicThis)
-  //         : __DEV__
-  //         ? () => {
-  //             warn(
-  //               `Write operation failed: computed property "${key}" is readonly.`
-  //             )
-  //           }
-  //         : NOOP
-  //     const c = computed({
-  //       get,
-  //       set
-  //     })
-  //     Object.defineProperty(ctx, key, {
-  //       enumerable: true,
-  //       configurable: true,
-  //       get: () => c.value,
-  //       set: v => (c.value = v)
-  //     })
-  //     if (__DEV__) {
-  //       checkDuplicateProperties!(OptionTypes.COMPUTED, key)
-  //     }
-  //   }
-  // }
+  if (computedOptions) {
+    for (const key in computedOptions) {
+      const opt = (computedOptions as ComputedOptions)[key]
+      const get = isFunction(opt)
+        ? opt.bind(publicThis, publicThis)
+        : isFunction(opt.get)
+        ? opt.get.bind(publicThis, publicThis)
+        : NOOP
+      if (__DEV__ && get === NOOP) {
+        warn(`Computed property "${key}" has no getter.`)
+      }
+      const set =
+        !isFunction(opt) && isFunction(opt.set)
+          ? opt.set.bind(publicThis)
+          : __DEV__
+          ? () => {
+              warn(
+                `Write operation failed: computed property "${key}" is readonly.`
+              )
+            }
+          : NOOP
+      const c = computed({
+        get,
+        set
+      })
+      Object.defineProperty(ctx, key, {
+        enumerable: true,
+        configurable: true,
+        get: () => c.value,
+        set: v => (c.value = v)
+      })
+      if (__DEV__) {
+        checkDuplicateProperties!(OptionTypes.COMPUTED, key)
+      }
+    }
+  }
 
   // if (watchOptions) {
   //   for (const key in watchOptions) {
@@ -731,14 +732,14 @@ export function applyOptions(instance: ComponentInternalInstance) {
   //   }
   // }
 
-  // if (provideOptions) {
-  //   const provides = isFunction(provideOptions)
-  //     ? provideOptions.call(publicThis)
-  //     : provideOptions
-  //   Reflect.ownKeys(provides).forEach(key => {
-  //     provide(key, provides[key])
-  //   })
-  // }
+  if (provideOptions) {
+    const provides = isFunction(provideOptions)
+      ? provideOptions.call(publicThis)
+      : provideOptions
+    Reflect.ownKeys(provides).forEach(key => {
+      provide(key, provides[key])
+    })
+  }
 
   // if (created) {
   //   callHook(created, instance, LifecycleHooks.CREATED)
