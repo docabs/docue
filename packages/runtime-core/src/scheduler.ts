@@ -1,6 +1,7 @@
-import { isArray } from '@docue/shared'
-import { ComponentInternalInstance } from './component'
+import { NOOP, isArray } from '@docue/shared'
+import { ComponentInternalInstance, getComponentName } from './component'
 import { ErrorCodes, callWithErrorHandling } from './errorHandling'
+import { warn } from './warning'
 
 export interface SchedulerJob extends Function {
   id?: number
@@ -46,7 +47,7 @@ let postFlushIndex = 0
 const resolvedPromise = /*#__PURE__*/ Promise.resolve() as Promise<any>
 let currentFlushPromise: Promise<void> | null = null
 
-// const RECURSION_LIMIT = 100
+const RECURSION_LIMIT = 100
 type CountMap = Map<SchedulerJob, number>
 
 export function nextTick<T = void, R = void>(
@@ -247,3 +248,27 @@ function flushJobs(seen?: CountMap) {
     }
   }
 }
+
+// function checkRecursiveUpdates(seen: CountMap, fn: SchedulerJob) {
+//   if (!seen.has(fn)) {
+//     seen.set(fn, 1)
+//   } else {
+//     const count = seen.get(fn)!
+//     if (count > RECURSION_LIMIT) {
+//       const instance = fn.ownerInstance
+//       const componentName = instance && getComponentName(instance.type)
+//       warn(
+//         `Maximum recursive updates exceeded${
+//           componentName ? ` in component <${componentName}>` : ``
+//         }. ` +
+//           `This means you have a reactive effect that is mutating its own ` +
+//           `dependencies and thus recursively triggering itself. Possible sources ` +
+//           `include component template, render function, updated hook or ` +
+//           `watcher source function.`
+//       )
+//       return true
+//     } else {
+//       seen.set(fn, count + 1)
+//     }
+//   }
+// }

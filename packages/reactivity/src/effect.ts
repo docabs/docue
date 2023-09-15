@@ -385,16 +385,16 @@ function triggerEffect(
   effect: ReactiveEffect,
   debuggerEventExtraInfo?: DebuggerEventExtraInfo
 ) {
-  // if (effect !== activeEffect || effect.allowRecurse) {
-  if (__DEV__ && effect.onTrigger) {
-    effect.onTrigger(extend({ effect }, debuggerEventExtraInfo))
+  if (effect !== activeEffect || effect.allowRecurse) {
+    if (__DEV__ && effect.onTrigger) {
+      effect.onTrigger(extend({ effect }, debuggerEventExtraInfo))
+    }
+    if (effect.scheduler) {
+      effect.scheduler()
+    } else {
+      effect.run()
+    }
   }
-  if (effect.scheduler) {
-    effect.scheduler()
-  } else {
-    effect.run()
-  }
-  // }
 }
 
 export function getDepFromReactive(object: any, key: string | number | symbol) {

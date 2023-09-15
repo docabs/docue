@@ -115,7 +115,7 @@ export interface AppConfig {
 export interface AppContext {
   app: App // for devtools
   config: AppConfig
-  // mixins: ComponentOptions[]
+  mixins: ComponentOptions[]
   components: Record<string, Component>
   // directives: Record<string, Directive>
   provides: Record<string | symbol, any>
@@ -173,7 +173,7 @@ export function createAppContext(): AppContext {
       // warnHandler: undefined,
       compilerOptions: {}
     },
-    // mixins: [],
+    mixins: [],
     components: {},
     // directives: {},
     provides: Object.create(null),
@@ -252,21 +252,21 @@ export function createAppAPI<HostElement>(
       //       }
       //       return app
       //     },
-      //     mixin(mixin: ComponentOptions) {
-      //       if (__FEATURE_OPTIONS_API__) {
-      //         if (!context.mixins.includes(mixin)) {
-      //           context.mixins.push(mixin)
-      //         } else if (__DEV__) {
-      //           warn(
-      //             'Mixin has already been applied to target app' +
-      //               (mixin.name ? `: ${mixin.name}` : '')
-      //           )
-      //         }
-      //       } else if (__DEV__) {
-      //         warn('Mixins are only available in builds supporting Options API')
-      //       }
-      //       return app
-      //     },
+      mixin(mixin: ComponentOptions) {
+        if (__FEATURE_OPTIONS_API__) {
+          if (!context.mixins.includes(mixin)) {
+            context.mixins.push(mixin)
+          } else if (__DEV__) {
+            warn(
+              'Mixin has already been applied to target app' +
+                (mixin.name ? `: ${mixin.name}` : '')
+            )
+          }
+        } else if (__DEV__) {
+          warn('Mixins are only available in builds supporting Options API')
+        }
+        return app
+      },
       component(name: string, component?: Component): any {
         if (__DEV__) {
           validateComponentName(name, context.config)
@@ -352,16 +352,16 @@ export function createAppAPI<HostElement>(
         //   warn(`Cannot unmount an app that is not mounted.`)
         // }
       },
-      // provide(key, value) {
-      //   if (__DEV__ && (key as string | symbol) in context.provides) {
-      //     warn(
-      //       `App already provides property with key "${String(key)}". ` +
-      //         `It will be overwritten with the new value.`
-      //     )
-      //   }
-      //   context.provides[key as string | symbol] = value
-      //   return app
-      // }
+      provide(key, value) {
+        if (__DEV__ && (key as string | symbol) in context.provides) {
+          warn(
+            `App already provides property with key "${String(key)}". ` +
+              `It will be overwritten with the new value.`
+          )
+        }
+        context.provides[key as string | symbol] = value
+        return app
+      },
       runWithContext(fn) {
         currentApp = app
         try {

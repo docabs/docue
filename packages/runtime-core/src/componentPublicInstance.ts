@@ -7,7 +7,7 @@ import {
   track
 } from '@docue/reactivity'
 
-import { EmitsOptions } from './componentEmits'
+import { EmitFn, EmitsOptions } from './componentEmits'
 import {
   ComponentInjectOptions,
   ComponentOptionsBase,
@@ -25,13 +25,14 @@ import {
 import {
   EMPTY_OBJ,
   NOOP,
+  Prettify,
   UnionToIntersection,
   extend,
   hasOwn,
   isFunction,
   isString
 } from '@docue/shared'
-import { SlotsType } from './componentSlots'
+import { SlotsType, UnwrapSlotsType } from './componentSlots'
 import {
   ComponentInternalInstance,
   Data,
@@ -208,14 +209,14 @@ export type ComponentPublicInstance<
   >
   $attrs: Data
   $refs: Data
-  // $slots: UnwrapSlotsType<S>
+  $slots: UnwrapSlotsType<S>
   $root: ComponentPublicInstance | null
   $parent: ComponentPublicInstance | null
-  // $emit: EmitFn<E>
+  $emit: EmitFn<E>
   $el: any
   $options: Options & MergedComponentOptionsOverride
   // $forceUpdate: () => void
-  // $nextTick: typeof nextTick
+  $nextTick: typeof nextTick
   // $watch<T extends string | ((...args: any) => any)>(
   //   source: T,
   //   cb: T extends (...args: any) => infer R
@@ -262,7 +263,7 @@ export const publicPropertiesMap: PublicPropertiesMap =
     $refs: i => (__DEV__ ? shallowReadonly(i.refs) : i.refs),
     $parent: i => getPublicInstance(i.parent),
     $root: i => getPublicInstance(i.root),
-    // $emit: i => i.emit,
+    $emit: i => i.emit,
     $options: i => (__FEATURE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
     $forceUpdate: i => i.f || (i.f = () => queueJob(i.update)),
     $nextTick: i => i.n || (i.n = nextTick.bind(i.proxy!))

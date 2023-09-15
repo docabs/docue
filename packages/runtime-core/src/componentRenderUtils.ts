@@ -10,7 +10,9 @@ import {
   Comment,
   cloneVNode,
   createVNode,
-  normalizeVNode
+  normalizeVNode,
+  isVNode,
+  VNodeArrayChildren
 } from './vnode'
 import { warn } from './warning'
 import { ErrorCodes } from './errorHandling'
@@ -39,9 +41,9 @@ export function renderComponentRoot(
     withProxy,
     props,
     propsOptions: [propsOptions],
-    //   slots,
+    slots,
     attrs,
-    //   emit,
+    emit,
     render,
     renderCache,
     data,
@@ -90,9 +92,9 @@ export function renderComponentRoot(
                     get attrs() {
                       markAttrsAccessed()
                       return attrs
-                    }
-                    // slots,
-                    // emit
+                    },
+                    slots,
+                    emit
                   }
                 : { attrs /*, slots, emit*/ }
             )
@@ -260,28 +262,28 @@ export function renderComponentRoot(
 //   return [normalizeVNode(childRoot), setRoot]
 // }
 
-// export function filterSingleRoot(
-//   children: VNodeArrayChildren
-// ): VNode | undefined {
-//   let singleRoot
-//   for (let i = 0; i < children.length; i++) {
-//     const child = children[i]
-//     if (isVNode(child)) {
-//       // ignore user comment
-//       if (child.type !== Comment || child.children === 'v-if') {
-//         if (singleRoot) {
-//           // has more than 1 non-comment child, return now
-//           return
-//         } else {
-//           singleRoot = child
-//         }
-//       }
-//     } else {
-//       return
-//     }
-//   }
-//   return singleRoot
-// }
+export function filterSingleRoot(
+  children: VNodeArrayChildren
+): VNode | undefined {
+  let singleRoot
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    if (isVNode(child)) {
+      // ignore user comment
+      if (child.type !== Comment || child.children === 'v-if') {
+        if (singleRoot) {
+          // has more than 1 non-comment child, return now
+          return
+        } else {
+          singleRoot = child
+        }
+      }
+    } else {
+      return
+    }
+  }
+  return singleRoot
+}
 
 const getFunctionalFallthrough = (attrs: Data): Data | undefined => {
   let res: Data | undefined

@@ -270,62 +270,62 @@ describe('api: template refs', () => {
     expect(serializeInner(root)).toBe(`<div id="foo">foo</div>`)
   })
 
-  // // #1834
-  // test('exchange refs', async () => {
-  //   const refToggle = ref(false)
-  //   const spy = vi.fn()
+  // #1834
+  test('exchange refs', async () => {
+    const refToggle = ref(false)
+    const spy = vi.fn()
 
-  //   const Comp = {
-  //     render(this: any) {
-  //       return [
-  //         h('p', { ref: refToggle.value ? 'foo' : 'bar' }),
-  //         h('i', { ref: refToggle.value ? 'bar' : 'foo' })
-  //       ]
-  //     },
-  //     mounted(this: any) {
-  //       spy(this.$refs.foo.tag, this.$refs.bar.tag)
-  //     },
-  //     updated(this: any) {
-  //       spy(this.$refs.foo.tag, this.$refs.bar.tag)
-  //     }
-  //   }
+    const Comp = {
+      render(this: any) {
+        return [
+          h('p', { ref: refToggle.value ? 'foo' : 'bar' }),
+          h('i', { ref: refToggle.value ? 'bar' : 'foo' })
+        ]
+      },
+      mounted(this: any) {
+        spy(this.$refs.foo.tag, this.$refs.bar.tag)
+      },
+      updated(this: any) {
+        spy(this.$refs.foo.tag, this.$refs.bar.tag)
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
 
-  //   expect(spy.mock.calls[0][0]).toBe('i')
-  //   expect(spy.mock.calls[0][1]).toBe('p')
-  //   refToggle.value = true
-  //   await nextTick()
-  //   expect(spy.mock.calls[1][0]).toBe('p')
-  //   expect(spy.mock.calls[1][1]).toBe('i')
-  // })
+    expect(spy.mock.calls[0][0]).toBe('i')
+    expect(spy.mock.calls[0][1]).toBe('p')
+    refToggle.value = true
+    await nextTick()
+    expect(spy.mock.calls[1][0]).toBe('p')
+    expect(spy.mock.calls[1][1]).toBe('i')
+  })
 
-  // // #1789
-  // test('toggle the same ref to different elements', async () => {
-  //   const refToggle = ref(false)
-  //   const spy = vi.fn()
+  // #1789
+  test('toggle the same ref to different elements', async () => {
+    const refToggle = ref(false)
+    const spy = vi.fn()
 
-  //   const Comp = {
-  //     render(this: any) {
-  //       return refToggle.value ? h('p', { ref: 'foo' }) : h('i', { ref: 'foo' })
-  //     },
-  //     mounted(this: any) {
-  //       spy(this.$refs.foo.tag)
-  //     },
-  //     updated(this: any) {
-  //       spy(this.$refs.foo.tag)
-  //     }
-  //   }
+    const Comp = {
+      render(this: any) {
+        return refToggle.value ? h('p', { ref: 'foo' }) : h('i', { ref: 'foo' })
+      },
+      mounted(this: any) {
+        spy(this.$refs.foo.tag)
+      },
+      updated(this: any) {
+        spy(this.$refs.foo.tag)
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
 
-  //   expect(spy.mock.calls[0][0]).toBe('i')
-  //   refToggle.value = true
-  //   await nextTick()
-  //   expect(spy.mock.calls[1][0]).toBe('p')
-  // })
+    expect(spy.mock.calls[0][0]).toBe('i')
+    refToggle.value = true
+    await nextTick()
+    expect(spy.mock.calls[1][0]).toBe('p')
+  })
 
   // #2078
   test('handling multiple merged refs', async () => {
@@ -367,32 +367,32 @@ describe('api: template refs', () => {
   })
 
   // compiled output of <script setup> inline mode
-  // test('raw ref with ref_key', () => {
-  //   let refs: any
+  test('raw ref with ref_key', () => {
+    let refs: any
 
-  //   const el = ref()
+    const el = ref()
 
-  //   const App = {
-  //     mounted() {
-  //       refs = (this as any).$refs
-  //     },
-  //     render() {
-  //       return h(
-  //         'div',
-  //         {
-  //           ref: el,
-  //           ref_key: 'el'
-  //         },
-  //         'hello'
-  //       )
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
+    const App = {
+      mounted() {
+        refs = (this as any).$refs
+      },
+      render() {
+        return h(
+          'div',
+          {
+            ref: el,
+            ref_key: 'el'
+          },
+          'hello'
+        )
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
 
-  //   expect(serializeInner(el.value)).toBe('hello')
-  //   expect(serializeInner(refs.el)).toBe('hello')
-  // })
+    expect(serializeInner(el.value)).toBe('hello')
+    expect(serializeInner(refs.el)).toBe('hello')
+  })
 
   // compiled output of v-for + template ref
   test('ref in v-for', async () => {

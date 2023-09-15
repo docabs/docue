@@ -228,9 +228,9 @@ function nextSibling(node: TestNode): TestNode | null {
 //   throw new Error('querySelector not supported in test renderer.')
 // }
 
-// function setScopeId(el: TestElement, id: string) {
-//   el.props[id] = ''
-// }
+function setScopeId(el: TestElement, id: string) {
+  el.props[id] = ''
+}
 
 export const nodeOps = {
   insert,
@@ -241,7 +241,7 @@ export const nodeOps = {
   setText,
   setElementText,
   parentNode,
-  nextSibling
+  nextSibling,
   // querySelector,
-  // setScopeId
+  setScopeId
 }

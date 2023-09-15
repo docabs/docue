@@ -25,7 +25,6 @@ export {
   shallowReadonly,
   markRaw,
   toRaw,
-  // effect
   effect,
   stop,
   ReactiveEffect,
@@ -42,20 +41,20 @@ export { computed } from './apiComputed'
 //   watchPostEffect,
 //   watchSyncEffect
 // } from './apiWatch'
-// export {
-//   onBeforeMount,
-//   onMounted,
-//   onBeforeUpdate,
-//   onUpdated,
-//   onBeforeUnmount,
-//   onUnmounted,
-//   onActivated,
-//   onDeactivated,
-//   onRenderTracked,
-//   onRenderTriggered,
-//   onErrorCaptured,
-//   onServerPrefetch
-// } from './apiLifecycle'
+export {
+  onBeforeMount,
+  onMounted,
+  onBeforeUpdate,
+  onUpdated,
+  onBeforeUnmount,
+  onUnmounted,
+  // onActivated,
+  // onDeactivated,
+  onRenderTracked,
+  onRenderTriggered,
+  onErrorCaptured,
+  onServerPrefetch
+} from './apiLifecycle'
 export { provide, inject, hasInjectionContext } from './apiInject'
 export { nextTick } from './scheduler'
 export { defineComponent } from './apiDefineComponent'
@@ -110,12 +109,12 @@ export { Fragment, Text, Comment, Static, type VNodeRef } from './vnode'
 // Custom Renderer API ---------------------------------------------------------
 
 export { createRenderer, createHydrationRenderer } from './renderer'
-// export { queuePostFlushCb } from './scheduler'
+export { queuePostFlushCb } from './scheduler'
 export { warn, assertNumber } from './warning'
 export {
-  // handleError,
+  handleError,
   callWithErrorHandling,
-  // callWithAsyncErrorHandling,
+  callWithAsyncErrorHandling,
   ErrorCodes
 } from './errorHandling'
 // export {
@@ -196,8 +195,8 @@ export type {
   AppConfig,
   AppContext,
   // Plugin,
-  CreateAppFunction
-  // OptionMergeFunction
+  CreateAppFunction,
+  OptionMergeFunction
 } from './apiCreateApp'
 export type {
   VNode,
@@ -220,12 +219,12 @@ export type { DefineComponent } from './apiDefineComponent'
 export type {
   ComponentOptions,
   ComponentOptionsMixin,
-  // ComponentOptionsWithoutProps,
+  ComponentOptionsWithoutProps,
   ComponentOptionsWithObjectProps,
-  // ComponentOptionsWithArrayProps,
+  ComponentOptionsWithArrayProps,
   ComponentCustomOptions,
   ComponentOptionsBase,
-  // ComponentProvideOptions,
+  ComponentProvideOptions,
   RenderFunction,
   MethodOptions,
   ComputedOptions,
@@ -283,14 +282,14 @@ export type { SuspenseBoundary } from './components/Suspense'
 
 // For compiler generated code
 // should sync with '@docue/compiler-core/src/runtimeHelpers.ts'
-// export {
-//   withCtx,
-//   pushScopeId,
-//   popScopeId,
-//   withScopeId
-// } from './componentRenderContext'
-// export { renderList } from './helpers/renderList'
-// export { toHandlers } from './helpers/toHandlers'
+export {
+  withCtx,
+  pushScopeId,
+  popScopeId,
+  withScopeId
+} from './componentRenderContext'
+export { renderList } from './helpers/renderList'
+export { toHandlers } from './helpers/toHandlers'
 // export { renderSlot } from './helpers/renderSlot'
 // export { createSlots } from './helpers/createSlots'
 // export { withMemo, isMemoSame } from './helpers/withMemo'
@@ -309,7 +308,7 @@ export {
   // toDisplayString,
   camelize,
   capitalize,
-  // toHandlerKey,
+  toHandlerKey,
   normalizeProps,
   normalizeClass,
   normalizeStyle

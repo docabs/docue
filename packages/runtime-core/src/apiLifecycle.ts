@@ -8,11 +8,11 @@ import {
 import { ComponentPublicInstance } from './componentPublicInstance'
 import { callWithAsyncErrorHandling, ErrorTypeStrings } from './errorHandling'
 import { warn } from './warning'
-import { toHandlerKey } from '@vue/shared'
-import { DebuggerEvent, pauseTracking, resetTracking } from '@vue/reactivity'
+import { toHandlerKey } from '@docue/shared'
+import { DebuggerEvent, pauseTracking, resetTracking } from '@docue/reactivity'
 import { LifecycleHooks } from './enums'
 
-export { onActivated, onDeactivated } from './components/KeepAlive'
+// export { onActivated, onDeactivated } from './components/KeepAlive'
 
 export function injectHook(
   type: LifecycleHooks,

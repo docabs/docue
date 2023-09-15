@@ -220,7 +220,7 @@ export function initProps(
 
 function isInHmrContext(instance: ComponentInternalInstance | null) {
   while (instance) {
-    if (instance.type.__hmrId) return true
+    // if (instance.type.__hmrId) return true
     instance = instance.parent
   }
 }

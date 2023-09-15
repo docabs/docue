@@ -35,7 +35,9 @@ export {
   resetTracking,
   ITERATE_KEY,
   type ReactiveEffectRunner,
-  type DebuggerEvent
+  type DebuggerEvent,
+  type DebuggerOptions,
+  type EffectScheduler
 } from './effect'
 
 export {

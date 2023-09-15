@@ -25,9 +25,11 @@ import {
 
 import { AppConfig, AppContext, createAppContext } from './apiCreateApp'
 import {
+  EmitFn,
   EmitsOptions,
   ObjectEmitsOptions,
-  normalizeEmitsOptions
+  normalizeEmitsOptions,
+  emit
 } from './componentEmits'
 import {
   ComponentOptions,
@@ -46,7 +48,13 @@ import { VNode, VNodeChild, isVNode } from './vnode'
 import { warn } from './warning'
 import { SuspenseBoundary } from './components/Suspense'
 import { SchedulerJob } from './scheduler'
-import { Slots, SlotsType, UnwrapSlotsType, initSlots } from './componentSlots'
+import {
+  InternalSlots,
+  Slots,
+  SlotsType,
+  UnwrapSlotsType,
+  initSlots
+} from './componentSlots'
 import {
   ComponentPropsOptions,
   NormalizedPropsOptions,
@@ -185,8 +193,8 @@ export type SetupContext<
 > = E extends any
   ? {
       attrs: Data
-      // slots: UnwrapSlotsType<S>
-      // emit: EmitFn<E>
+      slots: UnwrapSlotsType<S>
+      emit: EmitFn<E>
       expose: (exposed?: Record<string, any>) => void
     }
   : never
@@ -323,9 +331,9 @@ export interface ComponentInternalInstance {
   data: Data
   props: Data
   attrs: Data
-  // slots: InternalSlots
+  slots: InternalSlots
   refs: Data
-  // emit: EmitFn
+  emit: EmitFn
 
   attrsProxy: Data | null
   // slotsProxy: Slots | null
@@ -503,17 +511,17 @@ export function createComponentInstance(
 
     // resolved props and emits options
     propsOptions: normalizePropsOptions(type, appContext),
-    // emitsOptions: normalizeEmitsOptions(type, appContext),
+    emitsOptions: normalizeEmitsOptions(type, appContext),
 
     // emit
-    // emit: null!, // to be set immediately
+    emit: null!, // to be set immediately
     emitted: null,
 
     // props default value
     propsDefaults: EMPTY_OBJ,
 
     // inheritAttrs
-    // inheritAttrs: type.inheritAttrs,
+    inheritAttrs: type.inheritAttrs,
 
     // state
     ctx: EMPTY_OBJ,
@@ -560,7 +568,7 @@ export function createComponentInstance(
   instance.ctx = { _: instance }
   // }
   instance.root = parent ? parent.root : instance
-  // instance.emit = emit.bind(null, instance)
+  instance.emit = emit.bind(null, instance)
 
   // apply custom element special handling
   // if (vnode.ce) {
@@ -702,7 +710,7 @@ function setupStatefulComponent(
     const setupContext = (instance.setupContext =
       setup.length > 1 ? createSetupContext(instance) : null)
     setCurrentInstance(instance)
-    //   pauseTracking()
+    pauseTracking()
     const setupResult = callWithErrorHandling(
       setup,
       instance,
@@ -790,8 +798,8 @@ export function handleSetupResult(
 }
 
 type CompileFunction = (
-  template: string | object,
-  options?: CompilerOptions
+  template: string | object
+  // options?: CompilerOptions
 ) => InternalRenderFunction
 
 let compile: CompileFunction | undefined
@@ -879,34 +887,34 @@ export function finishComponentSetup(
   // support for 2.x options
   if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {
     setCurrentInstance(instance)
-    // pauseTracking()
+    pauseTracking()
     try {
       applyOptions(instance)
     } finally {
-      // resetTracking()
+      resetTracking()
       unsetCurrentInstance()
     }
   }
   // // warn missing template/render
   // // the runtime compilation of template in SSR is done by server-render
-  // if (__DEV__ && !Component.render && instance.render === NOOP && !isSSR) {
-  //   /* istanbul ignore if */
-  //   if (!compile && Component.template) {
-  //     warn(
-  //       `Component provided template option but ` +
-  //         `runtime compilation is not supported in this build of Docue.` +
-  //         (__ESM_BUNDLER__
-  //           ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
-  //           : __ESM_BROWSER__
-  //           ? ` Use "docue.esm-browser.js" instead.`
-  //           : __GLOBAL__
-  //           ? ` Use "docue.global.js" instead.`
-  //           : ``) /* should not happen */
-  //     )
-  //   } else {
-  //     warn(`Component is missing template or render function.`)
-  //   }
-  // }
+  if (__DEV__ && !Component.render && instance.render === NOOP && !isSSR) {
+    //   /* istanbul ignore if */
+    //   if (!compile && Component.template) {
+    //     warn(
+    //       `Component provided template option but ` +
+    //         `runtime compilation is not supported in this build of Docue.` +
+    //         (__ESM_BUNDLER__
+    //           ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
+    //           : __ESM_BROWSER__
+    //           ? ` Use "docue.esm-browser.js" instead.`
+    //           : __GLOBAL__
+    //           ? ` Use "docue.global.js" instead.`
+    //           : ``) /* should not happen */
+    //     )
+    //   } else {
+    //     warn(`Component is missing template or render function.`)
+    //   }
+  }
 }
 
 function getAttrsProxy(instance: ComponentInternalInstance): Data {
@@ -1001,8 +1009,8 @@ export function createSetupContext(
     get attrs() {
       return getAttrsProxy(instance)
     },
-    // slots: instance.slots,
-    // emit: instance.emit,
+    slots: instance.slots,
+    emit: instance.emit,
     expose
   }
   // }

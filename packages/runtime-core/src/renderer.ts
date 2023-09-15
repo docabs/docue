@@ -5,6 +5,7 @@
 import {
   EMPTY_ARR,
   EMPTY_OBJ,
+  NOOP,
   PatchFlags,
   ShapeFlags,
   getGlobalThis,
@@ -12,7 +13,7 @@ import {
   isArray,
   isReservedProp
 } from '@docue/shared'
-import { ReactiveEffect } from '@docue/reactivity'
+import { ReactiveEffect, pauseTracking, resetTracking } from '@docue/reactivity'
 import { CreateAppFunction, createAppAPI } from './apiCreateApp'
 import {
   ComponentInternalInstance,
@@ -49,6 +50,7 @@ import {
   queuePostFlushCb
 } from './scheduler'
 import {
+  filterSingleRoot,
   renderComponentRoot,
   shouldUpdateComponent
 } from './componentRenderUtils'
@@ -102,7 +104,7 @@ export interface RendererOptions<
   parentNode(node: HostNode): HostElement | null
   nextSibling(node: HostNode): HostNode | null
   // querySelector?(selector: string): HostElement | null
-  // setScopeId?(el: HostElement, id: string): void
+  setScopeId?(el: HostElement, id: string): void
   // cloneNode?(node: HostNode): HostNode
   insertStaticContent?(
     content: string,
@@ -348,7 +350,7 @@ function baseCreateRenderer(
     setElementText: hostSetElementText,
     parentNode: hostParentNode,
     nextSibling: hostNextSibling,
-    //   setScopeId: hostSetScopeId = NOOP,
+    setScopeId: hostSetScopeId = NOOP,
     insertStaticContent: hostInsertStaticContent
   } = options
 
@@ -545,19 +547,19 @@ function baseCreateRenderer(
   //   }
   // }
 
-  const moveStaticNode = (
-    { el, anchor }: VNode,
-    container: RendererElement,
-    nextSibling: RendererNode | null
-  ) => {
-    let next
-    while (el && el !== anchor) {
-      next = hostNextSibling(el)
-      hostInsert(el, container, nextSibling)
-      el = next
-    }
-    hostInsert(anchor!, container, nextSibling)
-  }
+  // const moveStaticNode = (
+  //   { el, anchor }: VNode,
+  //   container: RendererElement,
+  //   nextSibling: RendererNode | null
+  // ) => {
+  //   let next
+  //   while (el && el !== anchor) {
+  //     next = hostNextSibling(el)
+  //     hostInsert(el, container, nextSibling)
+  //     el = next
+  //   }
+  //   hostInsert(anchor!, container, nextSibling)
+  // }
 
   // const removeStaticNode = ({ el, anchor }: VNode) => {
   //   let next
@@ -643,9 +645,9 @@ function baseCreateRenderer(
     //   if (dirs) {
     //     invokeDirectiveHook(vnode, null, parentComponent, 'created')
     //   }
-    //   // scopeId
-    //   setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent)
-    //   // props
+    // scopeId
+    setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent)
+    // props
     if (props) {
       for (const key in props) {
         if (key !== 'value' && !isReservedProp(key)) {
@@ -714,43 +716,43 @@ function baseCreateRenderer(
     }
   }
 
-  // const setScopeId = (
-  //   el: RendererElement,
-  //   vnode: VNode,
-  //   scopeId: string | null,
-  //   slotScopeIds: string[] | null,
-  //   parentComponent: ComponentInternalInstance | null
-  // ) => {
-  //   if (scopeId) {
-  //     hostSetScopeId(el, scopeId)
-  //   }
-  //   if (slotScopeIds) {
-  //     for (let i = 0; i < slotScopeIds.length; i++) {
-  //       hostSetScopeId(el, slotScopeIds[i])
-  //     }
-  //   }
-  //   if (parentComponent) {
-  //     let subTree = parentComponent.subTree
-  //     if (
-  //       __DEV__ &&
-  //       subTree.patchFlag > 0 &&
-  //       subTree.patchFlag & PatchFlags.DEV_ROOT_FRAGMENT
-  //     ) {
-  //       subTree =
-  //         filterSingleRoot(subTree.children as VNodeArrayChildren) || subTree
-  //     }
-  //     if (vnode === subTree) {
-  //       const parentVNode = parentComponent.vnode
-  //       setScopeId(
-  //         el,
-  //         parentVNode,
-  //         parentVNode.scopeId,
-  //         parentVNode.slotScopeIds,
-  //         parentComponent.parent
-  //       )
-  //     }
-  //   }
-  // }
+  const setScopeId = (
+    el: RendererElement,
+    vnode: VNode,
+    scopeId: string | null,
+    slotScopeIds: string[] | null,
+    parentComponent: ComponentInternalInstance | null
+  ) => {
+    if (scopeId) {
+      hostSetScopeId(el, scopeId)
+    }
+    if (slotScopeIds) {
+      for (let i = 0; i < slotScopeIds.length; i++) {
+        hostSetScopeId(el, slotScopeIds[i])
+      }
+    }
+    if (parentComponent) {
+      let subTree = parentComponent.subTree
+      // if (
+      //   __DEV__ &&
+      //   subTree.patchFlag > 0 &&
+      //   subTree.patchFlag & PatchFlags.DEV_ROOT_FRAGMENT
+      // ) {
+      //   subTree =
+      //     filterSingleRoot(subTree.children as VNodeArrayChildren) || subTree
+      // }
+      if (vnode === subTree) {
+        const parentVNode = parentComponent.vnode
+        setScopeId(
+          el,
+          parentVNode,
+          parentVNode.scopeId,
+          parentVNode.slotScopeIds,
+          parentComponent.parent
+        )
+      }
+    }
+  }
 
   const mountChildren: MountChildrenFn = (
     children,
@@ -799,14 +801,14 @@ function baseCreateRenderer(
     const newProps = n2.props || EMPTY_OBJ
     let vnodeHook: VNodeHook | undefined | null
     // disable recurse in beforeUpdate hooks
-    //   parentComponent && toggleRecurse(parentComponent, false)
+    parentComponent && toggleRecurse(parentComponent, false)
     if ((vnodeHook = newProps.onVnodeBeforeUpdate)) {
       invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
     }
     //   if (dirs) {
     //     invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
     //   }
-    //   parentComponent && toggleRecurse(parentComponent, true)
+    parentComponent && toggleRecurse(parentComponent, true)
     //   if (__DEV__ && isHmrUpdating) {
     //     // HMR updated, force full diff
     //     patchFlag = 0
@@ -1252,7 +1254,8 @@ function baseCreateRenderer(
       //     }
       //     return
       //   } else {
-      //     // normal update
+
+      // normal update
       instance.next = n2
       // in case the child component is also queued, remove it to avoid
       // double updating the same child component in the same flush.
@@ -1282,11 +1285,11 @@ function baseCreateRenderer(
         const { el, props } = initialVNode
         const { bm, m, parent } = instance
         const isAsyncWrapperVNode = isAsyncWrapper(initialVNode)
-        //       toggleRecurse(instance, false)
+        toggleRecurse(instance, false)
         // beforeMount hook
-        //       if (bm) {
-        //         invokeArrayFns(bm)
-        //       }
+        if (bm) {
+          invokeArrayFns(bm)
+        }
         // onVnodeBeforeMount
         if (
           !isAsyncWrapperVNode &&
@@ -1300,7 +1303,7 @@ function baseCreateRenderer(
         //       ) {
         //         instance.emit('hook:beforeMount')
         //       }
-        //       toggleRecurse(instance, true)
+        toggleRecurse(instance, true)
         if (el && hydrateNode) {
           //         // vnode has adopted host node - perform hydration instead of mount.
           //         const hydrateSubTree = () => {
@@ -1362,9 +1365,9 @@ function baseCreateRenderer(
           initialVNode.el = subTree.el
         }
         // mounted hook
-        // if (m) {
-        //   queuePostRenderEffect(m, parentSuspense)
-        // }
+        if (m) {
+          queuePostRenderEffect(m, parentSuspense)
+        }
         // onVnodeMounted
         if (
           !isAsyncWrapperVNode &&
@@ -1422,7 +1425,7 @@ function baseCreateRenderer(
         //         pushWarningContext(next || instance.vnode)
         //       }
         // Disallow component effect recursion during pre-lifecycle hooks.
-        // toggleRecurse(instance, false)
+        toggleRecurse(instance, false)
         if (next) {
           next.el = vnode.el
           updateComponentPreRender(instance, next, optimized)
@@ -1443,7 +1446,7 @@ function baseCreateRenderer(
         //       ) {
         //         instance.emit('hook:beforeUpdate')
         //       }
-        //       toggleRecurse(instance, true)
+        toggleRecurse(instance, true)
         //       // render
         //       if (__DEV__) {
         //         startMeasure(instance, `render`)
@@ -1480,7 +1483,7 @@ function baseCreateRenderer(
         }
         // updated hook
         if (u) {
-          // queuePostRenderEffect(u, parentSuspense)
+          queuePostRenderEffect(u, parentSuspense)
         }
         // onVnodeUpdated
         if ((vnodeHook = next.props && next.props.onVnodeUpdated)) {
@@ -1517,15 +1520,15 @@ function baseCreateRenderer(
     // allowRecurse
     // #1801, #2043 component render effects should allow recursive updates
     toggleRecurse(instance, true)
-    //   if (__DEV__) {
-    //     effect.onTrack = instance.rtc
-    //       ? e => invokeArrayFns(instance.rtc!, e)
-    //       : void 0
-    //     effect.onTrigger = instance.rtg
-    //       ? e => invokeArrayFns(instance.rtg!, e)
-    //       : void 0
-    //     update.ownerInstance = instance
-    //   }
+    if (__DEV__) {
+      effect.onTrack = instance.rtc
+        ? e => invokeArrayFns(instance.rtc!, e)
+        : void 0
+      effect.onTrigger = instance.rtg
+        ? e => invokeArrayFns(instance.rtg!, e)
+        : void 0
+      update.ownerInstance = instance
+    }
     update()
   }
 
@@ -1540,11 +1543,11 @@ function baseCreateRenderer(
     instance.next = null
     updateProps(instance, nextVNode.props, prevProps, optimized)
     // updateSlots(instance, nextVNode.children, optimized)
-    //   pauseTracking()
-    //   // props update may have triggered pre-flush watchers.
-    //   // flush them before the render update.
+    pauseTracking()
+    // props update may have triggered pre-flush watchers.
+    // flush them before the render update.
     flushPreFlushCbs()
-    //   resetTracking()
+    resetTracking()
   }
 
   const patchChildren: PatchChildrenFn = (
@@ -1970,10 +1973,10 @@ function baseCreateRenderer(
       return
     }
 
-    if (type === Static) {
-      moveStaticNode(vnode, container, anchor)
-      return
-    }
+    // if (type === Static) {
+    //   moveStaticNode(vnode, container, anchor)
+    //   return
+    // }
 
     // single nodes
     const needTransition =
@@ -2040,7 +2043,7 @@ function baseCreateRenderer(
       invokeVNodeHook(vnodeHook, parentComponent, vnode)
     }
     if (shapeFlag & ShapeFlags.COMPONENT) {
-      // unmountComponent(vnode.component!, parentSuspense, doRemove)
+      unmountComponent(vnode.component!, parentSuspense, doRemove)
     } else {
       //   if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
       //     vnode.suspense!.unmount(parentSuspense, doRemove)

@@ -57,88 +57,88 @@ describe('renderer: component', () => {
     expect(serializeInner(root)).toBe(`<div id="foo" class="bar"></div>`)
   })
 
-  // it('should create an Component with direct text children', () => {
-  //   const Comp = {
-  //     render: () => {
-  //       return h('div', 'test')
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp, { id: 'foo', class: 'bar' }), root)
-  //   expect(serializeInner(root)).toBe(`<div id="foo" class="bar">test</div>`)
-  // })
+  it('should create an Component with direct text children', () => {
+    const Comp = {
+      render: () => {
+        return h('div', 'test')
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(Comp, { id: 'foo', class: 'bar' }), root)
+    expect(serializeInner(root)).toBe(`<div id="foo" class="bar">test</div>`)
+  })
 
-  // it('should update an Component tag which is already mounted', () => {
-  //   const Comp1 = {
-  //     render: () => {
-  //       return h('div', 'foo')
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp1), root)
-  //   expect(serializeInner(root)).toBe('<div>foo</div>')
+  it('should update an Component tag which is already mounted', () => {
+    const Comp1 = {
+      render: () => {
+        return h('div', 'foo')
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(Comp1), root)
+    expect(serializeInner(root)).toBe('<div>foo</div>')
 
-  //   const Comp2 = {
-  //     render: () => {
-  //       return h('span', 'foo')
-  //     }
-  //   }
-  //   render(h(Comp2), root)
-  //   expect(serializeInner(root)).toBe('<span>foo</span>')
-  // })
+    const Comp2 = {
+      render: () => {
+        return h('span', 'foo')
+      }
+    }
+    render(h(Comp2), root)
+    expect(serializeInner(root)).toBe('<span>foo</span>')
+  })
 
-  // // #2072
-  // it('should not update Component if only changed props are declared emit listeners', () => {
-  //   const Comp1 = {
-  //     emits: ['foo'],
-  //     updated: vi.fn(),
-  //     render: () => null
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(
-  //     h(Comp1, {
-  //       onFoo: () => {}
-  //     }),
-  //     root
-  //   )
-  //   render(
-  //     h(Comp1, {
-  //       onFoo: () => {}
-  //     }),
-  //     root
-  //   )
-  //   expect(Comp1.updated).not.toHaveBeenCalled()
-  // })
+  // #2072
+  it('should not update Component if only changed props are declared emit listeners', () => {
+    const Comp1 = {
+      emits: ['foo'],
+      updated: vi.fn(),
+      render: () => null
+    }
+    const root = nodeOps.createElement('div')
+    render(
+      h(Comp1, {
+        onFoo: () => {}
+      }),
+      root
+    )
+    render(
+      h(Comp1, {
+        onFoo: () => {}
+      }),
+      root
+    )
+    expect(Comp1.updated).not.toHaveBeenCalled()
+  })
 
-  // // #2043
-  // test('component child synchronously updating parent state should trigger parent re-render', async () => {
-  //   const App = {
-  //     setup() {
-  //       const n = ref(0)
-  //       provide('foo', n)
-  //       return () => {
-  //         return [h('div', n.value), h(Child)]
-  //       }
-  //     }
-  //   }
+  // #2043
+  test('component child synchronously updating parent state should trigger parent re-render', async () => {
+    const App = {
+      setup() {
+        const n = ref(0)
+        provide('foo', n)
+        return () => {
+          return [h('div', n.value), h(Child)]
+        }
+      }
+    }
 
-  //   const Child = {
-  //     setup() {
-  //       const n = inject<Ref<number>>('foo')!
-  //       n.value++
+    const Child = {
+      setup() {
+        const n = inject<Ref<number>>('foo')!
+        n.value++
 
-  //       return () => {
-  //         return h('div', n.value)
-  //       }
-  //     }
-  //   }
+        return () => {
+          return h('div', n.value)
+        }
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
-  //   expect(serializeInner(root)).toBe(`<div>0</div><div>1</div>`)
-  //   await nextTick()
-  //   expect(serializeInner(root)).toBe(`<div>1</div><div>1</div>`)
-  // })
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
+    expect(serializeInner(root)).toBe(`<div>0</div><div>1</div>`)
+    await nextTick()
+    expect(serializeInner(root)).toBe(`<div>1</div><div>1</div>`)
+  })
 
   // // #2170
   // test('instance.$el should be exposed to watch options', async () => {
@@ -279,79 +279,79 @@ describe('renderer: component', () => {
   //   expect(App.updated).toHaveBeenCalledTimes(0)
   // })
 
-  // describe('render with access caches', () => {
-  //   // #3297
-  //   test('should not set the access cache in the data() function (production mode)', () => {
-  //     const Comp = {
-  //       data() {
-  //         ;(this as any).foo
-  //         return { foo: 1 }
-  //       },
-  //       render() {
-  //         return h('h1', (this as any).foo)
-  //       }
-  //     }
-  //     const root = nodeOps.createElement('div')
+  describe('render with access caches', () => {
+    // #3297
+    test('should not set the access cache in the data() function (production mode)', () => {
+      const Comp = {
+        data() {
+          ;(this as any).foo
+          return { foo: 1 }
+        },
+        render() {
+          return h('h1', (this as any).foo)
+        }
+      }
+      const root = nodeOps.createElement('div')
 
-  //     __DEV__ = false
-  //     render(h(Comp), root)
-  //     __DEV__ = true
-  //     expect(serializeInner(root)).toBe(`<h1>1</h1>`)
-  //   })
-  // })
+      __DEV__ = false
+      render(h(Comp), root)
+      __DEV__ = true
+      expect(serializeInner(root)).toBe(`<h1>1</h1>`)
+    })
+  })
 
-  // test('the component VNode should be cloned when reusing it', () => {
-  //   const App = {
-  //     render() {
-  //       const c = [h(Comp)]
-  //       return [c, c, c]
-  //     }
-  //   }
+  test('the component VNode should be cloned when reusing it', () => {
+    const App = {
+      render() {
+        const c = [h(Comp)]
+        return [c, c, c]
+      }
+    }
 
-  //   const ids: number[] = []
-  //   const Comp = {
-  //     render: () => h('h1'),
-  //     beforeUnmount() {
-  //       ids.push((this as any).$.uid)
-  //     }
-  //   }
+    const ids: number[] = []
+    const Comp = {
+      render: () => h('h1'),
+      beforeUnmount() {
+        ids.push((this as any).$.uid)
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
-  //   expect(serializeInner(root)).toBe(`<h1></h1><h1></h1><h1></h1>`)
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
+    expect(serializeInner(root)).toBe(`<h1></h1><h1></h1><h1></h1>`)
 
-  //   render(null, root)
-  //   expect(serializeInner(root)).toBe(``)
-  //   expect(ids).toEqual([ids[0], ids[0] + 1, ids[0] + 2])
-  // })
+    render(null, root)
+    expect(serializeInner(root)).toBe(``)
+    expect(ids).toEqual([ids[0], ids[0] + 1, ids[0] + 2])
+  })
 
-  // test('child component props update should not lead to double update', async () => {
-  //   const text = ref(0)
-  //   const spy = vi.fn()
+  test('child component props update should not lead to double update', async () => {
+    const text = ref(0)
+    const spy = vi.fn()
 
-  //   const App = {
-  //     render() {
-  //       return h(Comp, { text: text.value })
-  //     }
-  //   }
+    const App = {
+      render() {
+        return h(Comp, { text: text.value })
+      }
+    }
 
-  //   const Comp = {
-  //     props: ['text'],
-  //     render(this: any) {
-  //       spy()
-  //       return h('h1', this.text)
-  //     }
-  //   }
+    const Comp = {
+      props: ['text'],
+      render(this: any) {
+        spy()
+        return h('h1', this.text)
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
 
-  //   expect(serializeInner(root)).toBe(`<h1>0</h1>`)
-  //   expect(spy).toHaveBeenCalledTimes(1)
+    expect(serializeInner(root)).toBe(`<h1>0</h1>`)
+    expect(spy).toHaveBeenCalledTimes(1)
 
-  //   text.value++
-  //   await nextTick()
-  //   expect(serializeInner(root)).toBe(`<h1>1</h1>`)
-  //   expect(spy).toHaveBeenCalledTimes(2)
-  // })
+    text.value++
+    await nextTick()
+    expect(serializeInner(root)).toBe(`<h1>1</h1>`)
+    expect(spy).toHaveBeenCalledTimes(2)
+  })
 })

@@ -7,6 +7,7 @@ import {
   computed
 } from '@docue/reactivity'
 import {
+  ComponentPublicInstance,
   CreateComponentPublicInstance,
   IntersectionMixin,
   UnwrapMixinsType,
@@ -24,6 +25,7 @@ import {
   LooseRequired,
   NOOP,
   Prettify,
+  extend,
   isArray,
   isFunction,
   isObject,
@@ -33,12 +35,31 @@ import { SlotsType } from './componentSlots'
 import { EmitsOptions, EmitsToProps } from './componentEmits'
 import {
   ComponentObjectPropsOptions,
+  ComponentPropsOptions,
   ExtractDefaultPropTypes,
   ExtractPropTypes
 } from './componentProps'
 import { OptionMergeFunction } from './apiCreateApp'
 import { warn } from './warning'
 import { inject, provide } from './apiInject'
+import {
+  DebuggerHook,
+  ErrorCapturedHook,
+  onBeforeMount,
+  onBeforeUnmount,
+  onBeforeUpdate,
+  onErrorCaptured,
+  onMounted,
+  onRenderTracked,
+  onRenderTriggered,
+  onServerPrefetch,
+  onUnmounted,
+  onUpdated
+} from './apiLifecycle'
+import { LifecycleHooks } from './enums'
+import { callWithAsyncErrorHandling } from './errorHandling'
+import { WatchCallback, WatchOptions } from './apiWatch'
+import { normalizePropsOrEmits } from './apiSetupHelpers'
 
 /**
  * Interface for declaring custom options.
@@ -373,15 +394,15 @@ export type ExtractComputedReturns<T extends any> = {
     : never
 }
 
-// export type ObjectWatchOptionItem = {
-//   handler: WatchCallback | string
-// } & WatchOptions
+export type ObjectWatchOptionItem = {
+  handler: WatchCallback | string
+} & WatchOptions
 
-// type WatchOptionItem = string | WatchCallback | ObjectWatchOptionItem
+type WatchOptionItem = string | WatchCallback | ObjectWatchOptionItem
 
-// type ComponentWatchOptionItem = WatchOptionItem | WatchOptionItem[]
+type ComponentWatchOptionItem = WatchOptionItem | WatchOptionItem[]
 
-// type ComponentWatchOptions = Record<string, ComponentWatchOptionItem>
+type ComponentWatchOptions = Record<string, ComponentWatchOptionItem>
 
 export type ComponentProvideOptions = ObjectProvideOptions | Function
 
@@ -450,26 +471,26 @@ interface LegacyOptions<
   // // assets
   // filters?: Record<string, Function>
   // // composition
-  // mixins?: Mixin[]
-  // extends?: Extends
-  // // lifecycle
-  // beforeCreate?(): void
-  // created?(): void
-  // beforeMount?(): void
-  // mounted?(): void
-  // beforeUpdate?(): void
-  // updated?(): void
-  // activated?(): void
-  // deactivated?(): void
-  // /** @deprecated use `beforeUnmount` instead */
-  // beforeDestroy?(): void
-  // beforeUnmount?(): void
-  // /** @deprecated use `unmounted` instead */
-  // destroyed?(): void
-  // unmounted?(): void
-  // renderTracked?: DebuggerHook
-  // renderTriggered?: DebuggerHook
-  // errorCaptured?: ErrorCapturedHook
+  mixins?: Mixin[]
+  extends?: Extends
+  // lifecycle
+  beforeCreate?(): void
+  created?(): void
+  beforeMount?(): void
+  mounted?(): void
+  beforeUpdate?(): void
+  updated?(): void
+  activated?(): void
+  deactivated?(): void
+  /** @deprecated use `beforeUnmount` instead */
+  beforeDestroy?(): void
+  beforeUnmount?(): void
+  /** @deprecated use `unmounted` instead */
+  destroyed?(): void
+  unmounted?(): void
+  renderTracked?: DebuggerHook
+  renderTriggered?: DebuggerHook
+  errorCaptured?: ErrorCapturedHook
   // /**
   //  * runtime compile only
   //  * @deprecated use `compilerOptions.delimiters` instead.
@@ -486,29 +507,29 @@ interface LegacyOptions<
   // __differentiator?: keyof D | keyof C | keyof M
 }
 
-// type MergedHook<T = () => void> = T | T[]
+type MergedHook<T = () => void> = T | T[]
 
 export type MergedComponentOptions = ComponentOptions &
   MergedComponentOptionsOverride
 
 export type MergedComponentOptionsOverride = {
-  // beforeCreate?: MergedHook
-  // created?: MergedHook
-  // beforeMount?: MergedHook
-  // mounted?: MergedHook
-  // beforeUpdate?: MergedHook
-  // updated?: MergedHook
-  // activated?: MergedHook
-  // deactivated?: MergedHook
-  // /** @deprecated use `beforeUnmount` instead */
-  // beforeDestroy?: MergedHook
-  // beforeUnmount?: MergedHook
-  // /** @deprecated use `unmounted` instead */
-  // destroyed?: MergedHook
-  // unmounted?: MergedHook
-  // renderTracked?: MergedHook<DebuggerHook>
-  // renderTriggered?: MergedHook<DebuggerHook>
-  // errorCaptured?: MergedHook<ErrorCapturedHook>
+  beforeCreate?: MergedHook
+  created?: MergedHook
+  beforeMount?: MergedHook
+  mounted?: MergedHook
+  beforeUpdate?: MergedHook
+  updated?: MergedHook
+  activated?: MergedHook
+  deactivated?: MergedHook
+  /** @deprecated use `beforeUnmount` instead */
+  beforeDestroy?: MergedHook
+  beforeUnmount?: MergedHook
+  /** @deprecated use `unmounted` instead */
+  destroyed?: MergedHook
+  unmounted?: MergedHook
+  renderTracked?: MergedHook<DebuggerHook>
+  renderTriggered?: MergedHook<DebuggerHook>
+  errorCaptured?: MergedHook<ErrorCapturedHook>
 }
 
 export type OptionTypesKeys = 'P' | 'B' | 'D' | 'C' | 'M' | 'Defaults'
@@ -560,9 +581,9 @@ export function applyOptions(instance: ComponentInternalInstance) {
 
   // call beforeCreate first before accessing other options since
   // the hook may mutate resolved options (#2791)
-  // if (options.beforeCreate) {
-  //   callHook(options.beforeCreate, instance, LifecycleHooks.BEFORE_CREATE)
-  // }
+  if (options.beforeCreate) {
+    callHook(options.beforeCreate, instance, LifecycleHooks.BEFORE_CREATE)
+  }
 
   const {
     // state
@@ -573,17 +594,17 @@ export function applyOptions(instance: ComponentInternalInstance) {
     provide: provideOptions,
     inject: injectOptions,
     // lifecycle
-    // created,
-    // beforeMount,
-    // mounted,
-    // beforeUpdate,
-    // updated,
-    // activated,
-    // deactivated,
-    // beforeDestroy,
-    // beforeUnmount,
-    // destroyed,
-    // unmounted,
+    created,
+    beforeMount,
+    mounted,
+    beforeUpdate,
+    updated,
+    activated,
+    deactivated,
+    beforeDestroy,
+    beforeUnmount,
+    destroyed,
+    unmounted,
     render,
     // renderTracked,
     // renderTriggered,
@@ -600,14 +621,14 @@ export function applyOptions(instance: ComponentInternalInstance) {
 
   const checkDuplicateProperties = __DEV__ ? createDuplicateChecker() : null
 
-  // if (__DEV__) {
-  //   const [propsOptions] = instance.propsOptions
-  //   if (propsOptions) {
-  //     for (const key in propsOptions) {
-  //       checkDuplicateProperties!(OptionTypes.PROPS, key)
-  //     }
-  //   }
-  // }
+  if (__DEV__) {
+    const [propsOptions] = instance.propsOptions
+    if (propsOptions) {
+      for (const key in propsOptions) {
+        checkDuplicateProperties!(OptionTypes.PROPS, key)
+      }
+    }
+  }
 
   // options initialization order (to be consistent with Docue 2):
   // - props (already done outside of this function)
@@ -669,20 +690,20 @@ export function applyOptions(instance: ComponentInternalInstance) {
       __DEV__ && warn(`data() should return an object.`)
     } else {
       instance.data = reactive(data)
-      // if (__DEV__) {
-      //   for (const key in data) {
-      //     checkDuplicateProperties!(OptionTypes.DATA, key)
-      //     // expose data on ctx during dev
-      //     if (!isReservedPrefix(key[0])) {
-      //       Object.defineProperty(ctx, key, {
-      //         configurable: true,
-      //         enumerable: true,
-      //         get: () => data[key],
-      //         set: NOOP
-      //       })
-      //     }
-      //   }
-      // }
+      if (__DEV__) {
+        for (const key in data) {
+          checkDuplicateProperties!(OptionTypes.DATA, key)
+          // expose data on ctx during dev
+          if (!isReservedPrefix(key[0])) {
+            Object.defineProperty(ctx, key, {
+              configurable: true,
+              enumerable: true,
+              get: () => data[key],
+              set: NOOP
+            })
+          }
+        }
+      }
     }
   }
 
@@ -741,32 +762,32 @@ export function applyOptions(instance: ComponentInternalInstance) {
     })
   }
 
-  // if (created) {
-  //   callHook(created, instance, LifecycleHooks.CREATED)
-  // }
+  if (created) {
+    callHook(created, instance, LifecycleHooks.CREATED)
+  }
 
-  // function registerLifecycleHook(
-  //   register: Function,
-  //   hook?: Function | Function[]
-  // ) {
-  //   if (isArray(hook)) {
-  //     hook.forEach(_hook => register(_hook.bind(publicThis)))
-  //   } else if (hook) {
-  //     register(hook.bind(publicThis))
-  //   }
-  // }
+  function registerLifecycleHook(
+    register: Function,
+    hook?: Function | Function[]
+  ) {
+    if (isArray(hook)) {
+      hook.forEach(_hook => register(_hook.bind(publicThis)))
+    } else if (hook) {
+      register(hook.bind(publicThis))
+    }
+  }
 
-  // registerLifecycleHook(onBeforeMount, beforeMount)
-  // registerLifecycleHook(onMounted, mounted)
-  // registerLifecycleHook(onBeforeUpdate, beforeUpdate)
-  // registerLifecycleHook(onUpdated, updated)
+  registerLifecycleHook(onBeforeMount, beforeMount)
+  registerLifecycleHook(onMounted, mounted)
+  registerLifecycleHook(onBeforeUpdate, beforeUpdate)
+  registerLifecycleHook(onUpdated, updated)
   // registerLifecycleHook(onActivated, activated)
   // registerLifecycleHook(onDeactivated, deactivated)
   // registerLifecycleHook(onErrorCaptured, errorCaptured)
   // registerLifecycleHook(onRenderTracked, renderTracked)
   // registerLifecycleHook(onRenderTriggered, renderTriggered)
-  // registerLifecycleHook(onBeforeUnmount, beforeUnmount)
-  // registerLifecycleHook(onUnmounted, unmounted)
+  registerLifecycleHook(onBeforeUnmount, beforeUnmount)
+  registerLifecycleHook(onUnmounted, unmounted)
   // registerLifecycleHook(onServerPrefetch, serverPrefetch)
 
   // if (__COMPAT__) {
@@ -798,14 +819,14 @@ export function applyOptions(instance: ComponentInternalInstance) {
     }
   }
 
-  // // options that are handled when creating the instance but also need to be
-  // // applied from mixins
-  // if (render && instance.render === NOOP) {
-  //   instance.render = render as InternalRenderFunction
-  // }
-  // if (inheritAttrs != null) {
-  //   instance.inheritAttrs = inheritAttrs
-  // }
+  // options that are handled when creating the instance but also need to be
+  // applied from mixins
+  if (render && instance.render === NOOP) {
+    instance.render = render as InternalRenderFunction
+  }
+  if (inheritAttrs != null) {
+    instance.inheritAttrs = inheritAttrs
+  }
 
   // // asset options.
   // if (components) instance.components = components as any
@@ -854,25 +875,25 @@ export function resolveInjections(
     } else {
       ctx[key] = injected
     }
-    // if (__DEV__) {
-    //   checkDuplicateProperties!(OptionTypes.INJECT, key)
-    // }
+    if (__DEV__) {
+      checkDuplicateProperties!(OptionTypes.INJECT, key)
+    }
   }
 }
 
-// function callHook(
-//   hook: Function,
-//   instance: ComponentInternalInstance,
-//   type: LifecycleHooks
-// ) {
-//   callWithAsyncErrorHandling(
-//     isArray(hook)
-//       ? hook.map(h => h.bind(instance.proxy!))
-//       : hook.bind(instance.proxy!),
-//     instance,
-//     type
-//   )
-// }
+function callHook(
+  hook: Function,
+  instance: ComponentInternalInstance,
+  type: LifecycleHooks
+) {
+  callWithAsyncErrorHandling(
+    isArray(hook)
+      ? hook.map(h => h.bind(instance.proxy!))
+      : hook.bind(instance.proxy!),
+    instance,
+    type
+  )
+}
 
 // export function createWatcher(
 //   raw: ComponentWatchOptionItem,
@@ -919,9 +940,9 @@ export function resolveMergedOptions(
   instance: ComponentInternalInstance
 ): MergedComponentOptions {
   const base = instance.type as ComponentOptions
-  // const { mixins, extends: extendsOptions } = base
+  const { mixins, extends: extendsOptions } = base
   const {
-    // mixins: globalMixins,
+    mixins: globalMixins,
     optionsCache: cache,
     config: { optionMergeStrategies }
   } = instance.appContext
@@ -931,9 +952,7 @@ export function resolveMergedOptions(
 
   if (cached) {
     resolved = cached
-  }
-  // if (!globalMixins.length && !mixins && !extendsOptions)
-  else {
+  } else if (!globalMixins.length && !mixins && !extendsOptions) {
     // if (
     //   __COMPAT__ &&
     //   isCompatEnabled(DeprecationTypes.PRIVATE_APIS, instance)
@@ -944,119 +963,119 @@ export function resolveMergedOptions(
     // } else {
     resolved = base as MergedComponentOptions
     // }
+  } else {
+    resolved = {}
+    if (globalMixins.length) {
+      globalMixins.forEach(m =>
+        mergeOptions(resolved, m, optionMergeStrategies, true)
+      )
+    }
+    mergeOptions(resolved, base, optionMergeStrategies)
   }
-  // else {
-  //   resolved = {}
-  //   if (globalMixins.length) {
-  //     globalMixins.forEach(m =>
-  //       mergeOptions(resolved, m, optionMergeStrategies, true)
-  //     )
-  //   }
-  //   mergeOptions(resolved, base, optionMergeStrategies)
-  // }
   if (isObject(base)) {
     cache.set(base, resolved)
   }
   return resolved
 }
 
-// export function mergeOptions(
-//   to: any,
-//   from: any,
-//   strats: Record<string, OptionMergeFunction>,
-//   asMixin = false
-// ) {
-//   if (__COMPAT__ && isFunction(from)) {
-//     from = from.options
-//   }
+export function mergeOptions(
+  to: any,
+  from: any,
+  strats: Record<string, OptionMergeFunction>,
+  asMixin = false
+) {
+  // if (__COMPAT__ && isFunction(from)) {
+  //   from = from.options
+  // }
 
-//   const { mixins, extends: extendsOptions } = from
+  const { mixins, extends: extendsOptions } = from
 
-//   if (extendsOptions) {
-//     mergeOptions(to, extendsOptions, strats, true)
-//   }
-//   if (mixins) {
-//     mixins.forEach((m: ComponentOptionsMixin) =>
-//       mergeOptions(to, m, strats, true)
-//     )
-//   }
+  if (extendsOptions) {
+    mergeOptions(to, extendsOptions, strats, true)
+  }
+  if (mixins) {
+    mixins.forEach((m: ComponentOptionsMixin) =>
+      mergeOptions(to, m, strats, true)
+    )
+  }
 
-//   for (const key in from) {
-//     if (asMixin && key === 'expose') {
-//       __DEV__ &&
-//         warn(
-//           `"expose" option is ignored when declared in mixins or extends. ` +
-//             `It should only be declared in the base component itself.`
-//         )
-//     } else {
-//       const strat = internalOptionMergeStrats[key] || (strats && strats[key])
-//       to[key] = strat ? strat(to[key], from[key]) : from[key]
-//     }
-//   }
-//   return to
-// }
+  for (const key in from) {
+    if (asMixin && key === 'expose') {
+      __DEV__ &&
+        warn(
+          `"expose" option is ignored when declared in mixins or extends. ` +
+            `It should only be declared in the base component itself.`
+        )
+    } else {
+      const strat = internalOptionMergeStrats[key] || (strats && strats[key])
+      to[key] = strat ? strat(to[key], from[key]) : from[key]
+    }
+  }
+  return to
+}
 
-// export const internalOptionMergeStrats: Record<string, Function> = {
-//   data: mergeDataFn,
-//   props: mergeEmitsOrPropsOptions,
-//   emits: mergeEmitsOrPropsOptions,
-//   // objects
-//   methods: mergeObjectOptions,
-//   computed: mergeObjectOptions,
-//   // lifecycle
-//   beforeCreate: mergeAsArray,
-//   created: mergeAsArray,
-//   beforeMount: mergeAsArray,
-//   mounted: mergeAsArray,
-//   beforeUpdate: mergeAsArray,
-//   updated: mergeAsArray,
-//   beforeDestroy: mergeAsArray,
-//   beforeUnmount: mergeAsArray,
-//   destroyed: mergeAsArray,
-//   unmounted: mergeAsArray,
-//   activated: mergeAsArray,
-//   deactivated: mergeAsArray,
-//   errorCaptured: mergeAsArray,
-//   serverPrefetch: mergeAsArray,
-//   // assets
-//   components: mergeObjectOptions,
-//   directives: mergeObjectOptions,
-//   // watch
-//   watch: mergeWatchOptions,
-//   // provide / inject
-//   provide: mergeDataFn,
-//   inject: mergeInject
-// }
+export const internalOptionMergeStrats: Record<string, Function> = {
+  data: mergeDataFn,
+  props: mergeEmitsOrPropsOptions,
+  emits: mergeEmitsOrPropsOptions,
+  // objects
+  methods: mergeObjectOptions,
+  computed: mergeObjectOptions,
+  // lifecycle
+  beforeCreate: mergeAsArray,
+  created: mergeAsArray,
+  beforeMount: mergeAsArray,
+  mounted: mergeAsArray,
+  beforeUpdate: mergeAsArray,
+  updated: mergeAsArray,
+  beforeDestroy: mergeAsArray,
+  beforeUnmount: mergeAsArray,
+  destroyed: mergeAsArray,
+  unmounted: mergeAsArray,
+  activated: mergeAsArray,
+  deactivated: mergeAsArray,
+  errorCaptured: mergeAsArray,
+  serverPrefetch: mergeAsArray,
+  // assets
+  components: mergeObjectOptions,
+  directives: mergeObjectOptions,
+  // watch
+  watch: mergeWatchOptions,
+  // provide / inject
+  provide: mergeDataFn,
+  inject: mergeInject
+}
 
 // if (__COMPAT__) {
 //   internalOptionMergeStrats.filters = mergeObjectOptions
 // }
 
-// function mergeDataFn(to: any, from: any) {
-//   if (!from) {
-//     return to
-//   }
-//   if (!to) {
-//     return from
-//   }
-//   return function mergedDataFn(this: ComponentPublicInstance) {
-//     return (
-//       __COMPAT__ && isCompatEnabled(DeprecationTypes.OPTIONS_DATA_MERGE, null)
-//         ? deepMergeData
-//         : extend
-//     )(
-//       isFunction(to) ? to.call(this, this) : to,
-//       isFunction(from) ? from.call(this, this) : from
-//     )
-//   }
-// }
+function mergeDataFn(to: any, from: any) {
+  if (!from) {
+    return to
+  }
+  if (!to) {
+    return from
+  }
+  return function mergedDataFn(this: ComponentPublicInstance) {
+    return (
+      // __COMPAT__ && isCompatEnabled(DeprecationTypes.OPTIONS_DATA_MERGE, null)
+      //   ? deepMergeData
+      //   :
+      extend(
+        isFunction(to) ? to.call(this, this) : to,
+        isFunction(from) ? from.call(this, this) : from
+      )
+    )
+  }
+}
 
-// function mergeInject(
-//   to: ComponentInjectOptions | undefined,
-//   from: ComponentInjectOptions
-// ) {
-//   return mergeObjectOptions(normalizeInject(to), normalizeInject(from))
-// }
+function mergeInject(
+  to: ComponentInjectOptions | undefined,
+  from: ComponentInjectOptions
+) {
+  return mergeObjectOptions(normalizeInject(to), normalizeInject(from))
+}
 
 function normalizeInject(
   raw: ComponentInjectOptions | undefined
@@ -1071,49 +1090,49 @@ function normalizeInject(
   return raw
 }
 
-// function mergeAsArray<T = Function>(to: T[] | T | undefined, from: T | T[]) {
-//   return to ? [...new Set([].concat(to as any, from as any))] : from
-// }
+function mergeAsArray<T = Function>(to: T[] | T | undefined, from: T | T[]) {
+  return to ? [...new Set([].concat(to as any, from as any))] : from
+}
 
-// function mergeObjectOptions(to: Object | undefined, from: Object | undefined) {
-//   return to ? extend(Object.create(null), to, from) : from
-// }
+function mergeObjectOptions(to: Object | undefined, from: Object | undefined) {
+  return to ? extend(Object.create(null), to, from) : from
+}
 
-// function mergeEmitsOrPropsOptions(
-//   to: EmitsOptions | undefined,
-//   from: EmitsOptions | undefined
-// ): EmitsOptions | undefined
-// function mergeEmitsOrPropsOptions(
-//   to: ComponentPropsOptions | undefined,
-//   from: ComponentPropsOptions | undefined
-// ): ComponentPropsOptions | undefined
-// function mergeEmitsOrPropsOptions(
-//   to: ComponentPropsOptions | EmitsOptions | undefined,
-//   from: ComponentPropsOptions | EmitsOptions | undefined
-// ) {
-//   if (to) {
-//     if (isArray(to) && isArray(from)) {
-//       return [...new Set([...to, ...from])]
-//     }
-//     return extend(
-//       Object.create(null),
-//       normalizePropsOrEmits(to),
-//       normalizePropsOrEmits(from ?? {})
-//     )
-//   } else {
-//     return from
-//   }
-// }
+function mergeEmitsOrPropsOptions(
+  to: EmitsOptions | undefined,
+  from: EmitsOptions | undefined
+): EmitsOptions | undefined
+function mergeEmitsOrPropsOptions(
+  to: ComponentPropsOptions | undefined,
+  from: ComponentPropsOptions | undefined
+): ComponentPropsOptions | undefined
+function mergeEmitsOrPropsOptions(
+  to: ComponentPropsOptions | EmitsOptions | undefined,
+  from: ComponentPropsOptions | EmitsOptions | undefined
+) {
+  if (to) {
+    if (isArray(to) && isArray(from)) {
+      return [...new Set([...to, ...from])]
+    }
+    return extend(
+      Object.create(null),
+      normalizePropsOrEmits(to),
+      normalizePropsOrEmits(from ?? {})
+    )
+  } else {
+    return from
+  }
+}
 
-// function mergeWatchOptions(
-//   to: ComponentWatchOptions | undefined,
-//   from: ComponentWatchOptions | undefined
-// ) {
-//   if (!to) return from
-//   if (!from) return to
-//   const merged = extend(Object.create(null), to)
-//   for (const key in from) {
-//     merged[key] = mergeAsArray(to[key], from[key])
-//   }
-//   return merged
-// }
+function mergeWatchOptions(
+  to: ComponentWatchOptions | undefined,
+  from: ComponentWatchOptions | undefined
+) {
+  if (!to) return from
+  if (!from) return to
+  const merged = extend(Object.create(null), to)
+  for (const key in from) {
+    merged[key] = mergeAsArray(to[key], from[key])
+  }
+  return merged
+}
