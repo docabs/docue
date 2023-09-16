@@ -58,6 +58,7 @@ import { isHmrUpdating } from './hmr'
 import { setRef } from './rendererTemplateRef'
 import { isAsyncWrapper } from './apiAsyncComponent'
 import { updateProps } from './componentProps'
+import { updateSlots } from './componentSlots'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -1542,7 +1543,7 @@ function baseCreateRenderer(
     instance.vnode = nextVNode
     instance.next = null
     updateProps(instance, nextVNode.props, prevProps, optimized)
-    // updateSlots(instance, nextVNode.children, optimized)
+    updateSlots(instance, nextVNode.children, optimized)
     pauseTracking()
     // props update may have triggered pre-flush watchers.
     // flush them before the render update.

@@ -13,7 +13,8 @@ import {
   createTextVNode,
   createBlock,
   openBlock,
-  createCommentVNode
+  createCommentVNode,
+  getCurrentInstance
 } from '@docue/runtime-test'
 import { PatchFlags } from '@docue/shared'
 import { renderList } from '../src/helpers/renderList'

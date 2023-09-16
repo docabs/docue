@@ -96,7 +96,7 @@ export function renderComponentRoot(
                     slots,
                     emit
                   }
-                : { attrs /*, slots, emit*/ }
+                : { attrs, slots, emit }
             )
           : render(props, null as any /* we know it doesn't need it */)
       )

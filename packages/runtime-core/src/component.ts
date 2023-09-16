@@ -336,7 +336,7 @@ export interface ComponentInternalInstance {
   emit: EmitFn
 
   attrsProxy: Data | null
-  // slotsProxy: Slots | null
+  slotsProxy: Slots | null
 
   /**
    * used for keeping track of .once event handlers on components
@@ -528,13 +528,13 @@ export function createComponentInstance(
     data: EMPTY_OBJ,
     props: EMPTY_OBJ,
     attrs: EMPTY_OBJ,
-    // slots: EMPTY_OBJ,
+    slots: EMPTY_OBJ,
     refs: EMPTY_OBJ,
     setupState: EMPTY_OBJ,
     setupContext: null,
 
     attrsProxy: null,
-    // slotsProxy: null,
+    slotsProxy: null,
 
     // suspense related
     // suspense,

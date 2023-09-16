@@ -131,7 +131,7 @@ export type VNodeChild = VNodeChildAtom | VNodeArrayChildren
 export type VNodeNormalizedChildren =
   | string
   | VNodeArrayChildren
-  // | RawSlots
+  | RawSlots
   | null
 
 export interface VNode<

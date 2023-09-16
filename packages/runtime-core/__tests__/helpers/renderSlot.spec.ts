@@ -40,24 +40,24 @@ describe('renderSlot', () => {
     expect('SSR-optimized slot function detected').toHaveBeenWarned()
   })
 
-  // // #1745
-  // it('should force enable tracking', () => {
-  //   const slot = withCtx(
-  //     () => {
-  //       return [createVNode('div', null, 'foo', PatchFlags.TEXT)]
-  //     },
-  //     // mock instance
-  //     { type: {}, appContext: {} } as any
-  //   ) as Slot
+  // #1745
+  it('should force enable tracking', () => {
+    const slot = withCtx(
+      () => {
+        return [createVNode('div', null, 'foo', PatchFlags.TEXT)]
+      },
+      // mock instance
+      { type: {}, appContext: {} } as any
+    ) as Slot
 
-  //   // manual invocation should not track
-  //   const manual = (openBlock(), createBlock(Fragment, null, slot()))
-  //   expect(manual.dynamicChildren!.length).toBe(0)
+    // manual invocation should not track
+    const manual = (openBlock(), createBlock(Fragment, null, slot()))
+    expect(manual.dynamicChildren!.length).toBe(0)
 
-  //   // renderSlot should track
-  //   const templateRendered = renderSlot({ default: slot }, 'default')
-  //   expect(templateRendered.dynamicChildren!.length).toBe(1)
-  // })
+    // renderSlot should track
+    const templateRendered = renderSlot({ default: slot }, 'default')
+    expect(templateRendered.dynamicChildren!.length).toBe(1)
+  })
 
   // #2347 #2461
   describe('only render valid slot content', () => {
