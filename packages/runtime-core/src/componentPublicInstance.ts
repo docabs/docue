@@ -42,6 +42,7 @@ import {
 import { nextTick, queueJob } from './scheduler'
 import { warn } from './warning'
 import { currentRenderingInstance } from './componentRenderContext'
+import { WatchOptions, WatchStopHandle, instanceWatch } from './apiWatch'
 
 /**
  * Custom properties added to component instances in any way and can be accessed through `this`
@@ -217,13 +218,13 @@ export type ComponentPublicInstance<
   $options: Options & MergedComponentOptionsOverride
   // $forceUpdate: () => void
   $nextTick: typeof nextTick
-  // $watch<T extends string | ((...args: any) => any)>(
-  //   source: T,
-  //   cb: T extends (...args: any) => infer R
-  //     ? (...args: [R, R]) => any
-  //     : (...args: any) => any,
-  //   options?: WatchOptions
-  // ): WatchStopHandle
+  $watch<T extends string | ((...args: any) => any)>(
+    source: T,
+    cb: T extends (...args: any) => infer R
+      ? (...args: [R, R]) => any
+      : (...args: any) => any,
+    options?: WatchOptions
+  ): WatchStopHandle
 } & P &
   ShallowUnwrapRef<B> &
   UnwrapNestedRefs<D> &
@@ -266,8 +267,8 @@ export const publicPropertiesMap: PublicPropertiesMap =
     $emit: i => i.emit,
     $options: i => (__FEATURE_OPTIONS_API__ ? resolveMergedOptions(i) : i.type),
     $forceUpdate: i => i.f || (i.f = () => queueJob(i.update)),
-    $nextTick: i => i.n || (i.n = nextTick.bind(i.proxy!))
-    // $watch: i => (__FEATURE_OPTIONS_API__ ? instanceWatch.bind(i) : NOOP)
+    $nextTick: i => i.n || (i.n = nextTick.bind(i.proxy!)),
+    $watch: i => (__FEATURE_OPTIONS_API__ ? instanceWatch.bind(i) : NOOP)
   } as PublicPropertiesMap)
 
 // if (__COMPAT__) {

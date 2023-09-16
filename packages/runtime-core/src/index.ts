@@ -35,12 +35,12 @@ export {
   onScopeDispose
 } from '@docue/reactivity'
 export { computed } from './apiComputed'
-// export {
-//   watch,
-//   watchEffect,
-//   watchPostEffect,
-//   watchSyncEffect
-// } from './apiWatch'
+export {
+  watch,
+  watchEffect,
+  watchPostEffect,
+  watchSyncEffect
+} from './apiWatch'
 export {
   onBeforeMount,
   onMounted,
@@ -181,14 +181,14 @@ export type {
   // DebuggerEventExtraInfo,
   // Raw
 } from '@docue/reactivity'
-// export type {
-//   WatchEffect,
-//   WatchOptions,
-//   WatchOptionsBase,
-//   WatchCallback,
-//   WatchSource,
-//   WatchStopHandle
-// } from './apiWatch'
+export type {
+  WatchEffect,
+  WatchOptions,
+  WatchOptionsBase,
+  WatchCallback,
+  WatchSource,
+  WatchStopHandle
+} from './apiWatch'
 export type { InjectionKey } from './apiInject'
 export type {
   App,
@@ -290,8 +290,8 @@ export {
 } from './componentRenderContext'
 export { renderList } from './helpers/renderList'
 export { toHandlers } from './helpers/toHandlers'
-// export { renderSlot } from './helpers/renderSlot'
-// export { createSlots } from './helpers/createSlots'
+export { renderSlot } from './helpers/renderSlot'
+export { createSlots } from './helpers/createSlots'
 // export { withMemo, isMemoSame } from './helpers/withMemo'
 export {
   openBlock,
