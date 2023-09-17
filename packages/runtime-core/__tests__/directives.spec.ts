@@ -9,7 +9,7 @@ import {
   DirectiveBinding,
   nextTick,
   defineComponent
-} from '@vue/runtime-test'
+} from '@docue/runtime-test'
 import { currentInstance, ComponentInternalInstance } from '../src/component'
 
 describe('directives', () => {

@@ -14,6 +14,7 @@ import {
   isReservedPrefix
 } from './componentPublicInstance'
 import {
+  Component,
   ComponentInternalInstance,
   ComponentInternalOptions,
   ConcreteComponent,
@@ -67,6 +68,7 @@ import {
   watch
 } from './apiWatch'
 import { normalizePropsOrEmits } from './apiSetupHelpers'
+import { Directive } from './directives'
 
 /**
  * Interface for declaring custom options.
@@ -126,8 +128,8 @@ export interface ComponentOptionsBase<
   // Luckily `render()` doesn't need any arguments nor does it care about return
   // type.
   render?: Function
-  // components?: Record<string, Component>
-  // directives?: Record<string, Directive>
+  components?: Record<string, Component>
+  directives?: Record<string, Directive>
   inheritAttrs?: boolean
   emits?: (E | EE[]) & ThisType<void>
   slots?: S
@@ -619,10 +621,10 @@ export function applyOptions(instance: ComponentInternalInstance) {
     // serverPrefetch,
     // public API
     expose,
-    inheritAttrs
+    inheritAttrs,
     // assets,
-    // components,
-    // directives,
+    components,
+    directives
     // filters
   } = options
 
@@ -835,9 +837,9 @@ export function applyOptions(instance: ComponentInternalInstance) {
     instance.inheritAttrs = inheritAttrs
   }
 
-  // // asset options.
-  // if (components) instance.components = components as any
-  // if (directives) instance.directives = directives
+  // asset options.
+  if (components) instance.components = components as any
+  if (directives) instance.directives = directives
   // if (
   //   __COMPAT__ &&
   //   filters &&

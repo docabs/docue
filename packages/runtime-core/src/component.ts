@@ -65,6 +65,7 @@ import {
 import { ErrorCodes, callWithErrorHandling } from './errorHandling'
 import { currentRenderingInstance } from './componentRenderContext'
 import { markAttrsAccessed } from './componentRenderUtils'
+import { Directive } from './directives'
 
 export type Data = Record<string, unknown>
 
@@ -269,11 +270,11 @@ export interface ComponentInternalInstance {
    * @internal
    */
   components: Record<string, ConcreteComponent> | null
-  // /**
-  //  * Resolved directive registry, only for components with mixins or extends
-  //  * @internal
-  //  */
-  // directives: Record<string, Directive> | null
+  /**
+   * Resolved directive registry, only for components with mixins or extends
+   * @internal
+   */
+  directives: Record<string, Directive> | null
   /**
    * Resolved filters registry, v2 compat only
    * @internal

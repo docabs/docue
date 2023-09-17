@@ -140,211 +140,211 @@ describe('api: options', () => {
     expect(serializeInner(root)).toBe(`foo`)
   })
 
-  // test('watch', async () => {
-  //   function returnThis(this: any) {
-  //     return this
-  //   }
-  //   const spyA = vi.fn(returnThis)
-  //   const spyB = vi.fn(returnThis)
-  //   const spyC = vi.fn(returnThis)
-  //   const spyD = vi.fn(returnThis)
-  //   const spyE = vi.fn(returnThis)
+  test('watch', async () => {
+    function returnThis(this: any) {
+      return this
+    }
+    const spyA = vi.fn(returnThis)
+    const spyB = vi.fn(returnThis)
+    const spyC = vi.fn(returnThis)
+    const spyD = vi.fn(returnThis)
+    const spyE = vi.fn(returnThis)
 
-  //   let ctx: any
-  //   const Comp = {
-  //     data() {
-  //       return {
-  //         foo: 1,
-  //         bar: 2,
-  //         baz: {
-  //           qux: 3
-  //         },
-  //         qux: 4,
-  //         dot: {
-  //           path: 5
-  //         }
-  //       }
-  //     },
-  //     watch: {
-  //       // string method name
-  //       foo: 'onFooChange',
-  //       // direct function
-  //       bar: spyB,
-  //       baz: {
-  //         handler: spyC,
-  //         deep: true
-  //       },
-  //       qux: {
-  //         handler: 'onQuxChange'
-  //       },
-  //       'dot.path': spyE
-  //     },
-  //     methods: {
-  //       onFooChange: spyA,
-  //       onQuxChange: spyD
-  //     },
-  //     render() {
-  //       ctx = this
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
+    let ctx: any
+    const Comp = {
+      data() {
+        return {
+          foo: 1,
+          bar: 2,
+          baz: {
+            qux: 3
+          },
+          qux: 4,
+          dot: {
+            path: 5
+          }
+        }
+      },
+      watch: {
+        // string method name
+        foo: 'onFooChange',
+        // direct function
+        bar: spyB,
+        baz: {
+          handler: spyC,
+          deep: true
+        },
+        qux: {
+          handler: 'onQuxChange'
+        },
+        'dot.path': spyE
+      },
+      methods: {
+        onFooChange: spyA,
+        onQuxChange: spyD
+      },
+      render() {
+        ctx = this
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
 
-  //   function assertCall(spy: Mock, callIndex: number, args: any[]) {
-  //     expect(spy.mock.calls[callIndex].slice(0, 2)).toMatchObject(args)
-  //     expect(spy.mock.results[callIndex].value).toBe(ctx)
-  //   }
+    function assertCall(spy: Mock, callIndex: number, args: any[]) {
+      expect(spy.mock.calls[callIndex].slice(0, 2)).toMatchObject(args)
+      expect(spy.mock.results[callIndex].value).toBe(ctx)
+    }
 
-  //   ctx.foo++
-  //   await nextTick()
-  //   expect(spyA).toHaveBeenCalledTimes(1)
-  //   assertCall(spyA, 0, [2, 1])
+    ctx.foo++
+    await nextTick()
+    expect(spyA).toHaveBeenCalledTimes(1)
+    assertCall(spyA, 0, [2, 1])
 
-  //   ctx.bar++
-  //   await nextTick()
-  //   expect(spyB).toHaveBeenCalledTimes(1)
-  //   assertCall(spyB, 0, [3, 2])
+    ctx.bar++
+    await nextTick()
+    expect(spyB).toHaveBeenCalledTimes(1)
+    assertCall(spyB, 0, [3, 2])
 
-  //   ctx.baz.qux++
-  //   await nextTick()
-  //   expect(spyC).toHaveBeenCalledTimes(1)
-  //   // new and old objects have same identity
-  //   assertCall(spyC, 0, [{ qux: 4 }, { qux: 4 }])
+    ctx.baz.qux++
+    await nextTick()
+    expect(spyC).toHaveBeenCalledTimes(1)
+    // new and old objects have same identity
+    assertCall(spyC, 0, [{ qux: 4 }, { qux: 4 }])
 
-  //   ctx.qux++
-  //   await nextTick()
-  //   expect(spyD).toHaveBeenCalledTimes(1)
-  //   assertCall(spyD, 0, [5, 4])
+    ctx.qux++
+    await nextTick()
+    expect(spyD).toHaveBeenCalledTimes(1)
+    assertCall(spyD, 0, [5, 4])
 
-  //   ctx.dot.path++
-  //   await nextTick()
-  //   expect(spyE).toHaveBeenCalledTimes(1)
-  //   assertCall(spyE, 0, [6, 5])
-  // })
+    ctx.dot.path++
+    await nextTick()
+    expect(spyE).toHaveBeenCalledTimes(1)
+    assertCall(spyE, 0, [6, 5])
+  })
 
-  // test('watch array', async () => {
-  //   function returnThis(this: any) {
-  //     return this
-  //   }
-  //   const spyA = vi.fn(returnThis)
-  //   const spyB = vi.fn(returnThis)
-  //   const spyC = vi.fn(returnThis)
+  test('watch array', async () => {
+    function returnThis(this: any) {
+      return this
+    }
+    const spyA = vi.fn(returnThis)
+    const spyB = vi.fn(returnThis)
+    const spyC = vi.fn(returnThis)
 
-  //   let ctx: any
-  //   const Comp = {
-  //     data() {
-  //       return {
-  //         foo: 1,
-  //         bar: 2,
-  //         baz: {
-  //           qux: 3
-  //         }
-  //       }
-  //     },
-  //     watch: {
-  //       // string method name
-  //       foo: ['onFooChange'],
-  //       // direct function
-  //       bar: [spyB],
-  //       baz: [
-  //         {
-  //           handler: spyC,
-  //           deep: true
-  //         }
-  //       ]
-  //     },
-  //     methods: {
-  //       onFooChange: spyA
-  //     },
-  //     render() {
-  //       ctx = this
-  //     }
-  //   }
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
+    let ctx: any
+    const Comp = {
+      data() {
+        return {
+          foo: 1,
+          bar: 2,
+          baz: {
+            qux: 3
+          }
+        }
+      },
+      watch: {
+        // string method name
+        foo: ['onFooChange'],
+        // direct function
+        bar: [spyB],
+        baz: [
+          {
+            handler: spyC,
+            deep: true
+          }
+        ]
+      },
+      methods: {
+        onFooChange: spyA
+      },
+      render() {
+        ctx = this
+      }
+    }
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
 
-  //   function assertCall(spy: Mock, callIndex: number, args: any[]) {
-  //     expect(spy.mock.calls[callIndex].slice(0, 2)).toMatchObject(args)
-  //     expect(spy.mock.results[callIndex].value).toBe(ctx)
-  //   }
+    function assertCall(spy: Mock, callIndex: number, args: any[]) {
+      expect(spy.mock.calls[callIndex].slice(0, 2)).toMatchObject(args)
+      expect(spy.mock.results[callIndex].value).toBe(ctx)
+    }
 
-  //   ctx.foo++
-  //   await nextTick()
-  //   expect(spyA).toHaveBeenCalledTimes(1)
-  //   assertCall(spyA, 0, [2, 1])
+    ctx.foo++
+    await nextTick()
+    expect(spyA).toHaveBeenCalledTimes(1)
+    assertCall(spyA, 0, [2, 1])
 
-  //   ctx.bar++
-  //   await nextTick()
-  //   expect(spyB).toHaveBeenCalledTimes(1)
-  //   assertCall(spyB, 0, [3, 2])
+    ctx.bar++
+    await nextTick()
+    expect(spyB).toHaveBeenCalledTimes(1)
+    assertCall(spyB, 0, [3, 2])
 
-  //   ctx.baz.qux++
-  //   await nextTick()
-  //   expect(spyC).toHaveBeenCalledTimes(1)
-  //   // new and old objects have same identity
-  //   assertCall(spyC, 0, [{ qux: 4 }, { qux: 4 }])
-  // })
+    ctx.baz.qux++
+    await nextTick()
+    expect(spyC).toHaveBeenCalledTimes(1)
+    // new and old objects have same identity
+    assertCall(spyC, 0, [{ qux: 4 }, { qux: 4 }])
+  })
 
-  // // #3966
-  // test('watch merging from mixins', async () => {
-  //   const mixinA = {
-  //     data() {
-  //       return {
-  //         fromMixinA: ''
-  //       }
-  //     },
-  //     watch: {
-  //       obj: {
-  //         handler(this: any, to: any) {
-  //           this.fromMixinA = to
-  //         }
-  //       }
-  //     }
-  //   }
+  // #3966
+  test('watch merging from mixins', async () => {
+    const mixinA = {
+      data() {
+        return {
+          fromMixinA: ''
+        }
+      },
+      watch: {
+        obj: {
+          handler(this: any, to: any) {
+            this.fromMixinA = to
+          }
+        }
+      }
+    }
 
-  //   const mixinB = {
-  //     data() {
-  //       return {
-  //         fromMixinB: ''
-  //       }
-  //     },
-  //     watch: {
-  //       obj: 'setMixinB'
-  //     },
-  //     methods: {
-  //       setMixinB(this: any, to: any) {
-  //         this.fromMixinB = to
-  //       }
-  //     }
-  //   }
+    const mixinB = {
+      data() {
+        return {
+          fromMixinB: ''
+        }
+      },
+      watch: {
+        obj: 'setMixinB'
+      },
+      methods: {
+        setMixinB(this: any, to: any) {
+          this.fromMixinB = to
+        }
+      }
+    }
 
-  //   let vm: any
-  //   const Comp = {
-  //     render() {},
-  //     mixins: [mixinA, mixinB],
-  //     data: () => ({
-  //       obj: 'foo',
-  //       fromComp: ''
-  //     }),
-  //     watch: {
-  //       obj(this: any, to: any) {
-  //         this.fromComp = to
-  //       }
-  //     },
-  //     mounted() {
-  //       vm = this
-  //     }
-  //   }
+    let vm: any
+    const Comp = {
+      render() {},
+      mixins: [mixinA, mixinB],
+      data: () => ({
+        obj: 'foo',
+        fromComp: ''
+      }),
+      watch: {
+        obj(this: any, to: any) {
+          this.fromComp = to
+        }
+      },
+      mounted() {
+        vm = this
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
 
-  //   vm.obj = 'bar'
-  //   await nextTick()
-  //   expect(vm.fromComp).toBe('bar')
-  //   expect(vm.fromMixinA).toBe('bar')
-  //   expect(vm.fromMixinB).toBe('bar')
-  // })
+    vm.obj = 'bar'
+    await nextTick()
+    expect(vm.fromComp).toBe('bar')
+    expect(vm.fromMixinA).toBe('bar')
+    expect(vm.fromMixinB).toBe('bar')
+  })
 
   test('provide/inject', () => {
     const symbolKey = Symbol()
@@ -1094,50 +1094,50 @@ describe('api: options', () => {
     expect(serializeInner(root)).toBe(`<div>1,1,3</div>`)
   })
 
-  // // #1016
-  // test('watcher initialization should be deferred in mixins', async () => {
-  //   const mixin1 = {
-  //     data() {
-  //       return {
-  //         mixin1Data: 'mixin1'
-  //       }
-  //     },
-  //     methods: {}
-  //   }
+  // #1016
+  test('watcher initialization should be deferred in mixins', async () => {
+    const mixin1 = {
+      data() {
+        return {
+          mixin1Data: 'mixin1'
+        }
+      },
+      methods: {}
+    }
 
-  //   const watchSpy = vi.fn()
-  //   const mixin2 = {
-  //     watch: {
-  //       mixin3Data: watchSpy
-  //     }
-  //   }
+    const watchSpy = vi.fn()
+    const mixin2 = {
+      watch: {
+        mixin3Data: watchSpy
+      }
+    }
 
-  //   const mixin3 = {
-  //     data() {
-  //       return {
-  //         mixin3Data: 'mixin3'
-  //       }
-  //     },
-  //     methods: {}
-  //   }
+    const mixin3 = {
+      data() {
+        return {
+          mixin3Data: 'mixin3'
+        }
+      },
+      methods: {}
+    }
 
-  //   let vm: any
-  //   const Comp = {
-  //     mixins: [mixin1, mixin2, mixin3],
-  //     render() {},
-  //     created() {
-  //       vm = this
-  //     }
-  //   }
+    let vm: any
+    const Comp = {
+      mixins: [mixin1, mixin2, mixin3],
+      render() {},
+      created() {
+        vm = this
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
 
-  //   // should have no warnings
-  //   vm.mixin3Data = 'hello'
-  //   await nextTick()
-  //   expect(watchSpy.mock.calls[0].slice(0, 2)).toEqual(['hello', 'mixin3'])
-  // })
+    // should have no warnings
+    vm.mixin3Data = 'hello'
+    await nextTick()
+    expect(watchSpy.mock.calls[0].slice(0, 2)).toEqual(['hello', 'mixin3'])
+  })
 
   test('injection from closest ancestor', () => {
     const Root = defineComponent({
@@ -1380,35 +1380,36 @@ describe('api: options', () => {
   })
 
   describe('warnings', () => {
-    //   test('Expected a function as watch handler', () => {
-    //     const Comp = {
-    //       watch: {
-    //         foo: 'notExistingMethod',
-    //         foo2: {
-    //           handler: 'notExistingMethod2'
-    //         }
-    //       },
-    //       render() {}
-    //     }
-    //     const root = nodeOps.createElement('div')
-    //     render(h(Comp), root)
-    //     expect(
-    //       'Invalid watch handler specified by key "notExistingMethod"'
-    //     ).toHaveBeenWarned()
-    //     expect(
-    //       'Invalid watch handler specified by key "notExistingMethod2"'
-    //     ).toHaveBeenWarned()
-    //   })
-    //   test('Invalid watch option', () => {
-    //     const Comp = {
-    //       watch: { foo: true },
-    //       render() {}
-    //     }
-    //     const root = nodeOps.createElement('div')
-    //     // @ts-expect-error
-    //     render(h(Comp), root)
-    //     expect('Invalid watch option: "foo"').toHaveBeenWarned()
-    //   })
+    test('Expected a function as watch handler', () => {
+      const Comp = {
+        watch: {
+          foo: 'notExistingMethod',
+          foo2: {
+            handler: 'notExistingMethod2'
+          }
+        },
+        render() {}
+      }
+      const root = nodeOps.createElement('div')
+      render(h(Comp), root)
+      expect(
+        'Invalid watch handler specified by key "notExistingMethod"'
+      ).toHaveBeenWarned()
+      expect(
+        'Invalid watch handler specified by key "notExistingMethod2"'
+      ).toHaveBeenWarned()
+    })
+
+    test('Invalid watch option', () => {
+      const Comp = {
+        watch: { foo: true },
+        render() {}
+      }
+      const root = nodeOps.createElement('div')
+      // @ts-expect-error
+      render(h(Comp), root)
+      expect('Invalid watch option: "foo"').toHaveBeenWarned()
+    })
 
     test('computed with setter and no getter', () => {
       const Comp = {

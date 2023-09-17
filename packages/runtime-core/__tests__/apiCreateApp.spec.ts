@@ -5,9 +5,14 @@ import {
   nodeOps,
   provide,
   ref,
-  serializeInner
+  serializeInner,
+  withDirectives
 } from '@docue/runtime-test'
 import { defineComponent } from '../src/apiDefineComponent'
+import {
+  resolveComponent,
+  resolveDirective
+} from '../src/helpers/resolveAssets'
 
 describe('api: createApp', () => {
   test('mount', () => {
@@ -120,90 +125,90 @@ describe('api: createApp', () => {
     expect('inject() can only be used inside setup').toHaveBeenWarned()
   })
 
-  // test('component', () => {
-  //   const Root = {
-  //     // local override
-  //     components: {
-  //       BarBaz: () => 'barbaz-local!'
-  //     },
-  //     setup() {
-  //       // resolve in setup
-  //       const FooBar = resolveComponent('foo-bar') as any
-  //       return () => {
-  //         // resolve in render
-  //         const BarBaz = resolveComponent('bar-baz') as any
-  //         return h('div', [h(FooBar), h(BarBaz)])
-  //       }
-  //     }
-  //   }
+  test('component', () => {
+    const Root = {
+      // local override
+      components: {
+        BarBaz: () => 'barbaz-local!'
+      },
+      setup() {
+        // resolve in setup
+        const FooBar = resolveComponent('foo-bar') as any
+        return () => {
+          // resolve in render
+          const BarBaz = resolveComponent('bar-baz') as any
+          return h('div', [h(FooBar), h(BarBaz)])
+        }
+      }
+    }
 
-  //   const app = createApp(Root)
+    const app = createApp(Root)
 
-  //   const FooBar = () => 'foobar!'
-  //   app.component('FooBar', FooBar)
-  //   expect(app.component('FooBar')).toBe(FooBar)
+    const FooBar = () => 'foobar!'
+    app.component('FooBar', FooBar)
+    expect(app.component('FooBar')).toBe(FooBar)
 
-  //   app.component('BarBaz', () => 'barbaz!')
+    app.component('BarBaz', () => 'barbaz!')
 
-  //   app.component('BarBaz', () => 'barbaz!')
-  //   expect(
-  //     'Component "BarBaz" has already been registered in target app.'
-  //   ).toHaveBeenWarnedTimes(1)
+    app.component('BarBaz', () => 'barbaz!')
+    expect(
+      'Component "BarBaz" has already been registered in target app.'
+    ).toHaveBeenWarnedTimes(1)
 
-  //   const root = nodeOps.createElement('div')
-  //   app.mount(root)
-  //   expect(serializeInner(root)).toBe(`<div>foobar!barbaz-local!</div>`)
-  // })
+    const root = nodeOps.createElement('div')
+    app.mount(root)
+    expect(serializeInner(root)).toBe(`<div>foobar!barbaz-local!</div>`)
+  })
 
-  // test('directive', () => {
-  //   const spy1 = vi.fn()
-  //   const spy2 = vi.fn()
-  //   const spy3 = vi.fn()
+  test('directive', () => {
+    const spy1 = vi.fn()
+    const spy2 = vi.fn()
+    const spy3 = vi.fn()
 
-  //   const Root = {
-  //     // local override
-  //     directives: {
-  //       BarBaz: { mounted: spy3 }
-  //     },
-  //     setup() {
-  //       // resolve in setup
-  //       const FooBar = resolveDirective('foo-bar')!
-  //       return () => {
-  //         // resolve in render
-  //         const BarBaz = resolveDirective('bar-baz')!
-  //         return withDirectives(h('div'), [[FooBar], [BarBaz]])
-  //       }
-  //     }
-  //   }
+    const Root = {
+      // local override
+      directives: {
+        BarBaz: { mounted: spy3 }
+      },
+      setup() {
+        // resolve in setup
+        const FooBar = resolveDirective('foo-bar')!
+        return () => {
+          // resolve in render
+          const BarBaz = resolveDirective('bar-baz')!
+          return withDirectives(h('div'), [[FooBar], [BarBaz]])
+        }
+      }
+    }
 
-  //   const app = createApp(Root)
+    const app = createApp(Root)
 
-  //   const FooBar = { mounted: spy1 }
-  //   app.directive('FooBar', FooBar)
-  //   expect(app.directive('FooBar')).toBe(FooBar)
+    const FooBar = { mounted: spy1 }
+    app.directive('FooBar', FooBar)
+    expect(app.directive('FooBar')).toBe(FooBar)
 
-  //   app.directive('BarBaz', {
-  //     mounted: spy2
-  //   })
+    app.directive('BarBaz', {
+      mounted: spy2
+    })
 
-  //   app.directive('BarBaz', {
-  //     mounted: spy2
-  //   })
-  //   expect(
-  //     'Directive "BarBaz" has already been registered in target app.'
-  //   ).toHaveBeenWarnedTimes(1)
+    app.directive('BarBaz', {
+      mounted: spy2
+    })
+    expect(
+      'Directive "BarBaz" has already been registered in target app.'
+    ).toHaveBeenWarnedTimes(1)
 
-  //   const root = nodeOps.createElement('div')
-  //   app.mount(root)
-  //   expect(spy1).toHaveBeenCalled()
-  //   expect(spy2).not.toHaveBeenCalled()
-  //   expect(spy3).toHaveBeenCalled()
+    const root = nodeOps.createElement('div')
+    app.mount(root)
+    expect(spy1).toHaveBeenCalled()
+    expect(spy2).not.toHaveBeenCalled()
+    expect(spy3).toHaveBeenCalled()
 
-  //   app.directive('bind', FooBar)
-  //   expect(
-  //     `Do not use built-in directive ids as custom directive id: bind`
-  //   ).toHaveBeenWarned()
-  // })
+    app.directive('bind', FooBar)
+    expect(
+      `Do not use built-in directive ids as custom directive id: bind`
+    ).toHaveBeenWarned()
+  })
 
   test('mixin', () => {
     const calls: string[] = []

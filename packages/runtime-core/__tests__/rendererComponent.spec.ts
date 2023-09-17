@@ -10,7 +10,8 @@ import {
   inject,
   Ref,
   // watch,
-  SetupContext
+  SetupContext,
+  watch
 } from '@docue/runtime-test'
 
 describe('renderer: component', () => {
@@ -140,101 +141,101 @@ describe('renderer: component', () => {
     expect(serializeInner(root)).toBe(`<div>1</div><div>1</div>`)
   })
 
-  // // #2170
-  // test('instance.$el should be exposed to watch options', async () => {
-  //   function returnThis(this: any, _arg: any) {
-  //     return this
-  //   }
-  //   const propWatchSpy = vi.fn(returnThis)
-  //   const dataWatchSpy = vi.fn(returnThis)
-  //   let instance: any
-  //   const Comp = {
-  //     props: {
-  //       testProp: String
-  //     },
+  // #2170
+  test('instance.$el should be exposed to watch options', async () => {
+    function returnThis(this: any, _arg: any) {
+      return this
+    }
+    const propWatchSpy = vi.fn(returnThis)
+    const dataWatchSpy = vi.fn(returnThis)
+    let instance: any
+    const Comp = {
+      props: {
+        testProp: String
+      },
 
-  //     data() {
-  //       return {
-  //         testData: undefined
-  //       }
-  //     },
+      data() {
+        return {
+          testData: undefined
+        }
+      },
 
-  //     watch: {
-  //       testProp() {
-  //         // @ts-ignore
-  //         propWatchSpy(this.$el)
-  //       },
-  //       testData() {
-  //         // @ts-ignore
-  //         dataWatchSpy(this.$el)
-  //       }
-  //     },
+      watch: {
+        testProp() {
+          // @ts-ignore
+          propWatchSpy(this.$el)
+        },
+        testData() {
+          // @ts-ignore
+          dataWatchSpy(this.$el)
+        }
+      },
 
-  //     created() {
-  //       instance = this
-  //     },
+      created() {
+        instance = this
+      },
 
-  //     render() {
-  //       return h('div')
-  //     }
-  //   }
+      render() {
+        return h('div')
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
-  //   await nextTick()
-  //   expect(propWatchSpy).not.toHaveBeenCalled()
-  //   expect(dataWatchSpy).not.toHaveBeenCalled()
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
+    await nextTick()
+    expect(propWatchSpy).not.toHaveBeenCalled()
+    expect(dataWatchSpy).not.toHaveBeenCalled()
 
-  //   render(h(Comp, { testProp: 'prop ' }), root)
-  //   await nextTick()
-  //   expect(propWatchSpy).toHaveBeenCalledWith(instance.$el)
+    render(h(Comp, { testProp: 'prop ' }), root)
+    await nextTick()
+    expect(propWatchSpy).toHaveBeenCalledWith(instance.$el)
 
-  //   instance.testData = 1
-  //   await nextTick()
-  //   expect(dataWatchSpy).toHaveBeenCalledWith(instance.$el)
-  // })
+    instance.testData = 1
+    await nextTick()
+    expect(dataWatchSpy).toHaveBeenCalledWith(instance.$el)
+  })
 
-  // // #2200
-  // test('component child updating parent state in pre-flush should trigger parent re-render', async () => {
-  //   const outer = ref(0)
-  //   const App = {
-  //     setup() {
-  //       const inner = ref(0)
+  // #2200
+  test('component child updating parent state in pre-flush should trigger parent re-render', async () => {
+    const outer = ref(0)
+    const App = {
+      setup() {
+        const inner = ref(0)
 
-  //       return () => {
-  //         return [
-  //           h('div', inner.value),
-  //           h(Child, {
-  //             value: outer.value,
-  //             onUpdate: (val: number) => (inner.value = val)
-  //           })
-  //         ]
-  //       }
-  //     }
-  //   }
+        return () => {
+          return [
+            h('div', inner.value),
+            h(Child, {
+              value: outer.value,
+              onUpdate: (val: number) => (inner.value = val)
+            })
+          ]
+        }
+      }
+    }
 
-  //   const Child = {
-  //     props: ['value'],
-  //     setup(props: any, { emit }: SetupContext) {
-  //       watch(
-  //         () => props.value,
-  //         (val: number) => emit('update', val)
-  //       )
+    const Child = {
+      props: ['value'],
+      setup(props: any, { emit }: SetupContext) {
+        watch(
+          () => props.value,
+          (val: number) => emit('update', val)
+        )
 
-  //       return () => {
-  //         return h('div', props.value)
-  //       }
-  //     }
-  //   }
+        return () => {
+          return h('div', props.value)
+        }
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
-  //   expect(serializeInner(root)).toBe(`<div>0</div><div>0</div>`)
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
+    expect(serializeInner(root)).toBe(`<div>0</div><div>0</div>`)
 
-  //   outer.value++
-  //   await nextTick()
-  //   expect(serializeInner(root)).toBe(`<div>1</div><div>1</div>`)
-  // })
+    outer.value++
+    await nextTick()
+    expect(serializeInner(root)).toBe(`<div>1</div><div>1</div>`)
+  })
 
   // // #2521
   // test('should pause tracking deps when initializing legacy options', async () => {

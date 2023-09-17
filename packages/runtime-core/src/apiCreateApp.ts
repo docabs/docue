@@ -15,6 +15,7 @@ import { ObjectEmitsOptions } from './componentEmits'
 import { warn } from './warning'
 import { VNode, cloneVNode, createVNode } from './vnode'
 import { InjectionKey } from './apiInject'
+import { Directive, validateDirectiveName } from './directives'
 import { version } from '.'
 import { extend, isFunction, isObject } from '@docue/shared'
 import {
@@ -36,8 +37,8 @@ export interface App<HostElement = any> {
   mixin(mixin: ComponentOptions): this
   component(name: string): Component | undefined
   component(name: string, component: Component): this
-  // directive(name: string): Directive | undefined
-  // directive(name: string, directive: Directive): this
+  directive(name: string): Directive | undefined
+  directive(name: string, directive: Directive): this
   mount(
     rootContainer: HostElement | string,
     isHydrate?: boolean,
@@ -118,7 +119,7 @@ export interface AppContext {
   config: AppConfig
   mixins: ComponentOptions[]
   components: Record<string, Component>
-  // directives: Record<string, Directive>
+  directives: Record<string, Directive>
   provides: Record<string | symbol, any>
 
   /**
@@ -143,11 +144,11 @@ export interface AppContext {
   //  * @internal
   //  */
   // reload?: () => void
-  // /**
-  //  * v2 compat only
-  //  * @internal
-  //  */
-  // filters?: Record<string, Function>
+  /**
+   * v2 compat only
+   * @internal
+   */
+  filters?: Record<string, Function>
 }
 
 // type PluginInstallFunction<Options> = Options extends unknown[]
@@ -176,7 +177,7 @@ export function createAppContext(): AppContext {
     },
     mixins: [],
     components: {},
-    // directives: {},
+    directives: {},
     provides: Object.create(null),
     optionsCache: new WeakMap(),
     // propsCache: new WeakMap(),
@@ -281,19 +282,19 @@ export function createAppAPI<HostElement>(
         context.components[name] = component
         return app
       },
-      //     directive(name: string, directive?: Directive) {
-      //       if (__DEV__) {
-      //         validateDirectiveName(name)
-      //       }
-      //       if (!directive) {
-      //         return context.directives[name] as any
-      //       }
-      //       if (__DEV__ && context.directives[name]) {
-      //         warn(`Directive "${name}" has already been registered in target app.`)
-      //       }
-      //       context.directives[name] = directive
-      //       return app
-      //     },
+      directive(name: string, directive?: Directive) {
+        if (__DEV__) {
+          validateDirectiveName(name)
+        }
+        if (!directive) {
+          return context.directives[name] as any
+        }
+        if (__DEV__ && context.directives[name]) {
+          warn(`Directive "${name}" has already been registered in target app.`)
+        }
+        context.directives[name] = directive
+        return app
+      },
       mount(
         rootContainer: HostElement,
         isHydrate?: boolean,

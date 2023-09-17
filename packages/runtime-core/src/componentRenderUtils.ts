@@ -105,9 +105,9 @@ export function renderComponentRoot(
         : getFunctionalFallthrough(attrs)
     }
   } catch (err) {
-    // blockStack.length = 0
-    // handleError(err, instance, ErrorCodes.RENDER_FUNCTION)
-    // result = createVNode(Comment)
+    blockStack.length = 0
+    handleError(err, instance, ErrorCodes.RENDER_FUNCTION)
+    result = createVNode(Comment)
   }
 
   // attr merging
@@ -200,18 +200,18 @@ export function renderComponentRoot(
   //   }
   // }
 
-  // // inherit directives
-  // if (vnode.dirs) {
-  //   if (__DEV__ && !isElementRoot(root)) {
-  //     warn(
-  //       `Runtime directive used on component with non-element root node. ` +
-  //         `The directives will not function as intended.`
-  //     )
-  //   }
-  //   // clone before mutating since the root may be a hoisted vnode
-  //   root = cloneVNode(root)
-  //   root.dirs = root.dirs ? root.dirs.concat(vnode.dirs) : vnode.dirs
-  // }
+  // inherit directives
+  if (vnode.dirs) {
+    if (__DEV__ && !isElementRoot(root)) {
+      warn(
+        `Runtime directive used on component with non-element root node. ` +
+          `The directives will not function as intended.`
+      )
+    }
+    // clone before mutating since the root may be a hoisted vnode
+    root = cloneVNode(root)
+    root.dirs = root.dirs ? root.dirs.concat(vnode.dirs) : vnode.dirs
+  }
   // // inherit transition data
   // if (vnode.transition) {
   //   if (__DEV__ && !isElementRoot(root)) {
@@ -305,12 +305,12 @@ const getFunctionalFallthrough = (attrs: Data): Data | undefined => {
 //   return res
 // }
 
-// const isElementRoot = (vnode: VNode) => {
-//   return (
-//     vnode.shapeFlag & (ShapeFlags.COMPONENT | ShapeFlags.ELEMENT) ||
-//     vnode.type === Comment // potential v-if branch switch
-//   )
-// }
+const isElementRoot = (vnode: VNode) => {
+  return (
+    vnode.shapeFlag & (ShapeFlags.COMPONENT | ShapeFlags.ELEMENT) ||
+    vnode.type === Comment // potential v-if branch switch
+  )
+}
 
 export function shouldUpdateComponent(
   prevVNode: VNode,

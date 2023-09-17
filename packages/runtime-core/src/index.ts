@@ -102,7 +102,7 @@ export { Fragment, Text, Comment, Static, type VNodeRef } from './vnode'
 //   type BaseTransitionProps
 // } from './components/BaseTransition'
 // For using custom directives
-// export { withDirectives } from './directives'
+export { withDirectives } from './directives'
 // // SSR context
 // export { useSSRContext, ssrContextKey } from './helpers/useSsrContext'
 
@@ -117,11 +117,11 @@ export {
   callWithAsyncErrorHandling,
   ErrorCodes
 } from './errorHandling'
-// export {
-//   resolveComponent,
-//   resolveDirective,
-//   resolveDynamicComponent
-// } from './helpers/resolveAssets'
+export {
+  resolveComponent,
+  resolveDirective,
+  resolveDynamicComponent
+} from './helpers/resolveAssets'
 // For integration with runtime compiler
 // export { registerRuntimeCompiler, isRuntimeOnly } from './component'
 // export {
@@ -256,14 +256,14 @@ export type {
   ExtractPublicPropTypes,
   ExtractDefaultPropTypes
 } from './componentProps'
-// export type {
-//   Directive,
-//   DirectiveBinding,
-//   DirectiveHook,
-//   ObjectDirective,
-//   FunctionDirective,
-//   DirectiveArguments
-// } from './directives'
+export type {
+  Directive,
+  DirectiveBinding,
+  DirectiveHook,
+  ObjectDirective,
+  FunctionDirective,
+  DirectiveArguments
+} from './directives'
 export type { SuspenseBoundary } from './components/Suspense'
 // export type {
 //   TransitionState,

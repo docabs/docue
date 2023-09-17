@@ -59,6 +59,7 @@ import { setRef } from './rendererTemplateRef'
 import { isAsyncWrapper } from './apiAsyncComponent'
 import { updateProps } from './componentProps'
 import { updateSlots } from './componentSlots'
+import { invokeDirectiveHook } from './directives'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -643,9 +644,9 @@ function baseCreateRenderer(
         optimized
       )
     }
-    //   if (dirs) {
-    //     invokeDirectiveHook(vnode, null, parentComponent, 'created')
-    //   }
+    if (dirs) {
+      invokeDirectiveHook(vnode, null, parentComponent, 'created')
+    }
     // scopeId
     setScopeId(el, vnode, vnode.scopeId, slotScopeIds, parentComponent)
     // props
@@ -691,9 +692,9 @@ function baseCreateRenderer(
     //       enumerable: false
     //     })
     //   }
-    //   if (dirs) {
-    //     invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount')
-    //   }
+    if (dirs) {
+      invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount')
+    }
     //   // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
     //   // #1689 For inside suspense + suspense resolved case, just call it
     //   const needCallTransitionHooks =
@@ -712,7 +713,7 @@ function baseCreateRenderer(
       queuePostRenderEffect(() => {
         vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
         // needCallTransitionHooks && transition!.enter(el)
-        // dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
+        dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
       }, parentSuspense)
     }
   }
@@ -806,9 +807,9 @@ function baseCreateRenderer(
     if ((vnodeHook = newProps.onVnodeBeforeUpdate)) {
       invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
     }
-    //   if (dirs) {
-    //     invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
-    //   }
+    if (dirs) {
+      invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
+    }
     parentComponent && toggleRecurse(parentComponent, true)
     //   if (__DEV__ && isHmrUpdating) {
     //     // HMR updated, force full diff
@@ -929,7 +930,7 @@ function baseCreateRenderer(
     if ((vnodeHook = newProps.onVnodeUpdated) || dirs) {
       queuePostRenderEffect(() => {
         vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, n2, n1)
-        // dirs && invokeDirectiveHook(n2, n1, parentComponent, 'updated')
+        dirs && invokeDirectiveHook(n2, n1, parentComponent, 'updated')
       }, parentSuspense)
     }
   }
@@ -2036,7 +2037,7 @@ function baseCreateRenderer(
     //   ;(parentComponent!.ctx as KeepAliveContext).deactivate(vnode)
     //   return
     // }
-    // const shouldInvokeDirs = shapeFlag & ShapeFlags.ELEMENT && dirs
+    const shouldInvokeDirs = shapeFlag & ShapeFlags.ELEMENT && dirs
     const shouldInvokeVnodeHook = !isAsyncWrapper(vnode)
     let vnodeHook: VNodeHook | undefined | null
     if (
@@ -2052,9 +2053,9 @@ function baseCreateRenderer(
       //     vnode.suspense!.unmount(parentSuspense, doRemove)
       //     return
       //   }
-      //   if (shouldInvokeDirs) {
-      //     invokeDirectiveHook(vnode, null, parentComponent, 'beforeUnmount')
-      //   }
+      if (shouldInvokeDirs) {
+        invokeDirectiveHook(vnode, null, parentComponent, 'beforeUnmount')
+      }
       if (shapeFlag & ShapeFlags.TELEPORT) {
         //     ;(vnode.type as typeof TeleportImpl).remove(
         //       vnode,
@@ -2091,14 +2092,14 @@ function baseCreateRenderer(
       }
     }
     if (
-      shouldInvokeVnodeHook &&
-      (vnodeHook = props && props.onVnodeUnmounted)
-      // || shouldInvokeDirs
+      (shouldInvokeVnodeHook &&
+        (vnodeHook = props && props.onVnodeUnmounted)) ||
+      shouldInvokeDirs
     ) {
       queuePostRenderEffect(() => {
         vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
-        // shouldInvokeDirs &&
-        //   invokeDirectiveHook(vnode, null, parentComponent, 'unmounted')
+        shouldInvokeDirs &&
+          invokeDirectiveHook(vnode, null, parentComponent, 'unmounted')
       }, parentSuspense)
     }
   }
