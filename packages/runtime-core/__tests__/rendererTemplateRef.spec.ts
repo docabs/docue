@@ -179,29 +179,29 @@ describe('api: template refs', () => {
     expect(el.value).toBe(null)
   })
 
-  // test('string ref inside slots', async () => {
-  //   const root = nodeOps.createElement('div')
-  //   const spy = vi.fn()
-  //   const Child = {
-  //     render(this: any) {
-  //       return this.$slots.default()
-  //     }
-  //   }
+  test('string ref inside slots', async () => {
+    const root = nodeOps.createElement('div')
+    const spy = vi.fn()
+    const Child = {
+      render(this: any) {
+        return this.$slots.default()
+      }
+    }
 
-  //   const Comp = {
-  //     render() {
-  //       return h(Child, () => {
-  //         return h('div', { ref: 'foo' })
-  //       })
-  //     },
-  //     mounted(this: any) {
-  //       spy(this.$refs.foo.tag)
-  //     }
-  //   }
-  //   render(h(Comp), root)
+    const Comp = {
+      render() {
+        return h(Child, () => {
+          return h('div', { ref: 'foo' })
+        })
+      },
+      mounted(this: any) {
+        spy(this.$refs.foo.tag)
+      }
+    }
+    render(h(Comp), root)
 
-  //   expect(spy).toHaveBeenCalledWith('div')
-  // })
+    expect(spy).toHaveBeenCalledWith('div')
+  })
 
   it('should work with direct reactive property', () => {
     const root = nodeOps.createElement('div')

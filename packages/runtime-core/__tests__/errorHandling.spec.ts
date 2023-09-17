@@ -1,14 +1,14 @@
 import {
-  // onMounted,
-  // onErrorCaptured,
+  onMounted,
+  onErrorCaptured,
   render,
   h,
   nodeOps,
-  // watch,
+  watch,
   ref,
   nextTick,
   defineComponent,
-  // watchEffect,
+  watchEffect,
   createApp
 } from '@docue/runtime-test'
 

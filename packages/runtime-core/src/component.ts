@@ -41,6 +41,7 @@ import {
   ComponentPublicInstance,
   ComponentPublicInstanceConstructor,
   PublicInstanceProxyHandlers,
+  createDevRenderContext,
   exposeSetupStateOnRenderContext,
   publicPropertiesMap
 } from './componentPublicInstance'
@@ -509,7 +510,7 @@ export function createComponentInstance(
 
     // local resolved assets
     components: null,
-    // directives: null,
+    directives: null,
 
     // resolved props and emits options
     propsOptions: normalizePropsOptions(type, appContext),
@@ -564,11 +565,11 @@ export function createComponentInstance(
     ec: null,
     sp: null
   }
-  // if (__DEV__) {
-  //   instance.ctx = createDevRenderContext(instance)
-  // } else {
-  instance.ctx = { _: instance }
-  // }
+  if (__DEV__) {
+    instance.ctx = createDevRenderContext(instance)
+  } else {
+    instance.ctx = { _: instance }
+  }
   instance.root = parent ? parent.root : instance
   instance.emit = emit.bind(null, instance)
 
