@@ -4,6 +4,7 @@ import {
   TrackOpTypes,
   UnwrapNestedRefs,
   shallowReadonly,
+  toRaw,
   track
 } from '@docue/reactivity'
 
@@ -260,7 +261,7 @@ export const publicPropertiesMap: PublicPropertiesMap =
     $data: i => i.data,
     $props: i => (__DEV__ ? shallowReadonly(i.props) : i.props),
     $attrs: i => (__DEV__ ? shallowReadonly(i.attrs) : i.attrs),
-    // $slots: i => (__DEV__ ? shallowReadonly(i.slots) : i.slots),
+    $slots: i => (__DEV__ ? shallowReadonly(i.slots) : i.slots),
     $refs: i => (__DEV__ ? shallowReadonly(i.refs) : i.refs),
     $parent: i => getPublicInstance(i.parent),
     $root: i => getPublicInstance(i.root),
@@ -484,4 +485,30 @@ export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
     }
     return Reflect.defineProperty(target, key, descriptor)
   }
+}
+
+// dev only
+export function exposeSetupStateOnRenderContext(
+  instance: ComponentInternalInstance
+) {
+  const { ctx, setupState } = instance
+  Object.keys(toRaw(setupState)).forEach(key => {
+    if (!setupState.__isScriptSetup) {
+      if (isReservedPrefix(key[0])) {
+        warn(
+          `setup() return property ${JSON.stringify(
+            key
+          )} should not start with "$" or "_" ` +
+            `which are reserved prefixes for Docue internals.`
+        )
+        return
+      }
+      Object.defineProperty(ctx, key, {
+        enumerable: true,
+        configurable: true,
+        get: () => setupState[key],
+        set: NOOP
+      })
+    }
+  })
 }

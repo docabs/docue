@@ -531,7 +531,7 @@ function _createVNode(
   // class & style normalization.
   if (props) {
     // for reactive or proxy objects, we need to clone it to enable mutation.
-    // props = guardReactiveProps(props)!
+    props = guardReactiveProps(props)!
     let { class: klass, style } = props
     if (klass && !isString(klass)) {
       props.class = normalizeClass(klass)

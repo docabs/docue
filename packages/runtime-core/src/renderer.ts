@@ -1199,6 +1199,7 @@ function baseCreateRenderer(
     //   if (isKeepAlive(initialVNode)) {
     //     ;(instance.ctx as KeepAliveContext).renderer = internals
     //   }
+
     // resolve props and slots for setup context
     // if (!(__COMPAT__ && compatMountInstance)) {
     //   if (__DEV__) {
@@ -1209,6 +1210,7 @@ function baseCreateRenderer(
     //     endMeasure(instance, `init`)
     //   }
     // }
+
     //   // setup() is async. This component relies on async logic to be resolved
     //   // before proceeding
     //   if (__FEATURE_SUSPENSE__ && instance.asyncDep) {
@@ -1410,11 +1412,11 @@ function baseCreateRenderer(
         //   }
         // }
         instance.isMounted = true
-        //       if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-        //         devtoolsComponentAdded(instance)
-        //       }
-        //       // #2458: deference mount-only object parameters to prevent memleaks
-        //       initialVNode = container = anchor = null as any
+        // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+        //   devtoolsComponentAdded(instance)
+        // }
+        // #2458: deference mount-only object parameters to prevent memleaks
+        // initialVNode = container = anchor = null as any
       } else {
         // updateComponent
         // This is triggered by mutation of component's own state (next: null)

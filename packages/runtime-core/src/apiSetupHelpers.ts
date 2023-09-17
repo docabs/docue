@@ -41,7 +41,7 @@ const warnRuntimeUsage = (method: string) =>
   )
 
 /**
- * Vue `<script setup>` compiler macro for declaring component props. The
+ * Docue `<script setup>` compiler macro for declaring component props. The
  * expected argument is the same as the component `props` option.
  *
  * Example runtime declaration:
@@ -104,7 +104,7 @@ type BooleanKey<T, K extends keyof T = keyof T> = K extends any
   : never
 
 /**
- * Vue `<script setup>` compiler macro for declaring a component's emitted
+ * Docue `<script setup>` compiler macro for declaring a component's emitted
  * events. The expected argument is the same as the component `emits` option.
  *
  * Example runtime declaration:
@@ -155,7 +155,7 @@ type ShortEmits<T extends Record<string, any>> = UnionToIntersection<
 >
 
 /**
- * Vue `<script setup>` compiler macro for declaring a component's exposed
+ * Docue `<script setup>` compiler macro for declaring a component's exposed
  * instance properties when it is accessed by a parent component via template
  * refs.
  *
@@ -177,7 +177,7 @@ export function defineExpose<
 }
 
 /**
- * Vue `<script setup>` compiler macro for declaring a component's additional
+ * Docue `<script setup>` compiler macro for declaring a component's additional
  * options. This should be used only for options that cannot be expressed via
  * Composition API - e.g. `inheritAttrs`.
  *
@@ -216,7 +216,7 @@ export function defineSlots<
 }
 
 /**
- * (**Experimental**) Vue `<script setup>` compiler macro for declaring a
+ * (**Experimental**) Docue `<script setup>` compiler macro for declaring a
  * two-way binding prop that can be consumed via `v-model` from the parent
  * component. This will declare a prop with the same name and a corresponding
  * `update:propName` event.
@@ -312,7 +312,7 @@ type PropsWithDefaults<
 }
 
 /**
- * Vue `<script setup>` compiler macro for providing props default values when
+ * Docue `<script setup>` compiler macro for providing props default values when
  * using type-based `defineProps` declaration.
  *
  * Example usage:

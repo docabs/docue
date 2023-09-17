@@ -1,4 +1,4 @@
-import { ref, reactive } from '@vue/reactivity'
+import { ref, reactive } from '@docue/reactivity'
 import {
   renderToString,
   h,
@@ -10,7 +10,7 @@ import {
   defineComponent,
   triggerEvent,
   TestElement
-} from '@vue/runtime-test'
+} from '@docue/runtime-test'
 
 // reference: https://vue-composition-api-rfc.netlify.com/api.html#setup
 
@@ -79,7 +79,9 @@ describe('api: setup context', () => {
     const toggle = ref(true)
 
     const Parent = {
-      render: () => h(Child, toggle.value ? { id: 'foo' } : { class: 'baz' })
+      render: () => {
+        return h(Child, toggle.value ? { id: 'foo' } : { class: 'baz' })
+      }
     }
 
     const Child = {

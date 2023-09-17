@@ -17,6 +17,7 @@ import {
   ComponentInternalInstance,
   ComponentInternalOptions,
   ConcreteComponent,
+  Data,
   InternalRenderFunction,
   SetupContext
 } from './component'
@@ -29,7 +30,8 @@ import {
   isArray,
   isFunction,
   isObject,
-  isPromise
+  isPromise,
+  isString
 } from '@docue/shared'
 import { SlotsType } from './componentSlots'
 import { EmitsOptions, EmitsToProps } from './componentEmits'
@@ -58,7 +60,12 @@ import {
 } from './apiLifecycle'
 import { LifecycleHooks } from './enums'
 import { callWithAsyncErrorHandling } from './errorHandling'
-import { WatchCallback, WatchOptions } from './apiWatch'
+import {
+  WatchCallback,
+  WatchOptions,
+  createPathGetter,
+  watch
+} from './apiWatch'
 import { normalizePropsOrEmits } from './apiSetupHelpers'
 
 /**
@@ -437,8 +444,8 @@ interface LegacyOptions<
   II extends string
 > {
   // compatConfig?: CompatConfig
-  // // allow any custom options
-  // [key: string]: any
+  // allow any custom options
+  [key: string]: any
   // state
   // Limitation: we cannot expose RawBindings on the `this` context for data
   // since that leads to some sort of circular inference and breaks ThisType
@@ -465,7 +472,7 @@ interface LegacyOptions<
   ) => D
   computed?: C
   methods?: M
-  // watch?: ComponentWatchOptions
+  watch?: ComponentWatchOptions
   provide?: ComponentProvideOptions
   inject?: I | II[]
   // // assets
@@ -590,7 +597,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
     data: dataOptions,
     computed: computedOptions,
     methods,
-    // watch: watchOptions,
+    watch: watchOptions,
     provide: provideOptions,
     inject: injectOptions,
     // lifecycle
@@ -747,11 +754,11 @@ export function applyOptions(instance: ComponentInternalInstance) {
     }
   }
 
-  // if (watchOptions) {
-  //   for (const key in watchOptions) {
-  //     createWatcher(watchOptions[key], ctx, publicThis, key)
-  //   }
-  // }
+  if (watchOptions) {
+    for (const key in watchOptions) {
+      createWatcher(watchOptions[key], ctx, publicThis, key)
+    }
+  }
 
   if (provideOptions) {
     const provides = isFunction(provideOptions)
@@ -895,41 +902,41 @@ function callHook(
   )
 }
 
-// export function createWatcher(
-//   raw: ComponentWatchOptionItem,
-//   ctx: Data,
-//   publicThis: ComponentPublicInstance,
-//   key: string
-// ) {
-//   const getter = key.includes('.')
-//     ? createPathGetter(publicThis, key)
-//     : () => (publicThis as any)[key]
-//   if (isString(raw)) {
-//     const handler = ctx[raw]
-//     if (isFunction(handler)) {
-//       watch(getter, handler as WatchCallback)
-//     } else if (__DEV__) {
-//       warn(`Invalid watch handler specified by key "${raw}"`, handler)
-//     }
-//   } else if (isFunction(raw)) {
-//     watch(getter, raw.bind(publicThis))
-//   } else if (isObject(raw)) {
-//     if (isArray(raw)) {
-//       raw.forEach(r => createWatcher(r, ctx, publicThis, key))
-//     } else {
-//       const handler = isFunction(raw.handler)
-//         ? raw.handler.bind(publicThis)
-//         : (ctx[raw.handler] as WatchCallback)
-//       if (isFunction(handler)) {
-//         watch(getter, handler, raw)
-//       } else if (__DEV__) {
-//         warn(`Invalid watch handler specified by key "${raw.handler}"`, handler)
-//       }
-//     }
-//   } else if (__DEV__) {
-//     warn(`Invalid watch option: "${key}"`, raw)
-//   }
-// }
+export function createWatcher(
+  raw: ComponentWatchOptionItem,
+  ctx: Data,
+  publicThis: ComponentPublicInstance,
+  key: string
+) {
+  const getter = key.includes('.')
+    ? createPathGetter(publicThis, key)
+    : () => (publicThis as any)[key]
+  if (isString(raw)) {
+    const handler = ctx[raw]
+    if (isFunction(handler)) {
+      watch(getter, handler as WatchCallback)
+    } else if (__DEV__) {
+      warn(`Invalid watch handler specified by key "${raw}"`, handler)
+    }
+  } else if (isFunction(raw)) {
+    watch(getter, raw.bind(publicThis))
+  } else if (isObject(raw)) {
+    if (isArray(raw)) {
+      raw.forEach(r => createWatcher(r, ctx, publicThis, key))
+    } else {
+      const handler = isFunction(raw.handler)
+        ? raw.handler.bind(publicThis)
+        : (ctx[raw.handler] as WatchCallback)
+      if (isFunction(handler)) {
+        watch(getter, handler, raw)
+      } else if (__DEV__) {
+        warn(`Invalid watch handler specified by key "${raw.handler}"`, handler)
+      }
+    }
+  } else if (__DEV__) {
+    warn(`Invalid watch option: "${key}"`, raw)
+  }
+}
 
 /**
  * Resolve merged options and cache it on the component.

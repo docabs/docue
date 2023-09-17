@@ -14,6 +14,7 @@ import { RootRenderFunction } from './renderer'
 import { ObjectEmitsOptions } from './componentEmits'
 import { warn } from './warning'
 import { VNode, cloneVNode, createVNode } from './vnode'
+import { InjectionKey } from './apiInject'
 import { version } from '.'
 import { extend, isFunction, isObject } from '@docue/shared'
 import {
@@ -32,7 +33,7 @@ export interface App<HostElement = any> {
   // ): this
   // use<Options>(plugin: Plugin<Options>, options: Options): this
 
-  // mixin(mixin: ComponentOptions): this
+  mixin(mixin: ComponentOptions): this
   component(name: string): Component | undefined
   component(name: string, component: Component): this
   // directive(name: string): Directive | undefined
@@ -43,7 +44,7 @@ export interface App<HostElement = any> {
     isSVG?: boolean
   ): ComponentPublicInstance
   unmount(): void
-  // provide<T>(key: InjectionKey<T> | string, value: T): this
+  provide<T>(key: InjectionKey<T> | string, value: T): this
 
   /**
    * Runs a function with the app as active instance. This allows using of `inject()` within the function to get access
@@ -57,8 +58,8 @@ export interface App<HostElement = any> {
   // _uid: number
   // _component: ConcreteComponent
   // _props: Data | null
-  // _container: HostElement | null
-  // _context: AppContext
+  _container: HostElement | null
+  _context: AppContext
   // _instance: ComponentInternalInstance | null
 
   // /**
@@ -221,8 +222,8 @@ export function createAppAPI<HostElement>(
       //     _uid: uid++,
       //     _component: rootComponent as ConcreteComponent,
       //     _props: rootProps,
-      //     _container: null,
-      //     _context: context,
+      _container: null,
+      _context: context,
       //     _instance: null,
       version,
       get config() {
@@ -299,14 +300,14 @@ export function createAppAPI<HostElement>(
         isSVG?: boolean
       ): any {
         if (!isMounted) {
-          //   // #5571
-          //   if (__DEV__ && (rootContainer as any).__docue_app__) {
-          //     warn(
-          //       `There is already an app instance mounted on the host container.\n` +
-          //         ` If you want to mount another app on the same host container,` +
-          //         ` you need to unmount the previous app by calling \`app.unmount()\` first.`
-          //     )
-          //   }
+          // #5571
+          if (__DEV__ && (rootContainer as any).__docue_app__) {
+            warn(
+              `There is already an app instance mounted on the host container.\n` +
+                ` If you want to mount another app on the same host container,` +
+                ` you need to unmount the previous app by calling \`app.unmount()\` first.`
+            )
+          }
           const vnode = createVNode(rootComponent, rootProps)
           // store app context on the root VNode.
           // this will be set on the root instance on initial mount.
@@ -323,34 +324,34 @@ export function createAppAPI<HostElement>(
             render(vnode, rootContainer, isSVG)
           }
           isMounted = true
-          //   app._container = rootContainer
-          //   // for devtools and telemetry
-          //   ;(rootContainer as any).__docue_app__ = app
-          //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-          //     app._instance = vnode.component
-          //     devtoolsInitApp(app, version)
-          //   }
+          app._container = rootContainer
+          // for devtools and telemetry
+          ;(rootContainer as any).__docue_app__ = app
+          // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+          //   app._instance = vnode.component
+          //   devtoolsInitApp(app, version)
+          // }
           return getExposeProxy(vnode.component!) || vnode.component!.proxy
-          // } else if (__DEV__) {
-          //   warn(
-          //     `App has already been mounted.\n` +
-          //       `If you want to remount the same app, move your app creation logic ` +
-          //       `into a factory function and create fresh app instances for each ` +
-          //       `mount - e.g. \`const createMyApp = () => createApp(App)\``
-          //   )
+        } else if (__DEV__) {
+          warn(
+            `App has already been mounted.\n` +
+              `If you want to remount the same app, move your app creation logic ` +
+              `into a factory function and create fresh app instances for each ` +
+              `mount - e.g. \`const createMyApp = () => createApp(App)\``
+          )
         }
       },
       unmount() {
-        // if (isMounted) {
-        //   render(null, app._container)
-        //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-        //     app._instance = null
-        //     devtoolsUnmountApp(app)
-        //   }
-        //   delete app._container.__docue_app__
-        // } else if (__DEV__) {
-        //   warn(`Cannot unmount an app that is not mounted.`)
-        // }
+        if (isMounted) {
+          render(null, app._container)
+          // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+          //   app._instance = null
+          //   devtoolsUnmountApp(app)
+          // }
+          delete app._container.__docue_app__
+        } else if (__DEV__) {
+          warn(`Cannot unmount an app that is not mounted.`)
+        }
       },
       provide(key, value) {
         if (__DEV__ && (key as string | symbol) in context.provides) {

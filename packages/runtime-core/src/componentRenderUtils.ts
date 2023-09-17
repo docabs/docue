@@ -1,4 +1,4 @@
-import { PatchFlags, ShapeFlags, isOn } from '@docue/shared'
+import { PatchFlags, ShapeFlags, isModelListener, isOn } from '@docue/shared'
 import {
   ComponentInternalInstance,
   Data,
@@ -12,10 +12,11 @@ import {
   createVNode,
   normalizeVNode,
   isVNode,
-  VNodeArrayChildren
+  VNodeArrayChildren,
+  blockStack
 } from './vnode'
 import { warn } from './warning'
-import { ErrorCodes } from './errorHandling'
+import { ErrorCodes, handleError } from './errorHandling'
 import { isEmitListener } from './componentEmits'
 
 /**
@@ -64,25 +65,24 @@ export function renderComponentRoot(
       // withProxy is a proxy with a different `has` trap only for
       // runtime-compiled render functions using `with` block.
       const proxyToUse = withProxy || proxy
-      result = normalizeVNode(
-        render!.call(
-          proxyToUse,
-          proxyToUse!,
-          renderCache,
-          props,
-          setupState,
-          data,
-          ctx
-        )
+      const renderResult = render!.call(
+        proxyToUse,
+        proxyToUse!,
+        renderCache,
+        props,
+        setupState,
+        data,
+        ctx
       )
+      result = normalizeVNode(renderResult)
       fallthroughAttrs = attrs
     } else {
       // functional
       const render = Component as FunctionalComponent
-      //     // in dev, mark attrs accessed if optional props (attrs === props)
-      //     if (__DEV__ && attrs === props) {
-      //       markAttrsAccessed()
-      //     }
+      // in dev, mark attrs accessed if optional props (attrs === props)
+      if (__DEV__ && attrs === props) {
+        markAttrsAccessed()
+      }
       result = normalizeVNode(
         render.length > 1
           ? render(
@@ -128,16 +128,16 @@ export function renderComponentRoot(
     const { shapeFlag } = root
     if (keys.length) {
       if (shapeFlag & (ShapeFlags.ELEMENT | ShapeFlags.COMPONENT)) {
-        //       if (propsOptions && keys.some(isModelListener)) {
-        //         // If a v-model listener (onUpdate:xxx) has a corresponding declared
-        //         // prop, it indicates this component expects to handle v-model and
-        //         // it should not fallthrough.
-        //         // related: #1543, #1643, #1989
-        //         fallthroughAttrs = filterModelListeners(
-        //           fallthroughAttrs,
-        //           propsOptions
-        //         )
-        //       }
+        // if (propsOptions && keys.some(isModelListener)) {
+        //   // If a v-model listener (onUpdate:xxx) has a corresponding declared
+        //   // prop, it indicates this component expects to handle v-model and
+        //   // it should not fallthrough.
+        //   // related: #1543, #1643, #1989
+        //   fallthroughAttrs = filterModelListeners(
+        //     fallthroughAttrs,
+        //     propsOptions
+        //   )
+        // }
         root = cloneVNode(root, fallthroughAttrs)
       } else if (__DEV__ && !accessedAttrs && root.type !== Comment) {
         //       const allAttrs = Object.keys(attrs)

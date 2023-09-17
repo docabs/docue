@@ -241,7 +241,7 @@ describe('component props', () => {
   //     components: { Child },
   //     template: `<Child :foo="foo" :id="id"/>`
   //   })
-  //   // Note this one is using the main Vue render so it can compile template
+  //   // Note this one is using the main Docue render so it can compile template
   //   // on the fly
   //   const root = document.createElement('div')
   //   domRender(h(Comp), root)

@@ -41,6 +41,7 @@ import {
   ComponentPublicInstance,
   ComponentPublicInstanceConstructor,
   PublicInstanceProxyHandlers,
+  exposeSetupStateOnRenderContext,
   publicPropertiesMap
 } from './componentPublicInstance'
 import { LifecycleHooks } from './enums'
@@ -589,10 +590,10 @@ type GlobalInstanceSetter = ((
 
 let internalSetCurrentInstance: GlobalInstanceSetter
 // let globalCurrentInstanceSetters: GlobalInstanceSetter[]
-// let settersKey = '__VUE_INSTANCE_SETTERS__'
+// let settersKey = '__DOCUE_INSTANCE_SETTERS__'
 
 /**
- * The following makes getCurrentInstance() usage across multiple copies of Vue
+ * The following makes getCurrentInstance() usage across multiple copies of Docue
  * work. Some cases of how this can happen are summarized in #7590. In principle
  * the duplication should be avoided, but in practice there are often cases
  * where the user is unable to resolve on their own, especially in complicated
@@ -672,30 +673,30 @@ function setupStatefulComponent(
 ) {
   const Component = instance.type as ComponentOptions
 
-  // if (__DEV__) {
-  //   if (Component.name) {
-  //     validateComponentName(Component.name, instance.appContext.config)
-  //   }
-  //   if (Component.components) {
-  //     const names = Object.keys(Component.components)
-  //     for (let i = 0; i < names.length; i++) {
-  //       validateComponentName(names[i], instance.appContext.config)
-  //     }
-  //   }
-  //   if (Component.directives) {
-  //     const names = Object.keys(Component.directives)
-  //     for (let i = 0; i < names.length; i++) {
-  //       validateDirectiveName(names[i])
-  //     }
-  //   }
-  //   if (Component.compilerOptions && isRuntimeOnly()) {
-  //     warn(
-  //       `"compilerOptions" is only supported when using a build of Docue that ` +
-  //         `includes the runtime compiler. Since you are using a runtime-only ` +
-  //         `build, the options should be passed via your build tool config instead.`
-  //     )
-  //   }
-  // }
+  if (__DEV__) {
+    if (Component.name) {
+      validateComponentName(Component.name, instance.appContext.config)
+    }
+    if (Component.components) {
+      const names = Object.keys(Component.components)
+      for (let i = 0; i < names.length; i++) {
+        validateComponentName(names[i], instance.appContext.config)
+      }
+    }
+    //   if (Component.directives) {
+    //     const names = Object.keys(Component.directives)
+    //     for (let i = 0; i < names.length; i++) {
+    //       validateDirectiveName(names[i])
+    //     }
+    //   }
+    //   if (Component.compilerOptions && isRuntimeOnly()) {
+    //     warn(
+    //       `"compilerOptions" is only supported when using a build of Docue that ` +
+    //         `includes the runtime compiler. Since you are using a runtime-only ` +
+    //         `build, the options should be passed via your build tool config instead.`
+    //     )
+    //   }
+  }
   // 0. create render proxy property access cache
   instance.accessCache = Object.create(null)
   // 1. create public instance / render proxy
@@ -784,9 +785,9 @@ export function handleSetupResult(
     //   instance.devtoolsRawSetupState = setupResult
     // }
     instance.setupState = proxyRefs(setupResult)
-    // if (__DEV__) {
-    //   exposeSetupStateOnRenderContext(instance)
-    // }
+    if (__DEV__) {
+      exposeSetupStateOnRenderContext(instance)
+    }
   } else if (__DEV__ && setupResult !== undefined) {
     warn(
       `setup() should return an object. Received: ${
