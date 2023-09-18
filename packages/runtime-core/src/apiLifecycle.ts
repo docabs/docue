@@ -12,7 +12,7 @@ import { toHandlerKey } from '@docue/shared'
 import { DebuggerEvent, pauseTracking, resetTracking } from '@docue/reactivity'
 import { LifecycleHooks } from './enums'
 
-// export { onActivated, onDeactivated } from './components/KeepAlive'
+export { onActivated, onDeactivated } from './components/KeepAlive'
 
 export function injectHook(
   type: LifecycleHooks,

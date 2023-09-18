@@ -1056,12 +1056,12 @@ function baseCreateRenderer(
     //     optimized = false
     //     dynamicChildren = null
     //   }
-    //   // check if this is a slot fragment with :slotted scope ids
-    //   if (fragmentSlotScopeIds) {
-    //     slotScopeIds = slotScopeIds
-    //       ? slotScopeIds.concat(fragmentSlotScopeIds)
-    //       : fragmentSlotScopeIds
-    //   }
+    // check if this is a slot fragment with :slotted scope ids
+    if (fragmentSlotScopeIds) {
+      slotScopeIds = slotScopeIds
+        ? slotScopeIds.concat(fragmentSlotScopeIds)
+        : fragmentSlotScopeIds
+    }
     if (n1 == null) {
       hostInsert(fragmentStartAnchor, container, anchor)
       hostInsert(fragmentEndAnchor, container, anchor)
@@ -1142,7 +1142,7 @@ function baseCreateRenderer(
     slotScopeIds: string[] | null,
     optimized: boolean
   ) => {
-    //   n2.slotScopeIds = slotScopeIds
+    n2.slotScopeIds = slotScopeIds
     if (n1 == null) {
       //     if (n2.shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
       //       ;(parentComponent!.ctx as KeepAliveContext).activate(

@@ -512,15 +512,15 @@ export function normalizePropsOptions(
       extend(normalized, props)
       if (keys) needCastKeys.push(...keys)
     }
-    // if (!asMixin && appContext.mixins.length) {
-    //   appContext.mixins.forEach(extendProps)
-    // }
-    // if (comp.extends) {
-    //   extendProps(comp.extends)
-    // }
-    // if (comp.mixins) {
-    //   comp.mixins.forEach(extendProps)
-    // }
+    if (!asMixin && appContext.mixins.length) {
+      appContext.mixins.forEach(extendProps)
+    }
+    if (comp.extends) {
+      extendProps(comp.extends)
+    }
+    if (comp.mixins) {
+      comp.mixins.forEach(extendProps)
+    }
   }
   if (!raw && !hasExtends) {
     // if (isObject(comp)) {

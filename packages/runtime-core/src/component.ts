@@ -705,9 +705,9 @@ function setupStatefulComponent(
   // 1. create public instance / render proxy
   // also mark it raw so it's never observed
   instance.proxy = markRaw(new Proxy(instance.ctx, PublicInstanceProxyHandlers))
-  // if (__DEV__) {
-  //   exposePropsOnRenderContext(instance)
-  // }
+  if (__DEV__) {
+    exposePropsOnRenderContext(instance)
+  }
   // 2. call setup()
   const { setup } = Component
   if (setup) {

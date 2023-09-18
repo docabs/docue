@@ -48,8 +48,8 @@ export {
   onUpdated,
   onBeforeUnmount,
   onUnmounted,
-  // onActivated,
-  // onDeactivated,
+  onActivated,
+  onDeactivated,
   onRenderTracked,
   onRenderTriggered,
   onErrorCaptured,
@@ -95,7 +95,7 @@ export { Fragment, Text, Comment, Static, type VNodeRef } from './vnode'
 // Built-in components
 // export { Teleport, type TeleportProps } from './components/Teleport'
 // export { Suspense, type SuspenseProps } from './components/Suspense'
-// export { KeepAlive, type KeepAliveProps } from './components/KeepAlive'
+export { KeepAlive, type KeepAliveProps } from './components/KeepAlive'
 // export {
 //   BaseTransition,
 //   BaseTransitionPropsValidators,
