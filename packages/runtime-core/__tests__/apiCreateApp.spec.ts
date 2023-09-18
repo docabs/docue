@@ -1,5 +1,6 @@
 import {
   createApp,
+  getCurrentInstance,
   h,
   inject,
   nodeOps,
@@ -334,54 +335,54 @@ describe('api: createApp', () => {
   //   ).toHaveBeenWarnedTimes(1)
   // })
 
-  // test('config.errorHandler', () => {
-  //   const error = new Error()
-  //   const count = ref(0)
+  test('config.errorHandler', () => {
+    const error = new Error()
+    const count = ref(0)
 
-  //   const handler = vi.fn((err, instance, info) => {
-  //     expect(err).toBe(error)
-  //     expect((instance as any).count).toBe(count.value)
-  //     expect(info).toBe(`render function`)
-  //   })
+    const handler = vi.fn((err, instance, info) => {
+      expect(err).toBe(error)
+      expect((instance as any).count).toBe(count.value)
+      expect(info).toBe(`render function`)
+    })
 
-  //   const Root = {
-  //     setup() {
-  //       const count = ref(0)
-  //       return {
-  //         count
-  //       }
-  //     },
-  //     render() {
-  //       throw error
-  //     }
-  //   }
+    const Root = {
+      setup() {
+        const count = ref(0)
+        return {
+          count
+        }
+      },
+      render() {
+        throw error
+      }
+    }
 
-  //   const app = createApp(Root)
-  //   app.config.errorHandler = handler
-  //   app.mount(nodeOps.createElement('div'))
-  //   expect(handler).toHaveBeenCalled()
-  // })
+    const app = createApp(Root)
+    app.config.errorHandler = handler
+    app.mount(nodeOps.createElement('div'))
+    expect(handler).toHaveBeenCalled()
+  })
 
-  // test('config.warnHandler', () => {
-  //   let ctx: any
-  //   const handler = vi.fn((msg, instance, trace) => {
-  //     expect(msg).toMatch(`Component is missing template or render function`)
-  //     expect(instance).toBe(ctx.proxy)
-  //     expect(trace).toMatch(`Hello`)
-  //   })
+  test('config.warnHandler', () => {
+    let ctx: any
+    const handler = vi.fn((msg, instance, trace) => {
+      expect(msg).toMatch(`Component is missing template or render function`)
+      expect(instance).toBe(ctx.proxy)
+      expect(trace).toMatch(`Hello`)
+    })
 
-  //   const Root = {
-  //     name: 'Hello',
-  //     setup() {
-  //       ctx = getCurrentInstance()
-  //     }
-  //   }
+    const Root = {
+      name: 'Hello',
+      setup() {
+        ctx = getCurrentInstance()
+      }
+    }
 
-  //   const app = createApp(Root)
-  //   app.config.warnHandler = handler
-  //   app.mount(nodeOps.createElement('div'))
-  //   expect(handler).toHaveBeenCalledTimes(1)
-  // })
+    const app = createApp(Root)
+    app.config.warnHandler = handler
+    app.mount(nodeOps.createElement('div'))
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
 
   describe('config.isNativeTag', () => {
     const isNativeTag = vi.fn(tag => tag === 'div')
@@ -429,44 +430,44 @@ describe('api: createApp', () => {
       ).toHaveBeenWarned()
     })
 
-    //   test('Component.directives', () => {
-    //     const Root = {
-    //       directives: {
-    //         bind: () => {}
-    //       },
-    //       render() {
-    //         return null
-    //       }
-    //     }
+    test('Component.directives', () => {
+      const Root = {
+        directives: {
+          bind: () => {}
+        },
+        render() {
+          return null
+        }
+      }
 
-    //     const app = createApp(Root)
-    //     Object.defineProperty(app.config, 'isNativeTag', {
-    //       value: isNativeTag,
-    //       writable: false
-    //     })
+      const app = createApp(Root)
+      Object.defineProperty(app.config, 'isNativeTag', {
+        value: isNativeTag,
+        writable: false
+      })
 
-    //     app.mount(nodeOps.createElement('div'))
-    //     expect(
-    //       `Do not use built-in directive ids as custom directive id: bind`
-    //     ).toHaveBeenWarned()
-    //   })
+      app.mount(nodeOps.createElement('div'))
+      expect(
+        `Do not use built-in directive ids as custom directive id: bind`
+      ).toHaveBeenWarned()
+    })
 
-    //   test('register using app.component', () => {
-    //     const app = createApp({
-    //       render() {}
-    //     })
+    test('register using app.component', () => {
+      const app = createApp({
+        render() {}
+      })
 
-    //     Object.defineProperty(app.config, 'isNativeTag', {
-    //       value: isNativeTag,
-    //       writable: false
-    //     })
+      Object.defineProperty(app.config, 'isNativeTag', {
+        value: isNativeTag,
+        writable: false
+      })
 
-    //     app.component('div', () => 'div')
-    //     app.mount(nodeOps.createElement('div'))
-    //     expect(
-    //       `Do not use built-in or reserved HTML elements as component id: div`
-    //     ).toHaveBeenWarned()
-    //   })
+      app.component('div', () => 'div')
+      app.mount(nodeOps.createElement('div'))
+      expect(
+        `Do not use built-in or reserved HTML elements as component id: div`
+      ).toHaveBeenWarned()
+    })
   })
 
   test('config.optionMergeStrategies', () => {

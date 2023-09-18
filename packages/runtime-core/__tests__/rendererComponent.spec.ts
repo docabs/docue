@@ -9,9 +9,9 @@ import {
   provide,
   inject,
   Ref,
-  // watch,
+  watch,
   SetupContext,
-  watch
+  getCurrentInstance
 } from '@docue/runtime-test'
 
 describe('renderer: component', () => {
@@ -237,48 +237,58 @@ describe('renderer: component', () => {
     expect(serializeInner(root)).toBe(`<div>1</div><div>1</div>`)
   })
 
-  // // #2521
-  // test('should pause tracking deps when initializing legacy options', async () => {
-  //   let childInstance = null as any
-  //   const Child = {
-  //     props: ['foo'],
-  //     data() {
-  //       return {
-  //         count: 0
-  //       }
-  //     },
-  //     watch: {
-  //       foo: {
-  //         immediate: true,
-  //         handler() {
-  //           ;(this as any).count
-  //         }
-  //       }
-  //     },
-  //     created() {
-  //       childInstance = this as any
-  //       childInstance.count
-  //     },
-  //     render() {
-  //       return h('h1', (this as any).count)
-  //     }
-  //   }
+  // #2521
+  test('should pause tracking deps when initializing legacy options', async () => {
+    let childInstance = null as any
+    let instance = null as any
+    const spy = vi.fn()
 
-  //   const App = {
-  //     setup() {
-  //       return () => h(Child)
-  //     },
-  //     updated: vi.fn()
-  //   }
+    const Child = {
+      props: ['foo'],
+      data() {
+        return {
+          count: 0
+        }
+      },
+      watch: {
+        foo: {
+          immediate: true,
+          handler() {
+            ;(this as any).count
+          }
+        }
+      },
+      created() {
+        childInstance = this as any
+        childInstance.count
+      },
+      updated: () => {
+        debugger
+      },
+      render() {
+        return h('h1', (this as any).count)
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(App), root)
-  //   expect(App.updated).toHaveBeenCalledTimes(0)
+    const App = {
+      setup() {
+        return () => h(Child)
+      },
+      updated: () => {
+        instance = getCurrentInstance()
+        debugger
+        spy()
+      }
+    }
 
-  //   childInstance.count++
-  //   await nextTick()
-  //   expect(App.updated).toHaveBeenCalledTimes(0)
-  // })
+    const root = nodeOps.createElement('div')
+    render(h(App), root)
+    expect(spy).toHaveBeenCalledTimes(0)
+
+    childInstance.count++
+    await nextTick()
+    expect(spy).toHaveBeenCalledTimes(0)
+  })
 
   describe('render with access caches', () => {
     // #3297

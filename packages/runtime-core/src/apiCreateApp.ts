@@ -17,7 +17,7 @@ import { VNode, cloneVNode, createVNode } from './vnode'
 import { InjectionKey } from './apiInject'
 import { Directive, validateDirectiveName } from './directives'
 import { version } from '.'
-import { extend, isFunction, isObject } from '@docue/shared'
+import { NO, extend, isFunction, isObject } from '@docue/shared'
 import {
   ComponentOptions,
   MergedComponentOptions,
@@ -167,12 +167,12 @@ export function createAppContext(): AppContext {
   return {
     app: null as any,
     config: {
-      // isNativeTag: NO,
+      isNativeTag: NO,
       // performance: false,
       globalProperties: {},
       optionMergeStrategies: {},
-      // errorHandler: undefined,
-      // warnHandler: undefined,
+      errorHandler: undefined,
+      warnHandler: undefined,
       compilerOptions: {}
     },
     mixins: [],

@@ -259,8 +259,8 @@ function doWatch(
   //   getter = () => {
   //     const val = baseGetter()
   //     if (
-  //       isArray(val) &&
-  //       checkCompatEnabled(DeprecationTypes.WATCH_ARRAY, instance)
+  //       isArray(val)
+  //       && checkCompatEnabled(DeprecationTypes.WATCH_ARRAY, instance)
   //     ) {
   //       traverse(val)
   //     }

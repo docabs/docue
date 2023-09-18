@@ -134,7 +134,7 @@ export class ReactiveEffect<T = any> {
     //   return this.fn()
     // }
     let parent: ReactiveEffect | undefined = activeEffect
-    // let lastShouldTrack = shouldTrack
+    let lastShouldTrack = shouldTrack
     while (parent) {
       if (parent === this) {
         return
@@ -162,7 +162,7 @@ export class ReactiveEffect<T = any> {
       }
       trackOpBit = 1 << --effectTrackDepth
       activeEffect = this.parent
-      // shouldTrack = lastShouldTrack
+      shouldTrack = lastShouldTrack
       this.parent = undefined
       // if (this.deferStop) {
       //   this.stop()

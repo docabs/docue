@@ -42,6 +42,7 @@ import {
   ComponentPublicInstanceConstructor,
   PublicInstanceProxyHandlers,
   createDevRenderContext,
+  exposePropsOnRenderContext,
   exposeSetupStateOnRenderContext,
   publicPropertiesMap
 } from './componentPublicInstance'
@@ -66,7 +67,7 @@ import {
 import { ErrorCodes, callWithErrorHandling } from './errorHandling'
 import { currentRenderingInstance } from './componentRenderContext'
 import { markAttrsAccessed } from './componentRenderUtils'
-import { Directive } from './directives'
+import { Directive, validateDirectiveName } from './directives'
 
 export type Data = Record<string, unknown>
 
@@ -685,12 +686,12 @@ function setupStatefulComponent(
         validateComponentName(names[i], instance.appContext.config)
       }
     }
-    //   if (Component.directives) {
-    //     const names = Object.keys(Component.directives)
-    //     for (let i = 0; i < names.length; i++) {
-    //       validateDirectiveName(names[i])
-    //     }
-    //   }
+    if (Component.directives) {
+      const names = Object.keys(Component.directives)
+      for (let i = 0; i < names.length; i++) {
+        validateDirectiveName(names[i])
+      }
+    }
     //   if (Component.compilerOptions && isRuntimeOnly()) {
     //     warn(
     //       `"compilerOptions" is only supported when using a build of Docue that ` +
@@ -720,7 +721,7 @@ function setupStatefulComponent(
       ErrorCodes.SETUP_FUNCTION,
       [__DEV__ ? shallowReadonly(instance.props) : instance.props, setupContext]
     )
-    //   resetTracking()
+    resetTracking()
     unsetCurrentInstance()
     if (isPromise(setupResult)) {
       //     setupResult.then(unsetCurrentInstance, unsetCurrentInstance)
@@ -898,25 +899,25 @@ export function finishComponentSetup(
       unsetCurrentInstance()
     }
   }
-  // // warn missing template/render
-  // // the runtime compilation of template in SSR is done by server-render
+  // warn missing template/render
+  // the runtime compilation of template in SSR is done by server-render
   if (__DEV__ && !Component.render && instance.render === NOOP && !isSSR) {
-    //   /* istanbul ignore if */
-    //   if (!compile && Component.template) {
-    //     warn(
-    //       `Component provided template option but ` +
-    //         `runtime compilation is not supported in this build of Docue.` +
-    //         (__ESM_BUNDLER__
-    //           ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
-    //           : __ESM_BROWSER__
-    //           ? ` Use "docue.esm-browser.js" instead.`
-    //           : __GLOBAL__
-    //           ? ` Use "docue.global.js" instead.`
-    //           : ``) /* should not happen */
-    //     )
-    //   } else {
-    //     warn(`Component is missing template or render function.`)
-    //   }
+    /* istanbul ignore if */
+    if (!compile && Component.template) {
+      //     warn(
+      //       `Component provided template option but ` +
+      //         `runtime compilation is not supported in this build of Docue.` +
+      //         (__ESM_BUNDLER__
+      //           ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
+      //           : __ESM_BROWSER__
+      //           ? ` Use "docue.esm-browser.js" instead.`
+      //           : __GLOBAL__
+      //           ? ` Use "docue.global.js" instead.`
+      //           : ``) /* should not happen */
+      //     )
+    } else {
+      warn(`Component is missing template or render function.`)
+    }
   }
 }
 

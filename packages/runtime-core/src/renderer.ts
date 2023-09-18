@@ -40,7 +40,7 @@ import {
   Static,
   invokeVNodeHook
 } from './vnode'
-import { warn } from './warning'
+import { popWarningContext, pushWarningContext, warn } from './warning'
 import {
   SchedulerJob,
   flushPostFlushCbs,
@@ -1192,10 +1192,10 @@ function baseCreateRenderer(
     //   if (__DEV__ && instance.type.__hmrId) {
     //     registerHMR(instance)
     //   }
-    //   if (__DEV__) {
-    //     pushWarningContext(initialVNode)
-    //     startMeasure(instance, `mount`)
-    //   }
+    if (__DEV__) {
+      pushWarningContext(initialVNode)
+      // startMeasure(instance, `mount`)
+    }
     //   // inject renderer internals for keepAlive
     //   if (isKeepAlive(initialVNode)) {
     //     ;(instance.ctx as KeepAliveContext).renderer = internals
@@ -1233,10 +1233,10 @@ function baseCreateRenderer(
       isSVG,
       optimized
     )
-    //   if (__DEV__) {
-    //     popWarningContext()
-    //     endMeasure(instance, `mount`)
-    //   }
+    if (__DEV__) {
+      popWarningContext()
+      // endMeasure(instance, `mount`)
+    }
   }
 
   const updateComponent = (n1: VNode, n2: VNode, optimized: boolean) => {
@@ -1425,9 +1425,9 @@ function baseCreateRenderer(
         let { next, bu, u, parent, vnode } = instance
         let originNext = next
         let vnodeHook: VNodeHook | null | undefined
-        //       if (__DEV__) {
-        //         pushWarningContext(next || instance.vnode)
-        //       }
+        if (__DEV__) {
+          pushWarningContext(next || instance.vnode)
+        }
         // Disallow component effect recursion during pre-lifecycle hooks.
         toggleRecurse(instance, false)
         if (next) {
@@ -1508,9 +1508,9 @@ function baseCreateRenderer(
         //       if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
         //         devtoolsComponentUpdated(instance)
         //       }
-        //       if (__DEV__) {
-        //         popWarningContext()
-        //       }
+        if (__DEV__) {
+          popWarningContext()
+        }
       }
     }
     // create reactive effect for rendering
