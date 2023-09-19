@@ -60,6 +60,7 @@ import { isAsyncWrapper } from './apiAsyncComponent'
 import { updateProps } from './componentProps'
 import { updateSlots } from './componentSlots'
 import { invokeDirectiveHook } from './directives'
+import { KeepAliveContext, isKeepAlive } from './components/KeepAlive'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -133,13 +134,13 @@ export interface RendererInternals<
   HostElement = RendererElement
 > {
   p: PatchFn
-  // um: UnmountFn
+  um: UnmountFn
   r: RemoveFn
-  // m: MoveFn
-  // mt: MountComponentFn
-  // mc: MountChildrenFn
+  m: MoveFn
+  mt: MountComponentFn
+  mc: MountChildrenFn
   pc: PatchChildrenFn
-  // pbc: PatchBlockChildrenFn
+  pbc: PatchBlockChildrenFn
   n: NextFn
   o: RendererOptions<HostNode, HostElement>
 }
@@ -262,25 +263,6 @@ export const queuePostRenderEffect = __FEATURE_SUSPENSE__
         queueEffectWithSuspense(fn, suspense)
     : queueEffectWithSuspense
   : queuePostFlushCb
-
-// An object exposing the internals of a renderer, passed to tree-shakeable
-// features so that they can be decoupled from this file. Keys are shortened
-// to optimize bundle size.
-export interface RendererInternals<
-  HostNode = RendererNode,
-  HostElement = RendererElement
-> {
-  // p: PatchFn
-  um: UnmountFn
-  r: RemoveFn
-  // m: MoveFn
-  // mt: MountComponentFn
-  // mc: MountChildrenFn
-  pc: PatchChildrenFn
-  // pbc: PatchBlockChildrenFn
-  n: NextFn
-  o: RendererOptions<HostNode, HostElement>
-}
 
 /**
  * The createRenderer function accepts two generic arguments:
@@ -1144,25 +1126,25 @@ function baseCreateRenderer(
   ) => {
     n2.slotScopeIds = slotScopeIds
     if (n1 == null) {
-      //     if (n2.shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
-      //       ;(parentComponent!.ctx as KeepAliveContext).activate(
-      //         n2,
-      //         container,
-      //         anchor,
-      //         isSVG,
-      //         optimized
-      //       )
-      //     } else {
-      mountComponent(
-        n2,
-        container,
-        anchor,
-        parentComponent,
-        parentSuspense,
-        isSVG,
-        optimized
-      )
-      //     }
+      if (n2.shapeFlag & ShapeFlags.COMPONENT_KEPT_ALIVE) {
+        ;(parentComponent!.ctx as KeepAliveContext).activate(
+          n2,
+          container,
+          anchor,
+          isSVG,
+          optimized
+        )
+      } else {
+        mountComponent(
+          n2,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          optimized
+        )
+      }
     } else {
       updateComponent(n1, n2, optimized)
     }
@@ -1196,10 +1178,10 @@ function baseCreateRenderer(
       pushWarningContext(initialVNode)
       // startMeasure(instance, `mount`)
     }
-    //   // inject renderer internals for keepAlive
-    //   if (isKeepAlive(initialVNode)) {
-    //     ;(instance.ctx as KeepAliveContext).renderer = internals
-    //   }
+    // inject renderer internals for keepAlive
+    if (isKeepAlive(initialVNode)) {
+      ;(instance.ctx as KeepAliveContext).renderer = internals
+    }
 
     // resolve props and slots for setup context
     // if (!(__COMPAT__ && compatMountInstance)) {
@@ -1392,26 +1374,26 @@ function baseCreateRenderer(
         //     parentSuspense
         //   )
         // }
-        // // activated hook for keep-alive roots.
-        // // #1742 activated hook must be accessed after first render
-        // // since the hook may be injected by a child keep-alive
-        // if (
-        //   initialVNode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE ||
-        //   (parent &&
-        //     isAsyncWrapper(parent.vnode) &&
-        //     parent.vnode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE)
-        // ) {
-        //   instance.a && queuePostRenderEffect(instance.a, parentSuspense)
-        //   if (
-        //     __COMPAT__ &&
-        //     isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
-        //   ) {
-        //     queuePostRenderEffect(
-        //       () => instance.emit('hook:activated'),
-        //       parentSuspense
-        //     )
-        //   }
-        // }
+        // activated hook for keep-alive roots.
+        // #1742 activated hook must be accessed after first render
+        // since the hook may be injected by a child keep-alive
+        if (
+          initialVNode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE ||
+          (parent &&
+            isAsyncWrapper(parent.vnode) &&
+            parent.vnode.shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE)
+        ) {
+          instance.a && queuePostRenderEffect(instance.a, parentSuspense)
+          // if (
+          //   __COMPAT__ &&
+          //   isCompatEnabled(DeprecationTypes.INSTANCE_EVENT_HOOKS, instance)
+          // ) {
+          //   queuePostRenderEffect(
+          //     () => instance.emit('hook:activated'),
+          //     parentSuspense
+          //   )
+          // }
+        }
         instance.isMounted = true
         // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
         //   devtoolsComponentAdded(instance)
@@ -2033,10 +2015,10 @@ function baseCreateRenderer(
     if (ref != null) {
       setRef(ref, null, parentSuspense, vnode, true)
     }
-    // if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
-    //   ;(parentComponent!.ctx as KeepAliveContext).deactivate(vnode)
-    //   return
-    // }
+    if (shapeFlag & ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE) {
+      ;(parentComponent!.ctx as KeepAliveContext).deactivate(vnode)
+      return
+    }
     const shouldInvokeDirs = shapeFlag & ShapeFlags.ELEMENT && dirs
     const shouldInvokeVnodeHook = !isAsyncWrapper(vnode)
     let vnodeHook: VNodeHook | undefined | null
@@ -2277,18 +2259,18 @@ function baseCreateRenderer(
     container._vnode = vnode
   }
 
-  // const internals: RendererInternals = {
-  //   p: patch,
-  //   um: unmount,
-  //   m: move,
-  //   r: remove,
-  //   mt: mountComponent,
-  //   mc: mountChildren,
-  //   pc: patchChildren,
-  //   pbc: patchBlockChildren,
-  //   n: getNextHostNode,
-  //   o: options
-  // }
+  const internals: RendererInternals = {
+    p: patch,
+    um: unmount,
+    m: move,
+    r: remove,
+    mt: mountComponent,
+    mc: mountChildren,
+    pc: patchChildren,
+    pbc: patchBlockChildren,
+    n: getNextHostNode,
+    o: options
+  }
 
   let hydrate: ReturnType<typeof createHydrationFunctions>[0] | undefined
   let hydrateNode: ReturnType<typeof createHydrationFunctions>[1] | undefined

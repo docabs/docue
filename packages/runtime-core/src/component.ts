@@ -368,11 +368,11 @@ export interface ComponentInternalInstance {
    */
   setupContext: SetupContext | null
 
-  // /**
-  //  * suspense related
-  //  * @internal
-  //  */
-  // suspense: SuspenseBoundary | null
+  /**
+   * suspense related
+   * @internal
+   */
+  suspense: SuspenseBoundary | null
   /**
    * suspense pending batch id
    * @internal
