@@ -1250,9 +1250,9 @@ function baseCreateRenderer(
       instance.update()
       //   }
     } else {
-      //   // no update needed. just copy over properties
-      //   n2.el = n1.el
-      //   instance.vnode = n2
+      // no update needed. just copy over properties
+      n2.el = n1.el
+      instance.vnode = n2
     }
   }
 
