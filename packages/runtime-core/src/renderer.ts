@@ -677,15 +677,14 @@ function baseCreateRenderer(
     if (dirs) {
       invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount')
     }
-    //   // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
-    //   // #1689 For inside suspense + suspense resolved case, just call it
-    //   const needCallTransitionHooks =
-    //     (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
-    //     transition &&
-    //     !transition.persisted
-    //   if (needCallTransitionHooks) {
-    //     transition!.beforeEnter(el)
-    //   }
+    // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
+    // #1689 For inside suspense + suspense resolved case, just call it
+    const needCallTransitionHooks =
+      // (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
+      transition && !transition.persisted
+    if (needCallTransitionHooks) {
+      transition!.beforeEnter(el)
+    }
     hostInsert(el, container, anchor)
     if (
       (vnodeHook = props && props.onVnodeMounted) ||
