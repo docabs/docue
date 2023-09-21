@@ -221,10 +221,10 @@ export interface VNode<
   //  * @internal __COMPAT__ only
   //  */
   // isCompatRoot?: true
-  // /**
-  //  * @internal custom element interception hook
-  //  */
-  // ce?: (instance: ComponentInternalInstance) => void
+  /**
+   * @internal custom element interception hook
+   */
+  ce?: (instance: ComponentInternalInstance) => void
 }
 
 // Since v-if and v-for are the two possible ways node structure can dynamically

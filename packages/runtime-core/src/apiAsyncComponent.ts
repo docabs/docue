@@ -140,24 +140,24 @@ export function defineAsyncComponent<
       }
 
       // suspense-controlled or SSR.
-      if (
-        (__FEATURE_SUSPENSE__ && suspensible && instance.suspense) ||
-        (__SSR__ && isInSSRComponentSetup)
-      ) {
-        return load()
-          .then(comp => {
-            return () => createInnerComp(comp, instance)
-          })
-          .catch(err => {
-            onError(err)
-            return () =>
-              errorComponent
-                ? createVNode(errorComponent as ConcreteComponent, {
-                    error: err
-                  })
-                : null
-          })
-      }
+      // if (
+      //   (__FEATURE_SUSPENSE__ && suspensible && instance.suspense) ||
+      //   (__SSR__ && isInSSRComponentSetup)
+      // ) {
+      //   return load()
+      //     .then(comp => {
+      //       return () => createInnerComp(comp, instance)
+      //     })
+      //     .catch(err => {
+      //       onError(err)
+      //       return () =>
+      //         errorComponent
+      //           ? createVNode(errorComponent as ConcreteComponent, {
+      //               error: err
+      //             })
+      //           : null
+      //     })
+      // }
 
       const loaded = ref(false)
       const error = ref()

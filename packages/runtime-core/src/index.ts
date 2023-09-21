@@ -58,7 +58,7 @@ export {
 export { provide, inject, hasInjectionContext } from './apiInject'
 export { nextTick } from './scheduler'
 export { defineComponent } from './apiDefineComponent'
-// export { defineAsyncComponent } from './apiAsyncComponent'
+export { defineAsyncComponent } from './apiAsyncComponent'
 // export { useAttrs, useSlots } from './apiSetupHelpers'
 
 // <script setup> API ----------------------------------------------------------
@@ -269,10 +269,10 @@ export type { SuspenseBoundary } from './components/Suspense'
 //   TransitionState,
 //   TransitionHooks
 // } from './components/BaseTransition'
-// export type {
-//   AsyncComponentOptions,
-//   AsyncComponentLoader
-// } from './apiAsyncComponent'
+export type {
+  AsyncComponentOptions,
+  AsyncComponentLoader
+} from './apiAsyncComponent'
 // export type { HMRRuntime } from './hmr'
 
 // Internal API ----------------------------------------------------------------
