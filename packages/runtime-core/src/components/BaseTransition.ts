@@ -10,6 +10,7 @@ import { RendererElement } from '../renderer'
 import {
   Fragment,
   VNode,
+  Comment,
   VNodeArrayChildren,
   cloneVNode,
   isSameVNodeType
@@ -17,6 +18,7 @@ import {
 import { isKeepAlive } from './KeepAlive'
 import { warn } from '../warning'
 import { toRaw } from '@docue/reactivity'
+import { onBeforeUnmount, onMounted } from '../apiLifecycle'
 
 type Hook<T = () => void> = T | T[]
 
@@ -101,12 +103,12 @@ export function useTransitionState(): TransitionState {
     isUnmounting: false,
     leavingVNodes: new Map()
   }
-  // onMounted(() => {
-  //   state.isMounted = true
-  // })
-  // onBeforeUnmount(() => {
-  //   state.isUnmounting = true
-  // })
+  onMounted(() => {
+    state.isMounted = true
+  })
+  onBeforeUnmount(() => {
+    state.isUnmounting = true
+  })
   return state
 }
 
@@ -117,24 +119,26 @@ export const BaseTransitionPropsValidators = {
   appear: Boolean,
   persisted: Boolean,
   // enter
-  onBeforeEnter: TransitionHookValidator
-  // onEnter: TransitionHookValidator,
-  // onAfterEnter: TransitionHookValidator,
-  // onEnterCancelled: TransitionHookValidator,
-  // // leave
-  // onBeforeLeave: TransitionHookValidator,
-  // onLeave: TransitionHookValidator,
-  // onAfterLeave: TransitionHookValidator,
-  // onLeaveCancelled: TransitionHookValidator,
-  // // appear
-  // onBeforeAppear: TransitionHookValidator,
-  // onAppear: TransitionHookValidator,
-  // onAfterAppear: TransitionHookValidator,
-  // onAppearCancelled: TransitionHookValidator
+  onBeforeEnter: TransitionHookValidator,
+  onEnter: TransitionHookValidator,
+  onAfterEnter: TransitionHookValidator,
+  onEnterCancelled: TransitionHookValidator,
+  // leave
+  onBeforeLeave: TransitionHookValidator,
+  onLeave: TransitionHookValidator,
+  onAfterLeave: TransitionHookValidator,
+  onLeaveCancelled: TransitionHookValidator,
+  // appear
+  onBeforeAppear: TransitionHookValidator,
+  onAppear: TransitionHookValidator,
+  onAfterAppear: TransitionHookValidator,
+  onAppearCancelled: TransitionHookValidator
 }
 
 const BaseTransitionImpl: ComponentOptions = {
   name: `BaseTransition`,
+
+  props: BaseTransitionPropsValidators,
 
   setup(props: BaseTransitionProps, { slots }: SetupContext) {
     const instance = getCurrentInstance()!

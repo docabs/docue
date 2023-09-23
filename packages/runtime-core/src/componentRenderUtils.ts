@@ -212,16 +212,16 @@ export function renderComponentRoot(
     root = cloneVNode(root)
     root.dirs = root.dirs ? root.dirs.concat(vnode.dirs) : vnode.dirs
   }
-  // // inherit transition data
-  // if (vnode.transition) {
-  //   if (__DEV__ && !isElementRoot(root)) {
-  //     warn(
-  //       `Component inside <Transition> renders non-element root node ` +
-  //         `that cannot be animated.`
-  //     )
-  //   }
-  //   root.transition = vnode.transition
-  // }
+  // inherit transition data
+  if (vnode.transition) {
+    if (__DEV__ && !isElementRoot(root)) {
+      warn(
+        `Component inside <Transition> renders non-element root node ` +
+          `that cannot be animated.`
+      )
+    }
+    root.transition = vnode.transition
+  }
 
   // if (__DEV__ && setRoot) {
   //   setRoot(root)

@@ -37,6 +37,7 @@ import {
   currentRenderingInstance
 } from './componentRenderContext'
 import { ErrorCodes, callWithAsyncErrorHandling } from './errorHandling'
+import { convertLegacyComponent } from './compat/component'
 
 export const Fragment = Symbol.for('v-fgt') as any as {
   __isFragment: true
@@ -523,7 +524,7 @@ function _createVNode(
     type = type.__vccOpts
   }
 
-  // // 2.x async/functional component compat
+  // 2.x async/functional component compat
   // if (__COMPAT__) {
   //   type = convertLegacyComponent(type, currentRenderingInstance)
   // }

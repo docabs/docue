@@ -688,12 +688,12 @@ function baseCreateRenderer(
     hostInsert(el, container, anchor)
     if (
       (vnodeHook = props && props.onVnodeMounted) ||
-      // needCallTransitionHooks ||
+      needCallTransitionHooks ||
       dirs
     ) {
       queuePostRenderEffect(() => {
         vnodeHook && invokeVNodeHook(vnodeHook, parentComponent, vnode)
-        // needCallTransitionHooks && transition!.enter(el)
+        needCallTransitionHooks && transition!.enter(el)
         dirs && invokeDirectiveHook(vnode, null, parentComponent, 'mounted')
       }, parentSuspense)
     }
@@ -1969,25 +1969,25 @@ function baseCreateRenderer(
       shapeFlag & ShapeFlags.ELEMENT &&
       transition
     if (needTransition) {
-      // if (moveType === MoveType.ENTER) {
-      //   transition!.beforeEnter(el!)
-      //   hostInsert(el!, container, anchor)
-      //   queuePostRenderEffect(() => transition!.enter(el!), parentSuspense)
-      // } else {
-      //   const { leave, delayLeave, afterLeave } = transition!
-      //   const remove = () => hostInsert(el!, container, anchor)
-      //   const performLeave = () => {
-      //     leave(el!, () => {
-      //       remove()
-      //       afterLeave && afterLeave()
-      //     })
-      //   }
-      //   if (delayLeave) {
-      //     delayLeave(el!, remove, performLeave)
-      //   } else {
-      //     performLeave()
-      //   }
-      // }
+      if (moveType === MoveType.ENTER) {
+        transition!.beforeEnter(el!)
+        hostInsert(el!, container, anchor)
+        queuePostRenderEffect(() => transition!.enter(el!), parentSuspense)
+      } else {
+        const { leave, delayLeave, afterLeave } = transition!
+        const remove = () => hostInsert(el!, container, anchor)
+        const performLeave = () => {
+          leave(el!, () => {
+            remove()
+            afterLeave && afterLeave()
+          })
+        }
+        if (delayLeave) {
+          delayLeave(el!, remove, performLeave)
+        } else {
+          performLeave()
+        }
+      }
     } else {
       hostInsert(el!, container, anchor)
     }

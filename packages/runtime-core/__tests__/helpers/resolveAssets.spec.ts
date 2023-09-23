@@ -125,62 +125,62 @@ describe('resolveAssets', () => {
       expect('Failed to resolve directive: bar').toHaveBeenWarned()
     })
 
-    // test('resolve dynamic component', () => {
-    //   const dynamicComponents = {
-    //     foo: () => 'foo',
-    //     bar: () => 'bar',
-    //     baz: { render: () => 'baz' }
-    //   }
-    //   let foo, bar, baz // dynamic components
-    //   let dynamicVNode: VNode
+    test('resolve dynamic component', () => {
+      const dynamicComponents = {
+        foo: () => 'foo',
+        bar: () => 'bar',
+        baz: { render: () => 'baz' }
+      }
+      let foo, bar, baz // dynamic components
+      let dynamicVNode: VNode
 
-    //   const Child = {
-    //     render(this: any) {
-    //       return this.$slots.default()
-    //     }
-    //   }
+      const Child = {
+        render(this: any) {
+          return this.$slots.default()
+        }
+      }
 
-    //   const Root = {
-    //     components: { foo: dynamicComponents.foo },
-    //     setup() {
-    //       return () => {
-    //         foo = resolveDynamicComponent('foo') // <component is="foo"/>
-    //         bar = resolveDynamicComponent(dynamicComponents.bar) // <component :is="bar"/>, function
-    //         dynamicVNode = createVNode(resolveDynamicComponent(null)) // <component :is="null"/>
-    //         return h(Child, () => {
-    //           // check inside child slots
-    //           baz = resolveDynamicComponent(dynamicComponents.baz) // <component :is="baz"/>, object
-    //         })
-    //       }
-    //     }
-    //   }
+      const Root = {
+        components: { foo: dynamicComponents.foo },
+        setup() {
+          return () => {
+            foo = resolveDynamicComponent('foo') // <component is="foo"/>
+            bar = resolveDynamicComponent(dynamicComponents.bar) // <component :is="bar"/>, function
+            dynamicVNode = createVNode(resolveDynamicComponent(null)) // <component :is="null"/>
+            return h(Child, () => {
+              // check inside child slots
+              baz = resolveDynamicComponent(dynamicComponents.baz) // <component :is="baz"/>, object
+            })
+          }
+        }
+      }
 
-    //   const app = createApp(Root)
-    //   const root = nodeOps.createElement('div')
-    //   app.mount(root)
-    //   expect(foo).toBe(dynamicComponents.foo)
-    //   expect(bar).toBe(dynamicComponents.bar)
-    //   expect(baz).toBe(dynamicComponents.baz)
-    //   // should allow explicit falsy type to remove the component
-    //   expect(dynamicVNode!.type).toBe(Comment)
-    // })
+      const app = createApp(Root)
+      const root = nodeOps.createElement('div')
+      app.mount(root)
+      expect(foo).toBe(dynamicComponents.foo)
+      expect(bar).toBe(dynamicComponents.bar)
+      expect(baz).toBe(dynamicComponents.baz)
+      // should allow explicit falsy type to remove the component
+      expect(dynamicVNode!.type).toBe(Comment)
+    })
 
-    // test('resolve dynamic component should fallback to plain element without warning', () => {
-    //   const Root = {
-    //     setup() {
-    //       return () => {
-    //         return createVNode(resolveDynamicComponent('div') as string, null, {
-    //           default: () => 'hello'
-    //         })
-    //       }
-    //     }
-    //   }
+    test('resolve dynamic component should fallback to plain element without warning', () => {
+      const Root = {
+        setup() {
+          return () => {
+            return createVNode(resolveDynamicComponent('div') as string, null, {
+              default: () => 'hello'
+            })
+          }
+        }
+      }
 
-    //   const app = createApp(Root)
-    //   const root = nodeOps.createElement('div')
-    //   app.mount(root)
-    //   expect(serializeInner(root)).toBe('<div>hello</div>')
-    // })
+      const app = createApp(Root)
+      const root = nodeOps.createElement('div')
+      app.mount(root)
+      expect(serializeInner(root)).toBe('<div>hello</div>')
+    })
   })
 
   test('resolving from mixins & extends', () => {

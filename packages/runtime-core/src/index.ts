@@ -301,7 +301,7 @@ export {
   createCommentVNode,
   // createStaticVNode,
   // createElementVNode,
-  // createElementBlock,
+  createElementBlock,
   guardReactiveProps
 } from './vnode'
 export {

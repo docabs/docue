@@ -18,7 +18,7 @@ import {
   Fragment,
   withModifiers
 } from '@docue/runtime-dom'
-import { PatchFlags } from '@vue/shared'
+import { PatchFlags } from '@docue/shared'
 
 describe('attribute fallthrough', () => {
   it('should allow attrs to fallthrough', async () => {

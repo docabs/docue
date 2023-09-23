@@ -23,7 +23,8 @@ import {
   onMounted,
   reactive,
   shallowRef,
-  onDeactivated
+  onDeactivated,
+  defineAsyncComponent
 } from '@docue/runtime-test'
 import { KeepAliveProps } from '../../src/components/KeepAlive'
 
@@ -771,52 +772,52 @@ describe('KeepAlive', () => {
     expect(serializeInner(root)).toBe(`<div foo>changed</div>`)
   })
 
-  // test('should work with async component', async () => {
-  //   let resolve: (comp: Component) => void
-  //   const AsyncComp = defineAsyncComponent(
-  //     () =>
-  //       new Promise(r => {
-  //         resolve = r as any
-  //       })
-  //   )
+  test('should work with async component', async () => {
+    let resolve: (comp: Component) => void
+    const AsyncComp = defineAsyncComponent(
+      () =>
+        new Promise(r => {
+          resolve = r as any
+        })
+    )
 
-  //   const toggle = ref(true)
-  //   const instanceRef = ref<any>(null)
-  //   const App = {
-  //     render: () => {
-  //       return h(KeepAlive, { include: 'Foo' }, () =>
-  //         toggle.value ? h(AsyncComp, { ref: instanceRef }) : null
-  //       )
-  //     }
-  //   }
+    const toggle = ref(true)
+    const instanceRef = ref<any>(null)
+    const App = {
+      render: () => {
+        return h(KeepAlive, { include: 'Foo' }, () =>
+          toggle.value ? h(AsyncComp, { ref: instanceRef }) : null
+        )
+      }
+    }
 
-  //   render(h(App), root)
-  //   // async component has not been resolved
-  //   expect(serializeInner(root)).toBe('<!---->')
+    render(h(App), root)
+    // async component has not been resolved
+    expect(serializeInner(root)).toBe('<!---->')
 
-  //   resolve!({
-  //     name: 'Foo',
-  //     data: () => ({ count: 0 }),
-  //     render() {
-  //       return h('p', this.count)
-  //     }
-  //   })
+    resolve!({
+      name: 'Foo',
+      data: () => ({ count: 0 }),
+      render() {
+        return h('p', this.count)
+      }
+    })
 
-  //   await timeout()
-  //   // resolved
-  //   expect(serializeInner(root)).toBe('<p>0</p>')
+    await timeout()
+    // resolved
+    expect(serializeInner(root)).toBe('<p>0</p>')
 
-  //   // change state + toggle out
-  //   instanceRef.value.count++
-  //   toggle.value = false
-  //   await nextTick()
-  //   expect(serializeInner(root)).toBe('<!---->')
+    // change state + toggle out
+    instanceRef.value.count++
+    toggle.value = false
+    await nextTick()
+    expect(serializeInner(root)).toBe('<!---->')
 
-  //   // toggle in, state should be maintained
-  //   toggle.value = true
-  //   await nextTick()
-  //   expect(serializeInner(root)).toBe('<p>1</p>')
-  // })
+    // toggle in, state should be maintained
+    toggle.value = true
+    await nextTick()
+    expect(serializeInner(root)).toBe('<p>1</p>')
+  })
 
   // #4976
   test('handle error in async onActivated', async () => {

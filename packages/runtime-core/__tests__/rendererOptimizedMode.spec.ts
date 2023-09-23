@@ -1,7 +1,7 @@
 import {
   h,
   Fragment,
-  Teleport,
+  // Teleport,
   createVNode,
   createCommentVNode,
   openBlock,
@@ -26,7 +26,7 @@ import {
   onUnmounted
 } from '@docue/runtime-test'
 import { PatchFlags, SlotFlags } from '@docue/shared'
-import { SuspenseImpl } from '../src/components/Suspense'
+// import { SuspenseImpl } from '../src/components/Suspense'
 
 describe('renderer: optimized mode', () => {
   let root: TestElement

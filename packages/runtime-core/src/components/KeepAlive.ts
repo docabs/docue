@@ -45,6 +45,7 @@ import { ComponentRenderContext } from '../componentPublicInstance'
 import { isAsyncWrapper } from '../apiAsyncComponent'
 import { isSuspense } from './Suspense'
 import { LifecycleHooks } from '../enums'
+import { setTransitionHooks } from './BaseTransition'
 
 type MatchPattern = string | RegExp | (string | RegExp)[]
 
@@ -281,10 +282,10 @@ const KeepAliveImpl: ComponentOptions = {
         // copy over mounted state
         vnode.el = cachedVNode.el
         vnode.component = cachedVNode.component
-        // if (vnode.transition) {
-        //   // recursively update transition hooks on subTree
-        //   setTransitionHooks(vnode, vnode.transition!)
-        // }
+        if (vnode.transition) {
+          // recursively update transition hooks on subTree
+          setTransitionHooks(vnode, vnode.transition!)
+        }
         // avoid vnode being mounted as fresh
         vnode.shapeFlag |= ShapeFlags.COMPONENT_KEPT_ALIVE
         // make this key the freshest
