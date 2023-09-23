@@ -657,9 +657,9 @@ function baseCreateRenderer(
       //  * here to reduce the complexity. (Special casing it also should not
       //  * affect non-DOM renderers)
       //  */
-      // if ('value' in props) {
-      //   hostPatchProp(el, 'value', null, props.value)
-      // }
+      if ('value' in props) {
+        hostPatchProp(el, 'value', null, props.value)
+      }
       if ((vnodeHook = props.onVnodeBeforeMount)) {
         invokeVNodeHook(vnodeHook, parentComponent, vnode)
       }
@@ -1007,9 +1007,9 @@ function baseCreateRenderer(
           )
         }
       }
-      // if ('value' in newProps) {
-      //   hostPatchProp(el, 'value', oldProps.value, newProps.value)
-      // }
+      if ('value' in newProps) {
+        hostPatchProp(el, 'value', oldProps.value, newProps.value)
+      }
     }
   }
 
