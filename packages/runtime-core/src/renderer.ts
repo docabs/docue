@@ -836,15 +836,15 @@ function baseCreateRenderer(
       // (i.e. at the exact same position in the source template)
       if (patchFlag & PatchFlags.FULL_PROPS) {
         // element props contain dynamic keys, full diff needed
-        // patchProps(
-        //   el,
-        //   n2,
-        //   oldProps,
-        //   newProps,
-        //   parentComponent,
-        //   parentSuspense,
-        //   isSVG
-        // )
+        patchProps(
+          el,
+          n2,
+          oldProps,
+          newProps,
+          parentComponent,
+          parentSuspense,
+          isSVG
+        )
       } else {
         // class
         // this flag is matched when the element has dynamic class bindings.
@@ -1223,31 +1223,30 @@ function baseCreateRenderer(
   const updateComponent = (n1: VNode, n2: VNode, optimized: boolean) => {
     const instance = (n2.component = n1.component)!
     if (shouldUpdateComponent(n1, n2, optimized)) {
-      //   if (
-      //     __FEATURE_SUSPENSE__ &&
-      //     instance.asyncDep &&
-      //     !instance.asyncResolved
-      //   ) {
-      //     // async & still pending - just update props and slots
-      //     // since the component's reactive effect for render isn't set-up yet
-      //     if (__DEV__) {
-      //       pushWarningContext(n2)
-      //     }
-      //     updateComponentPreRender(instance, n2, optimized)
-      //     if (__DEV__) {
-      //       popWarningContext()
-      //     }
-      //     return
-      //   } else {
-
-      // normal update
-      instance.next = n2
-      // in case the child component is also queued, remove it to avoid
-      // double updating the same child component in the same flush.
-      invalidateJob(instance.update)
-      // instance.update is the reactive effect.
-      instance.update()
-      //   }
+      if (
+        __FEATURE_SUSPENSE__ &&
+        instance.asyncDep &&
+        !instance.asyncResolved
+      ) {
+        //     // async & still pending - just update props and slots
+        //     // since the component's reactive effect for render isn't set-up yet
+        //     if (__DEV__) {
+        //       pushWarningContext(n2)
+        //     }
+        //     updateComponentPreRender(instance, n2, optimized)
+        //     if (__DEV__) {
+        //       popWarningContext()
+        //     }
+        return
+      } else {
+        // normal update
+        instance.next = n2
+        // in case the child component is also queued, remove it to avoid
+        // double updating the same child component in the same flush.
+        invalidateJob(instance.update)
+        // instance.update is the reactive effect.
+        instance.update()
+      }
     } else {
       // no update needed. just copy over properties
       n2.el = n1.el
@@ -1555,35 +1554,35 @@ function baseCreateRenderer(
       if (patchFlag & PatchFlags.KEYED_FRAGMENT) {
         // this could be either fully-keyed or mixed (some keyed some not)
         // presence of patchFlag means children are guaranteed to be arrays
-        // patchKeyedChildren(
-        //   c1 as VNode[],
-        //   c2 as VNodeArrayChildren,
-        //   container,
-        //   anchor,
-        //   parentComponent,
-        //   parentSuspense,
-        //   isSVG,
-        //   slotScopeIds,
-        //   optimized
-        // )
-        // return
+        patchKeyedChildren(
+          c1 as VNode[],
+          c2 as VNodeArrayChildren,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+        return
       } else if (patchFlag & PatchFlags.UNKEYED_FRAGMENT) {
         // unkeyed
-        // patchUnkeyedChildren(
-        //   c1 as VNode[],
-        //   c2 as VNodeArrayChildren,
-        //   container,
-        //   anchor,
-        //   parentComponent,
-        //   parentSuspense,
-        //   isSVG,
-        //   slotScopeIds,
-        //   optimized
-        // )
-        // return
+        patchUnkeyedChildren(
+          c1 as VNode[],
+          c2 as VNodeArrayChildren,
+          container,
+          anchor,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+        return
       }
     }
-    //   // children has 3 possibilities: text, array or no children.
+    // children has 3 possibilities: text, array or no children.
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       // text children fast path
       if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
@@ -2052,14 +2051,14 @@ function baseCreateRenderer(
         (type !== Fragment ||
           (patchFlag > 0 && patchFlag & PatchFlags.STABLE_FRAGMENT))
       ) {
-        // // fast path for block nodes: only need to unmount dynamic children.
-        // unmountChildren(
-        //   dynamicChildren,
-        //   parentComponent,
-        //   parentSuspense,
-        //   false,
-        //   true
-        // )
+        // fast path for block nodes: only need to unmount dynamic children.
+        unmountChildren(
+          dynamicChildren,
+          parentComponent,
+          parentSuspense,
+          false,
+          true
+        )
       } else if (
         (type === Fragment &&
           patchFlag &

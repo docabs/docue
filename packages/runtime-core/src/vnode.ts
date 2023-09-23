@@ -758,23 +758,23 @@ export function normalizeChildren(vnode: VNode, children: unknown) {
       return
     } else {
       type = ShapeFlags.SLOTS_CHILDREN
-      // const slotFlag = (children as RawSlots)._
-      // if (!slotFlag && !(InternalObjectKey in children!)) {
-      //   // if slots are not normalized, attach context instance
-      //   // (compiled / normalized slots already have context)
-      //   ;(children as RawSlots)._ctx = currentRenderingInstance
-      // } else if (slotFlag === SlotFlags.FORWARDED && currentRenderingInstance) {
-      //   // a child component receives forwarded slots from the parent.
-      //   // its slot type is determined by its parent's slot type.
-      //   if (
-      //     (currentRenderingInstance.slots as RawSlots)._ === SlotFlags.STABLE
-      //   ) {
-      //     ;(children as RawSlots)._ = SlotFlags.STABLE
-      //   } else {
-      //     ;(children as RawSlots)._ = SlotFlags.DYNAMIC
-      //     vnode.patchFlag |= PatchFlags.DYNAMIC_SLOTS
-      //   }
-      // }
+      const slotFlag = (children as RawSlots)._
+      if (!slotFlag && !(InternalObjectKey in children!)) {
+        // if slots are not normalized, attach context instance
+        // (compiled / normalized slots already have context)
+        ;(children as RawSlots)._ctx = currentRenderingInstance
+      } else if (slotFlag === SlotFlags.FORWARDED && currentRenderingInstance) {
+        // a child component receives forwarded slots from the parent.
+        // its slot type is determined by its parent's slot type.
+        if (
+          (currentRenderingInstance.slots as RawSlots)._ === SlotFlags.STABLE
+        ) {
+          ;(children as RawSlots)._ = SlotFlags.STABLE
+        } else {
+          ;(children as RawSlots)._ = SlotFlags.DYNAMIC
+          vnode.patchFlag |= PatchFlags.DYNAMIC_SLOTS
+        }
+      }
     }
   } else if (isFunction(children)) {
     children = { default: children, _ctx: currentRenderingInstance }
