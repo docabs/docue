@@ -801,15 +801,15 @@ function baseCreateRenderer(
 
     const areChildrenSVG = isSVG && n2.type !== 'foreignObject'
     if (dynamicChildren) {
-      //     patchBlockChildren(
-      //       n1.dynamicChildren!,
-      //       dynamicChildren,
-      //       el,
-      //       parentComponent,
-      //       parentSuspense,
-      //       areChildrenSVG,
-      //       slotScopeIds
-      //     )
+      patchBlockChildren(
+        n1.dynamicChildren!,
+        dynamicChildren,
+        el,
+        parentComponent,
+        parentSuspense,
+        areChildrenSVG,
+        slotScopeIds
+      )
       //     if (__DEV__) {
       //       // necessary for HMR
       //       traverseStaticChildren(n1, n2)

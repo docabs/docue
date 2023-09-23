@@ -51,171 +51,171 @@ describe('renderer: optimized mode', () => {
     expect(inner(root)).toBe('<p>foo</p>')
   })
 
-  // test('block can appear anywhere in the vdom tree', () => {
-  //   render(
-  //     h('div', (openBlock(), (block = createBlock('p', null, 'foo')))),
-  //     root
-  //   )
+  test('block can appear anywhere in the vdom tree', () => {
+    render(
+      h('div', (openBlock(), (block = createBlock('p', null, 'foo')))),
+      root
+    )
 
-  //   expect(block.dynamicChildren!.length).toBe(0)
-  //   expect(inner(root)).toBe('<div><p>foo</p></div>')
-  // })
+    expect(block.dynamicChildren!.length).toBe(0)
+    expect(inner(root)).toBe('<div><p>foo</p></div>')
+  })
 
-  // test('block should collect dynamic vnodes', () => {
-  //   renderWithBlock(() => [
-  //     createVNode('p', null, 'foo', PatchFlags.TEXT),
-  //     createVNode('i')
-  //   ])
+  test('block should collect dynamic vnodes', () => {
+    renderWithBlock(() => [
+      createVNode('p', null, 'foo', PatchFlags.TEXT),
+      createVNode('i')
+    ])
 
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p>foo</p>'
-  //   )
-  // })
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p>foo</p>'
+    )
+  })
 
-  // test('block can disable tracking', () => {
-  //   render(
-  //     // disable tracking
-  //     (openBlock(true),
-  //     (block = createBlock('div', null, [
-  //       createVNode('p', null, 'foo', PatchFlags.TEXT)
-  //     ]))),
-  //     root
-  //   )
+  test('block can disable tracking', () => {
+    render(
+      // disable tracking
+      (openBlock(true),
+      (block = createBlock('div', null, [
+        createVNode('p', null, 'foo', PatchFlags.TEXT)
+      ]))),
+      root
+    )
 
-  //   expect(block.dynamicChildren!.length).toBe(0)
-  // })
+    expect(block.dynamicChildren!.length).toBe(0)
+  })
 
-  // test('block as dynamic children', () => {
-  //   renderWithBlock(() => [
-  //     (openBlock(), createBlock('div', { key: 0 }, [h('p')]))
-  //   ])
+  test('block as dynamic children', () => {
+    renderWithBlock(() => [
+      (openBlock(), createBlock('div', { key: 0 }, [h('p')]))
+    ])
 
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(block!.dynamicChildren![0].dynamicChildren!.length).toBe(0)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<div><p></p></div>'
-  //   )
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(block!.dynamicChildren![0].dynamicChildren!.length).toBe(0)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<div><p></p></div>'
+    )
 
-  //   renderWithBlock(() => [
-  //     (openBlock(), createBlock('div', { key: 1 }, [h('i')]))
-  //   ])
+    renderWithBlock(() => [
+      (openBlock(), createBlock('div', { key: 1 }, [h('i')]))
+    ])
 
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(block!.dynamicChildren![0].dynamicChildren!.length).toBe(0)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<div><i></i></div>'
-  //   )
-  // })
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(block!.dynamicChildren![0].dynamicChildren!.length).toBe(0)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<div><i></i></div>'
+    )
+  })
 
-  // test('PatchFlags: PatchFlags.TEXT', async () => {
-  //   renderWithBlock(() => [createVNode('p', null, 'foo', PatchFlags.TEXT)])
+  test('PatchFlags: PatchFlags.TEXT', async () => {
+    renderWithBlock(() => [createVNode('p', null, 'foo', PatchFlags.TEXT)])
 
-  //   expect(inner(root)).toBe('<div><p>foo</p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p>foo</p>'
-  //   )
+    expect(inner(root)).toBe('<div><p>foo</p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p>foo</p>'
+    )
 
-  //   renderWithBlock(() => [createVNode('p', null, 'bar', PatchFlags.TEXT)])
+    renderWithBlock(() => [createVNode('p', null, 'bar', PatchFlags.TEXT)])
 
-  //   expect(inner(root)).toBe('<div><p>bar</p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p>bar</p>'
-  //   )
-  // })
+    expect(inner(root)).toBe('<div><p>bar</p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p>bar</p>'
+    )
+  })
 
-  // test('PatchFlags: PatchFlags.CLASS', async () => {
-  //   renderWithBlock(() => [
-  //     createVNode('p', { class: 'foo' }, '', PatchFlags.CLASS)
-  //   ])
+  test('PatchFlags: PatchFlags.CLASS', async () => {
+    renderWithBlock(() => [
+      createVNode('p', { class: 'foo' }, '', PatchFlags.CLASS)
+    ])
 
-  //   expect(inner(root)).toBe('<div><p class="foo"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p class="foo"></p>'
-  //   )
+    expect(inner(root)).toBe('<div><p class="foo"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p class="foo"></p>'
+    )
 
-  //   renderWithBlock(() => [
-  //     createVNode('p', { class: 'bar' }, '', PatchFlags.CLASS)
-  //   ])
+    renderWithBlock(() => [
+      createVNode('p', { class: 'bar' }, '', PatchFlags.CLASS)
+    ])
 
-  //   expect(inner(root)).toBe('<div><p class="bar"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p class="bar"></p>'
-  //   )
-  // })
+    expect(inner(root)).toBe('<div><p class="bar"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p class="bar"></p>'
+    )
+  })
 
-  // test('PatchFlags: PatchFlags.STYLE', async () => {
-  //   renderWithBlock(() => [
-  //     createVNode('p', { style: 'color: red' }, '', PatchFlags.STYLE)
-  //   ])
+  test('PatchFlags: PatchFlags.STYLE', async () => {
+    renderWithBlock(() => [
+      createVNode('p', { style: 'color: red' }, '', PatchFlags.STYLE)
+    ])
 
-  //   expect(inner(root)).toBe('<div><p style="color: red"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p style="color: red"></p>'
-  //   )
+    expect(inner(root)).toBe('<div><p style="color: red"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p style="color: red"></p>'
+    )
 
-  //   renderWithBlock(() => [
-  //     createVNode('p', { style: 'color: green' }, '', PatchFlags.STYLE)
-  //   ])
+    renderWithBlock(() => [
+      createVNode('p', { style: 'color: green' }, '1', PatchFlags.STYLE)
+    ])
 
-  //   expect(inner(root)).toBe('<div><p style="color: green"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p style="color: green"></p>'
-  //   )
-  // })
+    expect(inner(root)).toBe('<div><p style="color: green"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p style="color: green"></p>'
+    )
+  })
 
-  // test('PatchFlags: PatchFlags.PROPS', async () => {
-  //   renderWithBlock(() => [
-  //     createVNode('p', { id: 'foo' }, '', PatchFlags.PROPS, ['id'])
-  //   ])
+  test('PatchFlags: PatchFlags.PROPS', async () => {
+    renderWithBlock(() => [
+      createVNode('p', { id: 'foo' }, '', PatchFlags.PROPS, ['id'])
+    ])
 
-  //   expect(inner(root)).toBe('<div><p id="foo"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p id="foo"></p>'
-  //   )
+    expect(inner(root)).toBe('<div><p id="foo"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p id="foo"></p>'
+    )
 
-  //   renderWithBlock(() => [
-  //     createVNode('p', { id: 'bar' }, '', PatchFlags.PROPS, ['id'])
-  //   ])
+    renderWithBlock(() => [
+      createVNode('p', { id: 'bar' }, '', PatchFlags.PROPS, ['id'])
+    ])
 
-  //   expect(inner(root)).toBe('<div><p id="bar"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p id="bar"></p>'
-  //   )
-  // })
+    expect(inner(root)).toBe('<div><p id="bar"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p id="bar"></p>'
+    )
+  })
 
-  // test('PatchFlags: PatchFlags.FULL_PROPS', async () => {
-  //   let propName = 'foo'
+  test('PatchFlags: PatchFlags.FULL_PROPS', async () => {
+    let propName = 'foo'
 
-  //   renderWithBlock(() => [
-  //     createVNode('p', { [propName]: 'dynamic' }, '', PatchFlags.FULL_PROPS)
-  //   ])
+    renderWithBlock(() => [
+      createVNode('p', { [propName]: 'dynamic' }, '', PatchFlags.FULL_PROPS)
+    ])
 
-  //   expect(inner(root)).toBe('<div><p foo="dynamic"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p foo="dynamic"></p>'
-  //   )
+    expect(inner(root)).toBe('<div><p foo="dynamic"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p foo="dynamic"></p>'
+    )
 
-  //   propName = 'bar'
-  //   renderWithBlock(() => [
-  //     createVNode('p', { [propName]: 'dynamic' }, '', PatchFlags.FULL_PROPS)
-  //   ])
+    propName = 'bar'
+    renderWithBlock(() => [
+      createVNode('p', { [propName]: 'dynamic' }, '', PatchFlags.FULL_PROPS)
+    ])
 
-  //   expect(inner(root)).toBe('<div><p bar="dynamic"></p></div>')
-  //   expect(block!.dynamicChildren!.length).toBe(1)
-  //   expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
-  //     '<p bar="dynamic"></p>'
-  //   )
-  // })
+    expect(inner(root)).toBe('<div><p bar="dynamic"></p></div>')
+    expect(block!.dynamicChildren!.length).toBe(1)
+    expect(serialize(block!.dynamicChildren![0].el as TestElement)).toBe(
+      '<p bar="dynamic"></p>'
+    )
+  })
 
   // // the order and length of the list will not change
   // test('PatchFlags: PatchFlags.STABLE_FRAGMENT', async () => {
