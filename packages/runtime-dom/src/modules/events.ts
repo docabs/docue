@@ -39,7 +39,7 @@ export function patchEvent(
   nextValue: EventValue | null,
   instance: ComponentInternalInstance | null = null
 ) {
-  // vei = vue event invokers
+  // vei = docue event invokers
   const invokers = el[veiKey] || (el[veiKey] = {})
   const existingInvoker = invokers[rawName]
   if (nextValue && existingInvoker) {
@@ -87,14 +87,14 @@ function createInvoker(
   instance: ComponentInternalInstance | null
 ) {
   const invoker: Invoker = (e: Event & { _vts?: number }) => {
-    // async edge case vuejs/vue#6566
+    // async edge case docuejs/docue#6566
     // inner click event triggers patch, event handler
     // attached to outer element during patch, and triggered again. This
     // happens because browsers fire microtask ticks between event propagation.
     // this no longer happens for templates in Docue 3, but could still be
     // theoretically possible for hand-written render functions.
     // the solution: we save the timestamp when a handler is attached,
-    // and also attach the timestamp to any event that was handled by vue
+    // and also attach the timestamp to any event that was handled by docue
     // for the first time (to avoid inconsistent event timestamp implementations
     // or events fired from iframes, e.g. #2513)
     // The handler would only fire if the event passed to it was fired

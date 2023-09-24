@@ -66,7 +66,7 @@ const warnRuntimeUsage = (method: string) =>
  *   bar: number
  * }>()
  *
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits}
+ * @see {@link https://docuejs.org/api/sfc-script-setup.html#defineprops-defineemits}
  * ```
  *
  * This is only usable inside `<script setup>`, is compiled away in the
@@ -126,7 +126,7 @@ type BooleanKey<T, K extends keyof T = keyof T> = K extends any
  * This is only usable inside `<script setup>`, is compiled away in the
  * output and should **not** be actually called at runtime.
  *
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits}
+ * @see {@link https://docuejs.org/api/sfc-script-setup.html#defineprops-defineemits}
  */
 // overload 1: runtime emits w/ array
 export function defineEmits<EE extends string = string>(
@@ -166,7 +166,7 @@ type ShortEmits<T extends Record<string, any>> = UnionToIntersection<
  * This is only usable inside `<script setup>`, is compiled away in the
  * output and should **not** be actually called at runtime.
  *
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineexpose}
+ * @see {@link https://docuejs.org/api/sfc-script-setup.html#defineexpose}
  */
 export function defineExpose<
   Exposed extends Record<string, any> = Record<string, any>
@@ -181,7 +181,7 @@ export function defineExpose<
  * options. This should be used only for options that cannot be expressed via
  * Composition API - e.g. `inheritAttrs`.
  *
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineoptions}
+ * @see {@link https://docuejs.org/api/sfc-script-setup.html#defineoptions}
  */
 export function defineOptions<
   RawBindings = {},
@@ -329,7 +329,7 @@ type PropsWithDefaults<
  * This is only usable inside `<script setup>`, is compiled away in the output
  * and should **not** be actually called at runtime.
  *
- * @see {@link https://vuejs.org/guide/typescript/composition-api.html#typing-component-props}
+ * @see {@link https://docuejs.org/guide/typescript/composition-api.html#typing-component-props}
  */
 export function withDefaults<
   T,
@@ -494,7 +494,7 @@ export function createPropsRestProxy(
  * `<script setup>` helper for persisting the current instance context over
  * async/await flows.
  *
- * `@vue/compiler-sfc` converts the following:
+ * `@docue/compiler-sfc` converts the following:
  *
  * ```ts
  * const x = await foo()

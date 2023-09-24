@@ -669,7 +669,7 @@ function baseCreateRenderer(
     //       value: vnode,
     //       enumerable: false
     //     })
-    //     Object.defineProperty(el, '__vueParentComponent', {
+    //     Object.defineProperty(el, '__docueParentComponent', {
     //       value: parentComponent,
     //       enumerable: false
     //     })

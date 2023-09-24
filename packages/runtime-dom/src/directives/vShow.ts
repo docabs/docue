@@ -3,7 +3,7 @@ import { ObjectDirective } from '@docue/runtime-core'
 export const vShowOldKey = Symbol('_vod')
 
 interface VShowElement extends HTMLElement {
-  // _vod = vue original display
+  // _vod = docue original display
   [vShowOldKey]: string
 }
 

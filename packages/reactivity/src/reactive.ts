@@ -77,7 +77,7 @@ export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRefSimple<T>
  * ```
  *
  * @param target - The source object.
- * @see {@link https://vuejs.org/api/reactivity-core.html#reactive}
+ * @see {@link https://docuejs.org/api/reactivity-core.html#reactive}
  */
 export function reactive<T extends object>(target: T): UnwrapNestedRefs<T>
 export function reactive(target: object) {
@@ -127,7 +127,7 @@ export type ShallowReactive<T> = T & { [ShallowReactiveMarker]?: true }
  * ```
  *
  * @param target - The source object.
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#shallowreactive}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#shallowreactive}
  */
 export function shallowReactive<T extends object>(
   target: T
@@ -192,7 +192,7 @@ export type DeepReadonly<T> = T extends Builtin
  * ```
  *
  * @param target - The source object.
- * @see {@link https://vuejs.org/api/reactivity-core.html#readonly}
+ * @see {@link https://docuejs.org/api/reactivity-core.html#readonly}
  */
 export function readonly<T extends object>(
   target: T
@@ -234,7 +234,7 @@ export function readonly<T extends object>(
  * ```
  *
  * @param target - The source object.
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#shallowreadonly}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#shallowreadonly}
  */
 export function shallowReadonly<T extends object>(target: T): Readonly<T> {
   return createReactiveObject(
@@ -302,7 +302,7 @@ function createReactiveObject(
  * ```
  *
  * @param value - The value to check.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#isreactive}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#isreactive}
  */
 export function isReactive(value: unknown): boolean {
   if (isReadonly(value)) {
@@ -320,7 +320,7 @@ export function isReactive(value: unknown): boolean {
  * both considered readonly, as is a computed ref without a set function.
  *
  * @param value - The value to check.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#isreadonly}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#isreadonly}
  */
 export function isReadonly(value: unknown): boolean {
   return !!(value && (value as Target)[ReactiveFlags.IS_READONLY])
@@ -335,7 +335,7 @@ export function isShallow(value: unknown): boolean {
  * {@link readonly}, {@link shallowReactive} or {@link shallowReadonly()}.
  *
  * @param value - The value to check.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#isproxy}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#isproxy}
  */
 export function isProxy(value: unknown): boolean {
   return isReactive(value) || isReadonly(value)
@@ -362,7 +362,7 @@ export function isProxy(value: unknown): boolean {
  * ```
  *
  * @param observed - The object for which the "raw" value is requested.
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#toraw}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#toraw}
  */
 export function toRaw<T>(observed: T): T {
   const raw = observed && (observed as Target)[ReactiveFlags.RAW]
@@ -391,7 +391,7 @@ export type Raw<T> = T & { [RawSymbol]?: true }
  * state graph.
  *
  * @param value - The object to be marked as "raw".
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#markraw}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#markraw}
  */
 export function markRaw<T extends object>(value: T): Raw<T> {
   def(value, ReactiveFlags.SKIP, true)

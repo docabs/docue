@@ -76,7 +76,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
     message:
       `The global app bootstrapping API has changed: vm.$mount() and the "el" ` +
       `option have been removed. Use createApp(RootComponent).mount() instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/global-api.html#mounting-app-instance`
+    link: `https://v3-migration.docuejs.org/breaking-changes/global-api.html#mounting-app-instance`
   },
 
   [DeprecationTypes.GLOBAL_MOUNT_CONTAINER]: {
@@ -84,21 +84,21 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `Docue detected directives on the mount container. ` +
       `In Docue 3, the container is no longer considered part of the template ` +
       `and will not be processed/replaced.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/mount-changes.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/mount-changes.html`
   },
 
   [DeprecationTypes.GLOBAL_EXTEND]: {
     message:
       `Docue.extend() has been removed in Docue 3. ` +
       `Use defineComponent() instead.`,
-    link: `https://vuejs.org/api/general.html#definecomponent`
+    link: `https://docuejs.org/api/general.html#definecomponent`
   },
 
   [DeprecationTypes.GLOBAL_PROTOTYPE]: {
     message:
       `Docue.prototype is no longer available in Docue 3. ` +
       `Use app.config.globalProperties instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/global-api.html#vue-prototype-replaced-by-config-globalproperties`
+    link: `https://v3-migration.docuejs.org/breaking-changes/global-api.html#docue-prototype-replaced-by-config-globalproperties`
   },
 
   [DeprecationTypes.GLOBAL_SET]: {
@@ -116,8 +116,8 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
   [DeprecationTypes.GLOBAL_OBSERVABLE]: {
     message:
       `Docue.observable() has been removed. ` +
-      `Use \`import { reactive } from "vue"\` from Composition API instead.`,
-    link: `https://vuejs.org/api/reactivity-core.html#reactive`
+      `Use \`import { reactive } from "docue"\` from Composition API instead.`,
+    link: `https://docuejs.org/api/reactivity-core.html#reactive`
   },
 
   [DeprecationTypes.GLOBAL_PRIVATE_UTIL]: {
@@ -137,32 +137,32 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
     message:
       `config.devtools has been removed. To enable devtools for ` +
       `production, configure the __VUE_PROD_DEVTOOLS__ compile-time flag.`,
-    link: `https://github.com/vuejs/core/tree/main/packages/vue#bundler-build-feature-flags`
+    link: `https://github.com/docuejs/core/tree/main/packages/docue#bundler-build-feature-flags`
   },
 
   [DeprecationTypes.CONFIG_KEY_CODES]: {
     message:
       `config.keyCodes has been removed. ` +
       `In Docue 3, you can directly use the kebab-case key names as v-on modifiers.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/keycode-modifiers.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/keycode-modifiers.html`
   },
 
   [DeprecationTypes.CONFIG_PRODUCTION_TIP]: {
     message: `config.productionTip has been removed.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/global-api.html#config-productiontip-removed`
+    link: `https://v3-migration.docuejs.org/breaking-changes/global-api.html#config-productiontip-removed`
   },
 
   [DeprecationTypes.CONFIG_IGNORED_ELEMENTS]: {
     message: () => {
       let msg = `config.ignoredElements has been removed.`
       if (isRuntimeOnly()) {
-        msg += ` Pass the "isCustomElement" option to @vue/compiler-dom instead.`
+        msg += ` Pass the "isCustomElement" option to @docue/compiler-dom instead.`
       } else {
         msg += ` Use config.isCustomElement instead.`
       }
       return msg
     },
-    link: `https://v3-migration.vuejs.org/breaking-changes/global-api.html#config-ignoredelements-is-now-config-iscustomelement`
+    link: `https://v3-migration.docuejs.org/breaking-changes/global-api.html#config-ignoredelements-is-now-config-iscustomelement`
   },
 
   [DeprecationTypes.CONFIG_WHITESPACE]: {
@@ -194,31 +194,31 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.INSTANCE_DESTROY]: {
     message: `vm.$destroy() has been removed. Use app.unmount() instead.`,
-    link: `https://vuejs.org/api/application.html#app-unmount`
+    link: `https://docuejs.org/api/application.html#app-unmount`
   },
 
   [DeprecationTypes.INSTANCE_EVENT_EMITTER]: {
     message:
       `vm.$on/$once/$off() have been removed. ` +
       `Use an external event emitter library instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/events-api.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/events-api.html`
   },
 
   [DeprecationTypes.INSTANCE_EVENT_HOOKS]: {
     message: event =>
       `"${event}" lifecycle events are no longer supported. From templates, ` +
-      `use the "vue:" prefix instead of "hook:". For example, @${event} ` +
-      `should be changed to @vue:${event.slice(5)}. ` +
+      `use the "docue:" prefix instead of "hook:". For example, @${event} ` +
+      `should be changed to @docue:${event.slice(5)}. ` +
       `From JavaScript, use Composition API to dynamically register lifecycle ` +
       `hooks.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/vnode-lifecycle-events.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/vnode-lifecycle-events.html`
   },
 
   [DeprecationTypes.INSTANCE_CHILDREN]: {
     message:
       `vm.$children has been removed. Consider refactoring your logic ` +
       `to avoid relying on direct access to child components.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/children.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/children.html`
   },
 
   [DeprecationTypes.INSTANCE_LISTENERS]: {
@@ -227,12 +227,12 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `included in vm.$attrs and it is no longer necessary to separately use ` +
       `v-on="$listeners" if you are already using v-bind="$attrs". ` +
       `(Note: the Docue 3 behavior only applies if this compat config is disabled)`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/listeners-removed.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/listeners-removed.html`
   },
 
   [DeprecationTypes.INSTANCE_SCOPED_SLOTS]: {
     message: `vm.$scopedSlots has been removed. Use vm.$slots instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/slots-unification.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/slots-unification.html`
   },
 
   [DeprecationTypes.INSTANCE_ATTRS_CLASS_STYLE]: {
@@ -247,21 +247,21 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `If you are binding $attrs to a non-root element and expecting ` +
       `class/style to fallthrough on root, you will need to now manually bind ` +
       `them on root via :class="$attrs.class".`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/attrs-includes-class-style.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/attrs-includes-class-style.html`
   },
 
   [DeprecationTypes.OPTIONS_DATA_FN]: {
     message:
       `The "data" option can no longer be a plain object. ` +
       `Always use a function.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/data-option.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/data-option.html`
   },
 
   [DeprecationTypes.OPTIONS_DATA_MERGE]: {
     message: (key: string) =>
       `Detected conflicting key "${key}" when merging data option values. ` +
       `In Docue 3, data keys are merged shallowly and will override one another.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/data-option.html#mixin-merge-behavior-change`
+    link: `https://v3-migration.docuejs.org/breaking-changes/data-option.html#mixin-merge-behavior-change`
   },
 
   [DeprecationTypes.OPTIONS_BEFORE_DESTROY]: {
@@ -279,7 +279,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `If current usage is intended, you can disable the compat behavior and ` +
       `suppress this warning with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.WATCH_ARRAY}: false })\n`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/watch.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/watch.html`
   },
 
   [DeprecationTypes.PROPS_DEFAULT_THIS]: {
@@ -287,21 +287,21 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `props default value function no longer has access to "this". The compat ` +
       `build only offers access to this.$options.` +
       `(found in prop "${key}")`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/props-default-this.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/props-default-this.html`
   },
 
   [DeprecationTypes.CUSTOM_DIR]: {
     message: (legacyHook: string, newHook: string) =>
       `Custom directive hook "${legacyHook}" has been removed. ` +
       `Use "${newHook}" instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/custom-directives.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/custom-directives.html`
   },
 
   [DeprecationTypes.V_ON_KEYCODE_MODIFIER]: {
     message:
       `Using keyCode as v-on modifier is no longer supported. ` +
       `Use kebab-case key name modifiers instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/keycode-modifiers.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/keycode-modifiers.html`
   },
 
   [DeprecationTypes.ATTR_FALSE_VALUE]: {
@@ -311,7 +311,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `use \`null\` or \`undefined\` instead. If the usage is intended, ` +
       `you can disable the compat behavior and suppress this warning with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.ATTR_FALSE_VALUE}: false })\n`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/attribute-coercion.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/attribute-coercion.html`
   },
 
   [DeprecationTypes.ATTR_ENUMERATED_COERCION]: {
@@ -324,7 +324,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `If the usage is intended, ` +
       `you can disable the compat behavior and suppress this warning with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.ATTR_ENUMERATED_COERCION}: false })\n`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/attribute-coercion.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/attribute-coercion.html`
   },
 
   [DeprecationTypes.TRANSITION_CLASSES]: {
@@ -338,7 +338,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `for styling, you can disable the compat behavior and suppress this ` +
       `warning with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.TRANSITION_GROUP_ROOT}: false })\n`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/transition-group.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/transition-group.html`
   },
 
   [DeprecationTypes.COMPONENT_ASYNC]: {
@@ -356,7 +356,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
         `\n\n  configureCompat({ ${DeprecationTypes.COMPONENT_ASYNC}: false })\n`
       )
     },
-    link: `https://v3-migration.vuejs.org/breaking-changes/async-components.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/async-components.html`
   },
 
   [DeprecationTypes.COMPONENT_FUNCTIONAL]: {
@@ -372,7 +372,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
         `been disabled.`
       )
     },
-    link: `https://v3-migration.vuejs.org/breaking-changes/functional-components.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/functional-components.html`
   },
 
   [DeprecationTypes.COMPONENT_V_MODEL]: {
@@ -397,7 +397,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
         `"update:modelValue" event. You can update the usage and then ${configMsg}`
       )
     },
-    link: `https://v3-migration.vuejs.org/breaking-changes/v-model.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/v-model.html`
   },
 
   [DeprecationTypes.RENDER_FUNCTION]: {
@@ -406,7 +406,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `You can opt-in to the new API with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.RENDER_FUNCTION}: false })\n` +
       `\n  (This can also be done per-component via the "compatConfig" option.)`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/render-function-api.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/render-function-api.html`
   },
 
   [DeprecationTypes.FILTERS]: {
@@ -414,7 +414,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `filters have been removed in Docue 3. ` +
       `The "|" symbol will be treated as native JavaScript bitwise OR operator. ` +
       `Use method calls or computed properties instead.`,
-    link: `https://v3-migration.vuejs.org/breaking-changes/filters.html`
+    link: `https://v3-migration.docuejs.org/breaking-changes/filters.html`
   },
 
   [DeprecationTypes.PRIVATE_APIS]: {
@@ -534,7 +534,7 @@ export function validateCompatConfig(
             `Deprecation config "${key}" is compiler-specific and you are ` +
               `running a runtime-only build of Docue. This deprecation should be ` +
               `configured via compiler options in your build setup instead.\n` +
-              `Details: https://v3-migration.vuejs.org/breaking-changes/migration-build.html`
+              `Details: https://v3-migration.docuejs.org/breaking-changes/migration-build.html`
           )
         }
       } else {

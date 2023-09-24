@@ -131,10 +131,10 @@ export const createApp = ((...args) => {
 //       `The \`compilerOptions\` config option is only respected when using ` +
 //       `a build of Docue.js that includes the runtime compiler (aka "full build"). ` +
 //       `Since you are using the runtime-only build, \`compilerOptions\` ` +
-//       `must be passed to \`@vue/compiler-dom\` in the build setup instead.\n` +
-//       `- For vue-loader: pass it via vue-loader's \`compilerOptions\` loader option.\n` +
-//       `- For vue-cli: see https://cli.vuejs.org/guide/webpack.html#modifying-options-of-a-loader\n` +
-//       `- For vite: pass it via @vitejs/plugin-vue options. See https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue#example-for-passing-options-to-vuecompiler-sfc`
+//       `must be passed to \`@docue/compiler-dom\` in the build setup instead.\n` +
+//       `- For docue-loader: pass it via docue-loader's \`compilerOptions\` loader option.\n` +
+//       `- For docue-cli: see https://cli.docuejs.org/guide/webpack.html#modifying-options-of-a-loader\n` +
+//       `- For vite: pass it via @vitejs/plugin-docue options. See https://github.com/vitejs/vite-plugin-docue/tree/main/packages/plugin-docue#example-for-passing-options-to-docuecompiler-sfc`
 
 //     Object.defineProperty(app.config, 'compilerOptions', {
 //       get() {

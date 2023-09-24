@@ -63,7 +63,7 @@ export function triggerRefValue(ref: RefBase<any>, newVal?: any) {
  * Checks if a value is a ref object.
  *
  * @param r - The value to inspect.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#isref}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#isref}
  */
 export function isRef<T>(r: Ref<T> | unknown): r is Ref<T>
 export function isRef(r: any): r is Ref {
@@ -75,7 +75,7 @@ export function isRef(r: any): r is Ref {
  * has a single property `.value` that points to the inner value.
  *
  * @param value - The object to wrap in the ref.
- * @see {@link https://vuejs.org/api/reactivity-core.html#ref}
+ * @see {@link https://docuejs.org/api/reactivity-core.html#ref}
  */
 export function ref<T extends Ref>(value: T): T
 export function ref<T>(value: T): Ref<UnwrapRef<T>>
@@ -146,7 +146,7 @@ class RefImpl<T> {
  * ```
  *
  * @param ref - The ref whose tied effects shall be executed.
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#triggerref}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#triggerref}
  */
 export function triggerRef(ref: Ref) {
   triggerRefValue(ref, __DEV__ ? ref.value : void 0)
@@ -169,7 +169,7 @@ export type MaybeRefOrGetter<T = any> = MaybeRef<T> | (() => T)
  * ```
  *
  * @param ref - Ref or plain value to be converted into the plain value.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#unref}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#unref}
  */
 export function unref<T>(ref: MaybeRef<T>): T {
   return isRef(ref) ? ref.value : ref
@@ -189,7 +189,7 @@ export function unref<T>(ref: MaybeRef<T>): T {
  * ```
  *
  * @param source - A getter, an existing ref, or a non-function value.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#tovalue}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#tovalue}
  */
 export function toValue<T>(source: MaybeRefOrGetter<T>): T {
   return isFunction(source) ? source() : unref(source)
@@ -265,7 +265,7 @@ class CustomRefImpl<T> {
  * and updates triggering.
  *
  * @param factory - The function that receives the `track` and `trigger` callbacks.
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#customref}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#customref}
  */
 export function customRef<T>(factory: CustomRefFactory<T>): Ref<T> {
   return new CustomRefImpl(factory) as any
@@ -281,7 +281,7 @@ export type ToRefs<T = any> = {
  * original object. Each individual ref is created using {@link toRef()}.
  *
  * @param object - Reactive object to be made into an object of linked refs.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#torefs}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#torefs}
  */
 export function toRefs<T extends object>(object: T): ToRefs<T> {
   if (__DEV__ && !isProxy(object)) {
@@ -313,7 +313,7 @@ export type ShallowRef<T = any> = Ref<T> & { [ShallowRefMarker]?: true }
  * ```
  *
  * @param value - The "inner value" for the shallow ref.
- * @see {@link https://vuejs.org/api/reactivity-advanced.html#shallowref}
+ * @see {@link https://docuejs.org/api/reactivity-advanced.html#shallowref}
  */
 export function shallowRef<T extends object>(
   value: T
@@ -450,7 +450,7 @@ export type ToRef<T> = IfAny<T, Ref<T>, [T] extends [Ref] ? T : Ref<T>>
  * @param source - A getter, an existing ref, a non-function value, or a
  *                 reactive object to create a property ref from.
  * @param [key] - (optional) Name of the property in the reactive object.
- * @see {@link https://vuejs.org/api/reactivity-utilities.html#toref}
+ * @see {@link https://docuejs.org/api/reactivity-utilities.html#toref}
  */
 export function toRef<T>(
   value: T

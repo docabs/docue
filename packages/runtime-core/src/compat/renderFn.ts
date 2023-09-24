@@ -132,7 +132,7 @@ export function compatH(
     if (t === 'transition' || t === 'transition-group' || t === 'keep-alive') {
       // since transition and transition-group are runtime-dom-specific,
       // we cannot import them directly here. Instead they are registered using
-      // special keys in @vue/compat entry.
+      // special keys in @docue/compat entry.
       type = `__compat__${t}`
     }
     type = resolveDynamicComponent(type)
