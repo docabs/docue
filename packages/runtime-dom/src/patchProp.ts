@@ -1,6 +1,9 @@
 import { RendererOptions } from '@docue/runtime-core'
-import { isFunction, isString } from '@docue/shared'
+import { isFunction, isModelListener, isOn, isString } from '@docue/shared'
 
+import { patchClass } from './modules/class'
+import { patchStyle } from './modules/style'
+import { patchEvent } from './modules/events'
 import { patchAttr } from './modules/attrs'
 import { patchDOMProp } from './modules/props'
 
@@ -19,7 +22,16 @@ export const patchProp: DOMRendererOptions['patchProp'] = (
   parentSuspense,
   unmountChildren
 ) => {
-  if (
+  if (key === 'class') {
+    patchClass(el, nextValue, isSVG)
+  } else if (key === 'style') {
+    patchStyle(el, prevValue, nextValue)
+  } else if (isOn(key)) {
+    // ignore v-model listeners
+    if (!isModelListener(key)) {
+      patchEvent(el, key, prevValue, nextValue, parentComponent)
+    }
+  } else if (
     key[0] === '.'
       ? ((key = key.slice(1)), true)
       : key[0] === '^'
