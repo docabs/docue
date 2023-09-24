@@ -21,7 +21,7 @@ registerRuntimeCompiler(compileToFunction)
 
 function compileToFunction(template: string) {
   const { code } = baseCompile(template)
-  const render = new Function('Vue', code)(
+  const render = new Function('Docue', code)(
     runtimeTest
   ) as InternalRenderFunction
   render._rc = true // isRuntimeCompiled

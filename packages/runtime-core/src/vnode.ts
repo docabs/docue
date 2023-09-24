@@ -680,19 +680,19 @@ export function createTextVNode(text: string = ' ', flag: number = 0): VNode {
   return createVNode(Text, null, text, flag)
 }
 
-// /**
-//  * @private
-//  */
-// export function createStaticVNode(
-//   content: string,
-//   numberOfNodes: number
-// ): VNode {
-//   // A static vnode can contain multiple stringified elements, and the number
-//   // of elements is necessary for hydration.
-//   const vnode = createVNode(Static, null, content)
-//   vnode.staticCount = numberOfNodes
-//   return vnode
-// }
+/**
+ * @private
+ */
+export function createStaticVNode(
+  content: string,
+  numberOfNodes: number
+): VNode {
+  // A static vnode can contain multiple stringified elements, and the number
+  // of elements is necessary for hydration.
+  const vnode = createVNode(Static, null, content)
+  vnode.staticCount = numberOfNodes
+  return vnode
+}
 
 /**
  * @private

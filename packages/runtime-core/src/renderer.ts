@@ -372,13 +372,13 @@ function baseCreateRenderer(
       case Comment:
         processCommentNode(n1, n2, container, anchor)
         break
-      //     case Static:
-      //       if (n1 == null) {
-      //         mountStaticNode(n2, container, anchor, isSVG)
-      //       } else if (__DEV__) {
-      //         patchStaticNode(n1, n2, container, isSVG)
-      //       }
-      //       break
+      case Static:
+        if (n1 == null) {
+          mountStaticNode(n2, container, anchor, isSVG)
+        } else if (__DEV__) {
+          patchStaticNode(n1, n2, container, isSVG)
+        }
+        break
       case Fragment:
         processFragment(
           n1,
@@ -486,74 +486,74 @@ function baseCreateRenderer(
     }
   }
 
-  // const mountStaticNode = (
-  //   n2: VNode,
-  //   container: RendererElement,
-  //   anchor: RendererNode | null,
-  //   isSVG: boolean
-  // ) => {
-  //   // static nodes are only present when used with compiler-dom/runtime-dom
-  //   // which guarantees presence of hostInsertStaticContent.
-  //   ;[n2.el, n2.anchor] = hostInsertStaticContent!(
-  //     n2.children as string,
-  //     container,
-  //     anchor,
-  //     isSVG,
-  //     n2.el,
-  //     n2.anchor
-  //   )
-  // }
+  const mountStaticNode = (
+    n2: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null,
+    isSVG: boolean
+  ) => {
+    // static nodes are only present when used with compiler-dom/runtime-dom
+    // which guarantees presence of hostInsertStaticContent.
+    ;[n2.el, n2.anchor] = hostInsertStaticContent!(
+      n2.children as string,
+      container,
+      anchor,
+      isSVG,
+      n2.el,
+      n2.anchor
+    )
+  }
 
-  // /**
-  //  * Dev / HMR only
-  //  */
-  // const patchStaticNode = (
-  //   n1: VNode,
-  //   n2: VNode,
-  //   container: RendererElement,
-  //   isSVG: boolean
-  // ) => {
-  //   // static nodes are only patched during dev for HMR
-  //   if (n2.children !== n1.children) {
-  //     const anchor = hostNextSibling(n1.anchor!)
-  //     // remove existing
-  //     removeStaticNode(n1)
-  //     // insert new
-  //     ;[n2.el, n2.anchor] = hostInsertStaticContent!(
-  //       n2.children as string,
-  //       container,
-  //       anchor,
-  //       isSVG
-  //     )
-  //   } else {
-  //     n2.el = n1.el
-  //     n2.anchor = n1.anchor
-  //   }
-  // }
+  /**
+   * Dev / HMR only
+   */
+  const patchStaticNode = (
+    n1: VNode,
+    n2: VNode,
+    container: RendererElement,
+    isSVG: boolean
+  ) => {
+    // static nodes are only patched during dev for HMR
+    if (n2.children !== n1.children) {
+      const anchor = hostNextSibling(n1.anchor!)
+      // remove existing
+      removeStaticNode(n1)
+      // insert new
+      ;[n2.el, n2.anchor] = hostInsertStaticContent!(
+        n2.children as string,
+        container,
+        anchor,
+        isSVG
+      )
+    } else {
+      n2.el = n1.el
+      n2.anchor = n1.anchor
+    }
+  }
 
-  // const moveStaticNode = (
-  //   { el, anchor }: VNode,
-  //   container: RendererElement,
-  //   nextSibling: RendererNode | null
-  // ) => {
-  //   let next
-  //   while (el && el !== anchor) {
-  //     next = hostNextSibling(el)
-  //     hostInsert(el, container, nextSibling)
-  //     el = next
-  //   }
-  //   hostInsert(anchor!, container, nextSibling)
-  // }
+  const moveStaticNode = (
+    { el, anchor }: VNode,
+    container: RendererElement,
+    nextSibling: RendererNode | null
+  ) => {
+    let next
+    while (el && el !== anchor) {
+      next = hostNextSibling(el)
+      hostInsert(el, container, nextSibling)
+      el = next
+    }
+    hostInsert(anchor!, container, nextSibling)
+  }
 
-  // const removeStaticNode = ({ el, anchor }: VNode) => {
-  //   let next
-  //   while (el && el !== anchor) {
-  //     next = hostNextSibling(el)
-  //     hostRemove(el)
-  //     el = next
-  //   }
-  //   hostRemove(anchor!)
-  // }
+  const removeStaticNode = ({ el, anchor }: VNode) => {
+    let next
+    while (el && el !== anchor) {
+      next = hostNextSibling(el)
+      hostRemove(el)
+      el = next
+    }
+    hostRemove(anchor!)
+  }
 
   const processElement = (
     n1: VNode | null,
@@ -1957,10 +1957,10 @@ function baseCreateRenderer(
       return
     }
 
-    // if (type === Static) {
-    //   moveStaticNode(vnode, container, anchor)
-    //   return
-    // }
+    if (type === Static) {
+      moveStaticNode(vnode, container, anchor)
+      return
+    }
 
     // single nodes
     const needTransition =
@@ -2108,7 +2108,7 @@ function baseCreateRenderer(
     }
 
     if (type === Static) {
-      // removeStaticNode(vnode)
+      removeStaticNode(vnode)
       return
     }
 

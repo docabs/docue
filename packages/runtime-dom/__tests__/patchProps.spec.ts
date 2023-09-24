@@ -153,7 +153,7 @@ describe('runtime-dom: props patching', () => {
     const el = document.createElement('video')
     // jsdom doesn't really support video playback. srcObject in a real browser
     // should default to `null`, but in jsdom it's `undefined`.
-    // anyway, here we just want to make sure Vue doesn't set non-string props
+    // anyway, here we just want to make sure Docue doesn't set non-string props
     // to an empty string on nullish values - it should reset to its default
     // value.
     const initialValue = el.srcObject

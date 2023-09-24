@@ -63,22 +63,22 @@ export { defineAsyncComponent } from './apiAsyncComponent'
 
 // <script setup> API ----------------------------------------------------------
 
-// export {
-//   // macros runtime, for typing and warnings only
-//   defineProps,
-//   defineEmits,
-//   defineExpose,
-//   defineOptions,
-//   defineSlots,
-//   defineModel,
-//   withDefaults,
-//   useModel,
-//   // internal
-//   mergeDefaults,
-//   mergeModels,
-//   createPropsRestProxy,
-//   withAsyncContext
-// } from './apiSetupHelpers'
+export {
+  // macros runtime, for typing and warnings only
+  defineProps,
+  defineEmits,
+  defineExpose,
+  defineOptions,
+  defineSlots,
+  defineModel,
+  withDefaults,
+  useModel,
+  // internal
+  mergeDefaults,
+  mergeModels,
+  createPropsRestProxy,
+  withAsyncContext
+} from './apiSetupHelpers'
 
 // Advanced API ----------------------------------------------------------------
 
@@ -265,10 +265,10 @@ export type {
   DirectiveArguments
 } from './directives'
 export type { SuspenseBoundary } from './components/Suspense'
-// export type {
-//   TransitionState,
-//   TransitionHooks
-// } from './components/BaseTransition'
+export type {
+  TransitionState,
+  TransitionHooks
+} from './components/BaseTransition'
 export type {
   AsyncComponentOptions,
   AsyncComponentLoader
@@ -299,9 +299,9 @@ export {
   setBlockTracking,
   createTextVNode,
   createCommentVNode,
-  // createStaticVNode,
+  createStaticVNode,
   // createElementVNode,
-  createElementBlock,
+  // createElementBlock,
   guardReactiveProps
 } from './vnode'
 export {
@@ -345,11 +345,11 @@ export const ssrUtils = (__SSR__ ? _ssrUtils : null) as typeof _ssrUtils
 // 2.x COMPAT ------------------------------------------------------------------
 
 // export { DeprecationTypes } from './compat/compatConfig'
-// export type { CompatVue } from './compat/global'
+// export type { CompatDocue } from './compat/global'
 // export type { LegacyConfig } from './compat/globalConfig'
 
 // import { warnDeprecation } from './compat/compatConfig'
-// import { createCompatVue } from './compat/global'
+// import { createCompatDocue } from './compat/global'
 // import {
 //   isCompatEnabled,
 //   checkCompatEnabled,
@@ -364,7 +364,7 @@ export const ssrUtils = (__SSR__ ? _ssrUtils : null) as typeof _ssrUtils
 
 // const _compatUtils = {
 //   warnDeprecation,
-//   createCompatVue,
+//   createCompatDocue,
 //   isCompatEnabled,
 //   checkCompatEnabled,
 //   softAssertCompatEnabled

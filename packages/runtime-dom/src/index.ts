@@ -19,7 +19,7 @@ import { patchProp } from './patchProp'
 const rendererOptions = /*#__PURE__*/ extend({ patchProp }, nodeOps)
 
 // lazy create the renderer - this makes core renderer logic tree-shakable
-// in case the user only imports reactivity utilities from Vue.
+// in case the user only imports reactivity utilities from Docue.
 let renderer: Renderer<Element | ShadowRoot> | HydrationRenderer
 
 // let enabledHydration = false
@@ -70,6 +70,12 @@ export const createApp = ((...args) => {
     // clear content before mounting
     container.innerHTML = ''
     const proxy = mount(container, false, container instanceof SVGElement)
+
+    if (container instanceof Element) {
+      container.removeAttribute('v-cloak')
+      // container.setAttribute('data-v-app', '')
+    }
+
     return proxy
   }
 
@@ -123,7 +129,7 @@ export const createApp = ((...args) => {
 //     const compilerOptions = app.config.compilerOptions
 //     const msg =
 //       `The \`compilerOptions\` config option is only respected when using ` +
-//       `a build of Vue.js that includes the runtime compiler (aka "full build"). ` +
+//       `a build of Docue.js that includes the runtime compiler (aka "full build"). ` +
 //       `Since you are using the runtime-only build, \`compilerOptions\` ` +
 //       `must be passed to \`@vue/compiler-dom\` in the build setup instead.\n` +
 //       `- For vue-loader: pass it via vue-loader's \`compilerOptions\` loader option.\n` +
@@ -167,17 +173,17 @@ function normalizeContainer(
   return container as any
 }
 
-// // Custom element support
-// export {
-//   defineCustomElement,
-//   defineSSRCustomElement,
-//   VueElement,
-//   type VueElementConstructor
-// } from './apiCustomElement'
+// Custom element support
+export {
+  defineCustomElement,
+  // defineSSRCustomElement,
+  DocueElement,
+  type DocueElementConstructor
+} from './apiCustomElement'
 
-// // SFC CSS utilities
-// export { useCssModule } from './helpers/useCssModule'
-// export { useCssVars } from './helpers/useCssVars'
+// SFC CSS utilities
+export { useCssModule } from './helpers/useCssModule'
+export { useCssVars } from './helpers/useCssVars'
 
 // // DOM-only components
 // export { Transition, type TransitionProps } from './components/Transition'
@@ -187,15 +193,15 @@ function normalizeContainer(
 // } from './components/TransitionGroup'
 
 // // **Internal** DOM-only runtime directive helpers
-// export {
-//   vModelText,
-//   vModelCheckbox,
-//   vModelRadio,
-//   vModelSelect,
-//   vModelDynamic
-// } from './directives/vModel'
+export {
+  vModelText,
+  // vModelCheckbox,
+  // vModelRadio,
+  // vModelSelect,
+  vModelDynamic
+} from './directives/vModel'
 // export { withModifiers, withKeys } from './directives/vOn'
-// export { vShow } from './directives/vShow'
+export { vShow } from './directives/vShow'
 
 // import { initVModelForSSR } from './directives/vModel'
 // import { initVShowForSSR } from './directives/vShow'

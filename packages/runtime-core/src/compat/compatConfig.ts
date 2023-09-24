@@ -81,49 +81,49 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.GLOBAL_MOUNT_CONTAINER]: {
     message:
-      `Vue detected directives on the mount container. ` +
-      `In Vue 3, the container is no longer considered part of the template ` +
+      `Docue detected directives on the mount container. ` +
+      `In Docue 3, the container is no longer considered part of the template ` +
       `and will not be processed/replaced.`,
     link: `https://v3-migration.vuejs.org/breaking-changes/mount-changes.html`
   },
 
   [DeprecationTypes.GLOBAL_EXTEND]: {
     message:
-      `Vue.extend() has been removed in Vue 3. ` +
+      `Docue.extend() has been removed in Docue 3. ` +
       `Use defineComponent() instead.`,
     link: `https://vuejs.org/api/general.html#definecomponent`
   },
 
   [DeprecationTypes.GLOBAL_PROTOTYPE]: {
     message:
-      `Vue.prototype is no longer available in Vue 3. ` +
+      `Docue.prototype is no longer available in Docue 3. ` +
       `Use app.config.globalProperties instead.`,
     link: `https://v3-migration.vuejs.org/breaking-changes/global-api.html#vue-prototype-replaced-by-config-globalproperties`
   },
 
   [DeprecationTypes.GLOBAL_SET]: {
     message:
-      `Vue.set() has been removed as it is no longer needed in Vue 3. ` +
+      `Docue.set() has been removed as it is no longer needed in Docue 3. ` +
       `Simply use native JavaScript mutations.`
   },
 
   [DeprecationTypes.GLOBAL_DELETE]: {
     message:
-      `Vue.delete() has been removed as it is no longer needed in Vue 3. ` +
+      `Docue.delete() has been removed as it is no longer needed in Docue 3. ` +
       `Simply use native JavaScript mutations.`
   },
 
   [DeprecationTypes.GLOBAL_OBSERVABLE]: {
     message:
-      `Vue.observable() has been removed. ` +
+      `Docue.observable() has been removed. ` +
       `Use \`import { reactive } from "vue"\` from Composition API instead.`,
     link: `https://vuejs.org/api/reactivity-core.html#reactive`
   },
 
   [DeprecationTypes.GLOBAL_PRIVATE_UTIL]: {
     message:
-      `Vue.util has been removed. Please refactor to avoid its usage ` +
-      `since it was an internal API even in Vue 2.`
+      `Docue.util has been removed. Please refactor to avoid its usage ` +
+      `since it was an internal API even in Docue 2.`
   },
 
   [DeprecationTypes.CONFIG_SILENT]: {
@@ -143,7 +143,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
   [DeprecationTypes.CONFIG_KEY_CODES]: {
     message:
       `config.keyCodes has been removed. ` +
-      `In Vue 3, you can directly use the kebab-case key names as v-on modifiers.`,
+      `In Docue 3, you can directly use the kebab-case key names as v-on modifiers.`,
     link: `https://v3-migration.vuejs.org/breaking-changes/keycode-modifiers.html`
   },
 
@@ -169,7 +169,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
     // this warning is only relevant in the full build when using runtime
     // compilation, so it's put in the runtime compatConfig list.
     message:
-      `Vue 3 compiler's whitespace option will default to "condense" instead of ` +
+      `Docue 3 compiler's whitespace option will default to "condense" instead of ` +
       `"preserve". To suppress this warning, provide an explicit value for ` +
       `\`config.compilerOptions.whitespace\`.`
   },
@@ -182,13 +182,13 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.INSTANCE_SET]: {
     message:
-      `vm.$set() has been removed as it is no longer needed in Vue 3. ` +
+      `vm.$set() has been removed as it is no longer needed in Docue 3. ` +
       `Simply use native JavaScript mutations.`
   },
 
   [DeprecationTypes.INSTANCE_DELETE]: {
     message:
-      `vm.$delete() has been removed as it is no longer needed in Vue 3. ` +
+      `vm.$delete() has been removed as it is no longer needed in Docue 3. ` +
       `Simply use native JavaScript mutations.`
   },
 
@@ -223,10 +223,10 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.INSTANCE_LISTENERS]: {
     message:
-      `vm.$listeners has been removed. In Vue 3, parent v-on listeners are ` +
+      `vm.$listeners has been removed. In Docue 3, parent v-on listeners are ` +
       `included in vm.$attrs and it is no longer necessary to separately use ` +
       `v-on="$listeners" if you are already using v-bind="$attrs". ` +
-      `(Note: the Vue 3 behavior only applies if this compat config is disabled)`,
+      `(Note: the Docue 3 behavior only applies if this compat config is disabled)`,
     link: `https://v3-migration.vuejs.org/breaking-changes/listeners-removed.html`
   },
 
@@ -240,7 +240,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `Component <${
         componentName || 'Anonymous'
       }> has \`inheritAttrs: false\` but is ` +
-      `relying on class/style fallthrough from parent. In Vue 3, class/style ` +
+      `relying on class/style fallthrough from parent. In Docue 3, class/style ` +
       `are now included in $attrs and will no longer fallthrough when ` +
       `inheritAttrs is false. If you are already using v-bind="$attrs" on ` +
       `component root it should render the same end result. ` +
@@ -260,7 +260,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
   [DeprecationTypes.OPTIONS_DATA_MERGE]: {
     message: (key: string) =>
       `Detected conflicting key "${key}" when merging data option values. ` +
-      `In Vue 3, data keys are merged shallowly and will override one another.`,
+      `In Docue 3, data keys are merged shallowly and will override one another.`,
     link: `https://v3-migration.vuejs.org/breaking-changes/data-option.html#mixin-merge-behavior-change`
   },
 
@@ -307,7 +307,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
   [DeprecationTypes.ATTR_FALSE_VALUE]: {
     message: (name: string) =>
       `Attribute "${name}" with v-bind value \`false\` will render ` +
-      `${name}="false" instead of removing it in Vue 3. To remove the attribute, ` +
+      `${name}="false" instead of removing it in Docue 3. To remove the attribute, ` +
       `use \`null\` or \`undefined\` instead. If the usage is intended, ` +
       `you can disable the compat behavior and suppress this warning with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.ATTR_FALSE_VALUE}: false })\n`,
@@ -319,7 +319,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       `Enumerated attribute "${name}" with v-bind value \`${value}\` will ` +
       `${
         value === null ? `be removed` : `render the value as-is`
-      } instead of coercing the value to "${coerced}" in Vue 3. ` +
+      } instead of coercing the value to "${coerced}" in Docue 3. ` +
       `Always use explicit "true" or "false" values for enumerated attributes. ` +
       `If the usage is intended, ` +
       `you can disable the compat behavior and suppress this warning with:` +
@@ -348,7 +348,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
         `Async component${
           name ? ` <${name}>` : `s`
         } should be explicitly created via \`defineAsyncComponent()\` ` +
-        `in Vue 3. Plain functions will be treated as functional components in ` +
+        `in Docue 3. Plain functions will be treated as functional components in ` +
         `non-compat build. If you have already migrated all async component ` +
         `usage and intend to use plain functions for functional components, ` +
         `you can disable the compat behavior and suppress this ` +
@@ -365,7 +365,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
       return (
         `Functional component${
           name ? ` <${name}>` : `s`
-        } should be defined as a plain function in Vue 3. The "functional" ` +
+        } should be defined as a plain function in Docue 3. The "functional" ` +
         `option has been removed. NOTE: Before migrating to use plain ` +
         `functions for functional components, first make sure that all async ` +
         `components usage have been migrated and its compat behavior has ` +
@@ -379,7 +379,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
     message: (comp: ComponentOptions) => {
       const configMsg =
         `opt-in to ` +
-        `Vue 3 behavior on a per-component basis with \`compatConfig: { ${DeprecationTypes.COMPONENT_V_MODEL}: false }\`.`
+        `Docue 3 behavior on a per-component basis with \`compatConfig: { ${DeprecationTypes.COMPONENT_V_MODEL}: false }\`.`
       if (
         comp.props &&
         (isArray(comp.props)
@@ -387,12 +387,12 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
           : hasOwn(comp.props, 'modelValue'))
       ) {
         return (
-          `Component declares "modelValue" prop, which is Vue 3 usage, but ` +
-          `is running under Vue 2 compat v-model behavior. You can ${configMsg}`
+          `Component declares "modelValue" prop, which is Docue 3 usage, but ` +
+          `is running under Docue 2 compat v-model behavior. You can ${configMsg}`
         )
       }
       return (
-        `v-model usage on component has changed in Vue 3. Component that expects ` +
+        `v-model usage on component has changed in Docue 3. Component that expects ` +
         `to work with v-model should now use the "modelValue" prop and emit the ` +
         `"update:modelValue" event. You can update the usage and then ${configMsg}`
       )
@@ -402,7 +402,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.RENDER_FUNCTION]: {
     message:
-      `Vue 3's render function API has changed. ` +
+      `Docue 3's render function API has changed. ` +
       `You can opt-in to the new API with:` +
       `\n\n  configureCompat({ ${DeprecationTypes.RENDER_FUNCTION}: false })\n` +
       `\n  (This can also be done per-component via the "compatConfig" option.)`,
@@ -411,7 +411,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.FILTERS]: {
     message:
-      `filters have been removed in Vue 3. ` +
+      `filters have been removed in Docue 3. ` +
       `The "|" symbol will be treated as native JavaScript bitwise OR operator. ` +
       `Use method calls or computed properties instead.`,
     link: `https://v3-migration.vuejs.org/breaking-changes/filters.html`
@@ -419,7 +419,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
 
   [DeprecationTypes.PRIVATE_APIS]: {
     message: name =>
-      `"${name}" is a Vue 2 private API that no longer exists in Vue 3. ` +
+      `"${name}" is a Docue 2 private API that no longer exists in Docue 3. ` +
       `If you are seeing this warning only due to a dependency, you can ` +
       `suppress this warning via { PRIVATE_APIS: 'suppress-warning' }.`
   }
@@ -532,7 +532,7 @@ export function validateCompatConfig(
         if (isRuntimeOnly()) {
           warn(
             `Deprecation config "${key}" is compiler-specific and you are ` +
-              `running a runtime-only build of Vue. This deprecation should be ` +
+              `running a runtime-only build of Docue. This deprecation should be ` +
               `configured via compiler options in your build setup instead.\n` +
               `Details: https://v3-migration.vuejs.org/breaking-changes/migration-build.html`
           )
