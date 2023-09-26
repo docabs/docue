@@ -38,6 +38,7 @@ import {
 } from './componentRenderContext'
 import { ErrorCodes, callWithAsyncErrorHandling } from './errorHandling'
 import { convertLegacyComponent } from './compat/component'
+import { RendererNode } from './renderer'
 
 export const Fragment = Symbol.for('v-fgt') as any as {
   __isFragment: true
@@ -104,14 +105,6 @@ export type VNodeProps = {
   onVnodeUpdated?: VNodeUpdateHook | VNodeUpdateHook[]
   onVnodeBeforeUnmount?: VNodeMountHook | VNodeMountHook[]
   onVnodeUnmounted?: VNodeMountHook | VNodeMountHook[]
-}
-
-// Renderer Node can technically be any object in the context of core renderer
-// logic - they are never directly operated on and always passed to the node op
-// functions provided via options, so the internal constraint is really just
-// a generic object.
-export interface RendererNode {
-  [key: string]: any
 }
 
 export interface RendererElement extends RendererNode {}
@@ -654,8 +647,8 @@ export function cloneVNode<T, U>(
     ssFallback: vnode.ssFallback && cloneVNode(vnode.ssFallback),
     el: vnode.el,
     anchor: vnode.anchor,
-    ctx: vnode.ctx
-    // ce: vnode.ce
+    ctx: vnode.ctx,
+    ce: vnode.ce
   }
 
   return cloned

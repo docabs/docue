@@ -86,4 +86,4 @@ if (__DEV__) {
 // registerRuntimeCompiler(compileToFunction)
 
 // export { compileToFunction as compile }
-// export * from '@docue/runtime-dom'
+export * from '@docue/runtime-dom'
