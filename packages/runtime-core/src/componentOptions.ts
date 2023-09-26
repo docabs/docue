@@ -179,14 +179,14 @@ export interface ComponentOptionsBase<
   //  */
   // __asyncResolved?: ConcreteComponent
 
-  // // Type differentiators ------------------------------------------------------
+  // Type differentiators ------------------------------------------------------
 
-  // // Note these are internal but need to be exposed in d.ts for type inference
-  // // to work!
+  // Note these are internal but need to be exposed in d.ts for type inference
+  // to work!
 
-  // // type-only differentiator to separate OptionWithoutProps from a constructor
-  // // type returned by defineComponent() or FunctionalComponent
-  // call?: (this: unknown, ...args: unknown[]) => never
+  // type-only differentiator to separate OptionWithoutProps from a constructor
+  // type returned by defineComponent() or FunctionalComponent
+  call?: (this: unknown, ...args: unknown[]) => never
   // // type-only differentiators for built-in Vnode types
   // __isFragment?: never
   // __isTeleport?: never
@@ -372,7 +372,19 @@ export type ComponentOptions<
   string,
   S
 > &
-  ThisType<CreateComponentPublicInstance<{}, RawBindings, D, C, M>>
+  ThisType<
+    CreateComponentPublicInstance<
+      {},
+      RawBindings,
+      D,
+      C,
+      M,
+      Mixin,
+      Extends,
+      E,
+      Readonly<Props>
+    >
+  >
 
 export type ComponentOptionsMixin = ComponentOptionsBase<
   any,

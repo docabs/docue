@@ -575,9 +575,9 @@ export function createComponentInstance(
   instance.emit = emit.bind(null, instance)
 
   // apply custom element special handling
-  // if (vnode.ce) {
-  //   vnode.ce(instance)
-  // }
+  if (vnode.ce) {
+    vnode.ce(instance)
+  }
 
   return instance
 }
