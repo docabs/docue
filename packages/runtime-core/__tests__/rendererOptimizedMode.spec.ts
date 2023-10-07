@@ -1,7 +1,7 @@
 import {
   h,
   Fragment,
-  // Teleport,
+  Teleport,
   createVNode,
   createCommentVNode,
   openBlock,
@@ -26,7 +26,7 @@ import {
   onUnmounted
 } from '@docue/runtime-test'
 import { PatchFlags, SlotFlags } from '@docue/shared'
-// import { SuspenseImpl } from '../src/components/Suspense'
+import { SuspenseImpl } from '../src/components/Suspense'
 
 describe('renderer: optimized mode', () => {
   let root: TestElement
@@ -585,46 +585,46 @@ describe('renderer: optimized mode', () => {
     expect(inner(root)).toBe('<div>World</div>')
   })
 
-  // //#3623
-  // test('nested teleport unmount need exit the optimization mode', () => {
-  //   const target = nodeOps.createElement('div')
-  //   const root = nodeOps.createElement('div')
+  //#3623
+  test('nested teleport unmount need exit the optimization mode', () => {
+    const target = nodeOps.createElement('div')
+    const root = nodeOps.createElement('div')
 
-  //   render(
-  //     (openBlock(),
-  //     createBlock('div', null, [
-  //       (openBlock(),
-  //       createBlock(
-  //         Teleport as any,
-  //         {
-  //           to: target
-  //         },
-  //         [
-  //           createVNode('div', null, [
-  //             (openBlock(),
-  //             createBlock(
-  //               Teleport as any,
-  //               {
-  //                 to: target
-  //               },
-  //               [createVNode('div', null, 'foo')]
-  //             ))
-  //           ])
-  //         ]
-  //       ))
-  //     ])),
-  //     root
-  //   )
-  //   expect(inner(target)).toMatchInlineSnapshot(
-  //     `"<div><!--teleport start--><!--teleport end--></div><div>foo</div>"`
-  //   )
-  //   expect(inner(root)).toMatchInlineSnapshot(
-  //     `"<div><!--teleport start--><!--teleport end--></div>"`
-  //   )
+    render(
+      (openBlock(),
+      createBlock('div', null, [
+        (openBlock(),
+        createBlock(
+          Teleport as any,
+          {
+            to: target
+          },
+          [
+            createVNode('div', null, [
+              (openBlock(),
+              createBlock(
+                Teleport as any,
+                {
+                  to: target
+                },
+                [createVNode('div', null, 'foo')]
+              ))
+            ])
+          ]
+        ))
+      ])),
+      root
+    )
+    expect(inner(target)).toMatchInlineSnapshot(
+      `"<div><!--teleport start--><!--teleport end--></div><div>foo</div>"`
+    )
+    expect(inner(root)).toMatchInlineSnapshot(
+      `"<div><!--teleport start--><!--teleport end--></div>"`
+    )
 
-  //   render(null, root)
-  //   expect(inner(target)).toBe('')
-  // })
+    render(null, root)
+    expect(inner(target)).toBe('')
+  })
 
   // #3548
   test('should not track dynamic children when the user calls a compiled slot inside template expression', () => {
@@ -791,90 +791,90 @@ describe('renderer: optimized mode', () => {
     expect(inner(root)).toBe('<div><div><span>loading</span></div></div>')
   })
 
-  // // #3828
-  // test('patch Suspense in optimized mode w/ nested dynamic nodes', async () => {
-  //   const show = ref(false)
+  // #3828
+  test('patch Suspense in optimized mode w/ nested dynamic nodes', async () => {
+    const show = ref(false)
 
-  //   const app = createApp({
-  //     render() {
-  //       return (
-  //         openBlock(),
-  //         createBlock(
-  //           Fragment,
-  //           null,
-  //           [
-  //             (openBlock(),
-  //             createBlock(SuspenseImpl, null, {
-  //               default: withCtx(() => [
-  //                 createVNode('div', null, [
-  //                   createVNode('div', null, show.value, PatchFlags.TEXT)
-  //                 ])
-  //               ]),
-  //               _: SlotFlags.STABLE
-  //             }))
-  //           ],
-  //           PatchFlags.STABLE_FRAGMENT
-  //         )
-  //       )
-  //     }
-  //   })
+    const app = createApp({
+      render() {
+        return (
+          openBlock(),
+          createBlock(
+            Fragment,
+            null,
+            [
+              (openBlock(),
+              createBlock(SuspenseImpl, null, {
+                default: withCtx(() => [
+                  createVNode('div', null, [
+                    createVNode('div', null, show.value, PatchFlags.TEXT)
+                  ])
+                ]),
+                _: SlotFlags.STABLE
+              }))
+            ],
+            PatchFlags.STABLE_FRAGMENT
+          )
+        )
+      }
+    })
 
-  //   app.mount(root)
-  //   expect(inner(root)).toBe('<div><div>false</div></div>')
+    app.mount(root)
+    expect(inner(root)).toBe('<div><div>false</div></div>')
 
-  //   show.value = true
-  //   await nextTick()
-  //   expect(inner(root)).toBe('<div><div>true</div></div>')
-  // })
+    show.value = true
+    await nextTick()
+    expect(inner(root)).toBe('<div><div>true</div></div>')
+  })
 
-  // // #4183
-  // test('should not take unmount children fast path /w Suspense', async () => {
-  //   const show = ref(true)
-  //   const spyUnmounted = vi.fn()
+  // #4183
+  test('should not take unmount children fast path /w Suspense', async () => {
+    const show = ref(true)
+    const spyUnmounted = vi.fn()
 
-  //   const Parent = {
-  //     setup(props: any, { slots }: SetupContext) {
-  //       return () => (
-  //         openBlock(),
-  //         createBlock(SuspenseImpl, null, {
-  //           default: withCtx(() => [renderSlot(slots, 'default')]),
-  //           _: SlotFlags.FORWARDED
-  //         })
-  //       )
-  //     }
-  //   }
+    const Parent = {
+      setup(props: any, { slots }: SetupContext) {
+        return () => (
+          openBlock(),
+          createBlock(SuspenseImpl, null, {
+            default: withCtx(() => [renderSlot(slots, 'default')]),
+            _: SlotFlags.FORWARDED
+          })
+        )
+      }
+    }
 
-  //   const Child = {
-  //     setup() {
-  //       onUnmounted(spyUnmounted)
-  //       return () => createVNode('div', null, show.value, PatchFlags.TEXT)
-  //     }
-  //   }
+    const Child = {
+      setup() {
+        onUnmounted(spyUnmounted)
+        return () => createVNode('div', null, show.value, PatchFlags.TEXT)
+      }
+    }
 
-  //   const app = createApp({
-  //     render() {
-  //       return show.value
-  //         ? (openBlock(),
-  //           createBlock(
-  //             Parent,
-  //             { key: 0 },
-  //             {
-  //               default: withCtx(() => [createVNode(Child)]),
-  //               _: SlotFlags.STABLE
-  //             }
-  //           ))
-  //         : createCommentVNode('v-if', true)
-  //     }
-  //   })
+    const app = createApp({
+      render() {
+        return show.value
+          ? (openBlock(),
+            createBlock(
+              Parent,
+              { key: 0 },
+              {
+                default: withCtx(() => [createVNode(Child)]),
+                _: SlotFlags.STABLE
+              }
+            ))
+          : createCommentVNode('v-if', true)
+      }
+    })
 
-  //   app.mount(root)
-  //   expect(inner(root)).toBe('<div>true</div>')
+    app.mount(root)
+    expect(inner(root)).toBe('<div>true</div>')
 
-  //   show.value = false
-  //   await nextTick()
-  //   expect(inner(root)).toBe('<!--v-if-->')
-  //   expect(spyUnmounted).toHaveBeenCalledTimes(1)
-  // })
+    show.value = false
+    await nextTick()
+    expect(inner(root)).toBe('<!--v-if-->')
+    expect(spyUnmounted).toHaveBeenCalledTimes(1)
+  })
 
   // #3881
   // root cause: fragment inside a compiled slot passed to component which

@@ -6,7 +6,8 @@ import {
   nextTick,
   onActivated,
   // Suspense,
-  KeepAlive
+  KeepAlive,
+  Suspense
 } from '../src'
 import { createApp, nodeOps, serializeInner } from '@docue/runtime-test'
 
@@ -442,87 +443,87 @@ describe('api: defineAsyncComponent', () => {
     expect(serializeInner(root)).toBe('resolved')
   })
 
-  // test('with suspense', async () => {
-  //   let resolve: (comp: Component) => void
-  //   const Foo = defineAsyncComponent(
-  //     () =>
-  //       new Promise(_resolve => {
-  //         resolve = _resolve as any
-  //       })
-  //   )
+  test('with suspense', async () => {
+    let resolve: (comp: Component) => void
+    const Foo = defineAsyncComponent(
+      () =>
+        new Promise(_resolve => {
+          resolve = _resolve as any
+        })
+    )
 
-  //   const root = nodeOps.createElement('div')
-  //   const app = createApp({
-  //     render: () =>
-  //       h(Suspense, null, {
-  //         default: () => h('div', [h(Foo), ' & ', h(Foo)]),
-  //         fallback: () => 'loading'
-  //       })
-  //   })
+    const root = nodeOps.createElement('div')
+    const app = createApp({
+      render: () =>
+        h(Suspense, null, {
+          default: () => h('div', [h(Foo), ' & ', h(Foo)]),
+          fallback: () => 'loading'
+        })
+    })
 
-  //   app.mount(root)
-  //   expect(serializeInner(root)).toBe('loading')
+    app.mount(root)
+    expect(serializeInner(root)).toBe('loading')
 
-  //   resolve!(() => 'resolved')
-  //   await timeout()
-  //   expect(serializeInner(root)).toBe('<div>resolved & resolved</div>')
-  // })
+    resolve!(() => 'resolved')
+    await timeout()
+    expect(serializeInner(root)).toBe('<div>resolved & resolved</div>')
+  })
 
-  // test('suspensible: false', async () => {
-  //   let resolve: (comp: Component) => void
-  //   const Foo = defineAsyncComponent({
-  //     loader: () =>
-  //       new Promise(_resolve => {
-  //         resolve = _resolve as any
-  //       }),
-  //     suspensible: false
-  //   })
+  test('suspensible: false', async () => {
+    let resolve: (comp: Component) => void
+    const Foo = defineAsyncComponent({
+      loader: () =>
+        new Promise(_resolve => {
+          resolve = _resolve as any
+        }),
+      suspensible: false
+    })
 
-  //   const root = nodeOps.createElement('div')
-  //   const app = createApp({
-  //     render: () =>
-  //       h(Suspense, null, {
-  //         default: () => h('div', [h(Foo), ' & ', h(Foo)]),
-  //         fallback: () => 'loading'
-  //       })
-  //   })
+    const root = nodeOps.createElement('div')
+    const app = createApp({
+      render: () =>
+        h(Suspense, null, {
+          default: () => h('div', [h(Foo), ' & ', h(Foo)]),
+          fallback: () => 'loading'
+        })
+    })
 
-  //   app.mount(root)
-  //   // should not show suspense fallback
-  //   expect(serializeInner(root)).toBe('<div><!----> & <!----></div>')
+    app.mount(root)
+    // should not show suspense fallback
+    expect(serializeInner(root)).toBe('<div><!----> & <!----></div>')
 
-  //   resolve!(() => 'resolved')
-  //   await timeout()
-  //   expect(serializeInner(root)).toBe('<div>resolved & resolved</div>')
-  // })
+    resolve!(() => 'resolved')
+    await timeout()
+    expect(serializeInner(root)).toBe('<div>resolved & resolved</div>')
+  })
 
-  // test('suspense with error handling', async () => {
-  //   let reject: (e: Error) => void
-  //   const Foo = defineAsyncComponent(
-  //     () =>
-  //       new Promise((_resolve, _reject) => {
-  //         reject = _reject
-  //       })
-  //   )
+  test('suspense with error handling', async () => {
+    let reject: (e: Error) => void
+    const Foo = defineAsyncComponent(
+      () =>
+        new Promise((_resolve, _reject) => {
+          reject = _reject
+        })
+    )
 
-  //   const root = nodeOps.createElement('div')
-  //   const app = createApp({
-  //     render: () =>
-  //       h(Suspense, null, {
-  //         default: () => h('div', [h(Foo), ' & ', h(Foo)]),
-  //         fallback: () => 'loading'
-  //       })
-  //   })
+    const root = nodeOps.createElement('div')
+    const app = createApp({
+      render: () =>
+        h(Suspense, null, {
+          default: () => h('div', [h(Foo), ' & ', h(Foo)]),
+          fallback: () => 'loading'
+        })
+    })
 
-  //   const handler = (app.config.errorHandler = vi.fn())
-  //   app.mount(root)
-  //   expect(serializeInner(root)).toBe('loading')
+    const handler = (app.config.errorHandler = vi.fn())
+    app.mount(root)
+    expect(serializeInner(root)).toBe('loading')
 
-  //   reject!(new Error('no'))
-  //   await timeout()
-  //   expect(handler).toHaveBeenCalled()
-  //   expect(serializeInner(root)).toBe('<div><!----> & <!----></div>')
-  // })
+    reject!(new Error('no'))
+    await timeout()
+    expect(handler).toHaveBeenCalled()
+    expect(serializeInner(root)).toBe('<div><!----> & <!----></div>')
+  })
 
   test('retry (success)', async () => {
     let loaderCallCount = 0

@@ -7,8 +7,8 @@ import {
   reactive,
   nextTick,
   ComponentOptions,
-  // Suspense,
-  // Teleport,
+  Suspense,
+  Teleport,
   FunctionalComponent
 } from '@docue/runtime-dom'
 
@@ -66,57 +66,57 @@ describe('useCssVars', () => {
     }))
   })
 
-  // test('on suspense root', async () => {
-  //   const state = reactive({ color: 'red' })
-  //   const root = document.createElement('div')
+  test('on suspense root', async () => {
+    const state = reactive({ color: 'red' })
+    const root = document.createElement('div')
 
-  //   let resolveAsync: any
-  //   let asyncPromise: any
+    let resolveAsync: any
+    let asyncPromise: any
 
-  //   const AsyncComp = {
-  //     setup() {
-  //       asyncPromise = new Promise(r => {
-  //         resolveAsync = () => {
-  //           r(() => h('p', 'default'))
-  //         }
-  //       })
-  //       return asyncPromise
-  //     }
-  //   }
+    const AsyncComp = {
+      setup() {
+        asyncPromise = new Promise(r => {
+          resolveAsync = () => {
+            r(() => h('p', 'default'))
+          }
+        })
+        return asyncPromise
+      }
+    }
 
-  //   const App = {
-  //     setup() {
-  //       useCssVars(() => state)
-  //       return () =>
-  //         h(Suspense, null, {
-  //           default: h(AsyncComp),
-  //           fallback: h('div', 'fallback')
-  //         })
-  //     }
-  //   }
+    const App = {
+      setup() {
+        useCssVars(() => state)
+        return () =>
+          h(Suspense, null, {
+            default: h(AsyncComp),
+            fallback: h('div', 'fallback')
+          })
+      }
+    }
 
-  //   render(h(App), root)
-  //   await nextTick()
-  //   // css vars use with fallback tree
-  //   for (const c of [].slice.call(root.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe(`red`)
-  //   }
-  //   // AsyncComp resolve
-  //   resolveAsync()
-  //   await asyncPromise.then(() => {})
-  //   // Suspense effects flush
-  //   await nextTick()
-  //   // css vars use with default tree
-  //   for (const c of [].slice.call(root.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe(`red`)
-  //   }
+    render(h(App), root)
+    await nextTick()
+    // css vars use with fallback tree
+    for (const c of [].slice.call(root.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe(`red`)
+    }
+    // AsyncComp resolve
+    resolveAsync()
+    await asyncPromise.then(() => {})
+    // Suspense effects flush
+    await nextTick()
+    // css vars use with default tree
+    for (const c of [].slice.call(root.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe(`red`)
+    }
 
-  //   state.color = 'green'
-  //   await nextTick()
-  //   for (const c of [].slice.call(root.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('green')
-  //   }
-  // })
+    state.color = 'green'
+    await nextTick()
+    for (const c of [].slice.call(root.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('green')
+    }
+  })
 
   test('with subTree changed', async () => {
     const state = reactive({ color: 'red' })
@@ -198,81 +198,81 @@ describe('useCssVars', () => {
     }
   })
 
-  // test('with teleport', async () => {
-  //   document.body.innerHTML = ''
-  //   const state = reactive({ color: 'red' })
-  //   const root = document.createElement('div')
-  //   const target = document.body
+  test('with teleport', async () => {
+    document.body.innerHTML = ''
+    const state = reactive({ color: 'red' })
+    const root = document.createElement('div')
+    const target = document.body
 
-  //   const App = {
-  //     setup() {
-  //       useCssVars(() => state)
-  //       return () => [h(Teleport, { to: target }, [h('div')])]
-  //     }
-  //   }
+    const App = {
+      setup() {
+        useCssVars(() => state)
+        return () => [h(Teleport, { to: target }, [h('div')])]
+      }
+    }
 
-  //   render(h(App), root)
-  //   await nextTick()
-  //   for (const c of [].slice.call(target.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
-  //   }
-  // })
+    render(h(App), root)
+    await nextTick()
+    for (const c of [].slice.call(target.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
+    }
+  })
 
-  // test('with teleport in child slot', async () => {
-  //   document.body.innerHTML = ''
-  //   const state = reactive({ color: 'red' })
-  //   const root = document.createElement('div')
-  //   const target = document.body
+  test('with teleport in child slot', async () => {
+    document.body.innerHTML = ''
+    const state = reactive({ color: 'red' })
+    const root = document.createElement('div')
+    const target = document.body
 
-  //   const Child: FunctionalComponent = (_, { slots }) => {
-  //     return h('div', slots.default && slots.default())
-  //   }
+    const Child: FunctionalComponent = (_, { slots }) => {
+      return h('div', slots.default && slots.default())
+    }
 
-  //   const App = {
-  //     setup() {
-  //       useCssVars(() => state)
-  //       return () => h(Child, () => [h(Teleport, { to: target }, [h('div')])])
-  //     }
-  //   }
+    const App = {
+      setup() {
+        useCssVars(() => state)
+        return () => h(Child, () => [h(Teleport, { to: target }, [h('div')])])
+      }
+    }
 
-  //   render(h(App), root)
-  //   await nextTick()
-  //   for (const c of [].slice.call(target.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
-  //   }
-  // })
+    render(h(App), root)
+    await nextTick()
+    for (const c of [].slice.call(target.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
+    }
+  })
 
-  // test('with teleport(change subTree)', async () => {
-  //   document.body.innerHTML = ''
-  //   const state = reactive({ color: 'red' })
-  //   const root = document.createElement('div')
-  //   const target = document.body
-  //   const toggle = ref(false)
+  test('with teleport(change subTree)', async () => {
+    document.body.innerHTML = ''
+    const state = reactive({ color: 'red' })
+    const root = document.createElement('div')
+    const target = document.body
+    const toggle = ref(false)
 
-  //   const App = {
-  //     setup() {
-  //       useCssVars(() => state)
-  //       return () => [
-  //         h(Teleport, { to: target }, [
-  //           h('div'),
-  //           toggle.value ? h('div') : null
-  //         ])
-  //       ]
-  //     }
-  //   }
+    const App = {
+      setup() {
+        useCssVars(() => state)
+        return () => [
+          h(Teleport, { to: target }, [
+            h('div'),
+            toggle.value ? h('div') : null
+          ])
+        ]
+      }
+    }
 
-  //   render(h(App), root)
-  //   await nextTick()
-  //   expect(target.children.length).toBe(1)
-  //   for (const c of [].slice.call(target.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
-  //   }
+    render(h(App), root)
+    await nextTick()
+    expect(target.children.length).toBe(1)
+    for (const c of [].slice.call(target.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
+    }
 
-  //   toggle.value = true
-  //   await nextTick()
-  //   expect(target.children.length).toBe(2)
-  //   for (const c of [].slice.call(target.children as any)) {
-  //     expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
-  //   }
-  // })
+    toggle.value = true
+    await nextTick()
+    expect(target.children.length).toBe(2)
+    for (const c of [].slice.call(target.children as any)) {
+      expect((c as HTMLElement).style.getPropertyValue(`--color`)).toBe('red')
+    }
+  })
 })

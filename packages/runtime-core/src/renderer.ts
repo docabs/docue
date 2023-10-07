@@ -1949,10 +1949,10 @@ function baseCreateRenderer(
       return
     }
 
-    // if (shapeFlag & ShapeFlags.TELEPORT) {
-    //   ;(type as typeof TeleportImpl).move(vnode, container, anchor, internals)
-    //   return
-    // }
+    if (shapeFlag & ShapeFlags.TELEPORT) {
+      ;(type as typeof TeleportImpl).move(vnode, container, anchor, internals)
+      return
+    }
 
     if (type === Fragment) {
       hostInsert(el!, container, anchor)
@@ -2043,14 +2043,14 @@ function baseCreateRenderer(
         invokeDirectiveHook(vnode, null, parentComponent, 'beforeUnmount')
       }
       if (shapeFlag & ShapeFlags.TELEPORT) {
-        //     ;(vnode.type as typeof TeleportImpl).remove(
-        //       vnode,
-        //       parentComponent,
-        //       parentSuspense,
-        //       optimized,
-        //       internals,
-        //       doRemove
-        //     )
+        ;(vnode.type as typeof TeleportImpl).remove(
+          vnode,
+          parentComponent,
+          parentSuspense,
+          optimized,
+          internals,
+          doRemove
+        )
       } else if (
         dynamicChildren &&
         // #1153: fast path should not be taken for non-stable (v-for) fragments

@@ -1,56 +1,56 @@
 // import { isString } from '@docue/shared'
-// import { ForParseResult } from './transforms/vFor'
+import { ForParseResult } from './transforms/vFor'
 import {
-  //   RENDER_SLOT,
-  //   CREATE_SLOTS,
-  //   RENDER_LIST,
+  RENDER_SLOT,
+  CREATE_SLOTS,
+  RENDER_LIST,
   OPEN_BLOCK,
-  //   FRAGMENT,
-  //   WITH_DIRECTIVES,
-  //   WITH_MEMO,
+  FRAGMENT,
+  WITH_DIRECTIVES,
+  WITH_MEMO,
   CREATE_VNODE,
   CREATE_ELEMENT_VNODE,
   CREATE_BLOCK,
   CREATE_ELEMENT_BLOCK
 } from './runtimeHelpers'
-// import { PropsExpression } from './transforms/transformElement'
+import { PropsExpression } from './transforms/transformElement'
 import { ImportItem, TransformContext } from './transform'
 
-// // Docue template is a platform-agnostic superset of HTML (syntax only).
-// // More namespaces like SVG and MathML are declared by platform specific
-// // compilers.
-// export type Namespace = number
+// Docue template is a platform-agnostic superset of HTML (syntax only).
+// More namespaces like SVG and MathML are declared by platform specific
+// compilers.
+export type Namespace = number
 
-// export const enum Namespaces {
-//   HTML
-// }
+export const enum Namespaces {
+  HTML
+}
 
 export const enum NodeTypes {
   ROOT,
-  //   ELEMENT,
-  //   TEXT,
-  //   COMMENT,
-  //   SIMPLE_EXPRESSION,
-  //   INTERPOLATION,
-  //   ATTRIBUTE,
-  //   DIRECTIVE,
-  //   // containers
-  //   COMPOUND_EXPRESSION,
+  ELEMENT,
+  TEXT,
+  COMMENT,
+  SIMPLE_EXPRESSION,
+  INTERPOLATION,
+  ATTRIBUTE,
+  DIRECTIVE,
+  // containers
+  COMPOUND_EXPRESSION,
   //   IF,
-  //   IF_BRANCH,
-  //   FOR,
-  //   TEXT_CALL,
-  //   // codegen
-  //   VNODE_CALL,
-  //   JS_CALL_EXPRESSION,
-  //   JS_OBJECT_EXPRESSION,
-  //   JS_PROPERTY,
-  //   JS_ARRAY_EXPRESSION,
-  //   JS_FUNCTION_EXPRESSION,
-  //   JS_CONDITIONAL_EXPRESSION,
-  //   JS_CACHE_EXPRESSION,
+  IF_BRANCH,
+  FOR,
+  TEXT_CALL,
+  // codegen
+  VNODE_CALL,
+  JS_CALL_EXPRESSION,
+  JS_OBJECT_EXPRESSION,
+  JS_PROPERTY,
+  JS_ARRAY_EXPRESSION,
+  JS_FUNCTION_EXPRESSION,
+  JS_CONDITIONAL_EXPRESSION,
+  JS_CACHE_EXPRESSION,
 
-  //   // ssr codegen
+  // ssr codegen
   //   JS_BLOCK_STATEMENT,
   //   JS_TEMPLATE_LITERAL,
   //   JS_IF_STATEMENT,
@@ -85,19 +85,20 @@ export interface Position {
   column: number
 }
 
-// export type ParentNode = RootNode | ElementNode | IfBranchNode | ForNode
+export type ParentNode = RootNode | ElementNode | IfBranchNode | ForNode
 
 export type ExpressionNode = SimpleExpressionNode | CompoundExpressionNode
 
-export type TemplateChildNode = ElementNode
-// | InterpolationNode
-// | CompoundExpressionNode
-// | TextNode
-// | CommentNode
-// | IfNode
-// | IfBranchNode
-// | ForNode
-// | TextCallNode
+export type TemplateChildNode =
+  | ElementNode
+  | InterpolationNode
+  // | CompoundExpressionNode
+  | TextNode
+  | CommentNode
+  // | IfNode
+  | IfBranchNode
+  | ForNode
+  | TextCallNode
 
 export interface RootNode extends Node {
   type: NodeTypes.ROOT
@@ -122,23 +123,23 @@ export type ElementNode =
   | TemplateNode
 
 export interface BaseElementNode extends Node {
-  //   type: NodeTypes.ELEMENT
-  //   ns: Namespace
-  //   tag: string
-  //   tagType: ElementTypes
-  //   isSelfClosing: boolean
-  //   props: Array<AttributeNode | DirectiveNode>
-  //   children: TemplateChildNode[]
+  type: NodeTypes.ELEMENT
+  ns: Namespace
+  tag: string
+  tagType: ElementTypes
+  isSelfClosing: boolean
+  props: Array<AttributeNode | DirectiveNode>
+  children: TemplateChildNode[]
 }
 
 export interface PlainElementNode extends BaseElementNode {
-  //   tagType: ElementTypes.ELEMENT
-  //   codegenNode:
-  //     | VNodeCall
-  //     | SimpleExpressionNode // when hoisted
-  //     | CacheExpression // when cached by v-once
-  //     | MemoExpression // when cached by v-memo
-  //     | undefined
+  tagType: ElementTypes.ELEMENT
+  codegenNode:
+    | VNodeCall
+    | SimpleExpressionNode // when hoisted
+    | CacheExpression // when cached by v-once
+    | MemoExpression // when cached by v-memo
+    | undefined
   //   ssrCodegenNode?: TemplateLiteral
 }
 
@@ -167,33 +168,33 @@ export interface TemplateNode extends BaseElementNode {
   codegenNode: undefined
 }
 
-// export interface TextNode extends Node {
-//   type: NodeTypes.TEXT
-//   content: string
-// }
+export interface TextNode extends Node {
+  type: NodeTypes.TEXT
+  content: string
+}
 
-// export interface CommentNode extends Node {
-//   type: NodeTypes.COMMENT
-//   content: string
-// }
+export interface CommentNode extends Node {
+  type: NodeTypes.COMMENT
+  content: string
+}
 
-// export interface AttributeNode extends Node {
-//   type: NodeTypes.ATTRIBUTE
-//   name: string
-//   value: TextNode | undefined
-// }
+export interface AttributeNode extends Node {
+  type: NodeTypes.ATTRIBUTE
+  name: string
+  value: TextNode | undefined
+}
 
-// export interface DirectiveNode extends Node {
-//   type: NodeTypes.DIRECTIVE
-//   name: string
-//   exp: ExpressionNode | undefined
-//   arg: ExpressionNode | undefined
-//   modifiers: string[]
-//   /**
-//    * optional property to cache the expression parse result for v-for
-//    */
-//   parseResult?: ForParseResult
-// }
+export interface DirectiveNode extends Node {
+  type: NodeTypes.DIRECTIVE
+  name: string
+  exp: ExpressionNode | undefined
+  arg: ExpressionNode | undefined
+  modifiers: string[]
+  /**
+   * optional property to cache the expression parse result for v-for
+   */
+  parseResult?: ForParseResult
+}
 
 /**
  * Static types have several levels.
@@ -208,10 +209,10 @@ export const enum ConstantTypes {
 }
 
 export interface SimpleExpressionNode extends Node {
-  //   type: NodeTypes.SIMPLE_EXPRESSION
-  //   content: string
-  //   isStatic: boolean
-  //   constType: ConstantTypes
+  type: NodeTypes.SIMPLE_EXPRESSION
+  content: string
+  isStatic: boolean
+  constType: ConstantTypes
   //   /**
   //    * Indicates this is an identifier for a hoist vnode call and points to the
   //    * hoisted node.
@@ -225,13 +226,13 @@ export interface SimpleExpressionNode extends Node {
   //   isHandlerKey?: boolean
 }
 
-// export interface InterpolationNode extends Node {
-//   type: NodeTypes.INTERPOLATION
-//   content: ExpressionNode
-// }
+export interface InterpolationNode extends Node {
+  type: NodeTypes.INTERPOLATION
+  content: ExpressionNode
+}
 
 export interface CompoundExpressionNode extends Node {
-  //   type: NodeTypes.COMPOUND_EXPRESSION
+  type: NodeTypes.COMPOUND_EXPRESSION
   //   children: (
   //     | SimpleExpressionNode
   //     | CompoundExpressionNode
@@ -254,142 +255,143 @@ export interface CompoundExpressionNode extends Node {
 //   codegenNode?: IfConditionalExpression | CacheExpression // <div v-if v-once>
 // }
 
-// export interface IfBranchNode extends Node {
-//   type: NodeTypes.IF_BRANCH
-//   condition: ExpressionNode | undefined // else
-//   children: TemplateChildNode[]
-//   userKey?: AttributeNode | DirectiveNode
-//   isTemplateIf?: boolean
-// }
+export interface IfBranchNode extends Node {
+  type: NodeTypes.IF_BRANCH
+  condition: ExpressionNode | undefined // else
+  children: TemplateChildNode[]
+  userKey?: AttributeNode | DirectiveNode
+  isTemplateIf?: boolean
+}
 
-// export interface ForNode extends Node {
-//   type: NodeTypes.FOR
-//   source: ExpressionNode
-//   valueAlias: ExpressionNode | undefined
-//   keyAlias: ExpressionNode | undefined
-//   objectIndexAlias: ExpressionNode | undefined
-//   parseResult: ForParseResult
-//   children: TemplateChildNode[]
-//   codegenNode?: ForCodegenNode
-// }
+export interface ForNode extends Node {
+  type: NodeTypes.FOR
+  source: ExpressionNode
+  valueAlias: ExpressionNode | undefined
+  keyAlias: ExpressionNode | undefined
+  objectIndexAlias: ExpressionNode | undefined
+  parseResult: ForParseResult
+  children: TemplateChildNode[]
+  codegenNode?: ForCodegenNode
+}
 
-// export interface TextCallNode extends Node {
-//   type: NodeTypes.TEXT_CALL
-//   content: TextNode | InterpolationNode | CompoundExpressionNode
-//   codegenNode: CallExpression | SimpleExpressionNode // when hoisted
-// }
+export interface TextCallNode extends Node {
+  type: NodeTypes.TEXT_CALL
+  content: TextNode | InterpolationNode | CompoundExpressionNode
+  codegenNode: CallExpression | SimpleExpressionNode // when hoisted
+}
 
-// export type TemplateTextChildNode =
-//   | TextNode
-//   | InterpolationNode
-//   | CompoundExpressionNode
+export type TemplateTextChildNode =
+  | TextNode
+  | InterpolationNode
+  | CompoundExpressionNode
 
 export interface VNodeCall extends Node {
-  //   type: NodeTypes.VNODE_CALL
-  //   tag: string | symbol | CallExpression
-  //   props: PropsExpression | undefined
-  //   children:
-  //     | TemplateChildNode[] // multiple children
-  //     | TemplateTextChildNode // single text child
-  //     | SlotsExpression // component slots
-  //     | ForRenderListExpression // v-for fragment call
-  //     | SimpleExpressionNode // hoisted
-  //     | undefined
-  //   patchFlag: string | undefined
-  //   dynamicProps: string | SimpleExpressionNode | undefined
-  //   directives: DirectiveArguments | undefined
+  type: NodeTypes.VNODE_CALL
+  tag: string | symbol | CallExpression
+  props: PropsExpression | undefined
+  children:
+    | TemplateChildNode[] // multiple children
+    | TemplateTextChildNode // single text child
+    | SlotsExpression // component slots
+    | ForRenderListExpression // v-for fragment call
+    | SimpleExpressionNode // hoisted
+    | undefined
+  patchFlag: string | undefined
+  dynamicProps: string | SimpleExpressionNode | undefined
+  directives: DirectiveArguments | undefined
   isBlock: boolean
-  //   disableTracking: boolean
+  disableTracking: boolean
   isComponent: boolean
 }
 
-// // JS Node Types ---------------------------------------------------------------
+// JS Node Types ---------------------------------------------------------------
 
-// // We also include a number of JavaScript AST nodes for code generation.
-// // The AST is an intentionally minimal subset just to meet the exact needs of
-// // Docue render function generation.
+// We also include a number of JavaScript AST nodes for code generation.
+// The AST is an intentionally minimal subset just to meet the exact needs of
+// Docue render function generation.
 
-export type JSChildNode = VNodeCall
-// | CallExpression
-// | ObjectExpression
-// | ArrayExpression
-// | ExpressionNode
-// | FunctionExpression
+export type JSChildNode =
+  | VNodeCall
+  | CallExpression
+  | ObjectExpression
+  // | ArrayExpression
+  | ExpressionNode
+  | FunctionExpression
 // | ConditionalExpression
 // | CacheExpression
 // | AssignmentExpression
 // | SequenceExpression
 
-// export interface CallExpression extends Node {
-//   type: NodeTypes.JS_CALL_EXPRESSION
-//   callee: string | symbol
-//   arguments: (
-//     | string
-//     | symbol
-//     | JSChildNode
-//     | SSRCodegenNode
-//     | TemplateChildNode
-//     | TemplateChildNode[]
-//   )[]
-// }
+export interface CallExpression extends Node {
+  type: NodeTypes.JS_CALL_EXPRESSION
+  callee: string | symbol
+  arguments: (
+    | string
+    | symbol
+    | JSChildNode
+    | SSRCodegenNode
+    | TemplateChildNode
+    | TemplateChildNode[]
+  )[]
+}
 
-// export interface ObjectExpression extends Node {
-//   type: NodeTypes.JS_OBJECT_EXPRESSION
-//   properties: Array<Property>
-// }
+export interface ObjectExpression extends Node {
+  type: NodeTypes.JS_OBJECT_EXPRESSION
+  properties: Array<Property>
+}
 
-// export interface Property extends Node {
-//   type: NodeTypes.JS_PROPERTY
-//   key: ExpressionNode
-//   value: JSChildNode
-// }
+export interface Property extends Node {
+  type: NodeTypes.JS_PROPERTY
+  key: ExpressionNode
+  value: JSChildNode
+}
 
-// export interface ArrayExpression extends Node {
-//   type: NodeTypes.JS_ARRAY_EXPRESSION
-//   elements: Array<string | Node>
-// }
+export interface ArrayExpression extends Node {
+  type: NodeTypes.JS_ARRAY_EXPRESSION
+  elements: Array<string | Node>
+}
 
-// export interface FunctionExpression extends Node {
-//   type: NodeTypes.JS_FUNCTION_EXPRESSION
-//   params: ExpressionNode | string | (ExpressionNode | string)[] | undefined
-//   returns?: TemplateChildNode | TemplateChildNode[] | JSChildNode
-//   body?: BlockStatement | IfStatement
-//   newline: boolean
-//   /**
-//    * This flag is for codegen to determine whether it needs to generate the
-//    * withScopeId() wrapper
-//    */
-//   isSlot: boolean
-//   /**
-//    * __COMPAT__ only, indicates a slot function that should be excluded from
-//    * the legacy $scopedSlots instance property.
-//    */
-//   isNonScopedSlot?: boolean
-// }
+export interface FunctionExpression extends Node {
+  type: NodeTypes.JS_FUNCTION_EXPRESSION
+  //   params: ExpressionNode | string | (ExpressionNode | string)[] | undefined
+  //   returns?: TemplateChildNode | TemplateChildNode[] | JSChildNode
+  //   body?: BlockStatement | IfStatement
+  //   newline: boolean
+  //   /**
+  //    * This flag is for codegen to determine whether it needs to generate the
+  //    * withScopeId() wrapper
+  //    */
+  //   isSlot: boolean
+  //   /**
+  //    * __COMPAT__ only, indicates a slot function that should be excluded from
+  //    * the legacy $scopedSlots instance property.
+  //    */
+  //   isNonScopedSlot?: boolean
+}
 
-// export interface ConditionalExpression extends Node {
-//   type: NodeTypes.JS_CONDITIONAL_EXPRESSION
-//   test: JSChildNode
-//   consequent: JSChildNode
-//   alternate: JSChildNode
-//   newline: boolean
-// }
+export interface ConditionalExpression extends Node {
+  type: NodeTypes.JS_CONDITIONAL_EXPRESSION
+  test: JSChildNode
+  consequent: JSChildNode
+  alternate: JSChildNode
+  newline: boolean
+}
 
-// export interface CacheExpression extends Node {
-//   type: NodeTypes.JS_CACHE_EXPRESSION
-//   index: number
-//   value: JSChildNode
-//   isVNode: boolean
-// }
+export interface CacheExpression extends Node {
+  type: NodeTypes.JS_CACHE_EXPRESSION
+  index: number
+  value: JSChildNode
+  isVNode: boolean
+}
 
-// export interface MemoExpression extends CallExpression {
-//   callee: typeof WITH_MEMO
-//   arguments: [ExpressionNode, MemoFactory, string, string]
-// }
+export interface MemoExpression extends CallExpression {
+  callee: typeof WITH_MEMO
+  arguments: [ExpressionNode, MemoFactory, string, string]
+}
 
-// interface MemoFactory extends FunctionExpression {
-//   returns: BlockCodegenNode
-// }
+interface MemoFactory extends FunctionExpression {
+  returns: BlockCodegenNode
+}
 
 // // SSR-specific Node Types -----------------------------------------------------
 
@@ -433,108 +435,108 @@ export interface BlockStatement extends Node {
 //   returns: TemplateChildNode | TemplateChildNode[] | JSChildNode
 // }
 
-// // Codegen Node Types ----------------------------------------------------------
+// Codegen Node Types ----------------------------------------------------------
 
-// export interface DirectiveArguments extends ArrayExpression {
-//   elements: DirectiveArgumentNode[]
-// }
+export interface DirectiveArguments extends ArrayExpression {
+  elements: DirectiveArgumentNode[]
+}
 
-// export interface DirectiveArgumentNode extends ArrayExpression {
-//   elements: // dir, exp, arg, modifiers
-//   | [string]
-//     | [string, ExpressionNode]
-//     | [string, ExpressionNode, ExpressionNode]
-//     | [string, ExpressionNode, ExpressionNode, ObjectExpression]
-// }
+export interface DirectiveArgumentNode extends ArrayExpression {
+  elements: // dir, exp, arg, modifiers
+  | [string]
+    | [string, ExpressionNode]
+    | [string, ExpressionNode, ExpressionNode]
+    | [string, ExpressionNode, ExpressionNode, ObjectExpression]
+}
 
-// // renderSlot(...)
-// export interface RenderSlotCall extends CallExpression {
-//   callee: typeof RENDER_SLOT
-//   arguments: // $slots, name, props, fallback
-//   | [string, string | ExpressionNode]
-//     | [string, string | ExpressionNode, PropsExpression]
-//     | [
-//         string,
-//         string | ExpressionNode,
-//         PropsExpression | '{}',
-//         TemplateChildNode[]
-//       ]
-// }
+// renderSlot(...)
+export interface RenderSlotCall extends CallExpression {
+  callee: typeof RENDER_SLOT
+  arguments: // $slots, name, props, fallback
+  | [string, string | ExpressionNode]
+    | [string, string | ExpressionNode, PropsExpression]
+    | [
+        string,
+        string | ExpressionNode,
+        PropsExpression | '{}',
+        TemplateChildNode[]
+      ]
+}
 
-// export type SlotsExpression = SlotsObjectExpression | DynamicSlotsExpression
+export type SlotsExpression = SlotsObjectExpression | DynamicSlotsExpression
 
-// // { foo: () => [...] }
-// export interface SlotsObjectExpression extends ObjectExpression {
-//   properties: SlotsObjectProperty[]
-// }
+// { foo: () => [...] }
+export interface SlotsObjectExpression extends ObjectExpression {
+  properties: SlotsObjectProperty[]
+}
 
-// export interface SlotsObjectProperty extends Property {
-//   value: SlotFunctionExpression
-// }
+export interface SlotsObjectProperty extends Property {
+  value: SlotFunctionExpression
+}
 
-// export interface SlotFunctionExpression extends FunctionExpression {
-//   returns: TemplateChildNode[]
-// }
+export interface SlotFunctionExpression extends FunctionExpression {
+  returns: TemplateChildNode[]
+}
 
-// // createSlots({ ... }, [
-// //    foo ? () => [] : undefined,
-// //    renderList(list, i => () => [i])
-// // ])
-// export interface DynamicSlotsExpression extends CallExpression {
-//   callee: typeof CREATE_SLOTS
-//   arguments: [SlotsObjectExpression, DynamicSlotEntries]
-// }
+// createSlots({ ... }, [
+//    foo ? () => [] : undefined,
+//    renderList(list, i => () => [i])
+// ])
+export interface DynamicSlotsExpression extends CallExpression {
+  callee: typeof CREATE_SLOTS
+  arguments: [SlotsObjectExpression, DynamicSlotEntries]
+}
 
-// export interface DynamicSlotEntries extends ArrayExpression {
-//   elements: (ConditionalDynamicSlotNode | ListDynamicSlotNode)[]
-// }
+export interface DynamicSlotEntries extends ArrayExpression {
+  elements: (ConditionalDynamicSlotNode | ListDynamicSlotNode)[]
+}
 
-// export interface ConditionalDynamicSlotNode extends ConditionalExpression {
-//   consequent: DynamicSlotNode
-//   alternate: DynamicSlotNode | SimpleExpressionNode
-// }
+export interface ConditionalDynamicSlotNode extends ConditionalExpression {
+  consequent: DynamicSlotNode
+  alternate: DynamicSlotNode | SimpleExpressionNode
+}
 
-// export interface ListDynamicSlotNode extends CallExpression {
-//   callee: typeof RENDER_LIST
-//   arguments: [ExpressionNode, ListDynamicSlotIterator]
-// }
+export interface ListDynamicSlotNode extends CallExpression {
+  callee: typeof RENDER_LIST
+  arguments: [ExpressionNode, ListDynamicSlotIterator]
+}
 
-// export interface ListDynamicSlotIterator extends FunctionExpression {
-//   returns: DynamicSlotNode
-// }
+export interface ListDynamicSlotIterator extends FunctionExpression {
+  returns: DynamicSlotNode
+}
 
-// export interface DynamicSlotNode extends ObjectExpression {
-//   properties: [Property, DynamicSlotFnProperty]
-// }
+export interface DynamicSlotNode extends ObjectExpression {
+  properties: [Property, DynamicSlotFnProperty]
+}
 
-// export interface DynamicSlotFnProperty extends Property {
-//   value: SlotFunctionExpression
-// }
+export interface DynamicSlotFnProperty extends Property {
+  value: SlotFunctionExpression
+}
 
-// export type BlockCodegenNode = VNodeCall | RenderSlotCall
+export type BlockCodegenNode = VNodeCall | RenderSlotCall
 
 // export interface IfConditionalExpression extends ConditionalExpression {
 //   consequent: BlockCodegenNode | MemoExpression
 //   alternate: BlockCodegenNode | IfConditionalExpression | MemoExpression
 // }
 
-// export interface ForCodegenNode extends VNodeCall {
-//   isBlock: true
-//   tag: typeof FRAGMENT
-//   props: undefined
-//   children: ForRenderListExpression
-//   patchFlag: string
-//   disableTracking: boolean
-// }
+export interface ForCodegenNode extends VNodeCall {
+  isBlock: true
+  tag: typeof FRAGMENT
+  props: undefined
+  children: ForRenderListExpression
+  patchFlag: string
+  disableTracking: boolean
+}
 
-// export interface ForRenderListExpression extends CallExpression {
-//   callee: typeof RENDER_LIST
-//   arguments: [ExpressionNode, ForIteratorExpression]
-// }
+export interface ForRenderListExpression extends CallExpression {
+  callee: typeof RENDER_LIST
+  arguments: [ExpressionNode, ForIteratorExpression]
+}
 
-// export interface ForIteratorExpression extends FunctionExpression {
-//   returns: BlockCodegenNode
-// }
+export interface ForIteratorExpression extends FunctionExpression {
+  returns: BlockCodegenNode
+}
 
 // AST Utilities ---------------------------------------------------------------
 
@@ -729,19 +731,19 @@ export function createRoot(
 //   }
 // }
 
-// export function createCacheExpression(
-//   index: number,
-//   value: JSChildNode,
-//   isVNode: boolean = false
-// ): CacheExpression {
-//   return {
-//     type: NodeTypes.JS_CACHE_EXPRESSION,
-//     index,
-//     value,
-//     isVNode,
-//     loc: locStub
-//   }
-// }
+export function createCacheExpression(
+  index: number,
+  value: JSChildNode,
+  isVNode: boolean = false
+): CacheExpression {
+  return {
+    type: NodeTypes.JS_CACHE_EXPRESSION,
+    index,
+    value,
+    isVNode,
+    loc: locStub
+  }
+}
 
 // export function createBlockStatement(
 //   body: BlockStatement['body']

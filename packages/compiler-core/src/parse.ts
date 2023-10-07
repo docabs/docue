@@ -1,33 +1,33 @@
 import { ErrorHandlingOptions, ParserOptions } from './options'
 import { NO, isArray, makeMap, extend } from '@docue/shared'
 import {
-  // ErrorCodes,
-  // createCompilerError,
+  ErrorCodes,
+  createCompilerError,
   defaultOnError,
   defaultOnWarn
 } from './errors'
-// import {
-//   assert,
-//   advancePositionWithMutation,
-//   advancePositionWithClone,
-//   isCoreComponent,
-//   isStaticArgOf
-// } from './utils'
 import {
-  //   Namespaces,
-  //   AttributeNode,
-  //   CommentNode,
-  //   DirectiveNode,
+  //   assert,
+  advancePositionWithMutation,
+  //   advancePositionWithClone,
+  //   isCoreComponent,
+  isStaticArgOf
+} from './utils'
+import {
+  Namespaces,
+  AttributeNode,
+  CommentNode,
+  DirectiveNode,
   ElementNode,
-  //   ElementTypes,
-  //   ExpressionNode,
-  //   NodeTypes,
+  ElementTypes,
+  ExpressionNode,
+  NodeTypes,
   Position,
   RootNode,
   SourceLocation,
-  //   TextNode,
+  TextNode,
   TemplateChildNode,
-  //   InterpolationNode,
+  InterpolationNode,
   createRoot,
   ConstantTypes
 } from './ast'
@@ -54,27 +54,27 @@ type MergedParserOptions = Omit<Required<ParserOptions>, OptionalOptions> &
 //     }
 //   | undefined
 
-// // The default decoder only provides escapes for characters reserved as part of
-// // the template syntax, and is only used if the custom renderer did not provide
-// // a platform-specific decoder.
-// const decodeRE = /&(gt|lt|amp|apos|quot);/g
-// const decodeMap: Record<string, string> = {
-//   gt: '>',
-//   lt: '<',
-//   amp: '&',
-//   apos: "'",
-//   quot: '"'
-// }
+// The default decoder only provides escapes for characters reserved as part of
+// the template syntax, and is only used if the custom renderer did not provide
+// a platform-specific decoder.
+const decodeRE = /&(gt|lt|amp|apos|quot);/g
+const decodeMap: Record<string, string> = {
+  gt: '>',
+  lt: '<',
+  amp: '&',
+  apos: "'",
+  quot: '"'
+}
 
 export const defaultParserOptions: MergedParserOptions = {
-  //   delimiters: [`{{`, `}}`],
-  //   getNamespace: () => Namespaces.HTML,
+  delimiters: [`{{`, `}}`],
+  getNamespace: () => Namespaces.HTML,
   //   getTextMode: () => TextModes.DATA,
   //   isVoidTag: NO,
   //   isPreTag: NO,
   //   isCustomElement: NO,
-  //   decodeEntities: (rawText: string): string =>
-  //     rawText.replace(decodeRE, (_, p1) => decodeMap[p1]),
+  decodeEntities: (rawText: string): string =>
+    rawText.replace(decodeRE, (_, p1) => decodeMap[p1]),
   onError: defaultOnError,
   onWarn: defaultOnWarn,
   comments: __DEV__
@@ -96,8 +96,8 @@ export interface ParserContext {
   offset: number
   line: number
   column: number
-  //   inPre: boolean // HTML <pre> tag, preserve whitespaces
-  //   inVPre: boolean // v-pre, do not process directives and interpolations
+  inPre: boolean // HTML <pre> tag, preserve whitespaces
+  inVPre: boolean // v-pre, do not process directives and interpolations
   onWarn: NonNullable<ErrorHandlingOptions['onWarn']>
 }
 
@@ -134,8 +134,8 @@ function createParserContext(
     offset: 0,
     originalSource: content,
     source: content,
-    // inPre: false,
-    // inVPre: false,
+    inPre: false,
+    inVPre: false,
     onWarn: options.onWarn
   }
 }
@@ -145,111 +145,108 @@ function parseChildren(
   mode: TextModes,
   ancestors: ElementNode[]
 ): TemplateChildNode[] {
-  //   const parent = last(ancestors)
-  //   const ns = parent ? parent.ns : Namespaces.HTML
+  const parent = last(ancestors)
+  const ns = parent ? parent.ns : Namespaces.HTML
   const nodes: TemplateChildNode[] = []
 
-  //   while (!isEnd(context, mode, ancestors)) {
-  //     __TEST__ && assert(context.source.length > 0)
-  //     const s = context.source
-  //     let node: TemplateChildNode | TemplateChildNode[] | undefined = undefined
-
-  //     if (mode === TextModes.DATA || mode === TextModes.RCDATA) {
-  //       if (!context.inVPre && startsWith(s, context.options.delimiters[0])) {
-  //         // '{{'
-  //         node = parseInterpolation(context, mode)
-  //       } else if (mode === TextModes.DATA && s[0] === '<') {
-  //         // https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state
-  //         if (s.length === 1) {
-  //           emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 1)
-  //         } else if (s[1] === '!') {
-  //           // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
-  //           if (startsWith(s, '<!--')) {
-  //             node = parseComment(context)
-  //           } else if (startsWith(s, '<!DOCTYPE')) {
-  //             // Ignore DOCTYPE by a limitation.
-  //             node = parseBogusComment(context)
-  //           } else if (startsWith(s, '<![CDATA[')) {
-  //             if (ns !== Namespaces.HTML) {
-  //               node = parseCDATA(context, ancestors)
-  //             } else {
-  //               emitError(context, ErrorCodes.CDATA_IN_HTML_CONTENT)
-  //               node = parseBogusComment(context)
-  //             }
-  //           } else {
-  //             emitError(context, ErrorCodes.INCORRECTLY_OPENED_COMMENT)
-  //             node = parseBogusComment(context)
-  //           }
-  //         } else if (s[1] === '/') {
-  //           // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
-  //           if (s.length === 2) {
-  //             emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 2)
-  //           } else if (s[2] === '>') {
-  //             emitError(context, ErrorCodes.MISSING_END_TAG_NAME, 2)
-  //             advanceBy(context, 3)
-  //             continue
-  //           } else if (/[a-z]/i.test(s[2])) {
-  //             emitError(context, ErrorCodes.X_INVALID_END_TAG)
-  //             parseTag(context, TagType.End, parent)
-  //             continue
-  //           } else {
-  //             emitError(
-  //               context,
-  //               ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME,
-  //               2
-  //             )
-  //             node = parseBogusComment(context)
-  //           }
-  //         } else if (/[a-z]/i.test(s[1])) {
-  //           node = parseElement(context, ancestors)
-
-  //           // 2.x <template> with no directive compat
-  //           if (
-  //             __COMPAT__ &&
-  //             isCompatEnabled(
-  //               CompilerDeprecationTypes.COMPILER_NATIVE_TEMPLATE,
-  //               context
-  //             ) &&
-  //             node &&
-  //             node.tag === 'template' &&
-  //             !node.props.some(
-  //               p =>
-  //                 p.type === NodeTypes.DIRECTIVE &&
-  //                 isSpecialTemplateDirective(p.name)
-  //             )
-  //           ) {
-  //             __DEV__ &&
-  //               warnDeprecation(
-  //                 CompilerDeprecationTypes.COMPILER_NATIVE_TEMPLATE,
-  //                 context,
-  //                 node.loc
-  //               )
-  //             node = node.children
-  //           }
-  //         } else if (s[1] === '?') {
-  //           emitError(
-  //             context,
-  //             ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
-  //             1
-  //           )
-  //           node = parseBogusComment(context)
-  //         } else {
-  //           emitError(context, ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, 1)
-  //         }
-  //       }
-  //     }
-  //     if (!node) {
-  //       node = parseText(context, mode)
-  //     }
-
-  //     if (isArray(node)) {
-  //       for (let i = 0; i < node.length; i++) {
-  //         pushNode(nodes, node[i])
-  //       }
-  //     } else {
-  //       pushNode(nodes, node)
-  //     }
-  //   }
+  while (!isEnd(context, mode, ancestors)) {
+    __TEST__ && assert(context.source.length > 0)
+    const s = context.source
+    let node: TemplateChildNode | TemplateChildNode[] | undefined = undefined
+    if (mode === TextModes.DATA || mode === TextModes.RCDATA) {
+      if (!context.inVPre && startsWith(s, context.options.delimiters[0])) {
+        // '{{'
+        node = parseInterpolation(context, mode)
+      } else if (mode === TextModes.DATA && s[0] === '<') {
+        // https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state
+        if (s.length === 1) {
+          emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 1)
+        } else if (s[1] === '!') {
+          // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
+          if (startsWith(s, '<!--')) {
+            //             node = parseComment(context)
+          } else if (startsWith(s, '<!DOCTYPE')) {
+            //             // Ignore DOCTYPE by a limitation.
+            //             node = parseBogusComment(context)
+          } else if (startsWith(s, '<![CDATA[')) {
+            //             if (ns !== Namespaces.HTML) {
+            //               node = parseCDATA(context, ancestors)
+            //             } else {
+            //               emitError(context, ErrorCodes.CDATA_IN_HTML_CONTENT)
+            //               node = parseBogusComment(context)
+            //             }
+          } else {
+            emitError(context, ErrorCodes.INCORRECTLY_OPENED_COMMENT)
+            //             node = parseBogusComment(context)
+          }
+        } else if (s[1] === '/') {
+          // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
+          if (s.length === 2) {
+            emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 2)
+          } else if (s[2] === '>') {
+            emitError(context, ErrorCodes.MISSING_END_TAG_NAME, 2)
+            //             advanceBy(context, 3)
+            //             continue
+          } else if (/[a-z]/i.test(s[2])) {
+            emitError(context, ErrorCodes.X_INVALID_END_TAG)
+            parseTag(context, TagType.End, parent)
+            continue
+          } else {
+            emitError(
+              context,
+              ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME,
+              2
+            )
+            //             node = parseBogusComment(context)
+          }
+        } else if (/[a-z]/i.test(s[1])) {
+          //           node = parseElement(context, ancestors)
+          //           // 2.x <template> with no directive compat
+          //           if (
+          //             __COMPAT__ &&
+          //             isCompatEnabled(
+          //               CompilerDeprecationTypes.COMPILER_NATIVE_TEMPLATE,
+          //               context
+          //             ) &&
+          //             node &&
+          //             node.tag === 'template' &&
+          //             !node.props.some(
+          //               p =>
+          //                 p.type === NodeTypes.DIRECTIVE &&
+          //                 isSpecialTemplateDirective(p.name)
+          //             )
+          //           ) {
+          //             __DEV__ &&
+          //               warnDeprecation(
+          //                 CompilerDeprecationTypes.COMPILER_NATIVE_TEMPLATE,
+          //                 context,
+          //                 node.loc
+          //               )
+          //             node = node.children
+          //           }
+        } else if (s[1] === '?') {
+          emitError(
+            context,
+            ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
+            1
+          )
+          //           node = parseBogusComment(context)
+        } else {
+          emitError(context, ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, 1)
+        }
+      }
+    }
+    if (!node) {
+      node = parseText(context, mode)
+    }
+    if (isArray(node)) {
+      for (let i = 0; i < node.length; i++) {
+        pushNode(nodes, node[i])
+      }
+    } else {
+      pushNode(nodes, node)
+    }
+  }
 
   // Whitespace handling strategy like v2
   let removedWhitespace = false
@@ -318,25 +315,25 @@ function parseChildren(
   return removedWhitespace ? nodes.filter(Boolean) : nodes
 }
 
-// function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
-//   if (node.type === NodeTypes.TEXT) {
-//     const prev = last(nodes)
-//     // Merge if both this and the previous node are text and those are
-//     // consecutive. This happens for cases like "a < b".
-//     if (
-//       prev &&
-//       prev.type === NodeTypes.TEXT &&
-//       prev.loc.end.offset === node.loc.start.offset
-//     ) {
-//       prev.content += node.content
-//       prev.loc.end = node.loc.end
-//       prev.loc.source += node.loc.source
-//       return
-//     }
-//   }
+function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
+  if (node.type === NodeTypes.TEXT) {
+    const prev = last(nodes)
+    // Merge if both this and the previous node are text and those are
+    // consecutive. This happens for cases like "a < b".
+    if (
+      prev &&
+      prev.type === NodeTypes.TEXT &&
+      prev.loc.end.offset === node.loc.start.offset
+    ) {
+      prev.content += node.content
+      prev.loc.end = node.loc.end
+      prev.loc.source += node.loc.source
+      return
+    }
+  }
 
-//   nodes.push(node)
-// }
+  nodes.push(node)
+}
 
 // function parseCDATA(
 //   context: ParserContext,
@@ -502,151 +499,151 @@ function parseChildren(
 //   return element
 // }
 
-// const enum TagType {
-//   Start,
-//   End
-// }
+const enum TagType {
+  Start,
+  End
+}
 
 // const isSpecialTemplateDirective = /*#__PURE__*/ makeMap(
 //   `if,else,else-if,for,slot`
 // )
 
-// /**
-//  * Parse a tag (E.g. `<div id=a>`) with that type (start tag or end tag).
-//  */
-// function parseTag(
-//   context: ParserContext,
-//   type: TagType.Start,
-//   parent: ElementNode | undefined
-// ): ElementNode
-// function parseTag(
-//   context: ParserContext,
-//   type: TagType.End,
-//   parent: ElementNode | undefined
-// ): void
-// function parseTag(
-//   context: ParserContext,
-//   type: TagType,
-//   parent: ElementNode | undefined
-// ): ElementNode | undefined {
-//   __TEST__ && assert(/^<\/?[a-z]/i.test(context.source))
-//   __TEST__ &&
-//     assert(
-//       type === (startsWith(context.source, '</') ? TagType.End : TagType.Start)
-//     )
+/**
+ * Parse a tag (E.g. `<div id=a>`) with that type (start tag or end tag).
+ */
+function parseTag(
+  context: ParserContext,
+  type: TagType.Start,
+  parent: ElementNode | undefined
+): ElementNode
+function parseTag(
+  context: ParserContext,
+  type: TagType.End,
+  parent: ElementNode | undefined
+): void
+function parseTag(
+  context: ParserContext,
+  type: TagType,
+  parent: ElementNode | undefined
+): ElementNode | undefined {
+  __TEST__ && assert(/^<\/?[a-z]/i.test(context.source))
+  __TEST__ &&
+    assert(
+      type === (startsWith(context.source, '</') ? TagType.End : TagType.Start)
+    )
 
-//   // Tag open.
-//   const start = getCursor(context)
-//   const match = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source)!
-//   const tag = match[1]
-//   const ns = context.options.getNamespace(tag, parent)
+  // Tag open.
+  const start = getCursor(context)
+  const match = /^<\/?([a-z][^\t\r\n\f />]*)/i.exec(context.source)!
+  const tag = match[1]
+  const ns = context.options.getNamespace(tag, parent)
 
-//   advanceBy(context, match[0].length)
-//   advanceSpaces(context)
+  advanceBy(context, match[0].length)
+  advanceSpaces(context)
 
-//   // save current state in case we need to re-parse attributes with v-pre
-//   const cursor = getCursor(context)
-//   const currentSource = context.source
+  //   // save current state in case we need to re-parse attributes with v-pre
+  //   const cursor = getCursor(context)
+  //   const currentSource = context.source
 
-//   // check <pre> tag
-//   if (context.options.isPreTag(tag)) {
-//     context.inPre = true
-//   }
+  //   // check <pre> tag
+  //   if (context.options.isPreTag(tag)) {
+  //     context.inPre = true
+  //   }
 
-//   // Attributes.
-//   let props = parseAttributes(context, type)
+  // Attributes.
+  let props = parseAttributes(context, type)
 
-//   // check v-pre
-//   if (
-//     type === TagType.Start &&
-//     !context.inVPre &&
-//     props.some(p => p.type === NodeTypes.DIRECTIVE && p.name === 'pre')
-//   ) {
-//     context.inVPre = true
-//     // reset context
-//     extend(context, cursor)
-//     context.source = currentSource
-//     // re-parse attrs and filter out v-pre itself
-//     props = parseAttributes(context, type).filter(p => p.name !== 'v-pre')
-//   }
+  //   // check v-pre
+  //   if (
+  //     type === TagType.Start &&
+  //     !context.inVPre &&
+  //     props.some(p => p.type === NodeTypes.DIRECTIVE && p.name === 'pre')
+  //   ) {
+  //     context.inVPre = true
+  //     // reset context
+  //     extend(context, cursor)
+  //     context.source = currentSource
+  //     // re-parse attrs and filter out v-pre itself
+  //     props = parseAttributes(context, type).filter(p => p.name !== 'v-pre')
+  //   }
 
-//   // Tag close.
-//   let isSelfClosing = false
-//   if (context.source.length === 0) {
-//     emitError(context, ErrorCodes.EOF_IN_TAG)
-//   } else {
-//     isSelfClosing = startsWith(context.source, '/>')
-//     if (type === TagType.End && isSelfClosing) {
-//       emitError(context, ErrorCodes.END_TAG_WITH_TRAILING_SOLIDUS)
-//     }
-//     advanceBy(context, isSelfClosing ? 2 : 1)
-//   }
+  // Tag close.
+  let isSelfClosing = false
+  if (context.source.length === 0) {
+    emitError(context, ErrorCodes.EOF_IN_TAG)
+  } else {
+    isSelfClosing = startsWith(context.source, '/>')
+    if (type === TagType.End && isSelfClosing) {
+      emitError(context, ErrorCodes.END_TAG_WITH_TRAILING_SOLIDUS)
+    }
+    advanceBy(context, isSelfClosing ? 2 : 1)
+  }
 
-//   if (type === TagType.End) {
-//     return
-//   }
+  if (type === TagType.End) {
+    return
+  }
 
-//   // 2.x deprecation checks
-//   if (
-//     __COMPAT__ &&
-//     __DEV__ &&
-//     isCompatEnabled(
-//       CompilerDeprecationTypes.COMPILER_V_IF_V_FOR_PRECEDENCE,
-//       context
-//     )
-//   ) {
-//     let hasIf = false
-//     let hasFor = false
-//     for (let i = 0; i < props.length; i++) {
-//       const p = props[i]
-//       if (p.type === NodeTypes.DIRECTIVE) {
-//         if (p.name === 'if') {
-//           hasIf = true
-//         } else if (p.name === 'for') {
-//           hasFor = true
-//         }
-//       }
-//       if (hasIf && hasFor) {
-//         warnDeprecation(
-//           CompilerDeprecationTypes.COMPILER_V_IF_V_FOR_PRECEDENCE,
-//           context,
-//           getSelection(context, start)
-//         )
-//         break
-//       }
-//     }
-//   }
+  //   // 2.x deprecation checks
+  //   if (
+  //     __COMPAT__ &&
+  //     __DEV__ &&
+  //     isCompatEnabled(
+  //       CompilerDeprecationTypes.COMPILER_V_IF_V_FOR_PRECEDENCE,
+  //       context
+  //     )
+  //   ) {
+  //     let hasIf = false
+  //     let hasFor = false
+  //     for (let i = 0; i < props.length; i++) {
+  //       const p = props[i]
+  //       if (p.type === NodeTypes.DIRECTIVE) {
+  //         if (p.name === 'if') {
+  //           hasIf = true
+  //         } else if (p.name === 'for') {
+  //           hasFor = true
+  //         }
+  //       }
+  //       if (hasIf && hasFor) {
+  //         warnDeprecation(
+  //           CompilerDeprecationTypes.COMPILER_V_IF_V_FOR_PRECEDENCE,
+  //           context,
+  //           getSelection(context, start)
+  //         )
+  //         break
+  //       }
+  //     }
+  //   }
 
-//   let tagType = ElementTypes.ELEMENT
-//   if (!context.inVPre) {
-//     if (tag === 'slot') {
-//       tagType = ElementTypes.SLOT
-//     } else if (tag === 'template') {
-//       if (
-//         props.some(
-//           p =>
-//             p.type === NodeTypes.DIRECTIVE && isSpecialTemplateDirective(p.name)
-//         )
-//       ) {
-//         tagType = ElementTypes.TEMPLATE
-//       }
-//     } else if (isComponent(tag, props, context)) {
-//       tagType = ElementTypes.COMPONENT
-//     }
-//   }
+  let tagType = ElementTypes.ELEMENT
+  if (!context.inVPre) {
+    //     if (tag === 'slot') {
+    //       tagType = ElementTypes.SLOT
+    //     } else if (tag === 'template') {
+    //       if (
+    //         props.some(
+    //           p =>
+    //             p.type === NodeTypes.DIRECTIVE && isSpecialTemplateDirective(p.name)
+    //         )
+    //       ) {
+    //         tagType = ElementTypes.TEMPLATE
+    //       }
+    //     } else if (isComponent(tag, props, context)) {
+    //       tagType = ElementTypes.COMPONENT
+    //     }
+  }
 
-//   return {
-//     type: NodeTypes.ELEMENT,
-//     ns,
-//     tag,
-//     tagType,
-//     props,
-//     isSelfClosing,
-//     children: [],
-//     loc: getSelection(context, start),
-//     codegenNode: undefined // to be created during transform phase
-//   }
-// }
+  return {
+    type: NodeTypes.ELEMENT,
+    ns,
+    tag,
+    tagType,
+    props,
+    isSelfClosing,
+    children: [],
+    loc: getSelection(context, start),
+    codegenNode: undefined // to be created during transform phase
+  }
+}
 
 // function isComponent(
 //   tag: string,
@@ -707,50 +704,50 @@ function parseChildren(
 //   }
 // }
 
-// function parseAttributes(
-//   context: ParserContext,
-//   type: TagType
-// ): (AttributeNode | DirectiveNode)[] {
-//   const props = []
-//   const attributeNames = new Set<string>()
-//   while (
-//     context.source.length > 0 &&
-//     !startsWith(context.source, '>') &&
-//     !startsWith(context.source, '/>')
-//   ) {
-//     if (startsWith(context.source, '/')) {
-//       emitError(context, ErrorCodes.UNEXPECTED_SOLIDUS_IN_TAG)
-//       advanceBy(context, 1)
-//       advanceSpaces(context)
-//       continue
-//     }
-//     if (type === TagType.End) {
-//       emitError(context, ErrorCodes.END_TAG_WITH_ATTRIBUTES)
-//     }
+function parseAttributes(
+  context: ParserContext,
+  type: TagType
+): (AttributeNode | DirectiveNode)[] {
+  const props = []
+  //   const attributeNames = new Set<string>()
+  //   while (
+  //     context.source.length > 0 &&
+  //     !startsWith(context.source, '>') &&
+  //     !startsWith(context.source, '/>')
+  //   ) {
+  //     if (startsWith(context.source, '/')) {
+  //       emitError(context, ErrorCodes.UNEXPECTED_SOLIDUS_IN_TAG)
+  //       advanceBy(context, 1)
+  //       advanceSpaces(context)
+  //       continue
+  //     }
+  //     if (type === TagType.End) {
+  //       emitError(context, ErrorCodes.END_TAG_WITH_ATTRIBUTES)
+  //     }
 
-//     const attr = parseAttribute(context, attributeNames)
+  //     const attr = parseAttribute(context, attributeNames)
 
-//     // Trim whitespace between class
-//     // https://github.com/vuejs/core/issues/4251
-//     if (
-//       attr.type === NodeTypes.ATTRIBUTE &&
-//       attr.value &&
-//       attr.name === 'class'
-//     ) {
-//       attr.value.content = attr.value.content.replace(/\s+/g, ' ').trim()
-//     }
+  //     // Trim whitespace between class
+  //     // https://github.com/vuejs/core/issues/4251
+  //     if (
+  //       attr.type === NodeTypes.ATTRIBUTE &&
+  //       attr.value &&
+  //       attr.name === 'class'
+  //     ) {
+  //       attr.value.content = attr.value.content.replace(/\s+/g, ' ').trim()
+  //     }
 
-//     if (type === TagType.Start) {
-//       props.push(attr)
-//     }
+  //     if (type === TagType.Start) {
+  //       props.push(attr)
+  //     }
 
-//     if (/^[^\t\r\n\f />]/.test(context.source)) {
-//       emitError(context, ErrorCodes.MISSING_WHITESPACE_BETWEEN_ATTRIBUTES)
-//     }
-//     advanceSpaces(context)
-//   }
-//   return props
-// }
+  //     if (/^[^\t\r\n\f />]/.test(context.source)) {
+  //       emitError(context, ErrorCodes.MISSING_WHITESPACE_BETWEEN_ATTRIBUTES)
+  //     }
+  //     advanceSpaces(context)
+  //   }
+  return props
+}
 
 // function parseAttribute(
 //   context: ParserContext,
@@ -975,101 +972,101 @@ function parseChildren(
 //   return { content, isQuoted, loc: getSelection(context, start) }
 // }
 
-// function parseInterpolation(
-//   context: ParserContext,
-//   mode: TextModes
-// ): InterpolationNode | undefined {
-//   const [open, close] = context.options.delimiters
-//   __TEST__ && assert(startsWith(context.source, open))
+function parseInterpolation(
+  context: ParserContext,
+  mode: TextModes
+): InterpolationNode | undefined {
+  const [open, close] = context.options.delimiters
+  __TEST__ && assert(startsWith(context.source, open))
 
-//   const closeIndex = context.source.indexOf(close, open.length)
-//   if (closeIndex === -1) {
-//     emitError(context, ErrorCodes.X_MISSING_INTERPOLATION_END)
-//     return undefined
-//   }
+  const closeIndex = context.source.indexOf(close, open.length)
+  if (closeIndex === -1) {
+    emitError(context, ErrorCodes.X_MISSING_INTERPOLATION_END)
+    return undefined
+  }
 
-//   const start = getCursor(context)
-//   advanceBy(context, open.length)
-//   const innerStart = getCursor(context)
-//   const innerEnd = getCursor(context)
-//   const rawContentLength = closeIndex - open.length
-//   const rawContent = context.source.slice(0, rawContentLength)
-//   const preTrimContent = parseTextData(context, rawContentLength, mode)
-//   const content = preTrimContent.trim()
-//   const startOffset = preTrimContent.indexOf(content)
-//   if (startOffset > 0) {
-//     advancePositionWithMutation(innerStart, rawContent, startOffset)
-//   }
-//   const endOffset =
-//     rawContentLength - (preTrimContent.length - content.length - startOffset)
-//   advancePositionWithMutation(innerEnd, rawContent, endOffset)
-//   advanceBy(context, close.length)
+  const start = getCursor(context)
+  advanceBy(context, open.length)
+  const innerStart = getCursor(context)
+  const innerEnd = getCursor(context)
+  const rawContentLength = closeIndex - open.length
+  const rawContent = context.source.slice(0, rawContentLength)
+  const preTrimContent = parseTextData(context, rawContentLength, mode)
+  const content = preTrimContent.trim()
+  const startOffset = preTrimContent.indexOf(content)
+  if (startOffset > 0) {
+    advancePositionWithMutation(innerStart, rawContent, startOffset)
+  }
+  const endOffset =
+    rawContentLength - (preTrimContent.length - content.length - startOffset)
+  advancePositionWithMutation(innerEnd, rawContent, endOffset)
+  advanceBy(context, close.length)
 
-//   return {
-//     type: NodeTypes.INTERPOLATION,
-//     content: {
-//       type: NodeTypes.SIMPLE_EXPRESSION,
-//       isStatic: false,
-//       // Set `isConstant` to false by default and will decide in transformExpression
-//       constType: ConstantTypes.NOT_CONSTANT,
-//       content,
-//       loc: getSelection(context, innerStart, innerEnd)
-//     },
-//     loc: getSelection(context, start)
-//   }
-// }
+  return {
+    type: NodeTypes.INTERPOLATION,
+    content: {
+      type: NodeTypes.SIMPLE_EXPRESSION,
+      isStatic: false,
+      // Set `isConstant` to false by default and will decide in transformExpression
+      constType: ConstantTypes.NOT_CONSTANT,
+      content,
+      loc: getSelection(context, innerStart, innerEnd)
+    },
+    loc: getSelection(context, start)
+  }
+}
 
-// function parseText(context: ParserContext, mode: TextModes): TextNode {
-//   __TEST__ && assert(context.source.length > 0)
+function parseText(context: ParserContext, mode: TextModes): TextNode {
+  __TEST__ && assert(context.source.length > 0)
 
-//   const endTokens =
-//     mode === TextModes.CDATA ? [']]>'] : ['<', context.options.delimiters[0]]
+  const endTokens =
+    mode === TextModes.CDATA ? [']]>'] : ['<', context.options.delimiters[0]]
 
-//   let endIndex = context.source.length
-//   for (let i = 0; i < endTokens.length; i++) {
-//     const index = context.source.indexOf(endTokens[i], 1)
-//     if (index !== -1 && endIndex > index) {
-//       endIndex = index
-//     }
-//   }
+  let endIndex = context.source.length
+  for (let i = 0; i < endTokens.length; i++) {
+    const index = context.source.indexOf(endTokens[i], 1)
+    if (index !== -1 && endIndex > index) {
+      endIndex = index
+    }
+  }
 
-//   __TEST__ && assert(endIndex > 0)
+  __TEST__ && assert(endIndex > 0)
 
-//   const start = getCursor(context)
-//   const content = parseTextData(context, endIndex, mode)
+  const start = getCursor(context)
+  const content = parseTextData(context, endIndex, mode)
 
-//   return {
-//     type: NodeTypes.TEXT,
-//     content,
-//     loc: getSelection(context, start)
-//   }
-// }
+  return {
+    type: NodeTypes.TEXT,
+    content,
+    loc: getSelection(context, start)
+  }
+}
 
-// /**
-//  * Get text data with a given length from the current location.
-//  * This translates HTML entities in the text data.
-//  */
-// function parseTextData(
-//   context: ParserContext,
-//   length: number,
-//   mode: TextModes
-// ): string {
-//   const rawText = context.source.slice(0, length)
-//   advanceBy(context, length)
-//   if (
-//     mode === TextModes.RAWTEXT ||
-//     mode === TextModes.CDATA ||
-//     !rawText.includes('&')
-//   ) {
-//     return rawText
-//   } else {
-//     // DATA or RCDATA containing "&"". Entity decoding required.
-//     return context.options.decodeEntities(
-//       rawText,
-//       mode === TextModes.ATTRIBUTE_VALUE
-//     )
-//   }
-// }
+/**
+ * Get text data with a given length from the current location.
+ * This translates HTML entities in the text data.
+ */
+function parseTextData(
+  context: ParserContext,
+  length: number,
+  mode: TextModes
+): string {
+  const rawText = context.source.slice(0, length)
+  advanceBy(context, length)
+  if (
+    mode === TextModes.RAWTEXT ||
+    mode === TextModes.CDATA ||
+    !rawText.includes('&')
+  ) {
+    return rawText
+  } else {
+    // DATA or RCDATA containing "&"". Entity decoding required.
+    return context.options.decodeEntities(
+      rawText,
+      mode === TextModes.ATTRIBUTE_VALUE
+    )
+  }
+}
 
 function getCursor(context: ParserContext): Position {
   const { column, line, offset } = context
@@ -1089,27 +1086,27 @@ function getSelection(
   }
 }
 
-// function last<T>(xs: T[]): T | undefined {
-//   return xs[xs.length - 1]
-// }
+function last<T>(xs: T[]): T | undefined {
+  return xs[xs.length - 1]
+}
 
-// function startsWith(source: string, searchString: string): boolean {
-//   return source.startsWith(searchString)
-// }
+function startsWith(source: string, searchString: string): boolean {
+  return source.startsWith(searchString)
+}
 
-// function advanceBy(context: ParserContext, numberOfCharacters: number): void {
-//   const { source } = context
-//   __TEST__ && assert(numberOfCharacters <= source.length)
-//   advancePositionWithMutation(context, source, numberOfCharacters)
-//   context.source = source.slice(numberOfCharacters)
-// }
+function advanceBy(context: ParserContext, numberOfCharacters: number): void {
+  const { source } = context
+  __TEST__ && assert(numberOfCharacters <= source.length)
+  advancePositionWithMutation(context, source, numberOfCharacters)
+  context.source = source.slice(numberOfCharacters)
+}
 
-// function advanceSpaces(context: ParserContext): void {
-//   const match = /^[\t\r\n\f ]+/.exec(context.source)
-//   if (match) {
-//     advanceBy(context, match[0].length)
-//   }
-// }
+function advanceSpaces(context: ParserContext): void {
+  const match = /^[\t\r\n\f ]+/.exec(context.source)
+  if (match) {
+    advanceBy(context, match[0].length)
+  }
+}
 
 // function getNewPosition(
 //   context: ParserContext,
@@ -1123,62 +1120,62 @@ function getSelection(
 //   )
 // }
 
-// function emitError(
-//   context: ParserContext,
-//   code: ErrorCodes,
-//   offset?: number,
-//   loc: Position = getCursor(context)
-// ): void {
-//   if (offset) {
-//     loc.offset += offset
-//     loc.column += offset
-//   }
-//   context.options.onError(
-//     createCompilerError(code, {
-//       start: loc,
-//       end: loc,
-//       source: ''
-//     })
-//   )
-// }
+function emitError(
+  context: ParserContext,
+  code: ErrorCodes,
+  offset?: number,
+  loc: Position = getCursor(context)
+): void {
+  if (offset) {
+    loc.offset += offset
+    loc.column += offset
+  }
+  context.options.onError(
+    createCompilerError(code, {
+      start: loc,
+      end: loc,
+      source: ''
+    })
+  )
+}
 
-// function isEnd(
-//   context: ParserContext,
-//   mode: TextModes,
-//   ancestors: ElementNode[]
-// ): boolean {
-//   const s = context.source
+function isEnd(
+  context: ParserContext,
+  mode: TextModes,
+  ancestors: ElementNode[]
+): boolean {
+  const s = context.source
 
-//   switch (mode) {
-//     case TextModes.DATA:
-//       if (startsWith(s, '</')) {
-//         // TODO: probably bad performance
-//         for (let i = ancestors.length - 1; i >= 0; --i) {
-//           if (startsWithEndTagOpen(s, ancestors[i].tag)) {
-//             return true
-//           }
-//         }
-//       }
-//       break
+  //   switch (mode) {
+  //     case TextModes.DATA:
+  //       if (startsWith(s, '</')) {
+  //         // TODO: probably bad performance
+  //         for (let i = ancestors.length - 1; i >= 0; --i) {
+  //           if (startsWithEndTagOpen(s, ancestors[i].tag)) {
+  //             return true
+  //           }
+  //         }
+  //       }
+  //       break
 
-//     case TextModes.RCDATA:
-//     case TextModes.RAWTEXT: {
-//       const parent = last(ancestors)
-//       if (parent && startsWithEndTagOpen(s, parent.tag)) {
-//         return true
-//       }
-//       break
-//     }
+  //     case TextModes.RCDATA:
+  //     case TextModes.RAWTEXT: {
+  //       const parent = last(ancestors)
+  //       if (parent && startsWithEndTagOpen(s, parent.tag)) {
+  //         return true
+  //       }
+  //       break
+  //     }
 
-//     case TextModes.CDATA:
-//       if (startsWith(s, ']]>')) {
-//         return true
-//       }
-//       break
-//   }
+  //     case TextModes.CDATA:
+  //       if (startsWith(s, ']]>')) {
+  //         return true
+  //       }
+  //       break
+  //   }
 
-//   return !s
-// }
+  return !s
+}
 
 // function startsWithEndTagOpen(source: string, tag: string): boolean {
 //   return (

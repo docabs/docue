@@ -25,16 +25,16 @@ export function useCssVars(getter: (ctx: any) => Record<string, string>) {
     return
   }
 
-  // const updateTeleports = (instance.ut = (vars = getter(instance.proxy)) => {
-  //   Array.from(
-  //     document.querySelectorAll(`[data-v-owner="${instance.uid}"]`)
-  //   ).forEach(node => setVarsOnNode(node, vars))
-  // })
+  const updateTeleports = (instance.ut = (vars = getter(instance.proxy)) => {
+    Array.from(
+      document.querySelectorAll(`[data-v-owner="${instance.uid}"]`)
+    ).forEach(node => setVarsOnNode(node, vars))
+  })
 
   const setVars = () => {
     const vars = getter(instance.proxy)
     setVarsOnVNode(instance.subTree, vars)
-    // updateTeleports(vars)
+    updateTeleports(vars)
   }
 
   watchPostEffect(setVars)
@@ -47,15 +47,15 @@ export function useCssVars(getter: (ctx: any) => Record<string, string>) {
 }
 
 function setVarsOnVNode(vnode: VNode, vars: Record<string, string>) {
-  // if (__FEATURE_SUSPENSE__ && vnode.shapeFlag & ShapeFlags.SUSPENSE) {
-  //   const suspense = vnode.suspense!
-  //   vnode = suspense.activeBranch!
-  //   if (suspense.pendingBranch && !suspense.isHydrating) {
-  //     suspense.effects.push(() => {
-  //       setVarsOnVNode(suspense.activeBranch!, vars)
-  //     })
-  //   }
-  // }
+  if (__FEATURE_SUSPENSE__ && vnode.shapeFlag & ShapeFlags.SUSPENSE) {
+    const suspense = vnode.suspense!
+    vnode = suspense.activeBranch!
+    if (suspense.pendingBranch && !suspense.isHydrating) {
+      suspense.effects.push(() => {
+        setVarsOnVNode(suspense.activeBranch!, vars)
+      })
+    }
+  }
 
   // drill down HOCs until it's a non-component vnode
   while (vnode.component) {

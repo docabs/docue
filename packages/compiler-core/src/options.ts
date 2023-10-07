@@ -1,11 +1,11 @@
-// import { ElementNode, Namespace, TemplateChildNode, ParentNode } from './ast'
+import { ElementNode, Namespace, TemplateChildNode, ParentNode } from './ast'
 // import { TextModes } from './parse'
 import { CompilerError } from './errors'
-// import {
-//   NodeTransform,
-//   DirectiveTransform,
-//   TransformContext
-// } from './transform'
+import {
+  NodeTransform,
+  //   DirectiveTransform,
+  TransformContext
+} from './transform'
 import { CompilerCompatOptions } from './compat/compatConfig'
 // import { ParserPlugin } from '@babel/parser'
 
@@ -37,10 +37,10 @@ export interface ParserOptions
   //    * Separate option for end users to extend the native elements list
   //    */
   //   isCustomElement?: (tag: string) => boolean | void
-  //   /**
-  //    * Get tag namespace
-  //    */
-  //   getNamespace?: (tag: string, parent: ElementNode | undefined) => Namespace
+  /**
+   * Get tag namespace
+   */
+  getNamespace?: (tag: string, parent: ElementNode | undefined) => Namespace
   //   /**
   //    * Get text parsing mode for this element
   //    */
@@ -48,18 +48,18 @@ export interface ParserOptions
   //     node: ElementNode,
   //     parent: ElementNode | undefined
   //   ) => TextModes
-  //   /**
-  //    * @default ['{{', '}}']
-  //    */
-  //   delimiters?: [string, string]
+  /**
+   * @default ['{{', '}}']
+   */
+  delimiters?: [string, string]
   /**
    * Whitespace handling strategy
    */
   whitespace?: 'preserve' | 'condense'
-  //   /**
-  //    * Only needed for DOM compilers
-  //    */
-  //   decodeEntities?: (rawText: string, asAttr: boolean) => string
+  /**
+   * Only needed for DOM compilers
+   */
+  decodeEntities?: (rawText: string, asAttr: boolean) => string
   /**
    * Whether to keep comments in the templates AST.
    * This defaults to `true` in development and `false` in production builds.
@@ -136,17 +136,17 @@ interface SharedTransformCodegenOptions {
   //    * @default mode === 'module'
   //    */
   //   prefixIdentifiers?: boolean
-  //   /**
-  //    * Control whether generate SSR-optimized render functions instead.
-  //    * The resulting function must be attached to the component via the
-  //    * `ssrRender` option instead of `render`.
-  //    *
-  //    * When compiler generates code for SSR's fallback branch, we need to set it to false:
-  //    *  - context.ssr = false
-  //    *
-  //    * see `subTransform` in `ssrTransformComponent.ts`
-  //    */
-  //   ssr?: boolean
+  /**
+   * Control whether generate SSR-optimized render functions instead.
+   * The resulting function must be attached to the component via the
+   * `ssrRender` option instead of `render`.
+   *
+   * When compiler generates code for SSR's fallback branch, we need to set it to false:
+   *  - context.ssr = false
+   *
+   * see `subTransform` in `ssrTransformComponent.ts`
+   */
+  ssr?: boolean
   /**
    * Indicates whether the compiler generates code for SSR,
    * it is always true when generating code for SSR,
@@ -182,10 +182,10 @@ export interface TransformOptions
   extends SharedTransformCodegenOptions,
     ErrorHandlingOptions,
     CompilerCompatOptions {
-  //   /**
-  //    * An array of node transforms to be applied to every AST node.
-  //    */
-  //   nodeTransforms?: NodeTransform[]
+  /**
+   * An array of node transforms to be applied to every AST node.
+   */
+  nodeTransforms?: NodeTransform[]
   //   /**
   //    * An object of { name: transform } to be applied to every directive attribute
   //    * node found on element nodes.

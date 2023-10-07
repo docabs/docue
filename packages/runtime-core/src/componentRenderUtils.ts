@@ -402,12 +402,12 @@ function hasPropsChanged(
   return false
 }
 
-// export function updateHOCHostEl(
-//   { vnode, parent }: ComponentInternalInstance,
-//   el: typeof vnode.el // HostNode
-// ) {
-//   while (parent && parent.subTree === vnode) {
-//     ;(vnode = parent.vnode).el = el
-//     parent = parent.parent
-//   }
-// }
+export function updateHOCHostEl(
+  { vnode, parent }: ComponentInternalInstance,
+  el: typeof vnode.el // HostNode
+) {
+  while (parent && parent.subTree === vnode) {
+    ;(vnode = parent.vnode).el = el
+    parent = parent.parent
+  }
+}

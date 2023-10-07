@@ -3,10 +3,10 @@ import {
   normalizeVNode,
   VNodeProps,
   isSameVNodeType,
-  // openBlock,
-  // closeBlock,
-  // currentBlock,
-  // Comment,
+  openBlock,
+  closeBlock,
+  currentBlock,
+  Comment,
   createVNode,
   isBlockTreeEnabled
 } from '../vnode'
@@ -21,7 +21,7 @@ import {
   RendererElement
 } from '../renderer'
 import { queuePostFlushCb } from '../scheduler'
-// import { filterSingleRoot, updateHOCHostEl } from '../componentRenderUtils'
+import { filterSingleRoot, updateHOCHostEl } from '../componentRenderUtils'
 import {
   pushWarningContext,
   popWarningContext,
@@ -284,19 +284,19 @@ function patchSuspense(
         }
       } else if (activeBranch && isSameVNodeType(newBranch, activeBranch)) {
         // toggled "back" to current active branch
-        //         patch(
-        //           activeBranch,
-        //           newBranch,
-        //           container,
-        //           anchor,
-        //           parentComponent,
-        //           suspense,
-        //           isSVG,
-        //           slotScopeIds,
-        //           optimized
-        //         )
-        //         // force resolve
-        //         suspense.resolve(true)
+        patch(
+          activeBranch,
+          newBranch,
+          container,
+          anchor,
+          parentComponent,
+          suspense,
+          isSVG,
+          slotScopeIds,
+          optimized
+        )
+        // force resolve
+        suspense.resolve(true)
       } else {
         // switched to a 3rd branch
         patch(
@@ -432,14 +432,14 @@ function createSuspenseBoundary(
   } = rendererInternals
 
   // if set `suspensible: true`, set the current suspense as a dep of parent suspense
-  // let parentSuspenseId: number | undefined
-  // const isSuspensible = isVNodeSuspensible(vnode)
-  // if (isSuspensible) {
-  //   if (parentSuspense?.pendingBranch) {
-  //     parentSuspenseId = parentSuspense.pendingId
-  //     parentSuspense.deps++
-  //   }
-  // }
+  let parentSuspenseId: number | undefined
+  const isSuspensible = isVNodeSuspensible(vnode)
+  if (isSuspensible) {
+    if (parentSuspense?.pendingBranch) {
+      parentSuspenseId = parentSuspense.pendingId
+      parentSuspense.deps++
+    }
+  }
 
   const timeout = vnode.props ? toNumber(vnode.props.timeout) : undefined
   //   if (__DEV__) {
@@ -540,18 +540,18 @@ function createSuspenseBoundary(
       }
       suspense.effects = []
       // resolve parent suspense if all async deps are resolved
-      // if (isSuspensible) {
-      //   if (
-      //     parentSuspense &&
-      //     parentSuspense.pendingBranch &&
-      //     parentSuspenseId === parentSuspense.pendingId
-      //   ) {
-      //     parentSuspense.deps--
-      //     if (parentSuspense.deps === 0 && !sync) {
-      //       parentSuspense.resolve()
-      //     }
-      //   }
-      // }
+      if (isSuspensible) {
+        if (
+          parentSuspense &&
+          parentSuspense.pendingBranch &&
+          parentSuspenseId === parentSuspense.pendingId
+        ) {
+          parentSuspense.deps--
+          if (parentSuspense.deps === 0 && !sync) {
+            parentSuspense.resolve()
+          }
+        }
+      }
 
       // invoke @resolve event
       triggerEvent(vnode, 'onResolve')
@@ -763,34 +763,34 @@ function normalizeSuspenseChildren(vnode: VNode) {
 }
 
 function normalizeSuspenseSlot(s: any) {
-  // let block: VNode[] | null | undefined
+  let block: VNode[] | null | undefined
   if (isFunction(s)) {
-    //     const trackBlock = isBlockTreeEnabled && s._c
-    //     if (trackBlock) {
-    //       // disableTracking: false
-    //       // allow block tracking for compiled slots
-    //       // (see ./componentRenderContext.ts)
-    //       s._d = false
-    //       openBlock()
-    //     }
+    const trackBlock = isBlockTreeEnabled && s._c
+    if (trackBlock) {
+      // disableTracking: false
+      // allow block tracking for compiled slots
+      // (see ./componentRenderContext.ts)
+      s._d = false
+      openBlock()
+    }
     s = s()
-    //     if (trackBlock) {
-    //       s._d = true
-    //       block = currentBlock
-    //       closeBlock()
-    //     }
+    if (trackBlock) {
+      s._d = true
+      block = currentBlock
+      closeBlock()
+    }
   }
-  //   if (isArray(s)) {
-  //     const singleChild = filterSingleRoot(s)
-  //     if (__DEV__ && !singleChild) {
-  //       warn(`<Suspense> slots expect a single root node.`)
-  //     }
-  //     s = singleChild
-  //   }
+  if (isArray(s)) {
+    const singleChild = filterSingleRoot(s)
+    //     if (__DEV__ && !singleChild) {
+    //       warn(`<Suspense> slots expect a single root node.`)
+    //     }
+    s = singleChild
+  }
   s = normalizeVNode(s)
-  //   if (block && !s.dynamicChildren) {
-  //     s.dynamicChildren = block.filter(c => c !== s)
-  //   }
+  if (block && !s.dynamicChildren) {
+    s.dynamicChildren = block.filter(c => c !== s)
+  }
   return s
 }
 

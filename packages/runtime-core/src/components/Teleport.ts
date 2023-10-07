@@ -131,180 +131,178 @@ export const TeleportImpl = {
         mount(target, targetAnchor)
       }
     } else {
-      //       // update content
-      //       n2.el = n1.el
-      //       const mainAnchor = (n2.anchor = n1.anchor)!
-      //       const target = (n2.target = n1.target)!
-      //       const targetAnchor = (n2.targetAnchor = n1.targetAnchor)!
-      //       const wasDisabled = isTeleportDisabled(n1.props)
-      //       const currentContainer = wasDisabled ? container : target
-      //       const currentAnchor = wasDisabled ? mainAnchor : targetAnchor
-      //       isSVG = isSVG || isTargetSVG(target)
-      //       if (dynamicChildren) {
-      //         // fast path when the teleport happens to be a block root
-      //         patchBlockChildren(
-      //           n1.dynamicChildren!,
-      //           dynamicChildren,
-      //           currentContainer,
-      //           parentComponent,
-      //           parentSuspense,
-      //           isSVG,
-      //           slotScopeIds
-      //         )
-      //         // even in block tree mode we need to make sure all root-level nodes
-      //         // in the teleport inherit previous DOM references so that they can
-      //         // be moved in future patches.
-      //         traverseStaticChildren(n1, n2, true)
-      //       } else if (!optimized) {
-      //         patchChildren(
-      //           n1,
-      //           n2,
-      //           currentContainer,
-      //           currentAnchor,
-      //           parentComponent,
-      //           parentSuspense,
-      //           isSVG,
-      //           slotScopeIds,
-      //           false
-      //         )
-      //       }
-      //       if (disabled) {
-      //         if (!wasDisabled) {
-      //           // enabled -> disabled
-      //           // move into main container
-      //           moveTeleport(
-      //             n2,
-      //             container,
-      //             mainAnchor,
-      //             internals,
-      //             TeleportMoveTypes.TOGGLE
-      //           )
-      //         } else {
-      //           // #7835
-      //           // When `teleport` is disabled, `to` may change, making it always old,
-      //           // to ensure the correct `to` when enabled
-      //           if (n2.props && n1.props && n2.props.to !== n1.props.to) {
-      //             n2.props.to = n1.props.to
-      //           }
-      //         }
-      //       } else {
-      //         // target changed
-      //         if ((n2.props && n2.props.to) !== (n1.props && n1.props.to)) {
-      //           const nextTarget = (n2.target = resolveTarget(
-      //             n2.props,
-      //             querySelector
-      //           ))
-      //           if (nextTarget) {
-      //             moveTeleport(
-      //               n2,
-      //               nextTarget,
-      //               null,
-      //               internals,
-      //               TeleportMoveTypes.TARGET_CHANGE
-      //             )
-      //           } else if (__DEV__) {
-      //             warn(
-      //               'Invalid Teleport target on update:',
-      //               target,
-      //               `(${typeof target})`
-      //             )
-      //           }
-      //         } else if (wasDisabled) {
-      //           // disabled -> enabled
-      //           // move into teleport target
-      //           moveTeleport(
-      //             n2,
-      //             target,
-      //             targetAnchor,
-      //             internals,
-      //             TeleportMoveTypes.TOGGLE
-      //           )
-      //         }
-      //       }
+      // update content
+      n2.el = n1.el
+      const mainAnchor = (n2.anchor = n1.anchor)!
+      const target = (n2.target = n1.target)!
+      const targetAnchor = (n2.targetAnchor = n1.targetAnchor)!
+      const wasDisabled = isTeleportDisabled(n1.props)
+      const currentContainer = wasDisabled ? container : target
+      const currentAnchor = wasDisabled ? mainAnchor : targetAnchor
+      isSVG = isSVG || isTargetSVG(target)
+      if (dynamicChildren) {
+        //         // fast path when the teleport happens to be a block root
+        //         patchBlockChildren(
+        //           n1.dynamicChildren!,
+        //           dynamicChildren,
+        //           currentContainer,
+        //           parentComponent,
+        //           parentSuspense,
+        //           isSVG,
+        //           slotScopeIds
+        //         )
+        //         // even in block tree mode we need to make sure all root-level nodes
+        //         // in the teleport inherit previous DOM references so that they can
+        //         // be moved in future patches.
+        //         traverseStaticChildren(n1, n2, true)
+      } else if (!optimized) {
+        patchChildren(
+          n1,
+          n2,
+          currentContainer,
+          currentAnchor,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds,
+          false
+        )
+      }
+      if (disabled) {
+        if (!wasDisabled) {
+          // enabled -> disabled
+          // move into main container
+          moveTeleport(
+            n2,
+            container,
+            mainAnchor,
+            internals,
+            TeleportMoveTypes.TOGGLE
+          )
+        } else {
+          // #7835
+          // When `teleport` is disabled, `to` may change, making it always old,
+          // to ensure the correct `to` when enabled
+          if (n2.props && n1.props && n2.props.to !== n1.props.to) {
+            n2.props.to = n1.props.to
+          }
+        }
+      } else {
+        // target changed
+        if ((n2.props && n2.props.to) !== (n1.props && n1.props.to)) {
+          const nextTarget = (n2.target = resolveTarget(
+            n2.props,
+            querySelector
+          ))
+          if (nextTarget) {
+            moveTeleport(
+              n2,
+              nextTarget,
+              null,
+              internals,
+              TeleportMoveTypes.TARGET_CHANGE
+            )
+          } else if (__DEV__) {
+            warn(
+              'Invalid Teleport target on update:',
+              target,
+              `(${typeof target})`
+            )
+          }
+        } else if (wasDisabled) {
+          // disabled -> enabled
+          // move into teleport target
+          moveTeleport(
+            n2,
+            target,
+            targetAnchor,
+            internals,
+            TeleportMoveTypes.TOGGLE
+          )
+        }
+      }
     }
-    //     updateCssVars(n2)
+    updateCssVars(n2)
   },
 
-  //   remove(
-  //     vnode: VNode,
-  //     parentComponent: ComponentInternalInstance | null,
-  //     parentSuspense: SuspenseBoundary | null,
-  //     optimized: boolean,
-  //     { um: unmount, o: { remove: hostRemove } }: RendererInternals,
-  //     doRemove: Boolean
-  //   ) {
-  //     const { shapeFlag, children, anchor, targetAnchor, target, props } = vnode
+  remove(
+    vnode: VNode,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    optimized: boolean,
+    { um: unmount, o: { remove: hostRemove } }: RendererInternals,
+    doRemove: Boolean
+  ) {
+    const { shapeFlag, children, anchor, targetAnchor, target, props } = vnode
+    if (target) {
+      hostRemove(targetAnchor!)
+    }
+    // an unmounted teleport should always remove its children if not disabled
+    if (doRemove || !isTeleportDisabled(props)) {
+      hostRemove(anchor!)
+      if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        for (let i = 0; i < (children as VNode[]).length; i++) {
+          const child = (children as VNode[])[i]
+          unmount(
+            child,
+            parentComponent,
+            parentSuspense,
+            true,
+            !!child.dynamicChildren
+          )
+        }
+      }
+    }
+  },
 
-  //     if (target) {
-  //       hostRemove(targetAnchor!)
-  //     }
-
-  //     // an unmounted teleport should always remove its children if not disabled
-  //     if (doRemove || !isTeleportDisabled(props)) {
-  //       hostRemove(anchor!)
-  //       if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-  //         for (let i = 0; i < (children as VNode[]).length; i++) {
-  //           const child = (children as VNode[])[i]
-  //           unmount(
-  //             child,
-  //             parentComponent,
-  //             parentSuspense,
-  //             true,
-  //             !!child.dynamicChildren
-  //           )
-  //         }
-  //       }
-  //     }
-  //   },
-
-  //   move: moveTeleport,
+  move: moveTeleport,
   hydrate: hydrateTeleport
 }
 
-// export const enum TeleportMoveTypes {
-//   TARGET_CHANGE,
-//   TOGGLE, // enable / disable
-//   REORDER // moved in the main view
-// }
+export const enum TeleportMoveTypes {
+  TARGET_CHANGE,
+  TOGGLE, // enable / disable
+  REORDER // moved in the main view
+}
 
-// function moveTeleport(
-//   vnode: VNode,
-//   container: RendererElement,
-//   parentAnchor: RendererNode | null,
-//   { o: { insert }, m: move }: RendererInternals,
-//   moveType: TeleportMoveTypes = TeleportMoveTypes.REORDER
-// ) {
-//   // move target anchor if this is a target change.
-//   if (moveType === TeleportMoveTypes.TARGET_CHANGE) {
-//     insert(vnode.targetAnchor!, container, parentAnchor)
-//   }
-//   const { el, anchor, shapeFlag, children, props } = vnode
-//   const isReorder = moveType === TeleportMoveTypes.REORDER
-//   // move main view anchor if this is a re-order.
-//   if (isReorder) {
-//     insert(el!, container, parentAnchor)
-//   }
-//   // if this is a re-order and teleport is enabled (content is in target)
-//   // do not move children. So the opposite is: only move children if this
-//   // is not a reorder, or the teleport is disabled
-//   if (!isReorder || isTeleportDisabled(props)) {
-//     // Teleport has either Array children or no children.
-//     if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-//       for (let i = 0; i < (children as VNode[]).length; i++) {
-//         move(
-//           (children as VNode[])[i],
-//           container,
-//           parentAnchor,
-//           MoveType.REORDER
-//         )
-//       }
-//     }
-//   }
-//   // move main view anchor if this is a re-order.
-//   if (isReorder) {
-//     insert(anchor!, container, parentAnchor)
-//   }
-// }
+function moveTeleport(
+  vnode: VNode,
+  container: RendererElement,
+  parentAnchor: RendererNode | null,
+  { o: { insert }, m: move }: RendererInternals,
+  moveType: TeleportMoveTypes = TeleportMoveTypes.REORDER
+) {
+  // move target anchor if this is a target change.
+  if (moveType === TeleportMoveTypes.TARGET_CHANGE) {
+    insert(vnode.targetAnchor!, container, parentAnchor)
+  }
+  const { el, anchor, shapeFlag, children, props } = vnode
+  const isReorder = moveType === TeleportMoveTypes.REORDER
+  // move main view anchor if this is a re-order.
+  if (isReorder) {
+    insert(el!, container, parentAnchor)
+  }
+  // if this is a re-order and teleport is enabled (content is in target)
+  // do not move children. So the opposite is: only move children if this
+  // is not a reorder, or the teleport is disabled
+  if (!isReorder || isTeleportDisabled(props)) {
+    // Teleport has either Array children or no children.
+    if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      for (let i = 0; i < (children as VNode[]).length; i++) {
+        move(
+          (children as VNode[])[i],
+          container,
+          parentAnchor,
+          MoveType.REORDER
+        )
+      }
+    }
+  }
+  // move main view anchor if this is a re-order.
+  if (isReorder) {
+    insert(anchor!, container, parentAnchor)
+  }
+}
 
 // interface TeleportTargetElement extends Element {
 //   // last teleport target
@@ -398,16 +396,16 @@ export const Teleport = TeleportImpl as unknown as {
   }
 }
 
-// function updateCssVars(vnode: VNode) {
-//   // presence of .ut method indicates owner component uses css vars.
-//   // code path here can assume browser environment.
-//   const ctx = vnode.ctx
-//   if (ctx && ctx.ut) {
-//     let node = (vnode.children as VNode[])[0].el!
-//     while (node !== vnode.targetAnchor) {
-//       if (node.nodeType === 1) node.setAttribute('data-v-owner', ctx.uid)
-//       node = node.nextSibling
-//     }
-//     ctx.ut()
-//   }
-// }
+function updateCssVars(vnode: VNode) {
+  // presence of .ut method indicates owner component uses css vars.
+  // code path here can assume browser environment.
+  const ctx = vnode.ctx
+  if (ctx && ctx.ut) {
+    let node = (vnode.children as VNode[])[0].el!
+    while (node !== vnode.targetAnchor) {
+      if (node.nodeType === 1) node.setAttribute('data-v-owner', ctx.uid)
+      node = node.nextSibling
+    }
+    ctx.ut()
+  }
+}
