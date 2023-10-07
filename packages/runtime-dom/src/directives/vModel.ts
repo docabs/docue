@@ -263,9 +263,9 @@ export const vModelDynamic: ObjectDirective<
   created(el, binding, vnode) {
     callModelHook(el, binding, vnode, null, 'created')
   },
-  // mounted(el, binding, vnode) {
-  //   callModelHook(el, binding, vnode, null, 'mounted')
-  // },
+  mounted(el, binding, vnode) {
+    callModelHook(el, binding, vnode, null, 'mounted')
+  },
   beforeUpdate(el, binding, vnode, prevVNode) {
     callModelHook(el, binding, vnode, prevVNode, 'beforeUpdate')
   },

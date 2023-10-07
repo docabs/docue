@@ -185,8 +185,8 @@ export {
 export { useCssModule } from './helpers/useCssModule'
 export { useCssVars } from './helpers/useCssVars'
 
-// // DOM-only components
-// export { Transition, type TransitionProps } from './components/Transition'
+// DOM-only components
+export { Transition, type TransitionProps } from './components/Transition'
 // export {
 //   TransitionGroup,
 //   type TransitionGroupProps
@@ -195,7 +195,7 @@ export { useCssVars } from './helpers/useCssVars'
 // // **Internal** DOM-only runtime directive helpers
 export {
   vModelText,
-  // vModelCheckbox,
+  vModelCheckbox,
   // vModelRadio,
   // vModelSelect,
   vModelDynamic

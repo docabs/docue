@@ -929,7 +929,7 @@ function getAttrsProxy(instance: ComponentInternalInstance): Data {
       __DEV__
         ? {
             get(target, key: string) {
-              // markAttrsAccessed()
+              markAttrsAccessed()
               track(instance, TrackOpTypes.GET, '$attrs')
               return target[key]
             },

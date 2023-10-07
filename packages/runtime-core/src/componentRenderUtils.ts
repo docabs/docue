@@ -18,6 +18,7 @@ import {
 import { warn } from './warning'
 import { ErrorCodes, handleError } from './errorHandling'
 import { isEmitListener } from './componentEmits'
+import { NormalizedProps } from './componentProps'
 
 /**
  * dev only flag to track whether $attrs was used during render.
@@ -114,66 +115,66 @@ export function renderComponentRoot(
   // in dev mode, comments are preserved, and it's possible for a template
   // to have comments along side the root element which makes it a fragment
   let root = result
-  // let setRoot: SetRootFn = undefined
-  // if (
-  //   __DEV__ &&
-  //   result.patchFlag > 0 &&
-  //   result.patchFlag & PatchFlags.DEV_ROOT_FRAGMENT
-  // ) {
-  //   ;[root, setRoot] = getChildRoot(result)
-  // }
+  let setRoot: SetRootFn = undefined
+  if (
+    __DEV__ &&
+    result.patchFlag > 0 &&
+    result.patchFlag & PatchFlags.DEV_ROOT_FRAGMENT
+  ) {
+    ;[root, setRoot] = getChildRoot(result)
+  }
 
   if (fallthroughAttrs && inheritAttrs !== false) {
     const keys = Object.keys(fallthroughAttrs)
     const { shapeFlag } = root
     if (keys.length) {
       if (shapeFlag & (ShapeFlags.ELEMENT | ShapeFlags.COMPONENT)) {
-        // if (propsOptions && keys.some(isModelListener)) {
-        //   // If a v-model listener (onUpdate:xxx) has a corresponding declared
-        //   // prop, it indicates this component expects to handle v-model and
-        //   // it should not fallthrough.
-        //   // related: #1543, #1643, #1989
-        //   fallthroughAttrs = filterModelListeners(
-        //     fallthroughAttrs,
-        //     propsOptions
-        //   )
-        // }
+        if (propsOptions && keys.some(isModelListener)) {
+          // If a v-model listener (onUpdate:xxx) has a corresponding declared
+          // prop, it indicates this component expects to handle v-model and
+          // it should not fallthrough.
+          // related: #1543, #1643, #1989
+          fallthroughAttrs = filterModelListeners(
+            fallthroughAttrs,
+            propsOptions
+          )
+        }
         root = cloneVNode(root, fallthroughAttrs)
       } else if (__DEV__ && !accessedAttrs && root.type !== Comment) {
-        //       const allAttrs = Object.keys(attrs)
-        //       const eventAttrs: string[] = []
-        //       const extraAttrs: string[] = []
-        //       for (let i = 0, l = allAttrs.length; i < l; i++) {
-        //         const key = allAttrs[i]
-        //         if (isOn(key)) {
-        //           // ignore v-model handlers when they fail to fallthrough
-        //           if (!isModelListener(key)) {
-        //             // remove `on`, lowercase first letter to reflect event casing
-        //             // accurately
-        //             eventAttrs.push(key[2].toLowerCase() + key.slice(3))
-        //           }
-        //         } else {
-        //           extraAttrs.push(key)
-        //         }
-        //       }
-        //       if (extraAttrs.length) {
-        //         warn(
-        //           `Extraneous non-props attributes (` +
-        //             `${extraAttrs.join(', ')}) ` +
-        //             `were passed to component but could not be automatically inherited ` +
-        //             `because component renders fragment or text root nodes.`
-        //         )
-        //       }
-        //       if (eventAttrs.length) {
-        //         warn(
-        //           `Extraneous non-emits event listeners (` +
-        //             `${eventAttrs.join(', ')}) ` +
-        //             `were passed to component but could not be automatically inherited ` +
-        //             `because component renders fragment or text root nodes. ` +
-        //             `If the listener is intended to be a component custom event listener only, ` +
-        //             `declare it using the "emits" option.`
-        //         )
-        //       }
+        const allAttrs = Object.keys(attrs)
+        const eventAttrs: string[] = []
+        const extraAttrs: string[] = []
+        for (let i = 0, l = allAttrs.length; i < l; i++) {
+          const key = allAttrs[i]
+          if (isOn(key)) {
+            // ignore v-model handlers when they fail to fallthrough
+            if (!isModelListener(key)) {
+              // remove `on`, lowercase first letter to reflect event casing
+              // accurately
+              eventAttrs.push(key[2].toLowerCase() + key.slice(3))
+            }
+          } else {
+            extraAttrs.push(key)
+          }
+        }
+        if (extraAttrs.length) {
+          warn(
+            `Extraneous non-props attributes (` +
+              `${extraAttrs.join(', ')}) ` +
+              `were passed to component but could not be automatically inherited ` +
+              `because component renders fragment or text root nodes.`
+          )
+        }
+        if (eventAttrs.length) {
+          warn(
+            `Extraneous non-emits event listeners (` +
+              `${eventAttrs.join(', ')}) ` +
+              `were passed to component but could not be automatically inherited ` +
+              `because component renders fragment or text root nodes. ` +
+              `If the listener is intended to be a component custom event listener only, ` +
+              `declare it using the "emits" option.`
+          )
+        }
       }
     }
   }
@@ -223,44 +224,44 @@ export function renderComponentRoot(
     root.transition = vnode.transition
   }
 
-  // if (__DEV__ && setRoot) {
-  //   setRoot(root)
-  // } else {
-  result = root
-  // }
+  if (__DEV__ && setRoot) {
+    setRoot(root)
+  } else {
+    result = root
+  }
 
   setCurrentRenderingInstance(prev)
 
   return result
 }
 
-// /**
-//  * dev only
-//  * In dev mode, template root level comments are rendered, which turns the
-//  * template into a fragment root, but we need to locate the single element
-//  * root for attrs and scope id processing.
-//  */
-// const getChildRoot = (vnode: VNode): [VNode, SetRootFn] => {
-//   const rawChildren = vnode.children as VNodeArrayChildren
-//   const dynamicChildren = vnode.dynamicChildren
-//   const childRoot = filterSingleRoot(rawChildren)
-//   if (!childRoot) {
-//     return [vnode, undefined]
-//   }
-//   const index = rawChildren.indexOf(childRoot)
-//   const dynamicIndex = dynamicChildren ? dynamicChildren.indexOf(childRoot) : -1
-//   const setRoot: SetRootFn = (updatedRoot: VNode) => {
-//     rawChildren[index] = updatedRoot
-//     if (dynamicChildren) {
-//       if (dynamicIndex > -1) {
-//         dynamicChildren[dynamicIndex] = updatedRoot
-//       } else if (updatedRoot.patchFlag > 0) {
-//         vnode.dynamicChildren = [...dynamicChildren, updatedRoot]
-//       }
-//     }
-//   }
-//   return [normalizeVNode(childRoot), setRoot]
-// }
+/**
+ * dev only
+ * In dev mode, template root level comments are rendered, which turns the
+ * template into a fragment root, but we need to locate the single element
+ * root for attrs and scope id processing.
+ */
+const getChildRoot = (vnode: VNode): [VNode, SetRootFn] => {
+  const rawChildren = vnode.children as VNodeArrayChildren
+  const dynamicChildren = vnode.dynamicChildren
+  const childRoot = filterSingleRoot(rawChildren)
+  if (!childRoot) {
+    return [vnode, undefined]
+  }
+  const index = rawChildren.indexOf(childRoot)
+  const dynamicIndex = dynamicChildren ? dynamicChildren.indexOf(childRoot) : -1
+  const setRoot: SetRootFn = (updatedRoot: VNode) => {
+    rawChildren[index] = updatedRoot
+    if (dynamicChildren) {
+      if (dynamicIndex > -1) {
+        dynamicChildren[dynamicIndex] = updatedRoot
+      } else if (updatedRoot.patchFlag > 0) {
+        vnode.dynamicChildren = [...dynamicChildren, updatedRoot]
+      }
+    }
+  }
+  return [normalizeVNode(childRoot), setRoot]
+}
 
 export function filterSingleRoot(
   children: VNodeArrayChildren
@@ -295,15 +296,15 @@ const getFunctionalFallthrough = (attrs: Data): Data | undefined => {
   return res
 }
 
-// const filterModelListeners = (attrs: Data, props: NormalizedProps): Data => {
-//   const res: Data = {}
-//   for (const key in attrs) {
-//     if (!isModelListener(key) || !(key.slice(9) in props)) {
-//       res[key] = attrs[key]
-//     }
-//   }
-//   return res
-// }
+const filterModelListeners = (attrs: Data, props: NormalizedProps): Data => {
+  const res: Data = {}
+  for (const key in attrs) {
+    if (!isModelListener(key) || !(key.slice(9) in props)) {
+      res[key] = attrs[key]
+    }
+  }
+  return res
+}
 
 const isElementRoot = (vnode: VNode) => {
   return (

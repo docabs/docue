@@ -1,3 +1,4 @@
+import { nextTick, watch, watchEffect } from '@docue/runtime-core'
 import {
   EffectScope,
   effect,
@@ -229,50 +230,50 @@ describe('reactivity/effect/scope', () => {
     expect(parent.scopes!.includes(child)).toBe(false)
   })
 
-  // it('test with higher level APIs', async () => {
-  //   const r = ref(1)
+  it('test with higher level APIs', async () => {
+    const r = ref(1)
 
-  //   const computedSpy = vi.fn()
-  //   const watchSpy = vi.fn()
-  //   const watchEffectSpy = vi.fn()
+    const computedSpy = vi.fn()
+    const watchSpy = vi.fn()
+    const watchEffectSpy = vi.fn()
 
-  //   let c: ComputedRef
-  //   const scope = new EffectScope()
-  //   scope.run(() => {
-  //     c = computed(() => {
-  //       computedSpy()
-  //       return r.value + 1
-  //     })
+    let c: ComputedRef
+    const scope = new EffectScope()
+    scope.run(() => {
+      c = computed(() => {
+        computedSpy()
+        return r.value + 1
+      })
 
-  //     watch(r, watchSpy)
-  //     watchEffect(() => {
-  //       watchEffectSpy()
-  //       r.value
-  //     })
-  //   })
+      watch(r, watchSpy)
+      watchEffect(() => {
+        watchEffectSpy()
+        r.value
+      })
+    })
 
-  //   c!.value // computed is lazy so trigger collection
-  //   expect(computedSpy).toHaveBeenCalledTimes(1)
-  //   expect(watchSpy).toHaveBeenCalledTimes(0)
-  //   expect(watchEffectSpy).toHaveBeenCalledTimes(1)
+    c!.value // computed is lazy so trigger collection
+    expect(computedSpy).toHaveBeenCalledTimes(1)
+    expect(watchSpy).toHaveBeenCalledTimes(0)
+    expect(watchEffectSpy).toHaveBeenCalledTimes(1)
 
-  //   r.value++
-  //   c!.value
-  //   await nextTick()
-  //   expect(computedSpy).toHaveBeenCalledTimes(2)
-  //   expect(watchSpy).toHaveBeenCalledTimes(1)
-  //   expect(watchEffectSpy).toHaveBeenCalledTimes(2)
+    r.value++
+    c!.value
+    await nextTick()
+    expect(computedSpy).toHaveBeenCalledTimes(2)
+    expect(watchSpy).toHaveBeenCalledTimes(1)
+    expect(watchEffectSpy).toHaveBeenCalledTimes(2)
 
-  //   scope.stop()
+    scope.stop()
 
-  //   r.value++
-  //   c!.value
-  //   await nextTick()
-  //   // should not trigger anymore
-  //   expect(computedSpy).toHaveBeenCalledTimes(2)
-  //   expect(watchSpy).toHaveBeenCalledTimes(1)
-  //   expect(watchEffectSpy).toHaveBeenCalledTimes(2)
-  // })
+    r.value++
+    c!.value
+    await nextTick()
+    // should not trigger anymore
+    expect(computedSpy).toHaveBeenCalledTimes(2)
+    expect(watchSpy).toHaveBeenCalledTimes(1)
+    expect(watchEffectSpy).toHaveBeenCalledTimes(2)
+  })
 
   it('getCurrentScope() stays valid when running a detached nested EffectScope', () => {
     const parentScope = new EffectScope()

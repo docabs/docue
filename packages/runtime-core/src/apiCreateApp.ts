@@ -28,11 +28,11 @@ export interface App<HostElement = any> {
   version: string
   config: AppConfig
 
-  // use<Options extends unknown[]>(
-  //   plugin: Plugin<Options>,
-  //   ...options: Options
-  // ): this
-  // use<Options>(plugin: Plugin<Options>, options: Options): this
+  use<Options extends unknown[]>(
+    plugin: Plugin<Options>,
+    ...options: Options
+  ): this
+  use<Options>(plugin: Plugin<Options>, options: Options): this
 
   mixin(mixin: ComponentOptions): this
   component(name: string): Component | undefined
@@ -151,17 +151,17 @@ export interface AppContext {
   filters?: Record<string, Function>
 }
 
-// type PluginInstallFunction<Options> = Options extends unknown[]
-//   ? (app: App, ...options: Options) => any
-//   : (app: App, options: Options) => any
+type PluginInstallFunction<Options> = Options extends unknown[]
+  ? (app: App, ...options: Options) => any
+  : (app: App, options: Options) => any
 
-// export type Plugin<Options = any[]> =
-//   | (PluginInstallFunction<Options> & {
-//       install?: PluginInstallFunction<Options>
-//     })
-//   | {
-//       install: PluginInstallFunction<Options>
-//     }
+export type Plugin<Options = any[]> =
+  | (PluginInstallFunction<Options> & {
+      install?: PluginInstallFunction<Options>
+    })
+  | {
+      install: PluginInstallFunction<Options>
+    }
 
 export function createAppContext(): AppContext {
   return {
@@ -217,7 +217,7 @@ export function createAppAPI<HostElement>(
     //       }
     //     })
     //   }
-    //   const installedPlugins = new Set()
+    const installedPlugins = new Set()
     let isMounted = false
     const app: App = (context.app = {
       //     _uid: uid++,
@@ -237,23 +237,23 @@ export function createAppAPI<HostElement>(
           )
         }
       },
-      //     use(plugin: Plugin, ...options: any[]) {
-      //       if (installedPlugins.has(plugin)) {
-      //         __DEV__ && warn(`Plugin has already been applied to target app.`)
-      //       } else if (plugin && isFunction(plugin.install)) {
-      //         installedPlugins.add(plugin)
-      //         plugin.install(app, ...options)
-      //       } else if (isFunction(plugin)) {
-      //         installedPlugins.add(plugin)
-      //         plugin(app, ...options)
-      //       } else if (__DEV__) {
-      //         warn(
-      //           `A plugin must either be a function or an object with an "install" ` +
-      //             `function.`
-      //         )
-      //       }
-      //       return app
-      //     },
+      use(plugin: Plugin, ...options: any[]) {
+        if (installedPlugins.has(plugin)) {
+          __DEV__ && warn(`Plugin has already been applied to target app.`)
+        } else if (plugin && isFunction(plugin.install)) {
+          installedPlugins.add(plugin)
+          plugin.install(app, ...options)
+        } else if (isFunction(plugin)) {
+          installedPlugins.add(plugin)
+          plugin(app, ...options)
+        } else if (__DEV__) {
+          warn(
+            `A plugin must either be a function or an object with an "install" ` +
+              `function.`
+          )
+        }
+        return app
+      },
       mixin(mixin: ComponentOptions) {
         if (__FEATURE_OPTIONS_API__) {
           if (!context.mixins.includes(mixin)) {

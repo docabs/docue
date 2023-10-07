@@ -1,19 +1,18 @@
 import {
   createApp,
-  getCurrentInstance,
   h,
-  inject,
   nodeOps,
-  provide,
-  ref,
   serializeInner,
-  withDirectives
-} from '@docue/runtime-test'
-import { defineComponent } from '../src/apiDefineComponent'
-import {
+  provide,
+  inject,
   resolveComponent,
-  resolveDirective
-} from '../src/helpers/resolveAssets'
+  resolveDirective,
+  withDirectives,
+  Plugin,
+  ref,
+  getCurrentInstance,
+  defineComponent
+} from '@docue/runtime-test'
 
 describe('api: createApp', () => {
   test('mount', () => {
@@ -293,47 +292,47 @@ describe('api: createApp', () => {
     ])
   })
 
-  // test('use', () => {
-  //   const PluginA: Plugin = app => app.provide('foo', 1)
-  //   const PluginB: Plugin = {
-  //     install: (app, arg1, arg2) => app.provide('bar', arg1 + arg2)
-  //   }
-  //   class PluginC {
-  //     someProperty = {}
-  //     static install() {
-  //       app.provide('baz', 2)
-  //     }
-  //   }
-  //   const PluginD: any = undefined
+  test('use', () => {
+    const PluginA: Plugin = app => app.provide('foo', 1)
+    const PluginB: Plugin = {
+      install: (app, arg1, arg2) => app.provide('bar', arg1 + arg2)
+    }
+    class PluginC {
+      someProperty = {}
+      static install() {
+        app.provide('baz', 2)
+      }
+    }
+    const PluginD: any = undefined
 
-  //   const Root = {
-  //     setup() {
-  //       const foo = inject('foo')
-  //       const bar = inject('bar')
-  //       return () => `${foo},${bar}`
-  //     }
-  //   }
+    const Root = {
+      setup() {
+        const foo = inject('foo')
+        const bar = inject('bar')
+        return () => `${foo},${bar}`
+      }
+    }
 
-  //   const app = createApp(Root)
-  //   app.use(PluginA)
-  //   app.use(PluginB, 1, 1)
-  //   app.use(PluginC)
+    const app = createApp(Root)
+    app.use(PluginA)
+    app.use(PluginB, 1, 1)
+    app.use(PluginC)
 
-  //   const root = nodeOps.createElement('div')
-  //   app.mount(root)
-  //   expect(serializeInner(root)).toBe(`1,2`)
+    const root = nodeOps.createElement('div')
+    app.mount(root)
+    expect(serializeInner(root)).toBe(`1,2`)
 
-  //   app.use(PluginA)
-  //   expect(
-  //     `Plugin has already been applied to target app`
-  //   ).toHaveBeenWarnedTimes(1)
+    app.use(PluginA)
+    expect(
+      `Plugin has already been applied to target app`
+    ).toHaveBeenWarnedTimes(1)
 
-  //   app.use(PluginD)
-  //   expect(
-  //     `A plugin must either be a function or an object with an "install" ` +
-  //       `function.`
-  //   ).toHaveBeenWarnedTimes(1)
-  // })
+    app.use(PluginD)
+    expect(
+      `A plugin must either be a function or an object with an "install" ` +
+        `function.`
+    ).toHaveBeenWarnedTimes(1)
+  })
 
   test('config.errorHandler', () => {
     const error = new Error()

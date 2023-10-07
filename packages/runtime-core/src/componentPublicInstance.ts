@@ -44,6 +44,7 @@ import { nextTick, queueJob } from './scheduler'
 import { warn } from './warning'
 import { currentRenderingInstance } from './componentRenderContext'
 import { WatchOptions, WatchStopHandle, instanceWatch } from './apiWatch'
+import { markAttrsAccessed } from './componentRenderUtils'
 
 /**
  * Custom properties added to component instances in any way and can be accessed through `this`
@@ -351,12 +352,12 @@ export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
     let cssModule, globalProperties
     // public $xxx properties
     if (publicGetter) {
-      // if (key === '$attrs') {
-      //   track(instance, TrackOpTypes.GET, key)
-      //   __DEV__ && markAttrsAccessed()
-      // } else if (__DEV__ && key === '$slots') {
-      //   track(instance, TrackOpTypes.GET, key)
-      // }
+      if (key === '$attrs') {
+        //   track(instance, TrackOpTypes.GET, key)
+        __DEV__ && markAttrsAccessed()
+      } else if (__DEV__ && key === '$slots') {
+        //   track(instance, TrackOpTypes.GET, key)
+      }
       return publicGetter(instance)
     } else if (
       // css module (injected by docue-loader)
