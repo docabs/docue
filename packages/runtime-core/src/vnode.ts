@@ -26,7 +26,11 @@ import {
 } from './component'
 import { ComponentPublicInstance } from './componentPublicInstance'
 
-import { SuspenseBoundary, isSuspense } from './components/Suspense'
+import {
+  SuspenseBoundary,
+  SuspenseImpl,
+  isSuspense
+} from './components/Suspense'
 import { isTeleport } from './components/Teleport'
 import { RawSlots } from './componentSlots'
 import { AppContext } from './apiCreateApp'
@@ -431,9 +435,9 @@ function createBaseVNode(
   if (needFullChildrenNormalization) {
     normalizeChildren(vnode, children)
     // normalize suspense children
-    // if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
-    //   ;(type as typeof SuspenseImpl).normalize(vnode)
-    // }
+    if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
+      ;(type as typeof SuspenseImpl).normalize(vnode)
+    }
   } else if (children) {
     // compiled element vnode - if children is passed, only possible types are
     // string or Array.

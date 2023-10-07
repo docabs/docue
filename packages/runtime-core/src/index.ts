@@ -59,7 +59,7 @@ export { provide, inject, hasInjectionContext } from './apiInject'
 export { nextTick } from './scheduler'
 export { defineComponent } from './apiDefineComponent'
 export { defineAsyncComponent } from './apiAsyncComponent'
-// export { useAttrs, useSlots } from './apiSetupHelpers'
+export { useAttrs, useSlots } from './apiSetupHelpers'
 
 // <script setup> API ----------------------------------------------------------
 
@@ -93,8 +93,8 @@ export { createVNode, cloneVNode, mergeProps, isVNode } from './vnode'
 // VNode types
 export { Fragment, Text, Comment, Static, type VNodeRef } from './vnode'
 // Built-in components
-// export { Teleport, type TeleportProps } from './components/Teleport'
-// export { Suspense, type SuspenseProps } from './components/Suspense'
+export { Teleport, type TeleportProps } from './components/Teleport'
+export { Suspense, type SuspenseProps } from './components/Suspense'
 export { KeepAlive, type KeepAliveProps } from './components/KeepAlive'
 export {
   BaseTransition,
@@ -305,7 +305,7 @@ export {
   guardReactiveProps
 } from './vnode'
 export {
-  // toDisplayString,
+  toDisplayString,
   camelize,
   capitalize,
   toHandlerKey,

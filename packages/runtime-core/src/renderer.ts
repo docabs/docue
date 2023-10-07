@@ -23,6 +23,7 @@ import {
 } from './component'
 import {
   SuspenseBoundary,
+  SuspenseImpl,
   queueEffectWithSuspense
 } from './components/Suspense'
 import { RootHydrateFunction, createHydrationFunctions } from './hydration'
@@ -38,7 +39,8 @@ import {
   normalizeVNode,
   isSameVNodeType,
   Static,
-  invokeVNodeHook
+  invokeVNodeHook,
+  createVNode
 } from './vnode'
 import { popWarningContext, pushWarningContext, warn } from './warning'
 import {
@@ -61,6 +63,7 @@ import { updateProps } from './componentProps'
 import { updateSlots } from './componentSlots'
 import { invokeDirectiveHook } from './directives'
 import { KeepAliveContext, isKeepAlive } from './components/KeepAlive'
+import { TeleportImpl, TeleportVNode } from './components/Teleport'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -106,7 +109,7 @@ export interface RendererOptions<
   setElementText(node: HostElement, text: string): void
   parentNode(node: HostNode): HostElement | null
   nextSibling(node: HostNode): HostNode | null
-  // querySelector?(selector: string): HostElement | null
+  querySelector?(selector: string): HostElement | null
   setScopeId?(el: HostElement, id: string): void
   // cloneNode?(node: HostNode): HostNode
   insertStaticContent?(
@@ -421,31 +424,31 @@ function baseCreateRenderer(
             optimized
           )
         } else if (shapeFlag & ShapeFlags.TELEPORT) {
-          //         ;(type as typeof TeleportImpl).process(
-          //           n1 as TeleportVNode,
-          //           n2 as TeleportVNode,
-          //           container,
-          //           anchor,
-          //           parentComponent,
-          //           parentSuspense,
-          //           isSVG,
-          //           slotScopeIds,
-          //           optimized,
-          //           internals
-          //         )
+          ;(type as typeof TeleportImpl).process(
+            n1 as TeleportVNode,
+            n2 as TeleportVNode,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            isSVG,
+            slotScopeIds,
+            optimized,
+            internals
+          )
         } else if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
-          //         ;(type as typeof SuspenseImpl).process(
-          //           n1,
-          //           n2,
-          //           container,
-          //           anchor,
-          //           parentComponent,
-          //           parentSuspense,
-          //           isSVG,
-          //           slotScopeIds,
-          //           optimized,
-          //           internals
-          //         )
+          ;(type as typeof SuspenseImpl).process(
+            n1,
+            n2,
+            container,
+            anchor,
+            parentComponent,
+            parentSuspense,
+            isSVG,
+            slotScopeIds,
+            optimized,
+            internals
+          )
         } else if (__DEV__) {
           warn('Invalid VNode type:', type, `(${typeof type})`)
         }
@@ -1196,18 +1199,18 @@ function baseCreateRenderer(
     //   }
     // }
 
-    //   // setup() is async. This component relies on async logic to be resolved
-    //   // before proceeding
-    //   if (__FEATURE_SUSPENSE__ && instance.asyncDep) {
-    //     parentSuspense && parentSuspense.registerDep(instance, setupRenderEffect)
-    //     // Give it a placeholder if this is not hydration
-    //     // TODO handle self-defined fallback
-    //     if (!initialVNode.el) {
-    //       const placeholder = (instance.subTree = createVNode(Comment))
-    //       processCommentNode(null, placeholder, container!, anchor)
-    //     }
-    //     return
-    //   }
+    // setup() is async. This component relies on async logic to be resolved
+    // before proceeding
+    if (__FEATURE_SUSPENSE__ && instance.asyncDep) {
+      parentSuspense && parentSuspense.registerDep(instance, setupRenderEffect)
+      // Give it a placeholder if this is not hydration
+      // TODO handle self-defined fallback
+      if (!initialVNode.el) {
+        const placeholder = (instance.subTree = createVNode(Comment))
+        processCommentNode(null, placeholder, container!, anchor)
+      }
+      return
+    }
     setupRenderEffect(
       instance,
       initialVNode,
@@ -1236,7 +1239,7 @@ function baseCreateRenderer(
         //     if (__DEV__) {
         //       pushWarningContext(n2)
         //     }
-        //     updateComponentPreRender(instance, n2, optimized)
+        updateComponentPreRender(instance, n2, optimized)
         //     if (__DEV__) {
         //       popWarningContext()
         //     }
@@ -1941,10 +1944,10 @@ function baseCreateRenderer(
       return
     }
 
-    // if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
-    //   vnode.suspense!.move(container, anchor, moveType)
-    //   return
-    // }
+    if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
+      vnode.suspense!.move(container, anchor, moveType)
+      return
+    }
 
     // if (shapeFlag & ShapeFlags.TELEPORT) {
     //   ;(type as typeof TeleportImpl).move(vnode, container, anchor, internals)
@@ -2032,10 +2035,10 @@ function baseCreateRenderer(
     if (shapeFlag & ShapeFlags.COMPONENT) {
       unmountComponent(vnode.component!, parentSuspense, doRemove)
     } else {
-      //   if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
-      //     vnode.suspense!.unmount(parentSuspense, doRemove)
-      //     return
-      //   }
+      if (__FEATURE_SUSPENSE__ && shapeFlag & ShapeFlags.SUSPENSE) {
+        vnode.suspense!.unmount(parentSuspense, doRemove)
+        return
+      }
       if (shouldInvokeDirs) {
         invokeDirectiveHook(vnode, null, parentComponent, 'beforeUnmount')
       }
