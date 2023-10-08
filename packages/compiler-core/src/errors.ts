@@ -46,8 +46,8 @@ export const enum ErrorCodes {
   END_TAG_WITH_TRAILING_SOLIDUS,
   EOF_BEFORE_TAG_NAME,
   //   EOF_IN_CDATA,
-  //   EOF_IN_COMMENT,
-  //   EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT,
+  EOF_IN_COMMENT,
+  EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT,
   EOF_IN_TAG,
   //   INCORRECTLY_CLOSED_COMMENT,
   INCORRECTLY_OPENED_COMMENT,
@@ -55,7 +55,7 @@ export const enum ErrorCodes {
   //   MISSING_ATTRIBUTE_VALUE,
   MISSING_END_TAG_NAME,
   //   MISSING_WHITESPACE_BETWEEN_ATTRIBUTES,
-  //   NESTED_COMMENT,
+  NESTED_COMMENT,
   //   UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
   //   UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE,
   //   UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME,
@@ -65,7 +65,7 @@ export const enum ErrorCodes {
 
   // Docue-specific parse errors
   X_INVALID_END_TAG,
-  //   X_MISSING_END_TAG,
+  X_MISSING_END_TAG,
   X_MISSING_INTERPOLATION_END,
   //   X_MISSING_DIRECTIVE_NAME,
   //   X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END,
@@ -95,7 +95,7 @@ export const enum ErrorCodes {
   //   X_PREFIX_ID_NOT_SUPPORTED,
   //   X_MODULE_MODE_NOT_SUPPORTED,
   //   X_CACHE_HANDLER_NOT_SUPPORTED,
-  //   X_SCOPE_ID_NOT_SUPPORTED,
+  X_SCOPE_ID_NOT_SUPPORTED,
 
   // deprecations
   //   DEPRECATION_VNODE_HOOKS,
@@ -117,9 +117,9 @@ export const errorMessages: Record<ErrorCodes, string> = {
   [ErrorCodes.END_TAG_WITH_TRAILING_SOLIDUS]: "Illegal '/' in tags.",
   [ErrorCodes.EOF_BEFORE_TAG_NAME]: 'Unexpected EOF in tag.',
   //   [ErrorCodes.EOF_IN_CDATA]: 'Unexpected EOF in CDATA section.',
-  //   [ErrorCodes.EOF_IN_COMMENT]: 'Unexpected EOF in comment.',
-  //   [ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT]:
-  //     'Unexpected EOF in script.',
+  [ErrorCodes.EOF_IN_COMMENT]: 'Unexpected EOF in comment.',
+  [ErrorCodes.EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT]:
+    'Unexpected EOF in script.',
   [ErrorCodes.EOF_IN_TAG]: 'Unexpected EOF in tag.',
   //   [ErrorCodes.INCORRECTLY_CLOSED_COMMENT]: 'Incorrectly closed comment.',
   [ErrorCodes.INCORRECTLY_OPENED_COMMENT]: 'Incorrectly opened comment.',
@@ -129,7 +129,7 @@ export const errorMessages: Record<ErrorCodes, string> = {
   [ErrorCodes.MISSING_END_TAG_NAME]: 'End tag name was expected.',
   //   [ErrorCodes.MISSING_WHITESPACE_BETWEEN_ATTRIBUTES]:
   //     'Whitespace was expected.',
-  //   [ErrorCodes.NESTED_COMMENT]: "Unexpected '<!--' in comment.",
+  [ErrorCodes.NESTED_COMMENT]: "Unexpected '<!--' in comment.",
   //   [ErrorCodes.UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME]:
   //     'Attribute name cannot contain U+0022 ("), U+0027 (\'), and U+003C (<).',
   //   [ErrorCodes.UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE]:
@@ -143,7 +143,7 @@ export const errorMessages: Record<ErrorCodes, string> = {
 
   //   // Docue-specific parse errors
   [ErrorCodes.X_INVALID_END_TAG]: 'Invalid end tag.',
-  //   [ErrorCodes.X_MISSING_END_TAG]: 'Element is missing end tag.',
+  [ErrorCodes.X_MISSING_END_TAG]: 'Element is missing end tag.',
   [ErrorCodes.X_MISSING_INTERPOLATION_END]:
     'Interpolation end sign was not found.',
   //   [ErrorCodes.X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END]:
@@ -181,7 +181,7 @@ export const errorMessages: Record<ErrorCodes, string> = {
   //   [ErrorCodes.X_PREFIX_ID_NOT_SUPPORTED]: `"prefixIdentifiers" option is not supported in this build of compiler.`,
   //   [ErrorCodes.X_MODULE_MODE_NOT_SUPPORTED]: `ES module mode is not supported in this build of compiler.`,
   //   [ErrorCodes.X_CACHE_HANDLER_NOT_SUPPORTED]: `"cacheHandlers" option is only supported when the "prefixIdentifiers" option is enabled.`,
-  //   [ErrorCodes.X_SCOPE_ID_NOT_SUPPORTED]: `"scopeId" option is only supported in module mode.`,
+  [ErrorCodes.X_SCOPE_ID_NOT_SUPPORTED]: `"scopeId" option is only supported in module mode.`,
 
   //   // deprecations
   //   [ErrorCodes.DEPRECATION_VNODE_HOOKS]: `@vnode-* hooks in templates are deprecated. Use the docue: prefix instead. For example, @vnode-mounted should be changed to @docue:mounted. @vnode-* hooks support will be removed in 3.4.`,

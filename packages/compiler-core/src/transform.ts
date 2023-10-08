@@ -2,11 +2,11 @@ import { TransformOptions } from './options'
 import {
   RootNode,
   NodeTypes,
-  //   ParentNode,
+  ParentNode,
   TemplateChildNode,
-  //   ElementNode,
-  //   DirectiveNode,
-  //   Property,
+  ElementNode,
+  DirectiveNode,
+  Property,
   ExpressionNode,
   //   createSimpleExpression,
   JSChildNode,
@@ -14,7 +14,7 @@ import {
   //   ElementTypes,
   CacheExpression,
   createCacheExpression,
-  //   TemplateLiteral,
+  TemplateLiteral,
   //   createVNodeCall,
   //   ConstantTypes,
   //   ArrayExpression,
@@ -26,7 +26,7 @@ import {
   //   NOOP,
   //   PatchFlags,
   //   PatchFlagNames,
-  //   EMPTY_OBJ,
+  EMPTY_OBJ,
   //   capitalize,
   camelize
 } from '@docue/shared'
@@ -51,23 +51,23 @@ export type NodeTransform = (
   context: TransformContext
 ) => void | (() => void) | (() => void)[]
 
-// // - DirectiveTransform:
-// //   Transforms that handles a single directive attribute on an element.
-// //   It translates the raw directive into actual props for the VNode.
-// export type DirectiveTransform = (
-//   dir: DirectiveNode,
-//   node: ElementNode,
-//   context: TransformContext,
-//   // a platform specific compiler can import the base transform and augment
-//   // it by passing in this optional argument.
-//   augmentor?: (ret: DirectiveTransformResult) => DirectiveTransformResult
-// ) => DirectiveTransformResult
+// - DirectiveTransform:
+//   Transforms that handles a single directive attribute on an element.
+//   It translates the raw directive into actual props for the VNode.
+export type DirectiveTransform = (
+  dir: DirectiveNode,
+  node: ElementNode,
+  context: TransformContext,
+  // a platform specific compiler can import the base transform and augment
+  // it by passing in this optional argument.
+  augmentor?: (ret: DirectiveTransformResult) => DirectiveTransformResult
+) => DirectiveTransformResult
 
-// export interface DirectiveTransformResult {
-//   props: Property[]
-//   needRuntime?: boolean | symbol
-//   ssrTagParts?: TemplateLiteral['elements']
-// }
+export interface DirectiveTransformResult {
+  props: Property[]
+  needRuntime?: boolean | symbol
+  ssrTagParts?: TemplateLiteral['elements']
+}
 
 // // A structural directive transform is technically also a NodeTransform;
 // // Only v-if and v-for fall into this category.
@@ -110,7 +110,7 @@ export interface TransformContext
   helper<T extends symbol>(name: T): T
   removeHelper<T extends symbol>(name: T): void
   //   helperString(name: symbol): string
-  //   replaceNode(node: TemplateChildNode): void
+  replaceNode(node: TemplateChildNode): void
   //   removeNode(node?: TemplateChildNode): void
   onNodeRemoved(): void
   //   addIdentifiers(exp: ExpressionNode | string): void
@@ -130,7 +130,7 @@ export function createTransformContext(
     // hoistStatic = false,
     // cacheHandlers = false,
     nodeTransforms = [],
-    // directiveTransforms = {},
+    directiveTransforms = {},
     // transformHoist = null,
     // isBuiltInComponent = NOOP,
     // isCustomElement = NOOP,
@@ -140,9 +140,9 @@ export function createTransformContext(
     ssr = false,
     inSSR = false,
     // ssrCssVars = ``,
-    // bindingMetadata = EMPTY_OBJ,
+    bindingMetadata = EMPTY_OBJ,
     inline = false,
-    // isTS = false,
+    isTS = false,
     onError = defaultOnError,
     onWarn = defaultOnWarn,
     compatConfig
@@ -156,7 +156,7 @@ export function createTransformContext(
     //     hoistStatic,
     //     cacheHandlers,
     nodeTransforms,
-    //     directiveTransforms,
+    directiveTransforms,
     //     transformHoist,
     //     isBuiltInComponent,
     //     isCustomElement,
@@ -166,9 +166,9 @@ export function createTransformContext(
     ssr,
     inSSR,
     //     ssrCssVars,
-    //     bindingMetadata,
+    bindingMetadata,
     inline,
-    //     isTS,
+    isTS,
     onError,
     onWarn,
     compatConfig,
@@ -213,18 +213,18 @@ export function createTransformContext(
     //     helperString(name) {
     //       return `_${helperNameMap[context.helper(name)]}`
     //     },
-    //     replaceNode(node) {
-    //       /* istanbul ignore if */
-    //       if (__DEV__) {
-    //         if (!context.currentNode) {
-    //           throw new Error(`Node being replaced is already removed.`)
-    //         }
-    //         if (!context.parent) {
-    //           throw new Error(`Cannot replace root node.`)
-    //         }
-    //       }
-    //       context.parent!.children[context.childIndex] = context.currentNode = node
-    //     },
+    replaceNode(node) {
+      /* istanbul ignore if */
+      if (__DEV__) {
+        if (!context.currentNode) {
+          throw new Error(`Node being replaced is already removed.`)
+        }
+        if (!context.parent) {
+          throw new Error(`Cannot replace root node.`)
+        }
+      }
+      context.parent!.children[context.childIndex] = context.currentNode = node
+    },
     //     removeNode(node) {
     //       if (__DEV__ && !context.parent) {
     //         throw new Error(`Cannot remove root node.`)

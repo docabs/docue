@@ -26,18 +26,18 @@ import {
   MemoExpression
 } from './ast'
 // import { TransformContext } from './transform'
-// import {
-//   MERGE_PROPS,
-//   TELEPORT,
-//   SUSPENSE,
-//   KEEP_ALIVE,
-//   BASE_TRANSITION,
-//   TO_HANDLERS,
-//   NORMALIZE_PROPS,
-//   GUARD_REACTIVE_PROPS,
-//   WITH_MEMO
-// } from './runtimeHelpers'
-// import { isString, isObject, hyphenate, extend, NOOP } from '@vue/shared'
+import {
+  // MERGE_PROPS,
+  TELEPORT,
+  SUSPENSE,
+  KEEP_ALIVE,
+  BASE_TRANSITION,
+  // TO_HANDLERS,
+  // NORMALIZE_PROPS,
+  // GUARD_REACTIVE_PROPS,
+  WITH_MEMO
+} from './runtimeHelpers'
+import { isString, isObject, hyphenate, extend, NOOP } from '@docue/shared'
 // import { PropsExpression } from './transforms/transformElement'
 // import { parseExpression } from '@babel/parser'
 // import { Expression } from '@babel/types'
@@ -45,24 +45,24 @@ import {
 export const isStaticExp = (p: JSChildNode): p is SimpleExpressionNode =>
   p.type === NodeTypes.SIMPLE_EXPRESSION && p.isStatic
 
-// export const isBuiltInType = (tag: string, expected: string): boolean =>
-//   tag === expected || tag === hyphenate(expected)
+export const isBuiltInType = (tag: string, expected: string): boolean =>
+  tag === expected || tag === hyphenate(expected)
 
-// export function isCoreComponent(tag: string): symbol | void {
-//   if (isBuiltInType(tag, 'Teleport')) {
-//     return TELEPORT
-//   } else if (isBuiltInType(tag, 'Suspense')) {
-//     return SUSPENSE
-//   } else if (isBuiltInType(tag, 'KeepAlive')) {
-//     return KEEP_ALIVE
-//   } else if (isBuiltInType(tag, 'BaseTransition')) {
-//     return BASE_TRANSITION
-//   }
-// }
+export function isCoreComponent(tag: string): symbol | void {
+  if (isBuiltInType(tag, 'Teleport')) {
+    return TELEPORT
+  } else if (isBuiltInType(tag, 'Suspense')) {
+    return SUSPENSE
+  } else if (isBuiltInType(tag, 'KeepAlive')) {
+    return KEEP_ALIVE
+  } else if (isBuiltInType(tag, 'BaseTransition')) {
+    return BASE_TRANSITION
+  }
+}
 
-// const nonIdentifierRE = /^\d|[^\$\w]/
-// export const isSimpleIdentifier = (name: string): boolean =>
-//   !nonIdentifierRE.test(name)
+const nonIdentifierRE = /^\d|[^\$\w]/
+export const isSimpleIdentifier = (name: string): boolean =>
+  !nonIdentifierRE.test(name)
 
 // const enum MemberExpLexState {
 //   inMemberExp,
@@ -199,17 +199,17 @@ export const isStaticExp = (p: JSChildNode): p is SimpleExpressionNode =>
 //   return newLoc
 // }
 
-// export function advancePositionWithClone(
-//   pos: Position,
-//   source: string,
-//   numberOfCharacters: number = source.length
-// ): Position {
-//   return advancePositionWithMutation(
-//     extend({}, pos),
-//     source,
-//     numberOfCharacters
-//   )
-// }
+export function advancePositionWithClone(
+  pos: Position,
+  source: string,
+  numberOfCharacters: number = source.length
+): Position {
+  return advancePositionWithMutation(
+    extend({}, pos),
+    source,
+    numberOfCharacters
+  )
+}
 
 // advance by mutation without cloning (for performance reasons), since this
 // gets called a lot in the parser
@@ -237,12 +237,12 @@ export function advancePositionWithMutation(
   return pos
 }
 
-// export function assert(condition: boolean, msg?: string) {
-//   /* istanbul ignore if */
-//   if (!condition) {
-//     throw new Error(msg || `unexpected compiler condition`)
-//   }
-// }
+export function assert(condition: boolean, msg?: string) {
+  /* istanbul ignore if */
+  if (!condition) {
+    throw new Error(msg || `unexpected compiler condition`)
+  }
+}
 
 // export function findDir(
 //   node: ElementNode,
@@ -447,15 +447,15 @@ export function isStaticArgOf(
 //   return result
 // }
 
-// export function toValidAssetId(
-//   name: string,
-//   type: 'component' | 'directive' | 'filter'
-// ): string {
-//   // see issue#4422, we need adding identifier on validAssetId if variable `name` has specific character
-//   return `_${type}_${name.replace(/[^\w]/g, (searchValue, replaceValue) => {
-//     return searchValue === '-' ? '_' : name.charCodeAt(replaceValue).toString()
-//   })}`
-// }
+export function toValidAssetId(
+  name: string,
+  type: 'component' | 'directive' | 'filter'
+): string {
+  // see issue#4422, we need adding identifier on validAssetId if variable `name` has specific character
+  return `_${type}_${name.replace(/[^\w]/g, (searchValue, replaceValue) => {
+    return searchValue === '-' ? '_' : name.charCodeAt(replaceValue).toString()
+  })}`
+}
 
 // // Check if a node contains expressions that reference current context scope ids
 // export function hasScopeRef(

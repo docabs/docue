@@ -187,7 +187,7 @@ describe('compiler + runtime integration', () => {
   //     })
   //     const container = document.createElement('div')
   //     app.mount(container)
-  //     expect('[Vue warn]: invalid template option:').toHaveBeenWarned()
+  //     expect('[Docue warn]: invalid template option:').toHaveBeenWarned()
   //   })
 
   //   it('should warn when template is is not found', () => {
@@ -197,7 +197,7 @@ describe('compiler + runtime integration', () => {
   //     const container = document.createElement('div')
   //     app.mount(container)
   //     expect(
-  //       '[Vue warn]: Template element not found or is empty: #not-exist-id'
+  //       '[Docue warn]: Template element not found or is empty: #not-exist-id'
   //     ).toHaveBeenWarned()
   //   })
 
@@ -215,7 +215,7 @@ describe('compiler + runtime integration', () => {
   //     createApp(App).mount('#not-exist-id')
 
   //     expect(
-  //       '[Vue warn]: Failed to mount app: mount target selector "#not-exist-id" returned null.'
+  //       '[Docue warn]: Failed to mount app: mount target selector "#not-exist-id" returned null.'
   //     ).toHaveBeenWarned()
   //     document.querySelector = origin
   //   })

@@ -146,7 +146,7 @@ describe(`runtime-dom: events patching`, () => {
     expect(nextFn).toHaveBeenCalledTimes(4)
   })
 
-  // vuejs/vue#6566
+  // vuejs/docue#6566
   it('should not fire handler attached by the event itself', async () => {
     const el = document.createElement('div')
     const child = document.createElement('div')

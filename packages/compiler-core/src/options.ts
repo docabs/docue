@@ -1,9 +1,9 @@
 import { ElementNode, Namespace, TemplateChildNode, ParentNode } from './ast'
-// import { TextModes } from './parse'
+import { TextModes } from './parse'
 import { CompilerError } from './errors'
 import {
   NodeTransform,
-  //   DirectiveTransform,
+  DirectiveTransform,
   TransformContext
 } from './transform'
 import { CompilerCompatOptions } from './compat/compatConfig'
@@ -21,33 +21,33 @@ export interface ParserOptions
    * e.g. platform native elements, e.g. `<div>` for browsers
    */
   isNativeTag?: (tag: string) => boolean
-  //   /**
-  //    * e.g. native elements that can self-close, e.g. `<img>`, `<br>`, `<hr>`
-  //    */
-  //   isVoidTag?: (tag: string) => boolean
-  //   /**
-  //    * e.g. elements that should preserve whitespace inside, e.g. `<pre>`
-  //    */
-  //   isPreTag?: (tag: string) => boolean
+  /**
+   * e.g. native elements that can self-close, e.g. `<img>`, `<br>`, `<hr>`
+   */
+  isVoidTag?: (tag: string) => boolean
+  /**
+   * e.g. elements that should preserve whitespace inside, e.g. `<pre>`
+   */
+  isPreTag?: (tag: string) => boolean
   /**
    * Platform-specific built-in components e.g. `<Transition>`
    */
   isBuiltInComponent?: (tag: string) => symbol | void
-  //   /**
-  //    * Separate option for end users to extend the native elements list
-  //    */
-  //   isCustomElement?: (tag: string) => boolean | void
+  /**
+   * Separate option for end users to extend the native elements list
+   */
+  isCustomElement?: (tag: string) => boolean | void
   /**
    * Get tag namespace
    */
   getNamespace?: (tag: string, parent: ElementNode | undefined) => Namespace
-  //   /**
-  //    * Get text parsing mode for this element
-  //    */
-  //   getTextMode?: (
-  //     node: ElementNode,
-  //     parent: ElementNode | undefined
-  //   ) => TextModes
+  /**
+   * Get text parsing mode for this element
+   */
+  getTextMode?: (
+    node: ElementNode,
+    parent: ElementNode | undefined
+  ) => TextModes
   /**
    * @default ['{{', '}}']
    */
@@ -73,69 +73,69 @@ export interface ParserOptions
 //   parent: ParentNode
 // ) => void
 
-// export const enum BindingTypes {
-//   /**
-//    * returned from data()
-//    */
-//   DATA = 'data',
-//   /**
-//    * declared as a prop
-//    */
-//   PROPS = 'props',
-//   /**
-//    * a local alias of a `<script setup>` destructured prop.
-//    * the original is stored in __propsAliases of the bindingMetadata object.
-//    */
-//   PROPS_ALIASED = 'props-aliased',
-//   /**
-//    * a let binding (may or may not be a ref)
-//    */
-//   SETUP_LET = 'setup-let',
-//   /**
-//    * a const binding that can never be a ref.
-//    * these bindings don't need `unref()` calls when processed in inlined
-//    * template expressions.
-//    */
-//   SETUP_CONST = 'setup-const',
-//   /**
-//    * a const binding that does not need `unref()`, but may be mutated.
-//    */
-//   SETUP_REACTIVE_CONST = 'setup-reactive-const',
-//   /**
-//    * a const binding that may be a ref.
-//    */
-//   SETUP_MAYBE_REF = 'setup-maybe-ref',
-//   /**
-//    * bindings that are guaranteed to be refs
-//    */
-//   SETUP_REF = 'setup-ref',
-//   /**
-//    * declared by other options, e.g. computed, inject
-//    */
-//   OPTIONS = 'options',
-//   /**
-//    * a literal constant, e.g. 'foo', 1, true
-//    */
-//   LITERAL_CONST = 'literal-const'
-// }
+export const enum BindingTypes {
+  //   /**
+  //    * returned from data()
+  //    */
+  //   DATA = 'data',
+  //   /**
+  //    * declared as a prop
+  //    */
+  //   PROPS = 'props',
+  //   /**
+  //    * a local alias of a `<script setup>` destructured prop.
+  //    * the original is stored in __propsAliases of the bindingMetadata object.
+  //    */
+  //   PROPS_ALIASED = 'props-aliased',
+  //   /**
+  //    * a let binding (may or may not be a ref)
+  //    */
+  //   SETUP_LET = 'setup-let',
+  //   /**
+  //    * a const binding that can never be a ref.
+  //    * these bindings don't need `unref()` calls when processed in inlined
+  //    * template expressions.
+  //    */
+  //   SETUP_CONST = 'setup-const',
+  //   /**
+  //    * a const binding that does not need `unref()`, but may be mutated.
+  //    */
+  //   SETUP_REACTIVE_CONST = 'setup-reactive-const',
+  //   /**
+  //    * a const binding that may be a ref.
+  //    */
+  //   SETUP_MAYBE_REF = 'setup-maybe-ref',
+  //   /**
+  //    * bindings that are guaranteed to be refs
+  //    */
+  //   SETUP_REF = 'setup-ref',
+  //   /**
+  //    * declared by other options, e.g. computed, inject
+  //    */
+  //   OPTIONS = 'options',
+  /**
+   * a literal constant, e.g. 'foo', 1, true
+   */
+  LITERAL_CONST = 'literal-const'
+}
 
-// export type BindingMetadata = {
-//   [key: string]: BindingTypes | undefined
-// } & {
-//   __isScriptSetup?: boolean
-//   __propsAliases?: Record<string, string>
-// }
+export type BindingMetadata = {
+  [key: string]: BindingTypes | undefined
+} & {
+  __isScriptSetup?: boolean
+  __propsAliases?: Record<string, string>
+}
 
 interface SharedTransformCodegenOptions {
-  //   /**
-  //    * Transform expressions like {{ foo }} to `_ctx.foo`.
-  //    * If this option is false, the generated code will be wrapped in a
-  //    * `with (this) { ... }` block.
-  //    * - This is force-enabled in module mode, since modules are by default strict
-  //    * and cannot use `with`
-  //    * @default mode === 'module'
-  //    */
-  //   prefixIdentifiers?: boolean
+  /**
+   * Transform expressions like {{ foo }} to `_ctx.foo`.
+   * If this option is false, the generated code will be wrapped in a
+   * `with (this) { ... }` block.
+   * - This is force-enabled in module mode, since modules are by default strict
+   * and cannot use `with`
+   * @default mode === 'module'
+   */
+  prefixIdentifiers?: boolean
   /**
    * Control whether generate SSR-optimized render functions instead.
    * The resulting function must be attached to the component via the
@@ -156,20 +156,20 @@ interface SharedTransformCodegenOptions {
    *  - context.inSSR = true
    */
   inSSR?: boolean
-  //   /**
-  //    * Optional binding metadata analyzed from script - used to optimize
-  //    * binding access when `prefixIdentifiers` is enabled.
-  //    */
-  //   bindingMetadata?: BindingMetadata
+  /**
+   * Optional binding metadata analyzed from script - used to optimize
+   * binding access when `prefixIdentifiers` is enabled.
+   */
+  bindingMetadata?: BindingMetadata
   /**
    * Compile the function for inlining inside setup().
    * This allows the function to directly access setup() local bindings.
    */
   inline?: boolean
-  //   /**
-  //    * Indicates that transforms and codegen should try to output valid TS code
-  //    */
-  //   isTS?: boolean
+  /**
+   * Indicates that transforms and codegen should try to output valid TS code
+   */
+  isTS?: boolean
   /**
    * Filename for source map generation.
    * Also used for self-recursive reference in templates
@@ -186,11 +186,11 @@ export interface TransformOptions
    * An array of node transforms to be applied to every AST node.
    */
   nodeTransforms?: NodeTransform[]
-  //   /**
-  //    * An object of { name: transform } to be applied to every directive attribute
-  //    * node found on element nodes.
-  //    */
-  //   directiveTransforms?: Record<string, DirectiveTransform | undefined>
+  /**
+   * An object of { name: transform } to be applied to every directive attribute
+   * node found on element nodes.
+   */
+  directiveTransforms?: Record<string, DirectiveTransform | undefined>
   //   /**
   //    * An optional hook to transform a node being hoisted.
   //    * used by compiler-dom to turn hoisted nodes into stringified HTML vnodes.
@@ -274,32 +274,32 @@ export interface CodegenOptions extends SharedTransformCodegenOptions {
    * @default false
    */
   sourceMap?: boolean
-  //   /**
-  //    * SFC scoped styles ID
-  //    */
-  //   scopeId?: string | null
-  //   /**
-  //    * Option to optimize helper import bindings via variable assignment
-  //    * (only used for webpack code-split)
-  //    * @default false
-  //    */
-  //   optimizeImports?: boolean
-  //   /**
-  //    * Customize where to import runtime helpers from.
-  //    * @default 'docue'
-  //    */
-  //   runtimeModuleName?: string
-  //   /**
-  //    * Customize where to import ssr runtime helpers from/**
-  //    * @default 'docue/server-renderer'
-  //    */
-  //   ssrRuntimeModuleName?: string
-  //   /**
-  //    * Customize the global variable name of `Docue` to get helpers from
-  //    * in function mode
-  //    * @default 'Docue'
-  //    */
-  //   runtimeGlobalName?: string
+  /**
+   * SFC scoped styles ID
+   */
+  scopeId?: string | null
+  /**
+   * Option to optimize helper import bindings via variable assignment
+   * (only used for webpack code-split)
+   * @default false
+   */
+  optimizeImports?: boolean
+  /**
+   * Customize where to import runtime helpers from.
+   * @default 'docue'
+   */
+  runtimeModuleName?: string
+  /**
+   * Customize where to import ssr runtime helpers from/**
+   * @default 'docue/server-renderer'
+   */
+  ssrRuntimeModuleName?: string
+  /**
+   * Customize the global variable name of `Docue` to get helpers from
+   * in function mode
+   * @default 'Docue'
+   */
+  runtimeGlobalName?: string
 }
 
 export type CompilerOptions = ParserOptions & TransformOptions & CodegenOptions

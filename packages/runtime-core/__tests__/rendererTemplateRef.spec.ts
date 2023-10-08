@@ -10,7 +10,7 @@ import {
   shallowRef
 } from '@docue/runtime-test'
 
-// reference: https://vue-composition-api-rfc.netlify.com/api.html#template-refs
+// reference: https://docue-composition-api-rfc.netlify.com/api.html#template-refs
 
 describe('api: template refs', () => {
   it('string ref mount', () => {

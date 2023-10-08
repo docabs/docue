@@ -21,7 +21,7 @@ import {
   nextTick,
   watch
 } from '@docue/runtime-test'
-// import { render as domRender, nextTick } from 'vue'
+// import { render as domRender, nextTick } from 'docue'
 
 describe('component props', () => {
   test('stateful', () => {

@@ -12,7 +12,7 @@ import {
   TestElement
 } from '@docue/runtime-test'
 
-// reference: https://vue-composition-api-rfc.netlify.com/api.html#setup
+// reference: https://docue-composition-api-rfc.netlify.com/api.html#setup
 
 describe('api: setup context', () => {
   it('should expose return values to template render context', () => {

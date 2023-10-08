@@ -47,11 +47,11 @@ describe('compiler: integration tests', () => {
   test('function mode', () => {
     const { code, map } = compile(source, {
       sourceMap: true,
-      filename: `foo.vue`
+      filename: `foo.docue`
     })
 
     expect(code).toMatchSnapshot()
-    expect(map!.sources).toEqual([`foo.vue`])
+    expect(map!.sources).toEqual([`foo.docue`])
     expect(map!.sourcesContent).toEqual([source])
 
     // const consumer = new SourceMapConsumer(map as RawSourceMap)
@@ -112,12 +112,12 @@ describe('compiler: integration tests', () => {
   // test('function mode w/ prefixIdentifiers: true', () => {
   //   const { code, map } = compile(source, {
   //     sourceMap: true,
-  //     filename: `foo.vue`,
+  //     filename: `foo.docue`,
   //     prefixIdentifiers: true
   //   })
 
   //   expect(code).toMatchSnapshot()
-  //   expect(map!.sources).toEqual([`foo.vue`])
+  //   expect(map!.sources).toEqual([`foo.docue`])
   //   expect(map!.sourcesContent).toEqual([source])
 
   //   const consumer = new SourceMapConsumer(map as RawSourceMap)
@@ -188,11 +188,11 @@ describe('compiler: integration tests', () => {
   //   const { code, map } = compile(source, {
   //     mode: 'module',
   //     sourceMap: true,
-  //     filename: `foo.vue`
+  //     filename: `foo.docue`
   //   })
 
   //   expect(code).toMatchSnapshot()
-  //   expect(map!.sources).toEqual([`foo.vue`])
+  //   expect(map!.sources).toEqual([`foo.docue`])
   //   expect(map!.sourcesContent).toEqual([source])
 
   //   const consumer = new SourceMapConsumer(map as RawSourceMap)

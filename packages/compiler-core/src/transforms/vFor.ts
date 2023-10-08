@@ -47,7 +47,7 @@ import {
 // } from '../runtimeHelpers'
 // import { processExpression } from './transformExpression'
 // import { validateBrowserExpression } from '../validateExpression'
-// import { PatchFlags, PatchFlagNames } from '@vue/shared'
+// import { PatchFlags, PatchFlagNames } from '@docue/shared'
 
 // export const transformFor = createStructuralDirectiveTransform(
 //   'for',

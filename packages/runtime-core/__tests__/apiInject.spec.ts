@@ -13,7 +13,7 @@ import {
 } from '../src/index'
 import { render, nodeOps, serialize, createApp } from '@docue/runtime-test'
 
-// reference: https://vue-composition-api-rfc.netlify.com/api.html#provide-inject
+// reference: https://docue-composition-api-rfc.netlify.com/api.html#provide-inject
 describe('api: provide/inject', () => {
   it('string keys', () => {
     const Provider = {

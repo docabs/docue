@@ -47,7 +47,7 @@ describe('shallowReactive', () => {
     expect(isReactive(r.foo.bar)).toBe(false)
   })
 
-  // vuejs/vue#12597
+  // vuejs/docue#12597
   test('should not unwrap refs', () => {
     const foo = shallowReactive({
       bar: ref(123)
@@ -56,7 +56,7 @@ describe('shallowReactive', () => {
     expect(foo.bar.value).toBe(123)
   })
 
-  // vuejs/vue#12688
+  // vuejs/docue#12688
   test('should not mutate refs', () => {
     const original = ref(123)
     const foo = shallowReactive<{ bar: Ref<number> | number }>({

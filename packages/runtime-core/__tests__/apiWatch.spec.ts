@@ -33,7 +33,7 @@ import {
   toRef
 } from '@docue/reactivity'
 
-// reference: https://vue-composition-api-rfc.netlify.com/api.html#watch
+// reference: https://docue-composition-api-rfc.netlify.com/api.html#watch
 
 describe('api: watch', () => {
   it('effect', async () => {

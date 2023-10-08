@@ -2,7 +2,7 @@ import { baseParse } from '../src/parse'
 import { transform, NodeTransform } from '../src/transform'
 import {
   ElementNode,
-  //   NodeTypes,
+  NodeTypes,
   //   DirectiveNode,
   //   ExpressionNode,
   VNodeCall
@@ -20,7 +20,7 @@ import {
 // import { transformSlotOutlet } from '../src/transforms/transformSlotOutlet'
 // import { transformText } from '../src/transforms/transformText'
 // import { genFlagText } from './testUtils'
-// import { PatchFlags } from '@vue/shared'
+// import { PatchFlags } from '@docue/shared'
 
 describe('compiler: transform', () => {
   test('context state', () => {
@@ -65,38 +65,40 @@ describe('compiler: transform', () => {
       }
     ])
   })
-  //   test('context.replaceNode', () => {
-  //     const ast = baseParse(`<div/><span/>`)
-  //     const plugin: NodeTransform = (node, context) => {
-  //       if (node.type === NodeTypes.ELEMENT && node.tag === 'div') {
-  //         // change the node to <p>
-  //         context.replaceNode(
-  //           Object.assign({}, node, {
-  //             tag: 'p',
-  //             children: [
-  //               {
-  //                 type: NodeTypes.TEXT,
-  //                 content: 'hello',
-  //                 isEmpty: false
-  //               }
-  //             ]
-  //           })
-  //         )
-  //       }
-  //     }
-  //     const spy = vi.fn(plugin)
-  //     transform(ast, {
-  //       nodeTransforms: [spy]
-  //     })
-  //     expect(ast.children.length).toBe(2)
-  //     const newElement = ast.children[0] as ElementNode
-  //     expect(newElement.tag).toBe('p')
-  //     expect(spy).toHaveBeenCalledTimes(4)
-  //     // should traverse the children of replaced node
-  //     expect(spy.mock.calls[2][0]).toBe(newElement.children[0])
-  //     // should traverse the node after the replaced node
-  //     expect(spy.mock.calls[3][0]).toBe(ast.children[1])
-  //   })
+
+  test('context.replaceNode', () => {
+    const ast = baseParse(`<div/><span/>`)
+    const plugin: NodeTransform = (node, context) => {
+      if (node.type === NodeTypes.ELEMENT && node.tag === 'div') {
+        // change the node to <p>
+        context.replaceNode(
+          Object.assign({}, node, {
+            tag: 'p',
+            children: [
+              {
+                type: NodeTypes.TEXT,
+                content: 'hello',
+                isEmpty: false
+              }
+            ]
+          })
+        )
+      }
+    }
+    const spy = vi.fn(plugin)
+    transform(ast, {
+      nodeTransforms: [spy]
+    })
+    expect(ast.children.length).toBe(2)
+    const newElement = ast.children[0] as ElementNode
+    expect(newElement.tag).toBe('p')
+    expect(spy).toHaveBeenCalledTimes(4)
+    // should traverse the children of replaced node
+    expect(spy.mock.calls[2][0]).toBe(newElement.children[0])
+    // should traverse the node after the replaced node
+    expect(spy.mock.calls[3][0]).toBe(ast.children[1])
+  })
+
   //   test('context.removeNode', () => {
   //     const ast = baseParse(`<span/><div>hello</div><span/>`)
   //     const c1 = ast.children[0]

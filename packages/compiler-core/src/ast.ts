@@ -36,7 +36,7 @@ export const enum NodeTypes {
   DIRECTIVE,
   // containers
   COMPOUND_EXPRESSION,
-  //   IF,
+  IF,
   IF_BRANCH,
   FOR,
   TEXT_CALL,
@@ -51,9 +51,9 @@ export const enum NodeTypes {
   JS_CACHE_EXPRESSION,
 
   // ssr codegen
-  //   JS_BLOCK_STATEMENT,
-  //   JS_TEMPLATE_LITERAL,
-  //   JS_IF_STATEMENT,
+  JS_BLOCK_STATEMENT,
+  JS_TEMPLATE_LITERAL,
+  JS_IF_STATEMENT,
   //   JS_ASSIGNMENT_EXPRESSION,
   //   JS_SEQUENCE_EXPRESSION,
   JS_RETURN_STATEMENT
@@ -95,7 +95,7 @@ export type TemplateChildNode =
   // | CompoundExpressionNode
   | TextNode
   | CommentNode
-  // | IfNode
+  | IfNode
   | IfBranchNode
   | ForNode
   | TextCallNode
@@ -118,8 +118,8 @@ export interface RootNode extends Node {
 
 export type ElementNode =
   | PlainElementNode
-  // | ComponentNode
-  // | SlotOutletNode
+  | ComponentNode
+  | SlotOutletNode
   | TemplateNode
 
 export interface BaseElementNode extends Node {
@@ -143,24 +143,24 @@ export interface PlainElementNode extends BaseElementNode {
   //   ssrCodegenNode?: TemplateLiteral
 }
 
-// export interface ComponentNode extends BaseElementNode {
-//   tagType: ElementTypes.COMPONENT
-//   codegenNode:
-//     | VNodeCall
-//     | CacheExpression // when cached by v-once
-//     | MemoExpression // when cached by v-memo
-//     | undefined
-//   ssrCodegenNode?: CallExpression
-// }
+export interface ComponentNode extends BaseElementNode {
+  tagType: ElementTypes.COMPONENT
+  codegenNode:
+    | VNodeCall
+    | CacheExpression // when cached by v-once
+    | MemoExpression // when cached by v-memo
+    | undefined
+  // ssrCodegenNode?: CallExpression
+}
 
-// export interface SlotOutletNode extends BaseElementNode {
-//   tagType: ElementTypes.SLOT
-//   codegenNode:
-//     | RenderSlotCall
-//     | CacheExpression // when cached by v-once
-//     | undefined
-//   ssrCodegenNode?: CallExpression
-// }
+export interface SlotOutletNode extends BaseElementNode {
+  tagType: ElementTypes.SLOT
+  codegenNode:
+    | RenderSlotCall
+    | CacheExpression // when cached by v-once
+    | undefined
+  // ssrCodegenNode?: CallExpression
+}
 
 export interface TemplateNode extends BaseElementNode {
   tagType: ElementTypes.TEMPLATE
@@ -249,11 +249,11 @@ export interface CompoundExpressionNode extends Node {
   //   isHandlerKey?: boolean
 }
 
-// export interface IfNode extends Node {
-//   type: NodeTypes.IF
-//   branches: IfBranchNode[]
-//   codegenNode?: IfConditionalExpression | CacheExpression // <div v-if v-once>
-// }
+export interface IfNode extends Node {
+  type: NodeTypes.IF
+  branches: IfBranchNode[]
+  codegenNode?: IfConditionalExpression | CacheExpression // <div v-if v-once>
+}
 
 export interface IfBranchNode extends Node {
   type: NodeTypes.IF_BRANCH
@@ -314,11 +314,11 @@ export type JSChildNode =
   | VNodeCall
   | CallExpression
   | ObjectExpression
-  // | ArrayExpression
+  | ArrayExpression
   | ExpressionNode
   | FunctionExpression
-// | ConditionalExpression
-// | CacheExpression
+  | ConditionalExpression
+  | CacheExpression
 // | AssignmentExpression
 // | SequenceExpression
 
@@ -403,21 +403,21 @@ export type SSRCodegenNode = BlockStatement
 // | SequenceExpression
 
 export interface BlockStatement extends Node {
-  // type: NodeTypes.JS_BLOCK_STATEMENT
-  // body: (JSChildNode | IfStatement)[]
+  type: NodeTypes.JS_BLOCK_STATEMENT
+  body: (JSChildNode | IfStatement)[]
 }
 
-// export interface TemplateLiteral extends Node {
-//   type: NodeTypes.JS_TEMPLATE_LITERAL
-//   elements: (string | JSChildNode)[]
-// }
+export interface TemplateLiteral extends Node {
+  type: NodeTypes.JS_TEMPLATE_LITERAL
+  elements: (string | JSChildNode)[]
+}
 
-// export interface IfStatement extends Node {
-//   type: NodeTypes.JS_IF_STATEMENT
-//   test: ExpressionNode
-//   consequent: BlockStatement
-//   alternate: IfStatement | BlockStatement | ReturnStatement | undefined
-// }
+export interface IfStatement extends Node {
+  type: NodeTypes.JS_IF_STATEMENT
+  test: ExpressionNode
+  consequent: BlockStatement
+  alternate: IfStatement | BlockStatement | ReturnStatement | undefined
+}
 
 // export interface AssignmentExpression extends Node {
 //   type: NodeTypes.JS_ASSIGNMENT_EXPRESSION
@@ -430,10 +430,10 @@ export interface BlockStatement extends Node {
 //   expressions: JSChildNode[]
 // }
 
-// export interface ReturnStatement extends Node {
-//   type: NodeTypes.JS_RETURN_STATEMENT
-//   returns: TemplateChildNode | TemplateChildNode[] | JSChildNode
-// }
+export interface ReturnStatement extends Node {
+  type: NodeTypes.JS_RETURN_STATEMENT
+  returns: TemplateChildNode | TemplateChildNode[] | JSChildNode
+}
 
 // Codegen Node Types ----------------------------------------------------------
 
@@ -515,10 +515,10 @@ export interface DynamicSlotFnProperty extends Property {
 
 export type BlockCodegenNode = VNodeCall | RenderSlotCall
 
-// export interface IfConditionalExpression extends ConditionalExpression {
-//   consequent: BlockCodegenNode | MemoExpression
-//   alternate: BlockCodegenNode | IfConditionalExpression | MemoExpression
-// }
+export interface IfConditionalExpression extends ConditionalExpression {
+  consequent: BlockCodegenNode | MemoExpression
+  alternate: BlockCodegenNode | IfConditionalExpression | MemoExpression
+}
 
 export interface ForCodegenNode extends VNodeCall {
   isBlock: true
@@ -642,20 +642,20 @@ export function createRoot(
 //   }
 // }
 
-// export function createSimpleExpression(
-//   content: SimpleExpressionNode['content'],
-//   isStatic: SimpleExpressionNode['isStatic'] = false,
-//   loc: SourceLocation = locStub,
-//   constType: ConstantTypes = ConstantTypes.NOT_CONSTANT
-// ): SimpleExpressionNode {
-//   return {
-//     type: NodeTypes.SIMPLE_EXPRESSION,
-//     loc,
-//     content,
-//     isStatic,
-//     constType: isStatic ? ConstantTypes.CAN_STRINGIFY : constType
-//   }
-// }
+export function createSimpleExpression(
+  content: SimpleExpressionNode['content'],
+  isStatic: SimpleExpressionNode['isStatic'] = false,
+  loc: SourceLocation = locStub,
+  constType: ConstantTypes = ConstantTypes.NOT_CONSTANT
+): SimpleExpressionNode {
+  return {
+    type: NodeTypes.SIMPLE_EXPRESSION,
+    loc,
+    content,
+    isStatic,
+    constType: isStatic ? ConstantTypes.CAN_STRINGIFY : constType
+  }
+}
 
 // export function createInterpolation(
 //   content: InterpolationNode['content'] | string,
