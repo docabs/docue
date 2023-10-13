@@ -79,7 +79,7 @@ export const enum ErrorCodes {
   //   X_V_FOR_TEMPLATE_KEY_PLACEMENT,
   //   X_V_BIND_NO_EXPRESSION,
   //   X_V_ON_NO_EXPRESSION,
-  //   X_V_SLOT_UNEXPECTED_DIRECTIVE_ON_SLOT_OUTLET,
+  X_V_SLOT_UNEXPECTED_DIRECTIVE_ON_SLOT_OUTLET,
   //   X_V_SLOT_MIXED_SLOT_USAGE,
   //   X_V_SLOT_DUPLICATE_SLOT_NAMES,
   //   X_V_SLOT_EXTRANEOUS_DEFAULT_SLOT_CHILDREN,
@@ -108,7 +108,7 @@ export const enum ErrorCodes {
 }
 
 export const errorMessages: Record<ErrorCodes, string> = {
-  //   // parse errors
+  // parse errors
   [ErrorCodes.ABRUPT_CLOSING_OF_EMPTY_COMMENT]: 'Illegal comment.',
   [ErrorCodes.CDATA_IN_HTML_CONTENT]:
     'CDATA section is allowed only in XML context.',
@@ -151,7 +151,7 @@ export const errorMessages: Record<ErrorCodes, string> = {
     'Note that dynamic directive argument cannot contain spaces.',
   [ErrorCodes.X_MISSING_DIRECTIVE_NAME]: 'Legal directive name was expected.',
 
-  //   // transform errors
+  // transform errors
   //   [ErrorCodes.X_V_IF_NO_EXPRESSION]: `v-if/v-else-if is missing expression.`,
   //   [ErrorCodes.X_V_IF_SAME_KEY]: `v-if/else branches must use unique keys.`,
   //   [ErrorCodes.X_V_ELSE_NO_ADJACENT_IF]: `v-else/v-else-if has no adjacent v-if or v-else-if.`,
@@ -160,7 +160,7 @@ export const errorMessages: Record<ErrorCodes, string> = {
   //   [ErrorCodes.X_V_FOR_TEMPLATE_KEY_PLACEMENT]: `<template v-for> key should be placed on the <template> tag.`,
   //   [ErrorCodes.X_V_BIND_NO_EXPRESSION]: `v-bind is missing expression.`,
   //   [ErrorCodes.X_V_ON_NO_EXPRESSION]: `v-on is missing expression.`,
-  //   [ErrorCodes.X_V_SLOT_UNEXPECTED_DIRECTIVE_ON_SLOT_OUTLET]: `Unexpected custom directive on <slot> outlet.`,
+  [ErrorCodes.X_V_SLOT_UNEXPECTED_DIRECTIVE_ON_SLOT_OUTLET]: `Unexpected custom directive on <slot> outlet.`,
   //   [ErrorCodes.X_V_SLOT_MIXED_SLOT_USAGE]:
   //     `Mixed v-slot usage on both the component and nested <template>. ` +
   //     `When there are multiple named slots, all slots should use <template> ` +
@@ -177,7 +177,7 @@ export const errorMessages: Record<ErrorCodes, string> = {
   //   [ErrorCodes.X_INVALID_EXPRESSION]: `Error parsing JavaScript expression: `,
   //   [ErrorCodes.X_KEEP_ALIVE_INVALID_CHILDREN]: `<KeepAlive> expects exactly one child component.`,
 
-  //   // generic errors
+  // generic errors
   //   [ErrorCodes.X_PREFIX_ID_NOT_SUPPORTED]: `"prefixIdentifiers" option is not supported in this build of compiler.`,
   //   [ErrorCodes.X_MODULE_MODE_NOT_SUPPORTED]: `ES module mode is not supported in this build of compiler.`,
   //   [ErrorCodes.X_CACHE_HANDLER_NOT_SUPPORTED]: `"cacheHandlers" option is only supported when the "prefixIdentifiers" option is enabled.`,

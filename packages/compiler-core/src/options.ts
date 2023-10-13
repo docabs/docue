@@ -197,12 +197,12 @@ export interface TransformOptions
   //    * @default null
   //    */
   //   transformHoist?: HoistTransform | null
-  //   /**
-  //    * If the pairing runtime provides additional built-in elements, use this to
-  //    * mark them as built-in so the compiler will generate component vnodes
-  //    * for them.
-  //    */
-  //   isBuiltInComponent?: (tag: string) => symbol | void
+  /**
+   * If the pairing runtime provides additional built-in elements, use this to
+   * mark them as built-in so the compiler will generate component vnodes
+   * for them.
+   */
+  isBuiltInComponent?: (tag: string) => symbol | void
   //   /**
   //    * Used by some transforms that expects only native elements
   //    */
@@ -240,16 +240,16 @@ export interface TransformOptions
   //    * https://babeljs.io/docs/en/next/babel-parser#plugins
   //    */
   //   expressionPlugins?: ParserPlugin[]
-  //   /**
-  //    * SFC scoped styles ID
-  //    */
-  //   scopeId?: string | null
-  //   /**
-  //    * Indicates this SFC template has used :slotted in its styles
-  //    * Defaults to `true` for backwards compatibility - SFC tooling should set it
-  //    * to `false` if no `:slotted` usage is detected in `<style>`
-  //    */
-  //   slotted?: boolean
+  /**
+   * SFC scoped styles ID
+   */
+  scopeId?: string | null
+  /**
+   * Indicates this SFC template has used :slotted in its styles
+   * Defaults to `true` for backwards compatibility - SFC tooling should set it
+   * to `false` if no `:slotted` usage is detected in `<style>`
+   */
+  slotted?: boolean
   //   /**
   //    * SFC `<style vars>` injection string
   //    * Should already be an object expression, e.g. `{ 'xxxx-color': color }`

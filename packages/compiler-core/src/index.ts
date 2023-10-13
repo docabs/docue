@@ -59,7 +59,7 @@ export { noopDirectiveTransform } from './transforms/noopDirectiveTransform'
 //   buildDirectiveArgs,
 //   type PropsExpression
 // } from './transforms/transformElement'
-// export { processSlotOutlet } from './transforms/transformSlotOutlet'
+export { processSlotOutlet } from './transforms/transformSlotOutlet'
 // export { getConstantType } from './transforms/hoistStatic'
 // export { generateCodeFrame } from '@docue/shared'
 

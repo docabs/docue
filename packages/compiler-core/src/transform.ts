@@ -8,26 +8,26 @@ import {
   DirectiveNode,
   Property,
   ExpressionNode,
-  //   createSimpleExpression,
+  createSimpleExpression,
   JSChildNode,
-  //   SimpleExpressionNode,
-  //   ElementTypes,
+  SimpleExpressionNode,
+  ElementTypes,
   CacheExpression,
   createCacheExpression,
   TemplateLiteral,
   //   createVNodeCall,
-  //   ConstantTypes,
-  //   ArrayExpression,
+  ConstantTypes,
+  ArrayExpression,
   convertToBlock
 } from './ast'
 import {
   isString,
   isArray,
-  //   NOOP,
-  //   PatchFlags,
-  //   PatchFlagNames,
+  NOOP,
+  PatchFlags,
+  PatchFlagNames,
   EMPTY_OBJ,
-  //   capitalize,
+  capitalize,
   camelize
 } from '@docue/shared'
 import { defaultOnError, defaultOnWarn } from './errors'
@@ -37,7 +37,7 @@ import {
   //   helperNameMap,
   CREATE_COMMENT
 } from './runtimeHelpers'
-// import { isVSlot } from './utils'
+import { isVSlot } from './utils'
 // import { hoistStatic, isSingleElementRoot } from './transforms/hoistStatic'
 import { CompilerCompatOptions } from './compat/compatConfig'
 
@@ -69,13 +69,13 @@ export interface DirectiveTransformResult {
   ssrTagParts?: TemplateLiteral['elements']
 }
 
-// // A structural directive transform is technically also a NodeTransform;
-// // Only v-if and v-for fall into this category.
-// export type StructuralDirectiveTransform = (
-//   node: ElementNode,
-//   dir: DirectiveNode,
-//   context: TransformContext
-// ) => void | (() => void)
+// A structural directive transform is technically also a NodeTransform;
+// Only v-if and v-for fall into this category.
+export type StructuralDirectiveTransform = (
+  node: ElementNode,
+  dir: DirectiveNode,
+  context: TransformContext
+) => void | (() => void)
 
 export interface ImportItem {
   exp: string | ExpressionNode
@@ -90,19 +90,19 @@ export interface TransformContext
   //   selfName: string | null
   //   root: RootNode
   helpers: Map<symbol, number>
-  //   components: Set<string>
+  components: Set<string>
   //   directives: Set<string>
-  //   hoists: (JSChildNode | null)[]
+  hoists: (JSChildNode | null)[]
   //   imports: ImportItem[]
   //   temps: number
   cached: number
   //   identifiers: { [name: string]: number | undefined }
-  //   scopes: {
-  //     vFor: number
-  //     vSlot: number
-  //     vPre: number
-  //     vOnce: number
-  //   }
+  scopes: {
+    vFor: number
+    vSlot: number
+    vPre: number
+    vOnce: number
+  }
   parent: ParentNode | null
   childIndex: number
   currentNode: RootNode | TemplateChildNode | null
@@ -111,11 +111,11 @@ export interface TransformContext
   removeHelper<T extends symbol>(name: T): void
   //   helperString(name: symbol): string
   replaceNode(node: TemplateChildNode): void
-  //   removeNode(node?: TemplateChildNode): void
+  removeNode(node?: TemplateChildNode): void
   onNodeRemoved(): void
   //   addIdentifiers(exp: ExpressionNode | string): void
   //   removeIdentifiers(exp: ExpressionNode | string): void
-  //   hoist(exp: string | JSChildNode | ArrayExpression): SimpleExpressionNode
+  hoist(exp: string | JSChildNode | ArrayExpression): SimpleExpressionNode
   cache<T extends JSChildNode>(exp: T, isVNode?: boolean): CacheExpression | T
   //   constantCache: Map<TemplateChildNode, ConstantTypes>
   //   // 2.x Compat only
@@ -132,11 +132,11 @@ export function createTransformContext(
     nodeTransforms = [],
     directiveTransforms = {},
     // transformHoist = null,
-    // isBuiltInComponent = NOOP,
+    isBuiltInComponent = NOOP,
     // isCustomElement = NOOP,
     // expressionPlugins = [],
-    // scopeId = null,
-    // slotted = true,
+    scopeId = null,
+    slotted = true,
     ssr = false,
     inSSR = false,
     // ssrCssVars = ``,
@@ -158,11 +158,11 @@ export function createTransformContext(
     nodeTransforms,
     directiveTransforms,
     //     transformHoist,
-    //     isBuiltInComponent,
+    isBuiltInComponent,
     //     isCustomElement,
     //     expressionPlugins,
-    //     scopeId,
-    //     slotted,
+    scopeId,
+    slotted,
     ssr,
     inSSR,
     //     ssrCssVars,
@@ -175,20 +175,20 @@ export function createTransformContext(
     //     // state
     //     root,
     helpers: new Map(),
-    //     components: new Set(),
+    components: new Set(),
     //     directives: new Set(),
-    //     hoists: [],
+    hoists: [],
     //     imports: [],
     //     constantCache: new Map(),
     //     temps: 0,
     cached: 0,
     //     identifiers: Object.create(null),
-    //     scopes: {
-    //       vFor: 0,
-    //       vSlot: 0,
-    //       vPre: 0,
-    //       vOnce: 0
-    //     },
+    scopes: {
+      vFor: 0,
+      vSlot: 0,
+      vPre: 0,
+      vOnce: 0
+    },
     parent: null,
     currentNode: root,
     childIndex: 0,
@@ -225,33 +225,33 @@ export function createTransformContext(
       }
       context.parent!.children[context.childIndex] = context.currentNode = node
     },
-    //     removeNode(node) {
-    //       if (__DEV__ && !context.parent) {
-    //         throw new Error(`Cannot remove root node.`)
-    //       }
-    //       const list = context.parent!.children
-    //       const removalIndex = node
-    //         ? list.indexOf(node)
-    //         : context.currentNode
-    //         ? context.childIndex
-    //         : -1
-    //       /* istanbul ignore if */
-    //       if (__DEV__ && removalIndex < 0) {
-    //         throw new Error(`node being removed is not a child of current parent`)
-    //       }
-    //       if (!node || node === context.currentNode) {
-    //         // current node removed
-    //         context.currentNode = null
-    //         context.onNodeRemoved()
-    //       } else {
-    //         // sibling node removed
-    //         if (context.childIndex > removalIndex) {
-    //           context.childIndex--
-    //           context.onNodeRemoved()
-    //         }
-    //       }
-    //       context.parent!.children.splice(removalIndex, 1)
-    //     },
+    removeNode(node) {
+      if (__DEV__ && !context.parent) {
+        throw new Error(`Cannot remove root node.`)
+      }
+      const list = context.parent!.children
+      const removalIndex = node
+        ? list.indexOf(node)
+        : context.currentNode
+        ? context.childIndex
+        : -1
+      /* istanbul ignore if */
+      if (__DEV__ && removalIndex < 0) {
+        throw new Error(`node being removed is not a child of current parent`)
+      }
+      if (!node || node === context.currentNode) {
+        // current node removed
+        context.currentNode = null
+        context.onNodeRemoved()
+      } else {
+        // sibling node removed
+        if (context.childIndex > removalIndex) {
+          context.childIndex--
+          context.onNodeRemoved()
+        }
+      }
+      context.parent!.children.splice(removalIndex, 1)
+    },
     onNodeRemoved: () => {},
     //     addIdentifiers(exp) {
     //       // identifier tracking only happens in non-browser builds.
@@ -276,18 +276,18 @@ export function createTransformContext(
     //         }
     //       }
     //     },
-    //     hoist(exp) {
-    //       if (isString(exp)) exp = createSimpleExpression(exp)
-    //       context.hoists.push(exp)
-    //       const identifier = createSimpleExpression(
-    //         `_hoisted_${context.hoists.length}`,
-    //         false,
-    //         exp.loc,
-    //         ConstantTypes.CAN_HOIST
-    //       )
-    //       identifier.hoisted = exp
-    //       return identifier
-    //     },
+    hoist(exp) {
+      if (isString(exp)) exp = createSimpleExpression(exp)
+      context.hoists.push(exp)
+      const identifier = createSimpleExpression(
+        `_hoisted_${context.hoists.length}`,
+        false,
+        exp.loc,
+        ConstantTypes.CAN_HOIST
+      )
+      identifier.hoisted = exp
+      return identifier
+    },
     cache(exp, isVNode = false) {
       return createCacheExpression(context.cached++, exp, isVNode)
     }
@@ -321,12 +321,12 @@ export function transform(root: RootNode, options: TransformOptions) {
   //   if (!options.ssr) {
   //     createRootCodegen(root, context)
   //   }
-  //   // finalize meta information
-  //   root.helpers = new Set([...context.helpers.keys()])
+  // finalize meta information
+  root.helpers = new Set([...context.helpers.keys()])
   //   root.components = [...context.components]
   //   root.directives = [...context.directives]
   //   root.imports = context.imports
-  //   root.hoists = context.hoists
+  root.hoists = context.hoists
   //   root.temps = context.temps
   //   root.cached = context.cached
   //   if (__COMPAT__) {
@@ -429,13 +429,13 @@ export function traverseNode(
   }
 
   switch (node.type) {
-    //     case NodeTypes.COMMENT:
-    //       if (!context.ssr) {
-    //         // inject import for the Comment symbol, which is needed for creating
-    //         // comment nodes with `createVNode`
-    //         context.helper(CREATE_COMMENT)
-    //       }
-    //       break
+    case NodeTypes.COMMENT:
+      if (!context.ssr) {
+        // inject import for the Comment symbol, which is needed for creating
+        // comment nodes with `createVNode`
+        context.helper(CREATE_COMMENT)
+      }
+      break
     case NodeTypes.INTERPOLATION:
       // no need to traverse, but we need to inject toString helper
       if (!context.ssr) {
@@ -465,36 +465,35 @@ export function traverseNode(
   }
 }
 
-// export function createStructuralDirectiveTransform(
-//   name: string | RegExp,
-//   fn: StructuralDirectiveTransform
-// ): NodeTransform {
-//   const matches = isString(name)
-//     ? (n: string) => n === name
-//     : (n: string) => name.test(n)
-
-//   return (node, context) => {
-//     if (node.type === NodeTypes.ELEMENT) {
-//       const { props } = node
-//       // structural directive transforms are not concerned with slots
-//       // as they are handled separately in vSlot.ts
-//       if (node.tagType === ElementTypes.TEMPLATE && props.some(isVSlot)) {
-//         return
-//       }
-//       const exitFns = []
-//       for (let i = 0; i < props.length; i++) {
-//         const prop = props[i]
-//         if (prop.type === NodeTypes.DIRECTIVE && matches(prop.name)) {
-//           // structural directives are removed to avoid infinite recursion
-//           // also we remove them *before* applying so that it can further
-//           // traverse itself in case it moves the node around
-//           props.splice(i, 1)
-//           i--
-//           const onExit = fn(node, prop, context)
-//           if (onExit) exitFns.push(onExit)
-//         }
-//       }
-//       return exitFns
-//     }
-//   }
-// }
+export function createStructuralDirectiveTransform(
+  name: string | RegExp,
+  fn: StructuralDirectiveTransform
+): NodeTransform {
+  const matches = isString(name)
+    ? (n: string) => n === name
+    : (n: string) => name.test(n)
+  return (node, context) => {
+    if (node.type === NodeTypes.ELEMENT) {
+      const { props } = node
+      // structural directive transforms are not concerned with slots
+      // as they are handled separately in vSlot.ts
+      if (node.tagType === ElementTypes.TEMPLATE && props.some(isVSlot)) {
+        return
+      }
+      const exitFns = []
+      for (let i = 0; i < props.length; i++) {
+        const prop = props[i]
+        if (prop.type === NodeTypes.DIRECTIVE && matches(prop.name)) {
+          // structural directives are removed to avoid infinite recursion
+          // also we remove them *before* applying so that it can further
+          // traverse itself in case it moves the node around
+          props.splice(i, 1)
+          i--
+          const onExit = fn(node, prop, context)
+          if (onExit) exitFns.push(onExit)
+        }
+      }
+      return exitFns
+    }
+  }
+}

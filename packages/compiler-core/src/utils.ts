@@ -1,31 +1,31 @@
 import {
   //   SourceLocation,
   Position,
-  //   ElementNode,
+  ElementNode,
   NodeTypes,
   //   CallExpression,
   //   createCallExpression,
   DirectiveNode,
-  //   ElementTypes,
-  //   TemplateChildNode,
-  //   RootNode,
+  ElementTypes,
+  TemplateChildNode,
+  RootNode,
   //   ObjectExpression,
-  //   Property,
+  Property,
   JSChildNode,
   //   createObjectExpression,
-  //   SlotOutletNode,
+  SlotOutletNode,
   //   TemplateNode,
-  //   RenderSlotCall,
+  RenderSlotCall,
   //   ExpressionNode,
   //   IfBranchNode,
   //   TextNode,
   //   InterpolationNode,
-  //   VNodeCall,
+  VNodeCall,
   SimpleExpressionNode,
-  //   BlockCodegenNode,
+  BlockCodegenNode,
   MemoExpression
 } from './ast'
-// import { TransformContext } from './transform'
+import { TransformContext } from './transform'
 import {
   // MERGE_PROPS,
   TELEPORT,
@@ -261,28 +261,28 @@ export function assert(condition: boolean, msg?: string) {
 //   }
 // }
 
-// export function findProp(
-//   node: ElementNode,
-//   name: string,
-//   dynamicOnly: boolean = false,
-//   allowEmpty: boolean = false
-// ): ElementNode['props'][0] | undefined {
-//   for (let i = 0; i < node.props.length; i++) {
-//     const p = node.props[i]
-//     if (p.type === NodeTypes.ATTRIBUTE) {
-//       if (dynamicOnly) continue
-//       if (p.name === name && (p.value || allowEmpty)) {
-//         return p
-//       }
-//     } else if (
-//       p.name === 'bind' &&
-//       (p.exp || allowEmpty) &&
-//       isStaticArgOf(p.arg, name)
-//     ) {
-//       return p
-//     }
-//   }
-// }
+export function findProp(
+  node: ElementNode,
+  name: string,
+  dynamicOnly: boolean = false,
+  allowEmpty: boolean = false
+): ElementNode['props'][0] | undefined {
+  for (let i = 0; i < node.props.length; i++) {
+    const p = node.props[i]
+    if (p.type === NodeTypes.ATTRIBUTE) {
+      if (dynamicOnly) continue
+      if (p.name === name && (p.value || allowEmpty)) {
+        return p
+      }
+    } else if (
+      p.name === 'bind' &&
+      (p.exp || allowEmpty) &&
+      isStaticArgOf(p.arg, name)
+    ) {
+      return p
+    }
+  }
+}
 
 export function isStaticArgOf(
   arg: DirectiveNode['arg'],
@@ -308,9 +308,9 @@ export function isStaticArgOf(
 //   return node.type === NodeTypes.INTERPOLATION || node.type === NodeTypes.TEXT
 // }
 
-// export function isVSlot(p: ElementNode['props'][0]): p is DirectiveNode {
-//   return p.type === NodeTypes.DIRECTIVE && p.name === 'slot'
-// }
+export function isVSlot(p: ElementNode['props'][0]): p is DirectiveNode {
+  return p.type === NodeTypes.DIRECTIVE && p.name === 'slot'
+}
 
 // export function isTemplateNode(
 //   node: RootNode | TemplateChildNode
@@ -320,11 +320,11 @@ export function isStaticArgOf(
 //   )
 // }
 
-// export function isSlotOutlet(
-//   node: RootNode | TemplateChildNode
-// ): node is SlotOutletNode {
-//   return node.type === NodeTypes.ELEMENT && node.tagType === ElementTypes.SLOT
-// }
+export function isSlotOutlet(
+  node: RootNode | TemplateChildNode
+): node is SlotOutletNode {
+  return node.type === NodeTypes.ELEMENT && node.tagType === ElementTypes.SLOT
+}
 
 // const propsHelperSet = new Set([NORMALIZE_PROPS, GUARD_REACTIVE_PROPS])
 
@@ -347,91 +347,91 @@ export function isStaticArgOf(
 //   }
 //   return [props, callPath]
 // }
-// export function injectProp(
-//   node: VNodeCall | RenderSlotCall,
-//   prop: Property,
-//   context: TransformContext
-// ) {
-//   let propsWithInjection: ObjectExpression | CallExpression | undefined
-//   /**
-//    * 1. mergeProps(...)
-//    * 2. toHandlers(...)
-//    * 3. normalizeProps(...)
-//    * 4. normalizeProps(guardReactiveProps(...))
-//    *
-//    * we need to get the real props before normalization
-//    */
-//   let props =
-//     node.type === NodeTypes.VNODE_CALL ? node.props : node.arguments[2]
-//   let callPath: CallExpression[] = []
-//   let parentCall: CallExpression | undefined
-//   if (
-//     props &&
-//     !isString(props) &&
-//     props.type === NodeTypes.JS_CALL_EXPRESSION
-//   ) {
-//     const ret = getUnnormalizedProps(props)
-//     props = ret[0]
-//     callPath = ret[1]
-//     parentCall = callPath[callPath.length - 1]
-//   }
 
-//   if (props == null || isString(props)) {
-//     propsWithInjection = createObjectExpression([prop])
-//   } else if (props.type === NodeTypes.JS_CALL_EXPRESSION) {
-//     // merged props... add ours
-//     // only inject key to object literal if it's the first argument so that
-//     // if doesn't override user provided keys
-//     const first = props.arguments[0] as string | JSChildNode
-//     if (!isString(first) && first.type === NodeTypes.JS_OBJECT_EXPRESSION) {
-//       // #6631
-//       if (!hasProp(prop, first)) {
-//         first.properties.unshift(prop)
-//       }
-//     } else {
-//       if (props.callee === TO_HANDLERS) {
-//         // #2366
-//         propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
-//           createObjectExpression([prop]),
-//           props
-//         ])
-//       } else {
-//         props.arguments.unshift(createObjectExpression([prop]))
-//       }
-//     }
-//     !propsWithInjection && (propsWithInjection = props)
-//   } else if (props.type === NodeTypes.JS_OBJECT_EXPRESSION) {
-//     if (!hasProp(prop, props)) {
-//       props.properties.unshift(prop)
-//     }
-//     propsWithInjection = props
-//   } else {
-//     // single v-bind with expression, return a merged replacement
-//     propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
-//       createObjectExpression([prop]),
-//       props
-//     ])
-//     // in the case of nested helper call, e.g. `normalizeProps(guardReactiveProps(props))`,
-//     // it will be rewritten as `normalizeProps(mergeProps({ key: 0 }, props))`,
-//     // the `guardReactiveProps` will no longer be needed
-//     if (parentCall && parentCall.callee === GUARD_REACTIVE_PROPS) {
-//       parentCall = callPath[callPath.length - 2]
-//     }
-//   }
-//   if (node.type === NodeTypes.VNODE_CALL) {
-//     if (parentCall) {
-//       parentCall.arguments[0] = propsWithInjection
-//     } else {
-//       node.props = propsWithInjection
-//     }
-//   } else {
-//     if (parentCall) {
-//       parentCall.arguments[0] = propsWithInjection
-//     } else {
-//       node.arguments[2] = propsWithInjection
-//     }
-//   }
-// }
+export function injectProp(
+  node: VNodeCall | RenderSlotCall,
+  prop: Property,
+  context: TransformContext
+) {
+  //   let propsWithInjection: ObjectExpression | CallExpression | undefined
+  //   /**
+  //    * 1. mergeProps(...)
+  //    * 2. toHandlers(...)
+  //    * 3. normalizeProps(...)
+  //    * 4. normalizeProps(guardReactiveProps(...))
+  //    *
+  //    * we need to get the real props before normalization
+  //    */
+  //   let props =
+  //     node.type === NodeTypes.VNODE_CALL ? node.props : node.arguments[2]
+  //   let callPath: CallExpression[] = []
+  //   let parentCall: CallExpression | undefined
+  //   if (
+  //     props &&
+  //     !isString(props) &&
+  //     props.type === NodeTypes.JS_CALL_EXPRESSION
+  //   ) {
+  //     const ret = getUnnormalizedProps(props)
+  //     props = ret[0]
+  //     callPath = ret[1]
+  //     parentCall = callPath[callPath.length - 1]
+  //   }
+  //   if (props == null || isString(props)) {
+  //     propsWithInjection = createObjectExpression([prop])
+  //   } else if (props.type === NodeTypes.JS_CALL_EXPRESSION) {
+  //     // merged props... add ours
+  //     // only inject key to object literal if it's the first argument so that
+  //     // if doesn't override user provided keys
+  //     const first = props.arguments[0] as string | JSChildNode
+  //     if (!isString(first) && first.type === NodeTypes.JS_OBJECT_EXPRESSION) {
+  //       // #6631
+  //       if (!hasProp(prop, first)) {
+  //         first.properties.unshift(prop)
+  //       }
+  //     } else {
+  //       if (props.callee === TO_HANDLERS) {
+  //         // #2366
+  //         propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
+  //           createObjectExpression([prop]),
+  //           props
+  //         ])
+  //       } else {
+  //         props.arguments.unshift(createObjectExpression([prop]))
+  //       }
+  //     }
+  //     !propsWithInjection && (propsWithInjection = props)
+  //   } else if (props.type === NodeTypes.JS_OBJECT_EXPRESSION) {
+  //     if (!hasProp(prop, props)) {
+  //       props.properties.unshift(prop)
+  //     }
+  //     propsWithInjection = props
+  //   } else {
+  //     // single v-bind with expression, return a merged replacement
+  //     propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
+  //       createObjectExpression([prop]),
+  //       props
+  //     ])
+  //     // in the case of nested helper call, e.g. `normalizeProps(guardReactiveProps(props))`,
+  //     // it will be rewritten as `normalizeProps(mergeProps({ key: 0 }, props))`,
+  //     // the `guardReactiveProps` will no longer be needed
+  //     if (parentCall && parentCall.callee === GUARD_REACTIVE_PROPS) {
+  //       parentCall = callPath[callPath.length - 2]
+  //     }
+  //   }
+  //   if (node.type === NodeTypes.VNODE_CALL) {
+  //     if (parentCall) {
+  //       parentCall.arguments[0] = propsWithInjection
+  //     } else {
+  //       node.props = propsWithInjection
+  //     }
+  //   } else {
+  //     if (parentCall) {
+  //       parentCall.arguments[0] = propsWithInjection
+  //     } else {
+  //       node.arguments[2] = propsWithInjection
+  //     }
+  //   }
+}
 
 // // check existing key to avoid overriding user provided keys
 // function hasProp(prop: Property, props: ObjectExpression) {
@@ -512,10 +512,10 @@ export function toValidAssetId(
 //   }
 // }
 
-// export function getMemoedVNodeCall(node: BlockCodegenNode | MemoExpression) {
-//   if (node.type === NodeTypes.JS_CALL_EXPRESSION && node.callee === WITH_MEMO) {
-//     return node.arguments[1].returns as VNodeCall
-//   } else {
-//     return node
-//   }
-// }
+export function getMemoedVNodeCall(node: BlockCodegenNode | MemoExpression) {
+  if (node.type === NodeTypes.JS_CALL_EXPRESSION && node.callee === WITH_MEMO) {
+    return node.arguments[1].returns as VNodeCall
+  } else {
+    return node
+  }
+}

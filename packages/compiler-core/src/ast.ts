@@ -1,4 +1,4 @@
-// import { isString } from '@docue/shared'
+import { isString } from '@docue/shared'
 import { ForParseResult } from './transforms/vFor'
 import {
   RENDER_SLOT,
@@ -92,7 +92,7 @@ export type ExpressionNode = SimpleExpressionNode | CompoundExpressionNode
 export type TemplateChildNode =
   | ElementNode
   | InterpolationNode
-  // | CompoundExpressionNode
+  | CompoundExpressionNode
   | TextNode
   | CommentNode
   | IfNode
@@ -213,11 +213,11 @@ export interface SimpleExpressionNode extends Node {
   content: string
   isStatic: boolean
   constType: ConstantTypes
-  //   /**
-  //    * Indicates this is an identifier for a hoist vnode call and points to the
-  //    * hoisted node.
-  //    */
-  //   hoisted?: JSChildNode
+  /**
+   * Indicates this is an identifier for a hoist vnode call and points to the
+   * hoisted node.
+   */
+  hoisted?: JSChildNode
   //   /**
   //    * an expression parsed as the params of a function will track
   //    * the identifiers declared inside the function body.
@@ -233,14 +233,14 @@ export interface InterpolationNode extends Node {
 
 export interface CompoundExpressionNode extends Node {
   type: NodeTypes.COMPOUND_EXPRESSION
-  //   children: (
-  //     | SimpleExpressionNode
-  //     | CompoundExpressionNode
-  //     | InterpolationNode
-  //     | TextNode
-  //     | string
-  //     | symbol
-  //   )[]
+  children: (
+    | SimpleExpressionNode
+    | CompoundExpressionNode
+    | InterpolationNode
+    | TextNode
+    | string
+    | symbol
+  )[]
   //   /**
   //    * an expression parsed as the params of a function will track
   //    * the identifiers declared inside the function body.
@@ -353,15 +353,15 @@ export interface ArrayExpression extends Node {
 
 export interface FunctionExpression extends Node {
   type: NodeTypes.JS_FUNCTION_EXPRESSION
-  //   params: ExpressionNode | string | (ExpressionNode | string)[] | undefined
-  //   returns?: TemplateChildNode | TemplateChildNode[] | JSChildNode
-  //   body?: BlockStatement | IfStatement
-  //   newline: boolean
-  //   /**
-  //    * This flag is for codegen to determine whether it needs to generate the
-  //    * withScopeId() wrapper
-  //    */
-  //   isSlot: boolean
+  params: ExpressionNode | string | (ExpressionNode | string)[] | undefined
+  returns?: TemplateChildNode | TemplateChildNode[] | JSChildNode
+  body?: BlockStatement | IfStatement
+  newline: boolean
+  /**
+   * This flag is for codegen to determine whether it needs to generate the
+   * withScopeId() wrapper
+   */
+  isSlot: boolean
   //   /**
   //    * __COMPAT__ only, indicates a slot function that should be excluded from
   //    * the legacy $scopedSlots instance property.
@@ -568,79 +568,79 @@ export function createRoot(
   }
 }
 
-// export function createVNodeCall(
-//   context: TransformContext | null,
-//   tag: VNodeCall['tag'],
-//   props?: VNodeCall['props'],
-//   children?: VNodeCall['children'],
-//   patchFlag?: VNodeCall['patchFlag'],
-//   dynamicProps?: VNodeCall['dynamicProps'],
-//   directives?: VNodeCall['directives'],
-//   isBlock: VNodeCall['isBlock'] = false,
-//   disableTracking: VNodeCall['disableTracking'] = false,
-//   isComponent: VNodeCall['isComponent'] = false,
-//   loc = locStub
-// ): VNodeCall {
-//   if (context) {
-//     if (isBlock) {
-//       context.helper(OPEN_BLOCK)
-//       context.helper(getVNodeBlockHelper(context.inSSR, isComponent))
-//     } else {
-//       context.helper(getVNodeHelper(context.inSSR, isComponent))
-//     }
-//     if (directives) {
-//       context.helper(WITH_DIRECTIVES)
-//     }
-//   }
+export function createVNodeCall(
+  context: TransformContext | null,
+  tag: VNodeCall['tag'],
+  props?: VNodeCall['props'],
+  children?: VNodeCall['children'],
+  patchFlag?: VNodeCall['patchFlag'],
+  dynamicProps?: VNodeCall['dynamicProps'],
+  directives?: VNodeCall['directives'],
+  isBlock: VNodeCall['isBlock'] = false,
+  disableTracking: VNodeCall['disableTracking'] = false,
+  isComponent: VNodeCall['isComponent'] = false,
+  loc = locStub
+): VNodeCall {
+  if (context) {
+    if (isBlock) {
+      context.helper(OPEN_BLOCK)
+      context.helper(getVNodeBlockHelper(context.inSSR, isComponent))
+    } else {
+      context.helper(getVNodeHelper(context.inSSR, isComponent))
+    }
+    if (directives) {
+      context.helper(WITH_DIRECTIVES)
+    }
+  }
 
-//   return {
-//     type: NodeTypes.VNODE_CALL,
-//     tag,
-//     props,
-//     children,
-//     patchFlag,
-//     dynamicProps,
-//     directives,
-//     isBlock,
-//     disableTracking,
-//     isComponent,
-//     loc
-//   }
-// }
+  return {
+    type: NodeTypes.VNODE_CALL,
+    tag,
+    props,
+    children,
+    patchFlag,
+    dynamicProps,
+    directives,
+    isBlock,
+    disableTracking,
+    isComponent,
+    loc
+  }
+}
 
-// export function createArrayExpression(
-//   elements: ArrayExpression['elements'],
-//   loc: SourceLocation = locStub
-// ): ArrayExpression {
-//   return {
-//     type: NodeTypes.JS_ARRAY_EXPRESSION,
-//     loc,
-//     elements
-//   }
-// }
+export function createArrayExpression(
+  elements: ArrayExpression['elements'],
+  loc: SourceLocation = locStub
+): ArrayExpression {
+  return {
+    type: NodeTypes.JS_ARRAY_EXPRESSION,
+    loc,
+    elements
+  }
+}
 
-// export function createObjectExpression(
-//   properties: ObjectExpression['properties'],
-//   loc: SourceLocation = locStub
-// ): ObjectExpression {
-//   return {
-//     type: NodeTypes.JS_OBJECT_EXPRESSION,
-//     loc,
-//     properties
-//   }
-// }
+export function createObjectExpression(
+  properties: ObjectExpression['properties'],
+  loc: SourceLocation = locStub
+): ObjectExpression {
+  return {
+    type: NodeTypes.JS_OBJECT_EXPRESSION,
+    loc,
+    properties
+  }
+}
 
-// export function createObjectProperty(
-//   key: Property['key'] | string,
-//   value: Property['value']
-// ): Property {
-//   return {
-//     type: NodeTypes.JS_PROPERTY,
-//     loc: locStub,
-//     key: isString(key) ? createSimpleExpression(key, true) : key,
-//     value
-//   }
-// }
+export function createObjectProperty(
+  key: Property['key'] | string,
+  value: Property['value']
+): Property {
+  return {
+    type: NodeTypes.JS_PROPERTY,
+    loc: locStub,
+    key: isString(key) ? createSimpleExpression(key, true) : key,
+    value
+  }
+}
 
 export function createSimpleExpression(
   content: SimpleExpressionNode['content'],
@@ -681,55 +681,55 @@ export function createSimpleExpression(
 //   }
 // }
 
-// type InferCodegenNodeType<T> = T extends typeof RENDER_SLOT
-//   ? RenderSlotCall
-//   : CallExpression
+type InferCodegenNodeType<T> = T extends typeof RENDER_SLOT
+  ? RenderSlotCall
+  : CallExpression
 
-// export function createCallExpression<T extends CallExpression['callee']>(
-//   callee: T,
-//   args: CallExpression['arguments'] = [],
-//   loc: SourceLocation = locStub
-// ): InferCodegenNodeType<T> {
-//   return {
-//     type: NodeTypes.JS_CALL_EXPRESSION,
-//     loc,
-//     callee,
-//     arguments: args
-//   } as InferCodegenNodeType<T>
-// }
+export function createCallExpression<T extends CallExpression['callee']>(
+  callee: T,
+  args: CallExpression['arguments'] = [],
+  loc: SourceLocation = locStub
+): InferCodegenNodeType<T> {
+  return {
+    type: NodeTypes.JS_CALL_EXPRESSION,
+    loc,
+    callee,
+    arguments: args
+  } as InferCodegenNodeType<T>
+}
 
-// export function createFunctionExpression(
-//   params: FunctionExpression['params'],
-//   returns: FunctionExpression['returns'] = undefined,
-//   newline: boolean = false,
-//   isSlot: boolean = false,
-//   loc: SourceLocation = locStub
-// ): FunctionExpression {
-//   return {
-//     type: NodeTypes.JS_FUNCTION_EXPRESSION,
-//     params,
-//     returns,
-//     newline,
-//     isSlot,
-//     loc
-//   }
-// }
+export function createFunctionExpression(
+  params: FunctionExpression['params'],
+  returns: FunctionExpression['returns'] = undefined,
+  newline: boolean = false,
+  isSlot: boolean = false,
+  loc: SourceLocation = locStub
+): FunctionExpression {
+  return {
+    type: NodeTypes.JS_FUNCTION_EXPRESSION,
+    params,
+    returns,
+    newline,
+    isSlot,
+    loc
+  }
+}
 
-// export function createConditionalExpression(
-//   test: ConditionalExpression['test'],
-//   consequent: ConditionalExpression['consequent'],
-//   alternate: ConditionalExpression['alternate'],
-//   newline = true
-// ): ConditionalExpression {
-//   return {
-//     type: NodeTypes.JS_CONDITIONAL_EXPRESSION,
-//     test,
-//     consequent,
-//     alternate,
-//     newline,
-//     loc: locStub
-//   }
-// }
+export function createConditionalExpression(
+  test: ConditionalExpression['test'],
+  consequent: ConditionalExpression['consequent'],
+  alternate: ConditionalExpression['alternate'],
+  newline = true
+): ConditionalExpression {
+  return {
+    type: NodeTypes.JS_CONDITIONAL_EXPRESSION,
+    test,
+    consequent,
+    alternate,
+    newline,
+    loc: locStub
+  }
+}
 
 export function createCacheExpression(
   index: number,

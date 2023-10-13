@@ -1,45 +1,46 @@
-// import {
-//   CompilerOptions,
-//   baseParse as parse,
-//   transform,
-//   NodeTypes,
-//   generate,
-//   ForNode,
-//   ElementNode
-// } from '../../src'
+import {
+  CompilerOptions,
+  baseParse as parse,
+  transform,
+  NodeTypes,
+  generate,
+  ForNode,
+  ElementNode
+} from '../../src'
 // import { transformFor } from '../../src/transforms/vFor'
-// import { transformText } from '../../src/transforms/transformText'
+import { transformText } from '../../src/transforms/transformText'
 // import { transformExpression } from '../../src/transforms/transformExpression'
 // import { transformElement } from '../../src/transforms/transformElement'
 // import { CREATE_TEXT } from '../../src/runtimeHelpers'
 // import { genFlagText } from '../testUtils'
 // import { PatchFlags } from '@vue/shared'
 
-// function transformWithTextOpt(template: string, options: CompilerOptions = {}) {
-//   const ast = parse(template)
-//   transform(ast, {
-//     nodeTransforms: [
-//       transformFor,
-//       ...(options.prefixIdentifiers ? [transformExpression] : []),
-//       transformElement,
-//       transformText
-//     ],
-//     ...options
-//   })
-//   return ast
-// }
+function transformWithTextOpt(template: string, options: CompilerOptions = {}) {
+  const ast = parse(template)
+  transform(ast, {
+    nodeTransforms: [
+      // transformFor,
+      // ...(options.prefixIdentifiers ? [transformExpression] : []),
+      // transformElement,
+      transformText
+    ],
+    ...options
+  })
+  return ast
+}
 
 describe('compiler: transform text', () => {
-  //   test('no consecutive text', () => {
-  //     const root = transformWithTextOpt(`{{ foo }}`)
-  //     expect(root.children[0]).toMatchObject({
-  //       type: NodeTypes.INTERPOLATION,
-  //       content: {
-  //         content: `foo`
-  //       }
-  //     })
-  //     expect(generate(root).code).toMatchSnapshot()
-  //   })
+  test('no consecutive text', () => {
+    const root = transformWithTextOpt(`{{ foo }}`)
+    expect(root.children[0]).toMatchObject({
+      type: NodeTypes.INTERPOLATION,
+      content: {
+        content: `foo`
+      }
+    })
+    // expect(generate(root).code).toMatchSnapshot()
+  })
+
   //   test('consecutive text', () => {
   //     const root = transformWithTextOpt(`{{ foo }} bar {{ baz }}`)
   //     expect(root.children.length).toBe(1)
