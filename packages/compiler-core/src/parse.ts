@@ -7,9 +7,9 @@ import {
   defaultOnWarn
 } from './errors'
 import {
-  //   assert,
+  assert,
   advancePositionWithMutation,
-  //   advancePositionWithClone,
+  advancePositionWithClone,
   isCoreComponent,
   isStaticArgOf
 } from './utils'
@@ -46,13 +46,13 @@ type OptionalOptions =
   | keyof CompilerCompatOptions
 type MergedParserOptions = Omit<Required<ParserOptions>, OptionalOptions> &
   Pick<ParserOptions, OptionalOptions>
-// type AttributeValue =
-//   | {
-//       content: string
-//       isQuoted: boolean
-//       loc: SourceLocation
-//     }
-//   | undefined
+type AttributeValue =
+  | {
+      content: string
+      isQuoted: boolean
+      loc: SourceLocation
+    }
+  | undefined
 
 // The default decoder only provides escapes for characters reserved as part of
 // the template syntax, and is only used if the custom renderer did not provide
@@ -166,18 +166,18 @@ function parseChildren(
           if (startsWith(s, '<!--')) {
             node = parseComment(context)
           } else if (startsWith(s, '<!DOCTYPE')) {
-            //             // Ignore DOCTYPE by a limitation.
-            //             node = parseBogusComment(context)
+            // Ignore DOCTYPE by a limitation.
+            node = parseBogusComment(context)
           } else if (startsWith(s, '<![CDATA[')) {
-            //             if (ns !== Namespaces.HTML) {
-            //               node = parseCDATA(context, ancestors)
-            //             } else {
-            //               emitError(context, ErrorCodes.CDATA_IN_HTML_CONTENT)
-            //               node = parseBogusComment(context)
-            //             }
+            if (ns !== Namespaces.HTML) {
+              node = parseCDATA(context, ancestors)
+            } else {
+              emitError(context, ErrorCodes.CDATA_IN_HTML_CONTENT)
+              node = parseBogusComment(context)
+            }
           } else {
             emitError(context, ErrorCodes.INCORRECTLY_OPENED_COMMENT)
-            //             node = parseBogusComment(context)
+            node = parseBogusComment(context)
           }
         } else if (s[1] === '/') {
           // https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
@@ -185,8 +185,8 @@ function parseChildren(
             emitError(context, ErrorCodes.EOF_BEFORE_TAG_NAME, 2)
           } else if (s[2] === '>') {
             emitError(context, ErrorCodes.MISSING_END_TAG_NAME, 2)
-            //             advanceBy(context, 3)
-            //             continue
+            advanceBy(context, 3)
+            continue
           } else if (/[a-z]/i.test(s[2])) {
             emitError(context, ErrorCodes.X_INVALID_END_TAG)
             parseTag(context, TagType.End, parent)
@@ -197,7 +197,7 @@ function parseChildren(
               ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME,
               2
             )
-            //             node = parseBogusComment(context)
+            node = parseBogusComment(context)
           }
         } else if (/[a-z]/i.test(s[1])) {
           node = parseElement(context, ancestors)
@@ -230,7 +230,7 @@ function parseChildren(
             ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
             1
           )
-          //           node = parseBogusComment(context)
+          node = parseBogusComment(context)
         } else {
           emitError(context, ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, 1)
         }
@@ -256,44 +256,44 @@ function parseChildren(
       const node = nodes[i]
       if (node.type === NodeTypes.TEXT) {
         if (!context.inPre) {
-          //           if (!/[^\t\r\n\f ]/.test(node.content)) {
-          //             const prev = nodes[i - 1]
-          //             const next = nodes[i + 1]
-          //             // Remove if:
-          //             // - the whitespace is the first or last node, or:
-          //             // - (condense mode) the whitespace is between twos comments, or:
-          //             // - (condense mode) the whitespace is between comment and element, or:
-          //             // - (condense mode) the whitespace is between two elements AND contains newline
-          //             if (
-          //               !prev ||
-          //               !next ||
-          //               (shouldCondense &&
-          //                 ((prev.type === NodeTypes.COMMENT &&
-          //                   next.type === NodeTypes.COMMENT) ||
-          //                   (prev.type === NodeTypes.COMMENT &&
-          //                     next.type === NodeTypes.ELEMENT) ||
-          //                   (prev.type === NodeTypes.ELEMENT &&
-          //                     next.type === NodeTypes.COMMENT) ||
-          //                   (prev.type === NodeTypes.ELEMENT &&
-          //                     next.type === NodeTypes.ELEMENT &&
-          //                     /[\r\n]/.test(node.content))))
-          //             ) {
-          //               removedWhitespace = true
-          //               nodes[i] = null as any
-          //             } else {
-          //               // Otherwise, the whitespace is condensed into a single space
-          //               node.content = ' '
-          //             }
-          //           } else if (shouldCondense) {
-          //             // in condense mode, consecutive whitespaces in text are condensed
-          //             // down to a single space.
-          //             node.content = node.content.replace(/[\t\r\n\f ]+/g, ' ')
-          //           }
+          if (!/[^\t\r\n\f ]/.test(node.content)) {
+            const prev = nodes[i - 1]
+            const next = nodes[i + 1]
+            // Remove if:
+            // - the whitespace is the first or last node, or:
+            // - (condense mode) the whitespace is between twos comments, or:
+            // - (condense mode) the whitespace is between comment and element, or:
+            // - (condense mode) the whitespace is between two elements AND contains newline
+            if (
+              !prev ||
+              !next ||
+              (shouldCondense &&
+                ((prev.type === NodeTypes.COMMENT &&
+                  next.type === NodeTypes.COMMENT) ||
+                  (prev.type === NodeTypes.COMMENT &&
+                    next.type === NodeTypes.ELEMENT) ||
+                  (prev.type === NodeTypes.ELEMENT &&
+                    next.type === NodeTypes.COMMENT) ||
+                  (prev.type === NodeTypes.ELEMENT &&
+                    next.type === NodeTypes.ELEMENT &&
+                    /[\r\n]/.test(node.content))))
+            ) {
+              removedWhitespace = true
+              nodes[i] = null as any
+            } else {
+              // Otherwise, the whitespace is condensed into a single space
+              node.content = ' '
+            }
+          } else if (shouldCondense) {
+            // in condense mode, consecutive whitespaces in text are condensed
+            // down to a single space.
+            node.content = node.content.replace(/[\t\r\n\f ]+/g, ' ')
+          }
         } else {
-          //           // #6410 normalize windows newlines in <pre>:
-          //           // in SSR, browsers normalize server-rendered \r\n into a single \n
-          //           // in the DOM
-          //           node.content = node.content.replace(/\r\n/g, '\n')
+          // #6410 normalize windows newlines in <pre>:
+          // in SSR, browsers normalize server-rendered \r\n into a single \n
+          // in the DOM
+          node.content = node.content.replace(/\r\n/g, '\n')
         }
       }
       // Remove comment nodes if desired by configuration.
@@ -302,14 +302,15 @@ function parseChildren(
         nodes[i] = null as any
       }
     }
-    //     if (context.inPre && parent && context.options.isPreTag(parent.tag)) {
-    //       // remove leading newline per html spec
-    //       // https://html.spec.whatwg.org/multipage/grouping-content.html#the-pre-element
-    //       const first = nodes[0]
-    //       if (first && first.type === NodeTypes.TEXT) {
-    //         first.content = first.content.replace(/^\r?\n/, '')
-    //       }
-    //     }
+
+    if (context.inPre && parent && context.options.isPreTag(parent.tag)) {
+      // remove leading newline per html spec
+      // https://html.spec.whatwg.org/multipage/grouping-content.html#the-pre-element
+      const first = nodes[0]
+      if (first && first.type === NodeTypes.TEXT) {
+        first.content = first.content.replace(/^\r?\n/, '')
+      }
+    }
   }
 
   return removedWhitespace ? nodes.filter(Boolean) : nodes
@@ -335,25 +336,25 @@ function pushNode(nodes: TemplateChildNode[], node: TemplateChildNode): void {
   nodes.push(node)
 }
 
-// function parseCDATA(
-//   context: ParserContext,
-//   ancestors: ElementNode[]
-// ): TemplateChildNode[] {
-//   __TEST__ &&
-//     assert(last(ancestors) == null || last(ancestors)!.ns !== Namespaces.HTML)
-//   __TEST__ && assert(startsWith(context.source, '<![CDATA['))
+function parseCDATA(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): TemplateChildNode[] {
+  __TEST__ &&
+    assert(last(ancestors) == null || last(ancestors)!.ns !== Namespaces.HTML)
+  __TEST__ && assert(startsWith(context.source, '<![CDATA['))
 
-//   advanceBy(context, 9)
-//   const nodes = parseChildren(context, TextModes.CDATA, ancestors)
-//   if (context.source.length === 0) {
-//     emitError(context, ErrorCodes.EOF_IN_CDATA)
-//   } else {
-//     __TEST__ && assert(startsWith(context.source, ']]>'))
-//     advanceBy(context, 3)
-//   }
+  advanceBy(context, 9)
+  const nodes = parseChildren(context, TextModes.CDATA, ancestors)
+  if (context.source.length === 0) {
+    emitError(context, ErrorCodes.EOF_IN_CDATA)
+  } else {
+    __TEST__ && assert(startsWith(context.source, ']]>'))
+    advanceBy(context, 3)
+  }
 
-//   return nodes
-// }
+  return nodes
+}
 
 function parseComment(context: ParserContext): CommentNode {
   __TEST__ && assert(startsWith(context.source, '<!--'))
@@ -368,12 +369,12 @@ function parseComment(context: ParserContext): CommentNode {
     advanceBy(context, context.source.length)
     emitError(context, ErrorCodes.EOF_IN_COMMENT)
   } else {
-    // if (match.index <= 3) {
-    //   emitError(context, ErrorCodes.ABRUPT_CLOSING_OF_EMPTY_COMMENT)
-    // }
-    // if (match[1]) {
-    //   emitError(context, ErrorCodes.INCORRECTLY_CLOSED_COMMENT)
-    // }
+    if (match.index <= 3) {
+      emitError(context, ErrorCodes.ABRUPT_CLOSING_OF_EMPTY_COMMENT)
+    }
+    if (match[1]) {
+      emitError(context, ErrorCodes.INCORRECTLY_CLOSED_COMMENT)
+    }
     content = context.source.slice(4, match.index)
     // Advancing with reporting nested comments.
     const s = context.source.slice(0, match.index)
@@ -396,28 +397,28 @@ function parseComment(context: ParserContext): CommentNode {
   }
 }
 
-// function parseBogusComment(context: ParserContext): CommentNode | undefined {
-//   __TEST__ && assert(/^<(?:[\!\?]|\/[^a-z>])/i.test(context.source))
+function parseBogusComment(context: ParserContext): CommentNode | undefined {
+  __TEST__ && assert(/^<(?:[\!\?]|\/[^a-z>])/i.test(context.source))
 
-//   const start = getCursor(context)
-//   const contentStart = context.source[1] === '?' ? 1 : 2
-//   let content: string
+  const start = getCursor(context)
+  const contentStart = context.source[1] === '?' ? 1 : 2
+  let content: string
 
-//   const closeIndex = context.source.indexOf('>')
-//   if (closeIndex === -1) {
-//     content = context.source.slice(contentStart)
-//     advanceBy(context, context.source.length)
-//   } else {
-//     content = context.source.slice(contentStart, closeIndex)
-//     advanceBy(context, closeIndex + 1)
-//   }
+  const closeIndex = context.source.indexOf('>')
+  if (closeIndex === -1) {
+    content = context.source.slice(contentStart)
+    advanceBy(context, context.source.length)
+  } else {
+    content = context.source.slice(contentStart, closeIndex)
+    advanceBy(context, closeIndex + 1)
+  }
 
-//   return {
-//     type: NodeTypes.COMMENT,
-//     content,
-//     loc: getSelection(context, start)
-//   }
-// }
+  return {
+    type: NodeTypes.COMMENT,
+    content,
+    loc: getSelection(context, start)
+  }
+}
 
 function parseElement(
   context: ParserContext,
@@ -432,13 +433,13 @@ function parseElement(
   const isPreBoundary = context.inPre && !wasInPre
   const isVPreBoundary = context.inVPre && !wasInVPre
   if (element.isSelfClosing || context.options.isVoidTag(element.tag)) {
-    //   // #4030 self-closing <pre> tag
-    //   if (isPreBoundary) {
-    //     context.inPre = false
-    //   }
-    //   if (isVPreBoundary) {
-    //     context.inVPre = false
-    //   }
+    // #4030 self-closing <pre> tag
+    if (isPreBoundary) {
+      context.inPre = false
+    }
+    if (isVPreBoundary) {
+      context.inVPre = false
+    }
     return element
   }
   // Children.
@@ -495,9 +496,9 @@ const enum TagType {
   End
 }
 
-// const isSpecialTemplateDirective = /*#__PURE__*/ makeMap(
-//   `if,else,else-if,for,slot`
-// )
+const isSpecialTemplateDirective = /*#__PURE__*/ makeMap(
+  `if,else,else-if,for,slot`
+)
 
 /**
  * Parse a tag (E.g. `<div id=a>`) with that type (start tag or end tag).
@@ -536,27 +537,27 @@ function parseTag(
   const cursor = getCursor(context)
   const currentSource = context.source
 
-  //   // check <pre> tag
-  //   if (context.options.isPreTag(tag)) {
-  //     context.inPre = true
-  //   }
+  // check <pre> tag
+  if (context.options.isPreTag(tag)) {
+    context.inPre = true
+  }
 
   // Attributes.
   let props = parseAttributes(context, type)
 
-  //   // check v-pre
-  //   if (
-  //     type === TagType.Start &&
-  //     !context.inVPre &&
-  //     props.some(p => p.type === NodeTypes.DIRECTIVE && p.name === 'pre')
-  //   ) {
-  //     context.inVPre = true
-  //     // reset context
-  //     extend(context, cursor)
-  //     context.source = currentSource
-  //     // re-parse attrs and filter out v-pre itself
-  //     props = parseAttributes(context, type).filter(p => p.name !== 'v-pre')
-  //   }
+  // check v-pre
+  if (
+    type === TagType.Start &&
+    !context.inVPre &&
+    props.some(p => p.type === NodeTypes.DIRECTIVE && p.name === 'pre')
+  ) {
+    context.inVPre = true
+    // reset context
+    extend(context, cursor)
+    context.source = currentSource
+    // re-parse attrs and filter out v-pre itself
+    props = parseAttributes(context, type).filter(p => p.name !== 'v-pre')
+  }
 
   // Tag close.
   let isSelfClosing = false
@@ -608,18 +609,18 @@ function parseTag(
   let tagType = ElementTypes.ELEMENT
   if (!context.inVPre) {
     if (tag === 'slot') {
-      //       tagType = ElementTypes.SLOT
+      tagType = ElementTypes.SLOT
     } else if (tag === 'template') {
-      //       if (
-      //         props.some(
-      //           p =>
-      //             p.type === NodeTypes.DIRECTIVE && isSpecialTemplateDirective(p.name)
-      //         )
-      //       ) {
-      //         tagType = ElementTypes.TEMPLATE
-      //       }
+      if (
+        props.some(
+          p =>
+            p.type === NodeTypes.DIRECTIVE && isSpecialTemplateDirective(p.name)
+        )
+      ) {
+        tagType = ElementTypes.TEMPLATE
+      }
     } else if (isComponent(tag, props, context)) {
-      // tagType = ElementTypes.COMPONENT
+      tagType = ElementTypes.COMPONENT
     }
   }
 
@@ -702,268 +703,262 @@ function parseAttributes(
   type: TagType
 ): (AttributeNode | DirectiveNode)[] {
   const props = []
-  //   const attributeNames = new Set<string>()
-  //   while (
-  //     context.source.length > 0 &&
-  //     !startsWith(context.source, '>') &&
-  //     !startsWith(context.source, '/>')
-  //   ) {
-  //     if (startsWith(context.source, '/')) {
-  //       emitError(context, ErrorCodes.UNEXPECTED_SOLIDUS_IN_TAG)
-  //       advanceBy(context, 1)
-  //       advanceSpaces(context)
-  //       continue
-  //     }
-  //     if (type === TagType.End) {
-  //       emitError(context, ErrorCodes.END_TAG_WITH_ATTRIBUTES)
-  //     }
-
-  //     const attr = parseAttribute(context, attributeNames)
-
-  //     // Trim whitespace between class
-  //     // https://github.com/vuejs/core/issues/4251
-  //     if (
-  //       attr.type === NodeTypes.ATTRIBUTE &&
-  //       attr.value &&
-  //       attr.name === 'class'
-  //     ) {
-  //       attr.value.content = attr.value.content.replace(/\s+/g, ' ').trim()
-  //     }
-
-  //     if (type === TagType.Start) {
-  //       props.push(attr)
-  //     }
-
-  //     if (/^[^\t\r\n\f />]/.test(context.source)) {
-  //       emitError(context, ErrorCodes.MISSING_WHITESPACE_BETWEEN_ATTRIBUTES)
-  //     }
-  //     advanceSpaces(context)
-  //   }
+  const attributeNames = new Set<string>()
+  while (
+    context.source.length > 0 &&
+    !startsWith(context.source, '>') &&
+    !startsWith(context.source, '/>')
+  ) {
+    if (startsWith(context.source, '/')) {
+      emitError(context, ErrorCodes.UNEXPECTED_SOLIDUS_IN_TAG)
+      advanceBy(context, 1)
+      advanceSpaces(context)
+      continue
+    }
+    if (type === TagType.End) {
+      emitError(context, ErrorCodes.END_TAG_WITH_ATTRIBUTES)
+    }
+    const attr = parseAttribute(context, attributeNames)
+    // Trim whitespace between class
+    // https://github.com/vuejs/core/issues/4251
+    if (
+      attr.type === NodeTypes.ATTRIBUTE &&
+      attr.value &&
+      attr.name === 'class'
+    ) {
+      attr.value.content = attr.value.content.replace(/\s+/g, ' ').trim()
+    }
+    if (type === TagType.Start) {
+      props.push(attr)
+    }
+    if (/^[^\t\r\n\f />]/.test(context.source)) {
+      emitError(context, ErrorCodes.MISSING_WHITESPACE_BETWEEN_ATTRIBUTES)
+    }
+    advanceSpaces(context)
+  }
   return props
 }
 
-// function parseAttribute(
-//   context: ParserContext,
-//   nameSet: Set<string>
-// ): AttributeNode | DirectiveNode {
-//   __TEST__ && assert(/^[^\t\r\n\f />]/.test(context.source))
+function parseAttribute(
+  context: ParserContext,
+  nameSet: Set<string>
+): AttributeNode | DirectiveNode {
+  __TEST__ && assert(/^[^\t\r\n\f />]/.test(context.source))
 
-//   // Name.
-//   const start = getCursor(context)
-//   const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source)!
-//   const name = match[0]
+  // Name.
+  const start = getCursor(context)
+  const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source)!
+  const name = match[0]
 
-//   if (nameSet.has(name)) {
-//     emitError(context, ErrorCodes.DUPLICATE_ATTRIBUTE)
-//   }
-//   nameSet.add(name)
+  if (nameSet.has(name)) {
+    emitError(context, ErrorCodes.DUPLICATE_ATTRIBUTE)
+  }
+  nameSet.add(name)
 
-//   if (name[0] === '=') {
-//     emitError(context, ErrorCodes.UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME)
-//   }
-//   {
-//     const pattern = /["'<]/g
-//     let m: RegExpExecArray | null
-//     while ((m = pattern.exec(name))) {
-//       emitError(
-//         context,
-//         ErrorCodes.UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
-//         m.index
-//       )
-//     }
-//   }
+  if (name[0] === '=') {
+    emitError(context, ErrorCodes.UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME)
+  }
+  {
+    const pattern = /["'<]/g
+    let m: RegExpExecArray | null
+    while ((m = pattern.exec(name))) {
+      emitError(
+        context,
+        ErrorCodes.UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
+        m.index
+      )
+    }
+  }
 
-//   advanceBy(context, name.length)
+  advanceBy(context, name.length)
 
-//   // Value
-//   let value: AttributeValue = undefined
+  // Value
+  let value: AttributeValue = undefined
 
-//   if (/^[\t\r\n\f ]*=/.test(context.source)) {
-//     advanceSpaces(context)
-//     advanceBy(context, 1)
-//     advanceSpaces(context)
-//     value = parseAttributeValue(context)
-//     if (!value) {
-//       emitError(context, ErrorCodes.MISSING_ATTRIBUTE_VALUE)
-//     }
-//   }
-//   const loc = getSelection(context, start)
+  if (/^[\t\r\n\f ]*=/.test(context.source)) {
+    advanceSpaces(context)
+    advanceBy(context, 1)
+    advanceSpaces(context)
+    value = parseAttributeValue(context)
+    if (!value) {
+      emitError(context, ErrorCodes.MISSING_ATTRIBUTE_VALUE)
+    }
+  }
+  const loc = getSelection(context, start)
 
-//   if (!context.inVPre && /^(v-[A-Za-z0-9-]|:|\.|@|#)/.test(name)) {
-//     const match =
-//       /(?:^v-([a-z0-9-]+))?(?:(?::|^\.|^@|^#)(\[[^\]]+\]|[^\.]+))?(.+)?$/i.exec(
-//         name
-//       )!
+  if (!context.inVPre && /^(v-[A-Za-z0-9-]|:|\.|@|#)/.test(name)) {
+    const match =
+      /(?:^v-([a-z0-9-]+))?(?:(?::|^\.|^@|^#)(\[[^\]]+\]|[^\.]+))?(.+)?$/i.exec(
+        name
+      )!
 
-//     let isPropShorthand = startsWith(name, '.')
-//     let dirName =
-//       match[1] ||
-//       (isPropShorthand || startsWith(name, ':')
-//         ? 'bind'
-//         : startsWith(name, '@')
-//         ? 'on'
-//         : 'slot')
-//     let arg: ExpressionNode | undefined
+    let isPropShorthand = startsWith(name, '.')
+    let dirName =
+      match[1] ||
+      (isPropShorthand || startsWith(name, ':')
+        ? 'bind'
+        : startsWith(name, '@')
+        ? 'on'
+        : 'slot')
+    let arg: ExpressionNode | undefined
 
-//     if (match[2]) {
-//       const isSlot = dirName === 'slot'
-//       const startOffset = name.lastIndexOf(
-//         match[2],
-//         name.length - (match[3]?.length || 0)
-//       )
-//       const loc = getSelection(
-//         context,
-//         getNewPosition(context, start, startOffset),
-//         getNewPosition(
-//           context,
-//           start,
-//           startOffset + match[2].length + ((isSlot && match[3]) || '').length
-//         )
-//       )
-//       let content = match[2]
-//       let isStatic = true
+    if (match[2]) {
+      const isSlot = dirName === 'slot'
+      const startOffset = name.lastIndexOf(
+        match[2],
+        name.length - (match[3]?.length || 0)
+      )
 
-//       if (content.startsWith('[')) {
-//         isStatic = false
+      const loc = getSelection(
+        context,
+        getNewPosition(context, start, startOffset),
+        getNewPosition(
+          context,
+          start,
+          startOffset + match[2].length + ((isSlot && match[3]) || '').length
+        )
+      )
 
-//         if (!content.endsWith(']')) {
-//           emitError(
-//             context,
-//             ErrorCodes.X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END
-//           )
-//           content = content.slice(1)
-//         } else {
-//           content = content.slice(1, content.length - 1)
-//         }
-//       } else if (isSlot) {
-//         // #1241 special case for v-slot: vuetify relies extensively on slot
-//         // names containing dots. v-slot doesn't have any modifiers and Docue 2.x
-//         // supports such usage so we are keeping it consistent with 2.x.
-//         content += match[3] || ''
-//       }
+      let content = match[2]
+      let isStatic = true
+      if (content.startsWith('[')) {
+        isStatic = false
+        if (!content.endsWith(']')) {
+          emitError(
+            context,
+            ErrorCodes.X_MISSING_DYNAMIC_DIRECTIVE_ARGUMENT_END
+          )
+          content = content.slice(1)
+        } else {
+          content = content.slice(1, content.length - 1)
+        }
+      } else if (isSlot) {
+        // #1241 special case for v-slot: vuetify relies extensively on slot
+        // names containing dots. v-slot doesn't have any modifiers and Docue 2.x
+        // supports such usage so we are keeping it consistent with 2.x.
+        content += match[3] || ''
+      }
+      arg = {
+        type: NodeTypes.SIMPLE_EXPRESSION,
+        content,
+        isStatic,
+        constType: isStatic
+          ? ConstantTypes.CAN_STRINGIFY
+          : ConstantTypes.NOT_CONSTANT,
+        loc
+      }
+    }
 
-//       arg = {
-//         type: NodeTypes.SIMPLE_EXPRESSION,
-//         content,
-//         isStatic,
-//         constType: isStatic
-//           ? ConstantTypes.CAN_STRINGIFY
-//           : ConstantTypes.NOT_CONSTANT,
-//         loc
-//       }
-//     }
+    if (value && value.isQuoted) {
+      const valueLoc = value.loc
+      valueLoc.start.offset++
+      valueLoc.start.column++
+      valueLoc.end = advancePositionWithClone(valueLoc.start, value.content)
+      valueLoc.source = valueLoc.source.slice(1, -1)
+    }
 
-//     if (value && value.isQuoted) {
-//       const valueLoc = value.loc
-//       valueLoc.start.offset++
-//       valueLoc.start.column++
-//       valueLoc.end = advancePositionWithClone(valueLoc.start, value.content)
-//       valueLoc.source = valueLoc.source.slice(1, -1)
-//     }
+    const modifiers = match[3] ? match[3].slice(1).split('.') : []
+    if (isPropShorthand) modifiers.push('prop')
 
-//     const modifiers = match[3] ? match[3].slice(1).split('.') : []
-//     if (isPropShorthand) modifiers.push('prop')
+    //     // 2.x compat v-bind:foo.sync -> v-model:foo
+    //     if (__COMPAT__ && dirName === 'bind' && arg) {
+    //       if (
+    //         modifiers.includes('sync') &&
+    //         checkCompatEnabled(
+    //           CompilerDeprecationTypes.COMPILER_V_BIND_SYNC,
+    //           context,
+    //           loc,
+    //           arg.loc.source
+    //         )
+    //       ) {
+    //         dirName = 'model'
+    //         modifiers.splice(modifiers.indexOf('sync'), 1)
+    //       }
 
-//     // 2.x compat v-bind:foo.sync -> v-model:foo
-//     if (__COMPAT__ && dirName === 'bind' && arg) {
-//       if (
-//         modifiers.includes('sync') &&
-//         checkCompatEnabled(
-//           CompilerDeprecationTypes.COMPILER_V_BIND_SYNC,
-//           context,
-//           loc,
-//           arg.loc.source
-//         )
-//       ) {
-//         dirName = 'model'
-//         modifiers.splice(modifiers.indexOf('sync'), 1)
-//       }
+    //       if (__DEV__ && modifiers.includes('prop')) {
+    //         checkCompatEnabled(
+    //           CompilerDeprecationTypes.COMPILER_V_BIND_PROP,
+    //           context,
+    //           loc
+    //         )
+    //       }
+    //     }
 
-//       if (__DEV__ && modifiers.includes('prop')) {
-//         checkCompatEnabled(
-//           CompilerDeprecationTypes.COMPILER_V_BIND_PROP,
-//           context,
-//           loc
-//         )
-//       }
-//     }
+    return {
+      type: NodeTypes.DIRECTIVE,
+      name: dirName,
+      exp: value && {
+        type: NodeTypes.SIMPLE_EXPRESSION,
+        content: value.content,
+        isStatic: false,
+        // Treat as non-constant by default. This can be potentially set to
+        // other values by `transformExpression` to make it eligible for hoisting.
+        constType: ConstantTypes.NOT_CONSTANT,
+        loc: value.loc
+      },
+      arg,
+      modifiers,
+      loc
+    }
+  }
 
-//     return {
-//       type: NodeTypes.DIRECTIVE,
-//       name: dirName,
-//       exp: value && {
-//         type: NodeTypes.SIMPLE_EXPRESSION,
-//         content: value.content,
-//         isStatic: false,
-//         // Treat as non-constant by default. This can be potentially set to
-//         // other values by `transformExpression` to make it eligible for hoisting.
-//         constType: ConstantTypes.NOT_CONSTANT,
-//         loc: value.loc
-//       },
-//       arg,
-//       modifiers,
-//       loc
-//     }
-//   }
+  // missing directive name or illegal directive name
+  if (!context.inVPre && startsWith(name, 'v-')) {
+    emitError(context, ErrorCodes.X_MISSING_DIRECTIVE_NAME)
+  }
 
-//   // missing directive name or illegal directive name
-//   if (!context.inVPre && startsWith(name, 'v-')) {
-//     emitError(context, ErrorCodes.X_MISSING_DIRECTIVE_NAME)
-//   }
+  return {
+    type: NodeTypes.ATTRIBUTE,
+    name,
+    value: value && {
+      type: NodeTypes.TEXT,
+      content: value.content,
+      loc: value.loc
+    },
+    loc
+  }
+}
 
-//   return {
-//     type: NodeTypes.ATTRIBUTE,
-//     name,
-//     value: value && {
-//       type: NodeTypes.TEXT,
-//       content: value.content,
-//       loc: value.loc
-//     },
-//     loc
-//   }
-// }
+function parseAttributeValue(context: ParserContext): AttributeValue {
+  const start = getCursor(context)
+  let content: string
 
-// function parseAttributeValue(context: ParserContext): AttributeValue {
-//   const start = getCursor(context)
-//   let content: string
+  const quote = context.source[0]
+  const isQuoted = quote === `"` || quote === `'`
+  if (isQuoted) {
+    // Quoted value.
+    advanceBy(context, 1)
+    const endIndex = context.source.indexOf(quote)
+    if (endIndex === -1) {
+      content = parseTextData(
+        context,
+        context.source.length,
+        TextModes.ATTRIBUTE_VALUE
+      )
+    } else {
+      content = parseTextData(context, endIndex, TextModes.ATTRIBUTE_VALUE)
+      advanceBy(context, 1)
+    }
+  } else {
+    // Unquoted
+    const match = /^[^\t\r\n\f >]+/.exec(context.source)
+    if (!match) {
+      return undefined
+    }
+    const unexpectedChars = /["'<=`]/g
+    let m: RegExpExecArray | null
+    while ((m = unexpectedChars.exec(match[0]))) {
+      emitError(
+        context,
+        ErrorCodes.UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE,
+        m.index
+      )
+    }
+    content = parseTextData(context, match[0].length, TextModes.ATTRIBUTE_VALUE)
+  }
 
-//   const quote = context.source[0]
-//   const isQuoted = quote === `"` || quote === `'`
-//   if (isQuoted) {
-//     // Quoted value.
-//     advanceBy(context, 1)
-
-//     const endIndex = context.source.indexOf(quote)
-//     if (endIndex === -1) {
-//       content = parseTextData(
-//         context,
-//         context.source.length,
-//         TextModes.ATTRIBUTE_VALUE
-//       )
-//     } else {
-//       content = parseTextData(context, endIndex, TextModes.ATTRIBUTE_VALUE)
-//       advanceBy(context, 1)
-//     }
-//   } else {
-//     // Unquoted
-//     const match = /^[^\t\r\n\f >]+/.exec(context.source)
-//     if (!match) {
-//       return undefined
-//     }
-//     const unexpectedChars = /["'<=`]/g
-//     let m: RegExpExecArray | null
-//     while ((m = unexpectedChars.exec(match[0]))) {
-//       emitError(
-//         context,
-//         ErrorCodes.UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE,
-//         m.index
-//       )
-//     }
-//     content = parseTextData(context, match[0].length, TextModes.ATTRIBUTE_VALUE)
-//   }
-
-//   return { content, isQuoted, loc: getSelection(context, start) }
-// }
+  return { content, isQuoted, loc: getSelection(context, start) }
+}
 
 function parseInterpolation(
   context: ParserContext,
@@ -1101,17 +1096,17 @@ function advanceSpaces(context: ParserContext): void {
   }
 }
 
-// function getNewPosition(
-//   context: ParserContext,
-//   start: Position,
-//   numberOfCharacters: number
-// ): Position {
-//   return advancePositionWithClone(
-//     start,
-//     context.originalSource.slice(start.offset, numberOfCharacters),
-//     numberOfCharacters
-//   )
-// }
+function getNewPosition(
+  context: ParserContext,
+  start: Position,
+  numberOfCharacters: number
+): Position {
+  return advancePositionWithClone(
+    start,
+    context.originalSource.slice(start.offset, numberOfCharacters),
+    numberOfCharacters
+  )
+}
 
 function emitError(
   context: ParserContext,
@@ -1151,20 +1146,20 @@ function isEnd(
       }
       break
 
-    //     case TextModes.RCDATA:
-    //     case TextModes.RAWTEXT: {
-    //       const parent = last(ancestors)
-    //       if (parent && startsWithEndTagOpen(s, parent.tag)) {
-    //         return true
-    //       }
-    //       break
-    //     }
+    case TextModes.RCDATA:
+    case TextModes.RAWTEXT: {
+      const parent = last(ancestors)
+      if (parent && startsWithEndTagOpen(s, parent.tag)) {
+        return true
+      }
+      break
+    }
 
-    //     case TextModes.CDATA:
-    //       if (startsWith(s, ']]>')) {
-    //         return true
-    //       }
-    //       break
+    case TextModes.CDATA:
+      if (startsWith(s, ']]>')) {
+        return true
+      }
+      break
   }
 
   return !s
