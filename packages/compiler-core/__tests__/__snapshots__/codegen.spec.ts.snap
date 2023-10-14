@@ -113,11 +113,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: codegen > function mode preamble 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createVNode: _createVNode, resolveDirective: _resolveDirective } = _Vue
+    const { createVNode: _createVNode, resolveDirective: _resolveDirective } = Docue
 
     return null
   }
@@ -125,7 +125,7 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: codegen > function mode preamble w/ prefixIdentifiers: true 1`] = `
-"const { createVNode: _createVNode, resolveDirective: _resolveDirective } = Vue
+"const { createVNode: _createVNode, resolveDirective: _resolveDirective } = Docue
 
 return function render(_ctx, _cache) {
   return null

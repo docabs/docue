@@ -435,9 +435,9 @@ describe('compiler: transform v-on', () => {
   //   })
   //   expect('@vnode-* hooks in templates are deprecated').toHaveBeenWarned()
   // })
-  // test('vue: prefixed events', () => {
+  // test('docue: prefixed events', () => {
   //   const { node } = parseWithVOn(
-  //     `<div v-on:vue:mounted="onMount" @vue:before-update="onBeforeUpdate" />`
+  //     `<div v-on:docue:mounted="onMount" @docue:before-update="onBeforeUpdate" />`
   //   )
   //   expect((node.codegenNode as VNodeCall).props).toMatchObject({
   //     properties: [

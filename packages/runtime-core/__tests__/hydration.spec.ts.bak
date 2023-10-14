@@ -19,8 +19,8 @@ import {
   withDirectives,
   vModelCheckbox,
   renderSlot
-} from '@vue/runtime-dom'
-import { renderToString, SSRContext } from '@vue/server-renderer'
+} from '@docue/runtime-dom'
+import { renderToString, SSRContext } from '@docue/server-renderer'
 import { PatchFlags } from '../../shared/src'
 
 function mountWithHydration(html: string, render: () => any) {

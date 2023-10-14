@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler: integration tests > function mode 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, renderList: _renderList, createElementVNode: _createElementVNode, normalizeClass: _normalizeClass } = _Vue
+    const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, renderList: _renderList, createElementVNode: _createElementVNode, normalizeClass: _normalizeClass } = Docue
 
     return (_openBlock(), _createElementBlock(\\"div\\", {
       id: \\"foo\\",
@@ -28,7 +28,7 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: integration tests > function mode w/ prefixIdentifiers: true 1`] = `
-"const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, renderList: _renderList, createElementVNode: _createElementVNode, normalizeClass: _normalizeClass } = Vue
+"const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, renderList: _renderList, createElementVNode: _createElementVNode, normalizeClass: _normalizeClass } = Docue
 
 return function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"div\\", {
@@ -51,7 +51,7 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: integration tests > module mode 1`] = `
-"import { toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, Fragment as _Fragment, renderList as _renderList, createElementVNode as _createElementVNode, normalizeClass as _normalizeClass } from \\"vue\\"
+"import { toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, Fragment as _Fragment, renderList as _renderList, createElementVNode as _createElementVNode, normalizeClass as _normalizeClass } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"div\\", {

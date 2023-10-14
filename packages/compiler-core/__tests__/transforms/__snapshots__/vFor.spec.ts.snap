@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler: v-for > codegen > basic v-for 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return (_openBlock(), _createElementBlock(\\"span\\"))
@@ -15,11 +15,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > keyed template v-for 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createElementVNode: _createElementVNode } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createElementVNode: _createElementVNode } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return (_openBlock(), _createElementBlock(_Fragment, { key: item }, [
@@ -32,11 +32,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > keyed v-for 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return (_openBlock(), _createElementBlock(\\"span\\", { key: item }))
@@ -46,11 +46,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > skipped key 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item, __, index) => {
       return (_openBlock(), _createElementBlock(\\"span\\"))
@@ -60,11 +60,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > skipped value & key 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (_, __, index) => {
       return (_openBlock(), _createElementBlock(\\"span\\"))
@@ -74,11 +74,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > skipped value 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (_, key, index) => {
       return (_openBlock(), _createElementBlock(\\"span\\"))
@@ -88,11 +88,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > template v-for 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createElementVNode: _createElementVNode } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createElementVNode: _createElementVNode } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return (_openBlock(), _createElementBlock(_Fragment, null, [
@@ -105,11 +105,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > template v-for key injection with single child 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return (_openBlock(), _createElementBlock(\\"span\\", {
@@ -122,11 +122,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > template v-for w/ <slot/> 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, renderSlot: _renderSlot } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, renderSlot: _renderSlot } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return _renderSlot($slots, \\"default\\")
@@ -136,11 +136,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > v-for on <slot/> 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, renderSlot: _renderSlot } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, renderSlot: _renderSlot } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item) => {
       return _renderSlot($slots, \\"default\\")
@@ -150,11 +150,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > v-for on element with custom directive 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, resolveDirective: _resolveDirective, withDirectives: _withDirectives } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, resolveDirective: _resolveDirective, withDirectives: _withDirectives } = Docue
 
     const _directive_foo = _resolveDirective(\\"foo\\")
 
@@ -168,11 +168,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > v-for with constant expression 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, toDisplayString: _toDisplayString, createElementVNode: _createElementVNode } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, toDisplayString: _toDisplayString, createElementVNode: _createElementVNode } = Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, _renderList(10, (item) => {
       return _createElementVNode(\\"p\\", null, _toDisplayString(item), 1 /* TEXT */)
@@ -182,11 +182,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > v-if + v-for 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Docue
 
     return ok
       ? (_openBlock(true), _createElementBlock(_Fragment, { key: 0 }, _renderList(list, (i) => {
@@ -198,11 +198,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > v-if + v-for on <template> 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Docue
 
     return ok
       ? (_openBlock(true), _createElementBlock(_Fragment, { key: 0 }, _renderList(list, (i) => {
@@ -214,11 +214,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-for > codegen > value + key + index 1`] = `
-"const _Vue = Vue
+"const Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(items, (item, key, index) => {
       return (_openBlock(), _createElementBlock(\\"span\\"))

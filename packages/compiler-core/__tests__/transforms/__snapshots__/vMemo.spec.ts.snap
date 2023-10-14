@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler: v-memo transform > on component 1`] = `
-"import { resolveComponent as _resolveComponent, createVNode as _createVNode, withMemo as _withMemo, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { resolveComponent as _resolveComponent, createVNode as _createVNode, withMemo as _withMemo, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   const _component_Comp = _resolveComponent(\\"Comp\\")
@@ -13,7 +13,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-memo transform > on normal element 1`] = `
-"import { openBlock as _openBlock, createElementBlock as _createElementBlock, withMemo as _withMemo } from \\"vue\\"
+"import { openBlock as _openBlock, createElementBlock as _createElementBlock, withMemo as _withMemo } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"div\\", null, [
@@ -23,7 +23,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-memo transform > on root element 1`] = `
-"import { openBlock as _openBlock, createElementBlock as _createElementBlock, withMemo as _withMemo } from \\"vue\\"
+"import { openBlock as _openBlock, createElementBlock as _createElementBlock, withMemo as _withMemo } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   return _withMemo([_ctx.x], () => (_openBlock(), _createElementBlock(\\"div\\")), _cache, 0)
@@ -31,7 +31,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-memo transform > on template v-for 1`] = `
-"import { renderList as _renderList, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, isMemoSame as _isMemoSame, withMemo as _withMemo } from \\"vue\\"
+"import { renderList as _renderList, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, isMemoSame as _isMemoSame, withMemo as _withMemo } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"div\\", null, [
@@ -47,7 +47,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-memo transform > on v-for 1`] = `
-"import { renderList as _renderList, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, isMemoSame as _isMemoSame, withMemo as _withMemo } from \\"vue\\"
+"import { renderList as _renderList, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, createElementVNode as _createElementVNode, isMemoSame as _isMemoSame, withMemo as _withMemo } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"div\\", null, [
@@ -65,7 +65,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-memo transform > on v-if 1`] = `
-"import { createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, openBlock as _openBlock, createElementBlock as _createElementBlock, withMemo as _withMemo, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, createBlock as _createBlock } from \\"vue\\"
+"import { createElementVNode as _createElementVNode, createTextVNode as _createTextVNode, openBlock as _openBlock, createElementBlock as _createElementBlock, withMemo as _withMemo, createCommentVNode as _createCommentVNode, resolveComponent as _resolveComponent, createBlock as _createBlock } from \\"docue\\"
 
 export function render(_ctx, _cache) {
   const _component_Comp = _resolveComponent(\\"Comp\\")

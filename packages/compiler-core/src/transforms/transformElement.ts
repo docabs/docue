@@ -572,15 +572,17 @@ export function buildProps(
       //       if (isVOn && ssr) {
       //         continue
       //       }
-      //       if (
-      //         // #938: elements with dynamic keys should be forced into blocks
-      //         (isVBind && isStaticArgOf(arg, 'key')) ||
-      //         // inline before-update hooks need to force block so that it is invoked
-      //         // before children
-      //         (isVOn && hasChildren && isStaticArgOf(arg, 'docue:before-update'))
-      //       ) {
-      //         shouldUseBlock = true
-      //       }
+
+      if (
+        // #938: elements with dynamic keys should be forced into blocks
+        (isVBind && isStaticArgOf(arg, 'key')) ||
+        // inline before-update hooks need to force block so that it is invoked
+        // before children
+        (isVOn && hasChildren && isStaticArgOf(arg, 'docue:before-update'))
+      ) {
+        shouldUseBlock = true
+      }
+
       //       if (isVBind && isStaticArgOf(arg, 'ref') && context.scopes.vFor > 0) {
       //         properties.push(
       //           createObjectProperty(
@@ -785,11 +787,11 @@ export function buildProps(
           //   )
           // }
         } else {
-          //           // dynamic key binding, wrap with `normalizeProps`
-          //           propsExpression = createCallExpression(
-          //             context.helper(NORMALIZE_PROPS),
-          //             [propsExpression]
-          //           )
+          // dynamic key binding, wrap with `normalizeProps`
+          propsExpression = createCallExpression(
+            context.helper(NORMALIZE_PROPS),
+            [propsExpression]
+          )
         }
         break
       case NodeTypes.JS_CALL_EXPRESSION:

@@ -82,7 +82,7 @@ describe('compiler: element transform', () => {
 
   test('resolve implicitly self-referencing component', () => {
     const { root } = parseWithElementTransform(`<Example/>`, {
-      filename: `/foo/bar/Example.vue?vue&type=template`
+      filename: `/foo/bar/Example.docue?docue&type=template`
     })
     expect(root.helpers).toContain(RESOLVE_COMPONENT)
     expect(root.components).toContain(`Example__self`)
@@ -1107,57 +1107,60 @@ describe('compiler: element transform', () => {
   })
 
   describe('dynamic component', () => {
-    //     test('static binding', () => {
-    //       const { node, root } = parseWithBind(`<component is="foo" />`)
-    //       expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
-    //       expect(node).toMatchObject({
-    //         isBlock: true,
-    //         tag: {
-    //           callee: RESOLVE_DYNAMIC_COMPONENT,
-    //           arguments: [
-    //             {
-    //               type: NodeTypes.SIMPLE_EXPRESSION,
-    //               content: 'foo',
-    //               isStatic: true
-    //             }
-    //           ]
-    //         }
-    //       })
-    //     })
-    //     test('capitalized version w/ static binding', () => {
-    //       const { node, root } = parseWithBind(`<Component is="foo" />`)
-    //       expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
-    //       expect(node).toMatchObject({
-    //         isBlock: true,
-    //         tag: {
-    //           callee: RESOLVE_DYNAMIC_COMPONENT,
-    //           arguments: [
-    //             {
-    //               type: NodeTypes.SIMPLE_EXPRESSION,
-    //               content: 'foo',
-    //               isStatic: true
-    //             }
-    //           ]
-    //         }
-    //       })
-    //     })
-    //     test('dynamic binding', () => {
-    //       const { node, root } = parseWithBind(`<component :is="foo" />`)
-    //       expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
-    //       expect(node).toMatchObject({
-    //         isBlock: true,
-    //         tag: {
-    //           callee: RESOLVE_DYNAMIC_COMPONENT,
-    //           arguments: [
-    //             {
-    //               type: NodeTypes.SIMPLE_EXPRESSION,
-    //               content: 'foo',
-    //               isStatic: false
-    //             }
-    //           ]
-    //         }
-    //       })
-    //     })
+    test('static binding', () => {
+      const { node, root } = parseWithBind(`<component is="foo" />`)
+      expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
+      expect(node).toMatchObject({
+        isBlock: true,
+        tag: {
+          callee: RESOLVE_DYNAMIC_COMPONENT,
+          arguments: [
+            {
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: 'foo',
+              isStatic: true
+            }
+          ]
+        }
+      })
+    })
+
+    test('capitalized version w/ static binding', () => {
+      const { node, root } = parseWithBind(`<Component is="foo" />`)
+      expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
+      expect(node).toMatchObject({
+        isBlock: true,
+        tag: {
+          callee: RESOLVE_DYNAMIC_COMPONENT,
+          arguments: [
+            {
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: 'foo',
+              isStatic: true
+            }
+          ]
+        }
+      })
+    })
+
+    test('dynamic binding', () => {
+      const { node, root } = parseWithBind(`<component :is="foo" />`)
+      expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
+      expect(node).toMatchObject({
+        isBlock: true,
+        tag: {
+          callee: RESOLVE_DYNAMIC_COMPONENT,
+          arguments: [
+            {
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: 'foo',
+              isStatic: false
+            }
+          ]
+        }
+      })
+    })
+
     //     // TODO remove in 3.4
     //     test('v-is', () => {
     //       const { node, root } = parseWithBind(`<div v-is="'foo'" />`)
@@ -1178,80 +1181,85 @@ describe('compiler: element transform', () => {
     //       })
     //       expect('v-is="component-name" has been deprecated').toHaveBeenWarned()
     //     })
-    //     // #3934
-    //     test('normal component with is prop', () => {
-    //       const { node, root } = parseWithBind(`<custom-input is="foo" />`, {
-    //         isNativeTag: () => false
-    //       })
-    //       expect(root.helpers).toContain(RESOLVE_COMPONENT)
-    //       expect(root.helpers).not.toContain(RESOLVE_DYNAMIC_COMPONENT)
-    //       expect(node).toMatchObject({
-    //         tag: '_component_custom_input'
-    //       })
-    //     })
+
+    // #3934
+    test('normal component with is prop', () => {
+      const { node, root } = parseWithBind(`<custom-input is="foo" />`, {
+        isNativeTag: () => false
+      })
+      expect(root.helpers).toContain(RESOLVE_COMPONENT)
+      expect(root.helpers).not.toContain(RESOLVE_DYNAMIC_COMPONENT)
+      expect(node).toMatchObject({
+        tag: '_component_custom_input'
+      })
+    })
   })
 
-  //   test('<svg> should be forced into blocks', () => {
-  //     const ast = parse(`<div><svg/></div>`)
-  //     transform(ast, {
-  //       nodeTransforms: [transformElement]
-  //     })
-  //     expect((ast as any).children[0].children[0].codegenNode).toMatchObject({
-  //       type: NodeTypes.VNODE_CALL,
-  //       tag: `"svg"`,
-  //       isBlock: true
-  //     })
-  //   })
-  //   test('force block for runtime custom directive w/ children', () => {
-  //     const { node } = parseWithElementTransform(`<div v-foo>hello</div>`)
-  //     expect(node.isBlock).toBe(true)
-  //   })
-  //   test('force block for inline before-update handlers w/ children', () => {
-  //     expect(
-  //       parseWithElementTransform(`<div @vue:before-update>hello</div>`).node
-  //         .isBlock
-  //     ).toBe(true)
-  //   })
-  //   // #938
-  //   test('element with dynamic keys should be forced into blocks', () => {
-  //     const ast = parse(`<div><div :key="foo" /></div>`)
-  //     transform(ast, {
-  //       nodeTransforms: [transformElement]
-  //     })
-  //     expect((ast as any).children[0].children[0].codegenNode).toMatchObject({
-  //       type: NodeTypes.VNODE_CALL,
-  //       tag: `"div"`,
-  //       isBlock: true
-  //     })
-  //   })
-  //   test('should process node when node has been replaced', () => {
-  //     // a NodeTransform that swaps out <div id="foo" /> with <span id="foo" />
-  //     const customNodeTransform: NodeTransform = (node, context) => {
-  //       if (
-  //         node.type === NodeTypes.ELEMENT &&
-  //         node.tag === 'div' &&
-  //         node.props.some(
-  //           prop =>
-  //             prop.type === NodeTypes.ATTRIBUTE &&
-  //             prop.name === 'id' &&
-  //             prop.value &&
-  //             prop.value.content === 'foo'
-  //         )
-  //       ) {
-  //         context.replaceNode({
-  //           ...node,
-  //           tag: 'span'
-  //         })
-  //       }
-  //     }
-  //     const ast = parse(`<div><div id="foo" /></div>`)
-  //     transform(ast, {
-  //       nodeTransforms: [transformElement, transformText, customNodeTransform]
-  //     })
-  //     expect((ast as any).children[0].children[0].codegenNode).toMatchObject({
-  //       type: NodeTypes.VNODE_CALL,
-  //       tag: '"span"',
-  //       isBlock: false
-  //     })
-  //   })
+  test('<svg> should be forced into blocks', () => {
+    const ast = parse(`<div><svg/></div>`)
+    transform(ast, {
+      nodeTransforms: [transformElement]
+    })
+    expect((ast as any).children[0].children[0].codegenNode).toMatchObject({
+      type: NodeTypes.VNODE_CALL,
+      tag: `"svg"`,
+      isBlock: true
+    })
+  })
+
+  test('force block for runtime custom directive w/ children', () => {
+    const { node } = parseWithElementTransform(`<div v-foo>hello</div>`)
+    expect(node.isBlock).toBe(true)
+  })
+
+  test('force block for inline before-update handlers w/ children', () => {
+    expect(
+      parseWithElementTransform(`<div @docue:before-update>hello</div>`).node
+        .isBlock
+    ).toBe(true)
+  })
+
+  // #938
+  test('element with dynamic keys should be forced into blocks', () => {
+    const ast = parse(`<div><div :key="foo" /></div>`)
+    transform(ast, {
+      nodeTransforms: [transformElement]
+    })
+    expect((ast as any).children[0].children[0].codegenNode).toMatchObject({
+      type: NodeTypes.VNODE_CALL,
+      tag: `"div"`,
+      isBlock: true
+    })
+  })
+
+  test('should process node when node has been replaced', () => {
+    // a NodeTransform that swaps out <div id="foo" /> with <span id="foo" />
+    const customNodeTransform: NodeTransform = (node, context) => {
+      if (
+        node.type === NodeTypes.ELEMENT &&
+        node.tag === 'div' &&
+        node.props.some(
+          prop =>
+            prop.type === NodeTypes.ATTRIBUTE &&
+            prop.name === 'id' &&
+            prop.value &&
+            prop.value.content === 'foo'
+        )
+      ) {
+        context.replaceNode({
+          ...node,
+          tag: 'span'
+        })
+      }
+    }
+    const ast = parse(`<div><div id="foo" /></div>`)
+    transform(ast, {
+      nodeTransforms: [transformElement, transformText, customNodeTransform]
+    })
+    expect((ast as any).children[0].children[0].codegenNode).toMatchObject({
+      type: NodeTypes.VNODE_CALL,
+      tag: '"span"',
+      isBlock: false
+    })
+  })
 })

@@ -1,6 +1,6 @@
 import { baseCompile } from '../src/compile'
 // import { PUSH_SCOPE_ID, POP_SCOPE_ID } from '../src/runtimeHelpers'
-// import { PatchFlags } from '@vue/shared'
+// import { PatchFlags } from '@docue/shared'
 // import { genFlagText } from './testUtils'
 
 /**

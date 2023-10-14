@@ -9,10 +9,10 @@ import {
   triggerEvent,
   TestElement,
   nextTick
-} from '@vue/runtime-test'
-import * as runtimeTest from '@vue/runtime-test'
-import { registerRuntimeCompiler, createApp } from '@vue/runtime-test'
-import { baseCompile } from '@vue/compiler-core'
+} from '@docue/runtime-test'
+import * as runtimeTest from '@docue/runtime-test'
+import { registerRuntimeCompiler, createApp } from '@docue/runtime-test'
+import { baseCompile } from '@docue/compiler-core'
 
 declare var __VUE_HMR_RUNTIME__: HMRRuntime
 const { createRecord, rerender, reload } = __VUE_HMR_RUNTIME__

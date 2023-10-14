@@ -13,7 +13,7 @@ import { transformText } from '../../src/transforms/transformText'
 // import { transformElement } from '../../src/transforms/transformElement'
 // import { CREATE_TEXT } from '../../src/runtimeHelpers'
 // import { genFlagText } from '../testUtils'
-// import { PatchFlags } from '@vue/shared'
+// import { PatchFlags } from '@docue/shared'
 
 function transformWithTextOpt(template: string, options: CompilerOptions = {}) {
   const ast = parse(template)
