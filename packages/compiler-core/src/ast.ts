@@ -34,12 +34,14 @@ export const enum NodeTypes {
   INTERPOLATION,
   ATTRIBUTE,
   DIRECTIVE,
+
   // containers
   COMPOUND_EXPRESSION,
   IF,
   IF_BRANCH,
   FOR,
   TEXT_CALL,
+
   // codegen
   VNODE_CALL,
   JS_CALL_EXPRESSION,
@@ -218,12 +220,12 @@ export interface SimpleExpressionNode extends Node {
    * hoisted node.
    */
   hoisted?: JSChildNode
-  //   /**
-  //    * an expression parsed as the params of a function will track
-  //    * the identifiers declared inside the function body.
-  //    */
-  //   identifiers?: string[]
-  //   isHandlerKey?: boolean
+  /**
+   * an expression parsed as the params of a function will track
+   * the identifiers declared inside the function body.
+   */
+  identifiers?: string[]
+  isHandlerKey?: boolean
 }
 
 export interface InterpolationNode extends Node {
@@ -241,12 +243,12 @@ export interface CompoundExpressionNode extends Node {
     | string
     | symbol
   )[]
-  //   /**
-  //    * an expression parsed as the params of a function will track
-  //    * the identifiers declared inside the function body.
-  //    */
-  //   identifiers?: string[]
-  //   isHandlerKey?: boolean
+  /**
+   * an expression parsed as the params of a function will track
+   * the identifiers declared inside the function body.
+   */
+  identifiers?: string[]
+  isHandlerKey?: boolean
 }
 
 export interface IfNode extends Node {
@@ -670,16 +672,16 @@ export function createSimpleExpression(
 //   }
 // }
 
-// export function createCompoundExpression(
-//   children: CompoundExpressionNode['children'],
-//   loc: SourceLocation = locStub
-// ): CompoundExpressionNode {
-//   return {
-//     type: NodeTypes.COMPOUND_EXPRESSION,
-//     loc,
-//     children
-//   }
-// }
+export function createCompoundExpression(
+  children: CompoundExpressionNode['children'],
+  loc: SourceLocation = locStub
+): CompoundExpressionNode {
+  return {
+    type: NodeTypes.COMPOUND_EXPRESSION,
+    loc,
+    children
+  }
+}
 
 type InferCodegenNodeType<T> = T extends typeof RENDER_SLOT
   ? RenderSlotCall

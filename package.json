@@ -26,6 +26,7 @@
     "chalk": "4.1",
     "esbuild": "^0.19.2",
     "esbuild-plugin-polyfill-node": "^0.3.0",
+    "estree-walker": "^3.0.3",
     "execa": "^4.1.0",
     "jsdom": "^22.1.0",
     "magic-string": "^0.30.3",

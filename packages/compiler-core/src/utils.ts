@@ -1,25 +1,25 @@
 import {
-  //   SourceLocation,
+  SourceLocation,
   Position,
   ElementNode,
   NodeTypes,
-  //   CallExpression,
-  //   createCallExpression,
+  CallExpression,
+  createCallExpression,
   DirectiveNode,
   ElementTypes,
   TemplateChildNode,
   RootNode,
-  //   ObjectExpression,
+  ObjectExpression,
   Property,
   JSChildNode,
-  //   createObjectExpression,
+  createObjectExpression,
   SlotOutletNode,
-  //   TemplateNode,
+  TemplateNode,
   RenderSlotCall,
-  //   ExpressionNode,
-  //   IfBranchNode,
-  //   TextNode,
-  //   InterpolationNode,
+  ExpressionNode,
+  IfBranchNode,
+  TextNode,
+  InterpolationNode,
   VNodeCall,
   SimpleExpressionNode,
   BlockCodegenNode,
@@ -27,20 +27,20 @@ import {
 } from './ast'
 import { TransformContext } from './transform'
 import {
-  // MERGE_PROPS,
+  MERGE_PROPS,
   TELEPORT,
   SUSPENSE,
   KEEP_ALIVE,
   BASE_TRANSITION,
-  // TO_HANDLERS,
-  // NORMALIZE_PROPS,
-  // GUARD_REACTIVE_PROPS,
+  TO_HANDLERS,
+  NORMALIZE_PROPS,
+  GUARD_REACTIVE_PROPS,
   WITH_MEMO
 } from './runtimeHelpers'
 import { isString, isObject, hyphenate, extend, NOOP } from '@docue/shared'
-// import { PropsExpression } from './transforms/transformElement'
-// import { parseExpression } from '@babel/parser'
-// import { Expression } from '@babel/types'
+import { PropsExpression } from './transforms/transformElement'
+import { parseExpression } from '@babel/parser'
+import { Expression } from '@babel/types'
 
 export const isStaticExp = (p: JSChildNode): p is SimpleExpressionNode =>
   p.type === NodeTypes.SIMPLE_EXPRESSION && p.isStatic
@@ -75,129 +75,129 @@ export const isSimpleIdentifier = (name: string): boolean =>
 // const validIdentCharRE = /[\.\?\w$\xA0-\uFFFF]/
 // const whitespaceRE = /\s+[.[]\s*|\s*[.[]\s+/g
 
-// /**
-//  * Simple lexer to check if an expression is a member expression. This is
-//  * lax and only checks validity at the root level (i.e. does not validate exps
-//  * inside square brackets), but it's ok since these are only used on template
-//  * expressions and false positives are invalid expressions in the first place.
-//  */
-// export const isMemberExpressionBrowser = (path: string): boolean => {
-//   // remove whitespaces around . or [ first
-//   path = path.trim().replace(whitespaceRE, s => s.trim())
+/**
+ * Simple lexer to check if an expression is a member expression. This is
+ * lax and only checks validity at the root level (i.e. does not validate exps
+ * inside square brackets), but it's ok since these are only used on template
+ * expressions and false positives are invalid expressions in the first place.
+ */
+export const isMemberExpressionBrowser = (path: string): boolean => {
+  //   // remove whitespaces around . or [ first
+  //   path = path.trim().replace(whitespaceRE, s => s.trim())
 
-//   let state = MemberExpLexState.inMemberExp
-//   let stateStack: MemberExpLexState[] = []
-//   let currentOpenBracketCount = 0
-//   let currentOpenParensCount = 0
-//   let currentStringType: "'" | '"' | '`' | null = null
+  //   let state = MemberExpLexState.inMemberExp
+  //   let stateStack: MemberExpLexState[] = []
+  let currentOpenBracketCount = 0
+  let currentOpenParensCount = 0
+  //   let currentStringType: "'" | '"' | '`' | null = null
 
-//   for (let i = 0; i < path.length; i++) {
-//     const char = path.charAt(i)
-//     switch (state) {
-//       case MemberExpLexState.inMemberExp:
-//         if (char === '[') {
-//           stateStack.push(state)
-//           state = MemberExpLexState.inBrackets
-//           currentOpenBracketCount++
-//         } else if (char === '(') {
-//           stateStack.push(state)
-//           state = MemberExpLexState.inParens
-//           currentOpenParensCount++
-//         } else if (
-//           !(i === 0 ? validFirstIdentCharRE : validIdentCharRE).test(char)
-//         ) {
-//           return false
-//         }
-//         break
-//       case MemberExpLexState.inBrackets:
-//         if (char === `'` || char === `"` || char === '`') {
-//           stateStack.push(state)
-//           state = MemberExpLexState.inString
-//           currentStringType = char
-//         } else if (char === `[`) {
-//           currentOpenBracketCount++
-//         } else if (char === `]`) {
-//           if (!--currentOpenBracketCount) {
-//             state = stateStack.pop()!
-//           }
-//         }
-//         break
-//       case MemberExpLexState.inParens:
-//         if (char === `'` || char === `"` || char === '`') {
-//           stateStack.push(state)
-//           state = MemberExpLexState.inString
-//           currentStringType = char
-//         } else if (char === `(`) {
-//           currentOpenParensCount++
-//         } else if (char === `)`) {
-//           // if the exp ends as a call then it should not be considered valid
-//           if (i === path.length - 1) {
-//             return false
-//           }
-//           if (!--currentOpenParensCount) {
-//             state = stateStack.pop()!
-//           }
-//         }
-//         break
-//       case MemberExpLexState.inString:
-//         if (char === currentStringType) {
-//           state = stateStack.pop()!
-//           currentStringType = null
-//         }
-//         break
-//     }
-//   }
-//   return !currentOpenBracketCount && !currentOpenParensCount
-// }
+  //   for (let i = 0; i < path.length; i++) {
+  //     const char = path.charAt(i)
+  //     switch (state) {
+  //       case MemberExpLexState.inMemberExp:
+  //         if (char === '[') {
+  //           stateStack.push(state)
+  //           state = MemberExpLexState.inBrackets
+  //           currentOpenBracketCount++
+  //         } else if (char === '(') {
+  //           stateStack.push(state)
+  //           state = MemberExpLexState.inParens
+  //           currentOpenParensCount++
+  //         } else if (
+  //           !(i === 0 ? validFirstIdentCharRE : validIdentCharRE).test(char)
+  //         ) {
+  //           return false
+  //         }
+  //         break
+  //       case MemberExpLexState.inBrackets:
+  //         if (char === `'` || char === `"` || char === '`') {
+  //           stateStack.push(state)
+  //           state = MemberExpLexState.inString
+  //           currentStringType = char
+  //         } else if (char === `[`) {
+  //           currentOpenBracketCount++
+  //         } else if (char === `]`) {
+  //           if (!--currentOpenBracketCount) {
+  //             state = stateStack.pop()!
+  //           }
+  //         }
+  //         break
+  //       case MemberExpLexState.inParens:
+  //         if (char === `'` || char === `"` || char === '`') {
+  //           stateStack.push(state)
+  //           state = MemberExpLexState.inString
+  //           currentStringType = char
+  //         } else if (char === `(`) {
+  //           currentOpenParensCount++
+  //         } else if (char === `)`) {
+  //           // if the exp ends as a call then it should not be considered valid
+  //           if (i === path.length - 1) {
+  //             return false
+  //           }
+  //           if (!--currentOpenParensCount) {
+  //             state = stateStack.pop()!
+  //           }
+  //         }
+  //         break
+  //       case MemberExpLexState.inString:
+  //         if (char === currentStringType) {
+  //           state = stateStack.pop()!
+  //           currentStringType = null
+  //         }
+  //         break
+  //     }
+  //   }
+  return !currentOpenBracketCount && !currentOpenParensCount
+}
 
-// export const isMemberExpressionNode = __BROWSER__
-//   ? (NOOP as any as (path: string, context: TransformContext) => boolean)
-//   : (path: string, context: TransformContext): boolean => {
-//       try {
-//         let ret: Expression = parseExpression(path, {
-//           plugins: context.expressionPlugins
-//         })
-//         if (ret.type === 'TSAsExpression' || ret.type === 'TSTypeAssertion') {
-//           ret = ret.expression
-//         }
-//         return (
-//           ret.type === 'MemberExpression' ||
-//           ret.type === 'OptionalMemberExpression' ||
-//           ret.type === 'Identifier'
-//         )
-//       } catch (e) {
-//         return false
-//       }
-//     }
+export const isMemberExpressionNode = __BROWSER__
+  ? (NOOP as any as (path: string, context: TransformContext) => boolean)
+  : (path: string, context: TransformContext): boolean => {
+      try {
+        let ret: Expression = parseExpression(path, {
+          plugins: context.expressionPlugins
+        })
+        if (ret.type === 'TSAsExpression' || ret.type === 'TSTypeAssertion') {
+          ret = ret.expression
+        }
+        return (
+          ret.type === 'MemberExpression' ||
+          ret.type === 'OptionalMemberExpression' ||
+          ret.type === 'Identifier'
+        )
+      } catch (e) {
+        return false
+      }
+    }
 
-// export const isMemberExpression = __BROWSER__
-//   ? isMemberExpressionBrowser
-//   : isMemberExpressionNode
+export const isMemberExpression = __BROWSER__
+  ? isMemberExpressionBrowser
+  : isMemberExpressionNode
 
-// export function getInnerRange(
-//   loc: SourceLocation,
-//   offset: number,
-//   length: number
-// ): SourceLocation {
-//   __TEST__ && assert(offset <= loc.source.length)
-//   const source = loc.source.slice(offset, offset + length)
-//   const newLoc: SourceLocation = {
-//     source,
-//     start: advancePositionWithClone(loc.start, loc.source, offset),
-//     end: loc.end
-//   }
+export function getInnerRange(
+  loc: SourceLocation,
+  offset: number,
+  length: number
+): SourceLocation {
+  __TEST__ && assert(offset <= loc.source.length)
+  const source = loc.source.slice(offset, offset + length)
+  const newLoc: SourceLocation = {
+    source,
+    start: advancePositionWithClone(loc.start, loc.source, offset),
+    end: loc.end
+  }
 
-//   if (length != null) {
-//     __TEST__ && assert(offset + length <= loc.source.length)
-//     newLoc.end = advancePositionWithClone(
-//       loc.start,
-//       loc.source,
-//       offset + length
-//     )
-//   }
+  if (length != null) {
+    __TEST__ && assert(offset + length <= loc.source.length)
+    newLoc.end = advancePositionWithClone(
+      loc.start,
+      loc.source,
+      offset + length
+    )
+  }
 
-//   return newLoc
-// }
+  return newLoc
+}
 
 export function advancePositionWithClone(
   pos: Position,
@@ -244,22 +244,22 @@ export function assert(condition: boolean, msg?: string) {
   }
 }
 
-// export function findDir(
-//   node: ElementNode,
-//   name: string | RegExp,
-//   allowEmpty: boolean = false
-// ): DirectiveNode | undefined {
-//   for (let i = 0; i < node.props.length; i++) {
-//     const p = node.props[i]
-//     if (
-//       p.type === NodeTypes.DIRECTIVE &&
-//       (allowEmpty || p.exp) &&
-//       (isString(name) ? p.name === name : name.test(p.name))
-//     ) {
-//       return p
-//     }
-//   }
-// }
+export function findDir(
+  node: ElementNode,
+  name: string | RegExp,
+  allowEmpty: boolean = false
+): DirectiveNode | undefined {
+  for (let i = 0; i < node.props.length; i++) {
+    const p = node.props[i]
+    if (
+      p.type === NodeTypes.DIRECTIVE &&
+      (allowEmpty || p.exp) &&
+      (isString(name) ? p.name === name : name.test(p.name))
+    ) {
+      return p
+    }
+  }
+}
 
 export function findProp(
   node: ElementNode,
@@ -302,23 +302,23 @@ export function isStaticArgOf(
 //   )
 // }
 
-// export function isText(
-//   node: TemplateChildNode
-// ): node is TextNode | InterpolationNode {
-//   return node.type === NodeTypes.INTERPOLATION || node.type === NodeTypes.TEXT
-// }
+export function isText(
+  node: TemplateChildNode
+): node is TextNode | InterpolationNode {
+  return node.type === NodeTypes.INTERPOLATION || node.type === NodeTypes.TEXT
+}
 
 export function isVSlot(p: ElementNode['props'][0]): p is DirectiveNode {
   return p.type === NodeTypes.DIRECTIVE && p.name === 'slot'
 }
 
-// export function isTemplateNode(
-//   node: RootNode | TemplateChildNode
-// ): node is TemplateNode {
-//   return (
-//     node.type === NodeTypes.ELEMENT && node.tagType === ElementTypes.TEMPLATE
-//   )
-// }
+export function isTemplateNode(
+  node: RootNode | TemplateChildNode
+): node is TemplateNode {
+  return (
+    node.type === NodeTypes.ELEMENT && node.tagType === ElementTypes.TEMPLATE
+  )
+}
 
 export function isSlotOutlet(
   node: RootNode | TemplateChildNode
@@ -457,60 +457,60 @@ export function toValidAssetId(
   })}`
 }
 
-// // Check if a node contains expressions that reference current context scope ids
-// export function hasScopeRef(
-//   node: TemplateChildNode | IfBranchNode | ExpressionNode | undefined,
-//   ids: TransformContext['identifiers']
-// ): boolean {
-//   if (!node || Object.keys(ids).length === 0) {
-//     return false
-//   }
-//   switch (node.type) {
-//     case NodeTypes.ELEMENT:
-//       for (let i = 0; i < node.props.length; i++) {
-//         const p = node.props[i]
-//         if (
-//           p.type === NodeTypes.DIRECTIVE &&
-//           (hasScopeRef(p.arg, ids) || hasScopeRef(p.exp, ids))
-//         ) {
-//           return true
-//         }
-//       }
-//       return node.children.some(c => hasScopeRef(c, ids))
-//     case NodeTypes.FOR:
-//       if (hasScopeRef(node.source, ids)) {
-//         return true
-//       }
-//       return node.children.some(c => hasScopeRef(c, ids))
-//     case NodeTypes.IF:
-//       return node.branches.some(b => hasScopeRef(b, ids))
-//     case NodeTypes.IF_BRANCH:
-//       if (hasScopeRef(node.condition, ids)) {
-//         return true
-//       }
-//       return node.children.some(c => hasScopeRef(c, ids))
-//     case NodeTypes.SIMPLE_EXPRESSION:
-//       return (
-//         !node.isStatic &&
-//         isSimpleIdentifier(node.content) &&
-//         !!ids[node.content]
-//       )
-//     case NodeTypes.COMPOUND_EXPRESSION:
-//       return node.children.some(c => isObject(c) && hasScopeRef(c, ids))
-//     case NodeTypes.INTERPOLATION:
-//     case NodeTypes.TEXT_CALL:
-//       return hasScopeRef(node.content, ids)
-//     case NodeTypes.TEXT:
-//     case NodeTypes.COMMENT:
-//       return false
-//     default:
-//       if (__DEV__) {
-//         const exhaustiveCheck: never = node
-//         exhaustiveCheck
-//       }
-//       return false
-//   }
-// }
+// Check if a node contains expressions that reference current context scope ids
+export function hasScopeRef(
+  node: TemplateChildNode | IfBranchNode | ExpressionNode | undefined,
+  ids: TransformContext['identifiers']
+): boolean {
+  if (!node || Object.keys(ids).length === 0) {
+    return false
+  }
+  switch (node.type) {
+    //     case NodeTypes.ELEMENT:
+    //       for (let i = 0; i < node.props.length; i++) {
+    //         const p = node.props[i]
+    //         if (
+    //           p.type === NodeTypes.DIRECTIVE &&
+    //           (hasScopeRef(p.arg, ids) || hasScopeRef(p.exp, ids))
+    //         ) {
+    //           return true
+    //         }
+    //       }
+    //       return node.children.some(c => hasScopeRef(c, ids))
+    //     case NodeTypes.FOR:
+    //       if (hasScopeRef(node.source, ids)) {
+    //         return true
+    //       }
+    //       return node.children.some(c => hasScopeRef(c, ids))
+    //     case NodeTypes.IF:
+    //       return node.branches.some(b => hasScopeRef(b, ids))
+    //     case NodeTypes.IF_BRANCH:
+    //       if (hasScopeRef(node.condition, ids)) {
+    //         return true
+    //       }
+    //       return node.children.some(c => hasScopeRef(c, ids))
+    //     case NodeTypes.SIMPLE_EXPRESSION:
+    //       return (
+    //         !node.isStatic &&
+    //         isSimpleIdentifier(node.content) &&
+    //         !!ids[node.content]
+    //       )
+    // case NodeTypes.COMPOUND_EXPRESSION:
+    //   return node.children.some(c => isObject(c) && hasScopeRef(c, ids))
+    case NodeTypes.INTERPOLATION:
+    case NodeTypes.TEXT_CALL:
+      return hasScopeRef(node.content, ids)
+    case NodeTypes.TEXT:
+    case NodeTypes.COMMENT:
+      return false
+    default:
+      //       if (__DEV__) {
+      //         const exhaustiveCheck: never = node
+      //         exhaustiveCheck
+      //       }
+      return false
+  }
+}
 
 export function getMemoedVNodeCall(node: BlockCodegenNode | MemoExpression) {
   if (node.type === NodeTypes.JS_CALL_EXPRESSION && node.callee === WITH_MEMO) {

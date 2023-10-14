@@ -15,7 +15,7 @@ import {
   CacheExpression,
   createCacheExpression,
   TemplateLiteral,
-  //   createVNodeCall,
+  createVNodeCall,
   ConstantTypes,
   ArrayExpression,
   convertToBlock
@@ -33,8 +33,8 @@ import {
 import { defaultOnError, defaultOnWarn } from './errors'
 import {
   TO_DISPLAY_STRING,
-  //   FRAGMENT,
-  //   helperNameMap,
+  FRAGMENT,
+  helperNameMap,
   CREATE_COMMENT
 } from './runtimeHelpers'
 import { isVSlot } from './utils'
@@ -87,16 +87,16 @@ export interface TransformContext
       Omit<TransformOptions, 'filename' | keyof CompilerCompatOptions>
     >,
     CompilerCompatOptions {
-  //   selfName: string | null
+  selfName: string | null
   //   root: RootNode
   helpers: Map<symbol, number>
   components: Set<string>
-  //   directives: Set<string>
+  directives: Set<string>
   hoists: (JSChildNode | null)[]
-  //   imports: ImportItem[]
+  imports: ImportItem[]
   //   temps: number
   cached: number
-  //   identifiers: { [name: string]: number | undefined }
+  identifiers: { [name: string]: number | undefined }
   scopes: {
     vFor: number
     vSlot: number
@@ -106,18 +106,18 @@ export interface TransformContext
   parent: ParentNode | null
   childIndex: number
   currentNode: RootNode | TemplateChildNode | null
-  //   inVOnce: boolean
+  inVOnce: boolean
   helper<T extends symbol>(name: T): T
   removeHelper<T extends symbol>(name: T): void
-  //   helperString(name: symbol): string
+  helperString(name: symbol): string
   replaceNode(node: TemplateChildNode): void
   removeNode(node?: TemplateChildNode): void
   onNodeRemoved(): void
-  //   addIdentifiers(exp: ExpressionNode | string): void
-  //   removeIdentifiers(exp: ExpressionNode | string): void
+  addIdentifiers(exp: ExpressionNode | string): void
+  removeIdentifiers(exp: ExpressionNode | string): void
   hoist(exp: string | JSChildNode | ArrayExpression): SimpleExpressionNode
   cache<T extends JSChildNode>(exp: T, isVNode?: boolean): CacheExpression | T
-  //   constantCache: Map<TemplateChildNode, ConstantTypes>
+  constantCache: Map<TemplateChildNode, ConstantTypes>
   //   // 2.x Compat only
   //   filters?: Set<string>
 }
@@ -128,13 +128,13 @@ export function createTransformContext(
     filename = '',
     prefixIdentifiers = false,
     // hoistStatic = false,
-    // cacheHandlers = false,
+    cacheHandlers = false,
     nodeTransforms = [],
     directiveTransforms = {},
     // transformHoist = null,
     isBuiltInComponent = NOOP,
     // isCustomElement = NOOP,
-    // expressionPlugins = [],
+    expressionPlugins = [],
     scopeId = null,
     slotted = true,
     ssr = false,
@@ -148,19 +148,19 @@ export function createTransformContext(
     compatConfig
   }: TransformOptions
 ): TransformContext {
-  //   const nameMatch = filename.replace(/\?.*$/, '').match(/([^/\\]+)\.\w+$/)
+  const nameMatch = filename.replace(/\?.*$/, '').match(/([^/\\]+)\.\w+$/)
   const context: TransformContext = {
-    //     // options
-    //     selfName: nameMatch && capitalize(camelize(nameMatch[1])),
+    // options
+    selfName: nameMatch && capitalize(camelize(nameMatch[1])),
     prefixIdentifiers,
     //     hoistStatic,
-    //     cacheHandlers,
+    cacheHandlers,
     nodeTransforms,
     directiveTransforms,
     //     transformHoist,
     isBuiltInComponent,
     //     isCustomElement,
-    //     expressionPlugins,
+    expressionPlugins,
     scopeId,
     slotted,
     ssr,
@@ -176,13 +176,13 @@ export function createTransformContext(
     //     root,
     helpers: new Map(),
     components: new Set(),
-    //     directives: new Set(),
+    directives: new Set(),
     hoists: [],
-    //     imports: [],
-    //     constantCache: new Map(),
+    imports: [],
+    constantCache: new Map(),
     //     temps: 0,
     cached: 0,
-    //     identifiers: Object.create(null),
+    identifiers: Object.create(null),
     scopes: {
       vFor: 0,
       vSlot: 0,
@@ -192,7 +192,7 @@ export function createTransformContext(
     parent: null,
     currentNode: root,
     childIndex: 0,
-    //     inVOnce: false,
+    inVOnce: false,
     // methods
     helper(name) {
       const count = context.helpers.get(name) || 0
@@ -210,9 +210,9 @@ export function createTransformContext(
         }
       }
     },
-    //     helperString(name) {
-    //       return `_${helperNameMap[context.helper(name)]}`
-    //     },
+    helperString(name) {
+      return `_${helperNameMap[context.helper(name)]}`
+    },
     replaceNode(node) {
       /* istanbul ignore if */
       if (__DEV__) {
@@ -253,29 +253,29 @@ export function createTransformContext(
       context.parent!.children.splice(removalIndex, 1)
     },
     onNodeRemoved: () => {},
-    //     addIdentifiers(exp) {
-    //       // identifier tracking only happens in non-browser builds.
-    //       if (!__BROWSER__) {
-    //         if (isString(exp)) {
-    //           addId(exp)
-    //         } else if (exp.identifiers) {
-    //           exp.identifiers.forEach(addId)
-    //         } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
-    //           addId(exp.content)
-    //         }
-    //       }
-    //     },
-    //     removeIdentifiers(exp) {
-    //       if (!__BROWSER__) {
-    //         if (isString(exp)) {
-    //           removeId(exp)
-    //         } else if (exp.identifiers) {
-    //           exp.identifiers.forEach(removeId)
-    //         } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
-    //           removeId(exp.content)
-    //         }
-    //       }
-    //     },
+    addIdentifiers(exp) {
+      // identifier tracking only happens in non-browser builds.
+      if (!__BROWSER__) {
+        if (isString(exp)) {
+          addId(exp)
+        } else if (exp.identifiers) {
+          exp.identifiers.forEach(addId)
+        } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+          addId(exp.content)
+        }
+      }
+    },
+    removeIdentifiers(exp) {
+      if (!__BROWSER__) {
+        if (isString(exp)) {
+          removeId(exp)
+        } else if (exp.identifiers) {
+          exp.identifiers.forEach(removeId)
+        } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+          removeId(exp.content)
+        }
+      }
+    },
     hoist(exp) {
       if (isString(exp)) exp = createSimpleExpression(exp)
       context.hoists.push(exp)
@@ -297,17 +297,17 @@ export function createTransformContext(
   //     context.filters = new Set()
   //   }
 
-  //   function addId(id: string) {
-  //     const { identifiers } = context
-  //     if (identifiers[id] === undefined) {
-  //       identifiers[id] = 0
-  //     }
-  //     identifiers[id]!++
-  //   }
+  function addId(id: string) {
+    const { identifiers } = context
+    if (identifiers[id] === undefined) {
+      identifiers[id] = 0
+    }
+    identifiers[id]!++
+  }
 
-  //   function removeId(id: string) {
-  //     context.identifiers[id]!--
-  //   }
+  function removeId(id: string) {
+    context.identifiers[id]!--
+  }
 
   return context
 }
@@ -323,9 +323,9 @@ export function transform(root: RootNode, options: TransformOptions) {
   //   }
   // finalize meta information
   root.helpers = new Set([...context.helpers.keys()])
-  //   root.components = [...context.components]
-  //   root.directives = [...context.directives]
-  //   root.imports = context.imports
+  root.components = [...context.components]
+  root.directives = [...context.directives]
+  root.imports = context.imports
   root.hoists = context.hoists
   //   root.temps = context.temps
   //   root.cached = context.cached

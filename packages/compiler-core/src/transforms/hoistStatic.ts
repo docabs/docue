@@ -4,28 +4,28 @@ import {
   NodeTypes,
   TemplateChildNode,
   SimpleExpressionNode,
-  //   ElementTypes,
-  //   PlainElementNode,
-  //   ComponentNode,
-  //   TemplateNode,
-  //   VNodeCall,
-  //   ParentNode,
-  //   JSChildNode,
-  //   CallExpression,
-  //   createArrayExpression,
-  //   getVNodeBlockHelper,
+  ElementTypes,
+  PlainElementNode,
+  ComponentNode,
+  TemplateNode,
+  VNodeCall,
+  ParentNode,
+  JSChildNode,
+  CallExpression,
+  createArrayExpression,
+  getVNodeBlockHelper,
   getVNodeHelper
 } from '../ast'
 import { TransformContext } from '../transform'
-// import { PatchFlags, isString, isSymbol, isArray } from '@vue/shared'
-// import { isSlotOutlet } from '../utils'
-// import {
-//   OPEN_BLOCK,
-//   GUARD_REACTIVE_PROPS,
-//   NORMALIZE_CLASS,
-//   NORMALIZE_PROPS,
-//   NORMALIZE_STYLE
-// } from '../runtimeHelpers'
+import { PatchFlags, isString, isSymbol, isArray } from '@docue/shared'
+import { isSlotOutlet } from '../utils'
+import {
+  OPEN_BLOCK,
+  GUARD_REACTIVE_PROPS,
+  NORMALIZE_CLASS,
+  NORMALIZE_PROPS,
+  NORMALIZE_STYLE
+} from '../runtimeHelpers'
 
 // export function hoistStatic(root: RootNode, context: TransformContext) {
 //   walk(
@@ -254,21 +254,21 @@ export function getConstantType(
       return getConstantType(node.content, context)
     case NodeTypes.SIMPLE_EXPRESSION:
       return node.constType
-    //     case NodeTypes.COMPOUND_EXPRESSION:
-    //       let returnType = ConstantTypes.CAN_STRINGIFY
-    //       for (let i = 0; i < node.children.length; i++) {
-    //         const child = node.children[i]
-    //         if (isString(child) || isSymbol(child)) {
-    //           continue
-    //         }
-    //         const childType = getConstantType(child, context)
-    //         if (childType === ConstantTypes.NOT_CONSTANT) {
-    //           return ConstantTypes.NOT_CONSTANT
-    //         } else if (childType < returnType) {
-    //           returnType = childType
-    //         }
-    //       }
-    //       return returnType
+    case NodeTypes.COMPOUND_EXPRESSION:
+      let returnType = ConstantTypes.CAN_STRINGIFY
+      for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i]
+        if (isString(child) || isSymbol(child)) {
+          continue
+        }
+        const childType = getConstantType(child, context)
+        if (childType === ConstantTypes.NOT_CONSTANT) {
+          return ConstantTypes.NOT_CONSTANT
+        } else if (childType < returnType) {
+          returnType = childType
+        }
+      }
+      return returnType
     default:
       // if (__DEV__) {
       //   const exhaustiveCheck: never = node

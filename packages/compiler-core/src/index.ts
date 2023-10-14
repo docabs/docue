@@ -41,11 +41,11 @@ export * from './runtimeHelpers'
 export { noopDirectiveTransform } from './transforms/noopDirectiveTransform'
 // export { processIf } from './transforms/vIf'
 // export { processFor, createForLoopParams } from './transforms/vFor'
-// export {
-//   transformExpression,
-//   processExpression,
-//   stringifyExpression
-// } from './transforms/transformExpression'
+export {
+  transformExpression,
+  processExpression,
+  stringifyExpression
+} from './transforms/transformExpression'
 // export {
 //   buildSlots,
 //   type SlotFnBuilder,

@@ -7,7 +7,7 @@ import {
   TransformContext
 } from './transform'
 import { CompilerCompatOptions } from './compat/compatConfig'
-// import { ParserPlugin } from '@babel/parser'
+import { ParserPlugin } from '@babel/parser'
 
 export interface ErrorHandlingOptions {
   onWarn?: (warning: CompilerError) => void
@@ -74,41 +74,41 @@ export interface ParserOptions
 // ) => void
 
 export const enum BindingTypes {
-  //   /**
-  //    * returned from data()
-  //    */
-  //   DATA = 'data',
-  //   /**
-  //    * declared as a prop
-  //    */
-  //   PROPS = 'props',
-  //   /**
-  //    * a local alias of a `<script setup>` destructured prop.
-  //    * the original is stored in __propsAliases of the bindingMetadata object.
-  //    */
-  //   PROPS_ALIASED = 'props-aliased',
-  //   /**
-  //    * a let binding (may or may not be a ref)
-  //    */
-  //   SETUP_LET = 'setup-let',
-  //   /**
-  //    * a const binding that can never be a ref.
-  //    * these bindings don't need `unref()` calls when processed in inlined
-  //    * template expressions.
-  //    */
-  //   SETUP_CONST = 'setup-const',
-  //   /**
-  //    * a const binding that does not need `unref()`, but may be mutated.
-  //    */
-  //   SETUP_REACTIVE_CONST = 'setup-reactive-const',
-  //   /**
-  //    * a const binding that may be a ref.
-  //    */
-  //   SETUP_MAYBE_REF = 'setup-maybe-ref',
-  //   /**
-  //    * bindings that are guaranteed to be refs
-  //    */
-  //   SETUP_REF = 'setup-ref',
+  /**
+   * returned from data()
+   */
+  DATA = 'data',
+  /**
+   * declared as a prop
+   */
+  PROPS = 'props',
+  /**
+   * a local alias of a `<script setup>` destructured prop.
+   * the original is stored in __propsAliases of the bindingMetadata object.
+   */
+  PROPS_ALIASED = 'props-aliased',
+  /**
+   * a let binding (may or may not be a ref)
+   */
+  SETUP_LET = 'setup-let',
+  /**
+   * a const binding that can never be a ref.
+   * these bindings don't need `unref()` calls when processed in inlined
+   * template expressions.
+   */
+  SETUP_CONST = 'setup-const',
+  /**
+   * a const binding that does not need `unref()`, but may be mutated.
+   */
+  SETUP_REACTIVE_CONST = 'setup-reactive-const',
+  /**
+   * a const binding that may be a ref.
+   */
+  SETUP_MAYBE_REF = 'setup-maybe-ref',
+  /**
+   * bindings that are guaranteed to be refs
+   */
+  SETUP_REF = 'setup-ref',
   //   /**
   //    * declared by other options, e.g. computed, inject
   //    */
@@ -221,25 +221,25 @@ export interface TransformOptions
   //    * @default false
   //    */
   //   hoistStatic?: boolean
-  //   /**
-  //    * Cache v-on handlers to avoid creating new inline functions on each render,
-  //    * also avoids the need for dynamically patching the handlers by wrapping it.
-  //    * e.g `@click="foo"` by default is compiled to `{ onClick: foo }`. With this
-  //    * option it's compiled to:
-  //    * ```js
-  //    * { onClick: _cache[0] || (_cache[0] = e => _ctx.foo(e)) }
-  //    * ```
-  //    * - Requires "prefixIdentifiers" to be enabled because it relies on scope
-  //    * analysis to determine if a handler is safe to cache.
-  //    * @default false
-  //    */
-  //   cacheHandlers?: boolean
-  //   /**
-  //    * A list of parser plugins to enable for `@babel/parser`, which is used to
-  //    * parse expressions in bindings and interpolations.
-  //    * https://babeljs.io/docs/en/next/babel-parser#plugins
-  //    */
-  //   expressionPlugins?: ParserPlugin[]
+  /**
+   * Cache v-on handlers to avoid creating new inline functions on each render,
+   * also avoids the need for dynamically patching the handlers by wrapping it.
+   * e.g `@click="foo"` by default is compiled to `{ onClick: foo }`. With this
+   * option it's compiled to:
+   * ```js
+   * { onClick: _cache[0] || (_cache[0] = e => _ctx.foo(e)) }
+   * ```
+   * - Requires "prefixIdentifiers" to be enabled because it relies on scope
+   * analysis to determine if a handler is safe to cache.
+   * @default false
+   */
+  cacheHandlers?: boolean
+  /**
+   * A list of parser plugins to enable for `@babel/parser`, which is used to
+   * parse expressions in bindings and interpolations.
+   * https://babeljs.io/docs/en/next/babel-parser#plugins
+   */
+  expressionPlugins?: ParserPlugin[]
   /**
    * SFC scoped styles ID
    */

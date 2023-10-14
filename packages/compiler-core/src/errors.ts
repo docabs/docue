@@ -77,8 +77,8 @@ export const enum ErrorCodes {
   //   X_V_FOR_NO_EXPRESSION,
   //   X_V_FOR_MALFORMED_EXPRESSION,
   //   X_V_FOR_TEMPLATE_KEY_PLACEMENT,
-  //   X_V_BIND_NO_EXPRESSION,
-  //   X_V_ON_NO_EXPRESSION,
+  X_V_BIND_NO_EXPRESSION,
+  X_V_ON_NO_EXPRESSION,
   X_V_SLOT_UNEXPECTED_DIRECTIVE_ON_SLOT_OUTLET,
   //   X_V_SLOT_MIXED_SLOT_USAGE,
   //   X_V_SLOT_DUPLICATE_SLOT_NAMES,
@@ -88,8 +88,8 @@ export const enum ErrorCodes {
   //   X_V_MODEL_MALFORMED_EXPRESSION,
   //   X_V_MODEL_ON_SCOPE_VARIABLE,
   //   X_V_MODEL_ON_PROPS,
-  //   X_INVALID_EXPRESSION,
-  //   X_KEEP_ALIVE_INVALID_CHILDREN,
+  X_INVALID_EXPRESSION,
+  X_KEEP_ALIVE_INVALID_CHILDREN,
 
   // generic errors
   //   X_PREFIX_ID_NOT_SUPPORTED,
@@ -98,8 +98,8 @@ export const enum ErrorCodes {
   X_SCOPE_ID_NOT_SUPPORTED,
 
   // deprecations
-  //   DEPRECATION_VNODE_HOOKS,
-  //   DEPRECATION_V_IS,
+  DEPRECATION_VNODE_HOOKS,
+  DEPRECATION_V_IS,
 
   // Special value for higher-order compilers to pick up the last code
   // to avoid collision of error codes. This should always be kept as the last
@@ -158,8 +158,8 @@ export const errorMessages: Record<ErrorCodes, string> = {
   //   [ErrorCodes.X_V_FOR_NO_EXPRESSION]: `v-for is missing expression.`,
   //   [ErrorCodes.X_V_FOR_MALFORMED_EXPRESSION]: `v-for has invalid expression.`,
   //   [ErrorCodes.X_V_FOR_TEMPLATE_KEY_PLACEMENT]: `<template v-for> key should be placed on the <template> tag.`,
-  //   [ErrorCodes.X_V_BIND_NO_EXPRESSION]: `v-bind is missing expression.`,
-  //   [ErrorCodes.X_V_ON_NO_EXPRESSION]: `v-on is missing expression.`,
+  [ErrorCodes.X_V_BIND_NO_EXPRESSION]: `v-bind is missing expression.`,
+  [ErrorCodes.X_V_ON_NO_EXPRESSION]: `v-on is missing expression.`,
   [ErrorCodes.X_V_SLOT_UNEXPECTED_DIRECTIVE_ON_SLOT_OUTLET]: `Unexpected custom directive on <slot> outlet.`,
   //   [ErrorCodes.X_V_SLOT_MIXED_SLOT_USAGE]:
   //     `Mixed v-slot usage on both the component and nested <template>. ` +
@@ -174,8 +174,8 @@ export const errorMessages: Record<ErrorCodes, string> = {
   //   [ErrorCodes.X_V_MODEL_MALFORMED_EXPRESSION]: `v-model value must be a valid JavaScript member expression.`,
   //   [ErrorCodes.X_V_MODEL_ON_SCOPE_VARIABLE]: `v-model cannot be used on v-for or v-slot scope variables because they are not writable.`,
   //   [ErrorCodes.X_V_MODEL_ON_PROPS]: `v-model cannot be used on a prop, because local prop bindings are not writable.\nUse a v-bind binding combined with a v-on listener that emits update:x event instead.`,
-  //   [ErrorCodes.X_INVALID_EXPRESSION]: `Error parsing JavaScript expression: `,
-  //   [ErrorCodes.X_KEEP_ALIVE_INVALID_CHILDREN]: `<KeepAlive> expects exactly one child component.`,
+  [ErrorCodes.X_INVALID_EXPRESSION]: `Error parsing JavaScript expression: `,
+  [ErrorCodes.X_KEEP_ALIVE_INVALID_CHILDREN]: `<KeepAlive> expects exactly one child component.`,
 
   // generic errors
   //   [ErrorCodes.X_PREFIX_ID_NOT_SUPPORTED]: `"prefixIdentifiers" option is not supported in this build of compiler.`,
@@ -184,8 +184,8 @@ export const errorMessages: Record<ErrorCodes, string> = {
   [ErrorCodes.X_SCOPE_ID_NOT_SUPPORTED]: `"scopeId" option is only supported in module mode.`,
 
   //   // deprecations
-  //   [ErrorCodes.DEPRECATION_VNODE_HOOKS]: `@vnode-* hooks in templates are deprecated. Use the docue: prefix instead. For example, @vnode-mounted should be changed to @docue:mounted. @vnode-* hooks support will be removed in 3.4.`,
-  //   [ErrorCodes.DEPRECATION_V_IS]: `v-is="component-name" has been deprecated. Use is="docue:component-name" instead. v-is support will be removed in 3.4.`,
+  [ErrorCodes.DEPRECATION_VNODE_HOOKS]: `@vnode-* hooks in templates are deprecated. Use the docue: prefix instead. For example, @vnode-mounted should be changed to @docue:mounted. @vnode-* hooks support will be removed in 3.4.`,
+  [ErrorCodes.DEPRECATION_V_IS]: `v-is="component-name" has been deprecated. Use is="docue:component-name" instead. v-is support will be removed in 3.4.`,
 
   // just to fulfill types
   [ErrorCodes.__EXTEND_POINT__]: ``
