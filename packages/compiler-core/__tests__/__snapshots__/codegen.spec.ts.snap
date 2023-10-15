@@ -113,11 +113,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: codegen > function mode preamble 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createVNode: _createVNode, resolveDirective: _resolveDirective } = Docue
+    const { createVNode: _createVNode, resolveDirective: _resolveDirective } = _Docue
 
     return null
   }

@@ -67,11 +67,11 @@ export interface ParserOptions
   comments?: boolean
 }
 
-// export type HoistTransform = (
-//   children: TemplateChildNode[],
-//   context: TransformContext,
-//   parent: ParentNode
-// ) => void
+export type HoistTransform = (
+  children: TemplateChildNode[],
+  context: TransformContext,
+  parent: ParentNode
+) => void
 
 export const enum BindingTypes {
   /**
@@ -191,22 +191,22 @@ export interface TransformOptions
    * node found on element nodes.
    */
   directiveTransforms?: Record<string, DirectiveTransform | undefined>
-  //   /**
-  //    * An optional hook to transform a node being hoisted.
-  //    * used by compiler-dom to turn hoisted nodes into stringified HTML vnodes.
-  //    * @default null
-  //    */
-  //   transformHoist?: HoistTransform | null
+  /**
+   * An optional hook to transform a node being hoisted.
+   * used by compiler-dom to turn hoisted nodes into stringified HTML vnodes.
+   * @default null
+   */
+  transformHoist?: HoistTransform | null
   /**
    * If the pairing runtime provides additional built-in elements, use this to
    * mark them as built-in so the compiler will generate component vnodes
    * for them.
    */
   isBuiltInComponent?: (tag: string) => symbol | void
-  //   /**
-  //    * Used by some transforms that expects only native elements
-  //    */
-  //   isCustomElement?: (tag: string) => boolean | void
+  /**
+   * Used by some transforms that expects only native elements
+   */
+  isCustomElement?: (tag: string) => boolean | void
   /**
    * Transform expressions like {{ foo }} to `_ctx.foo`.
    * If this option is false, the generated code will be wrapped in a
@@ -216,11 +216,11 @@ export interface TransformOptions
    * @default mode === 'module'
    */
   prefixIdentifiers?: boolean
-  //   /**
-  //    * Hoist static VNodes and props objects to `_hoisted_x` constants
-  //    * @default false
-  //    */
-  //   hoistStatic?: boolean
+  /**
+   * Hoist static VNodes and props objects to `_hoisted_x` constants
+   * @default false
+   */
+  hoistStatic?: boolean
   /**
    * Cache v-on handlers to avoid creating new inline functions on each render,
    * also avoids the need for dynamically patching the handlers by wrapping it.
@@ -250,12 +250,12 @@ export interface TransformOptions
    * to `false` if no `:slotted` usage is detected in `<style>`
    */
   slotted?: boolean
-  //   /**
-  //    * SFC `<style vars>` injection string
-  //    * Should already be an object expression, e.g. `{ 'xxxx-color': color }`
-  //    * needed to render inline CSS variables on component root
-  //    */
-  //   ssrCssVars?: string
+  /**
+   * SFC `<style vars>` injection string
+   * Should already be an object expression, e.g. `{ 'xxxx-color': color }`
+   * needed to render inline CSS variables on component root
+   */
+  ssrCssVars?: string
 }
 
 export interface CodegenOptions extends SharedTransformCodegenOptions {

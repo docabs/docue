@@ -65,11 +65,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform component slots > named slot with v-if + v-else-if + v-else 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { resolveComponent: _resolveComponent, withCtx: _withCtx, createSlots: _createSlots, openBlock: _openBlock, createBlock: _createBlock } = Docue
+    const { resolveComponent: _resolveComponent, withCtx: _withCtx, createSlots: _createSlots, openBlock: _openBlock, createBlock: _createBlock } = _Docue
 
     const _component_Comp = _resolveComponent(\\"Comp\\")
 
@@ -97,11 +97,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform component slots > named slot with v-if 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { resolveComponent: _resolveComponent, withCtx: _withCtx, createSlots: _createSlots, openBlock: _openBlock, createBlock: _createBlock } = Docue
+    const { resolveComponent: _resolveComponent, withCtx: _withCtx, createSlots: _createSlots, openBlock: _openBlock, createBlock: _createBlock } = _Docue
 
     const _component_Comp = _resolveComponent(\\"Comp\\")
 
@@ -119,11 +119,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform component slots > named slots w/ implicit default slot 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createElementVNode: _createElementVNode, resolveComponent: _resolveComponent, withCtx: _withCtx, openBlock: _openBlock, createBlock: _createBlock } = Docue
+    const { createElementVNode: _createElementVNode, resolveComponent: _resolveComponent, withCtx: _withCtx, openBlock: _openBlock, createBlock: _createBlock } = _Docue
 
     const _component_Comp = _resolveComponent(\\"Comp\\")
 

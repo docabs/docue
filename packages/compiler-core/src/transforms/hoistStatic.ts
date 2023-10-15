@@ -27,124 +27,120 @@ import {
   NORMALIZE_STYLE
 } from '../runtimeHelpers'
 
-// export function hoistStatic(root: RootNode, context: TransformContext) {
-//   walk(
-//     root,
-//     context,
-//     // Root node is unfortunately non-hoistable due to potential parent
-//     // fallthrough attributes.
-//     isSingleElementRoot(root, root.children[0])
-//   )
-// }
+export function hoistStatic(root: RootNode, context: TransformContext) {
+  walk(
+    root,
+    context,
+    // Root node is unfortunately non-hoistable due to potential parent
+    // fallthrough attributes.
+    isSingleElementRoot(root, root.children[0])
+  )
+}
 
-// export function isSingleElementRoot(
-//   root: RootNode,
-//   child: TemplateChildNode
-// ): child is PlainElementNode | ComponentNode | TemplateNode {
-//   const { children } = root
-//   return (
-//     children.length === 1 &&
-//     child.type === NodeTypes.ELEMENT &&
-//     !isSlotOutlet(child)
-//   )
-// }
+export function isSingleElementRoot(
+  root: RootNode,
+  child: TemplateChildNode
+): child is PlainElementNode | ComponentNode | TemplateNode {
+  const { children } = root
+  return (
+    children.length === 1 &&
+    child.type === NodeTypes.ELEMENT &&
+    !isSlotOutlet(child)
+  )
+}
 
-// function walk(
-//   node: ParentNode,
-//   context: TransformContext,
-//   doNotHoistNode: boolean = false
-// ) {
-//   const { children } = node
-//   const originalCount = children.length
-//   let hoistedCount = 0
-
-//   for (let i = 0; i < children.length; i++) {
-//     const child = children[i]
-//     // only plain elements & text calls are eligible for hoisting.
-//     if (
-//       child.type === NodeTypes.ELEMENT &&
-//       child.tagType === ElementTypes.ELEMENT
-//     ) {
-//       const constantType = doNotHoistNode
-//         ? ConstantTypes.NOT_CONSTANT
-//         : getConstantType(child, context)
-//       if (constantType > ConstantTypes.NOT_CONSTANT) {
-//         if (constantType >= ConstantTypes.CAN_HOIST) {
-//           ;(child.codegenNode as VNodeCall).patchFlag =
-//             PatchFlags.HOISTED + (__DEV__ ? ` /* HOISTED */` : ``)
-//           child.codegenNode = context.hoist(child.codegenNode!)
-//           hoistedCount++
-//           continue
-//         }
-//       } else {
-//         // node may contain dynamic children, but its props may be eligible for
-//         // hoisting.
-//         const codegenNode = child.codegenNode!
-//         if (codegenNode.type === NodeTypes.VNODE_CALL) {
-//           const flag = getPatchFlag(codegenNode)
-//           if (
-//             (!flag ||
-//               flag === PatchFlags.NEED_PATCH ||
-//               flag === PatchFlags.TEXT) &&
-//             getGeneratedPropsConstantType(child, context) >=
-//               ConstantTypes.CAN_HOIST
-//           ) {
-//             const props = getNodeProps(child)
-//             if (props) {
-//               codegenNode.props = context.hoist(props)
-//             }
-//           }
-//           if (codegenNode.dynamicProps) {
-//             codegenNode.dynamicProps = context.hoist(codegenNode.dynamicProps)
-//           }
-//         }
-//       }
-//     }
-
-//     // walk further
-//     if (child.type === NodeTypes.ELEMENT) {
-//       const isComponent = child.tagType === ElementTypes.COMPONENT
-//       if (isComponent) {
-//         context.scopes.vSlot++
-//       }
-//       walk(child, context)
-//       if (isComponent) {
-//         context.scopes.vSlot--
-//       }
-//     } else if (child.type === NodeTypes.FOR) {
-//       // Do not hoist v-for single child because it has to be a block
-//       walk(child, context, child.children.length === 1)
-//     } else if (child.type === NodeTypes.IF) {
-//       for (let i = 0; i < child.branches.length; i++) {
-//         // Do not hoist v-if single child because it has to be a block
-//         walk(
-//           child.branches[i],
-//           context,
-//           child.branches[i].children.length === 1
-//         )
-//       }
-//     }
-//   }
-
-//   if (hoistedCount && context.transformHoist) {
-//     context.transformHoist(children, context, node)
-//   }
-
-//   // all children were hoisted - the entire children array is hoistable.
-//   if (
-//     hoistedCount &&
-//     hoistedCount === originalCount &&
-//     node.type === NodeTypes.ELEMENT &&
-//     node.tagType === ElementTypes.ELEMENT &&
-//     node.codegenNode &&
-//     node.codegenNode.type === NodeTypes.VNODE_CALL &&
-//     isArray(node.codegenNode.children)
-//   ) {
-//     node.codegenNode.children = context.hoist(
-//       createArrayExpression(node.codegenNode.children)
-//     )
-//   }
-// }
+function walk(
+  node: ParentNode,
+  context: TransformContext,
+  doNotHoistNode: boolean = false
+) {
+  //   const { children } = node
+  //   const originalCount = children.length
+  //   let hoistedCount = 0
+  //   for (let i = 0; i < children.length; i++) {
+  //     const child = children[i]
+  //     // only plain elements & text calls are eligible for hoisting.
+  //     if (
+  //       child.type === NodeTypes.ELEMENT &&
+  //       child.tagType === ElementTypes.ELEMENT
+  //     ) {
+  //       const constantType = doNotHoistNode
+  //         ? ConstantTypes.NOT_CONSTANT
+  //         : getConstantType(child, context)
+  //       if (constantType > ConstantTypes.NOT_CONSTANT) {
+  //         if (constantType >= ConstantTypes.CAN_HOIST) {
+  //           ;(child.codegenNode as VNodeCall).patchFlag =
+  //             PatchFlags.HOISTED + (__DEV__ ? ` /* HOISTED */` : ``)
+  //           child.codegenNode = context.hoist(child.codegenNode!)
+  //           hoistedCount++
+  //           continue
+  //         }
+  //       } else {
+  //         // node may contain dynamic children, but its props may be eligible for
+  //         // hoisting.
+  //         const codegenNode = child.codegenNode!
+  //         if (codegenNode.type === NodeTypes.VNODE_CALL) {
+  //           const flag = getPatchFlag(codegenNode)
+  //           if (
+  //             (!flag ||
+  //               flag === PatchFlags.NEED_PATCH ||
+  //               flag === PatchFlags.TEXT) &&
+  //             getGeneratedPropsConstantType(child, context) >=
+  //               ConstantTypes.CAN_HOIST
+  //           ) {
+  //             const props = getNodeProps(child)
+  //             if (props) {
+  //               codegenNode.props = context.hoist(props)
+  //             }
+  //           }
+  //           if (codegenNode.dynamicProps) {
+  //             codegenNode.dynamicProps = context.hoist(codegenNode.dynamicProps)
+  //           }
+  //         }
+  //       }
+  //     }
+  //     // walk further
+  //     if (child.type === NodeTypes.ELEMENT) {
+  //       const isComponent = child.tagType === ElementTypes.COMPONENT
+  //       if (isComponent) {
+  //         context.scopes.vSlot++
+  //       }
+  //       walk(child, context)
+  //       if (isComponent) {
+  //         context.scopes.vSlot--
+  //       }
+  //     } else if (child.type === NodeTypes.FOR) {
+  //       // Do not hoist v-for single child because it has to be a block
+  //       walk(child, context, child.children.length === 1)
+  //     } else if (child.type === NodeTypes.IF) {
+  //       for (let i = 0; i < child.branches.length; i++) {
+  //         // Do not hoist v-if single child because it has to be a block
+  //         walk(
+  //           child.branches[i],
+  //           context,
+  //           child.branches[i].children.length === 1
+  //         )
+  //       }
+  //     }
+  //   }
+  //   if (hoistedCount && context.transformHoist) {
+  //     context.transformHoist(children, context, node)
+  //   }
+  //   // all children were hoisted - the entire children array is hoistable.
+  //   if (
+  //     hoistedCount &&
+  //     hoistedCount === originalCount &&
+  //     node.type === NodeTypes.ELEMENT &&
+  //     node.tagType === ElementTypes.ELEMENT &&
+  //     node.codegenNode &&
+  //     node.codegenNode.type === NodeTypes.VNODE_CALL &&
+  //     isArray(node.codegenNode.children)
+  //   ) {
+  //     node.codegenNode.children = context.hoist(
+  //       createArrayExpression(node.codegenNode.children)
+  //     )
+  //   }
+}
 
 export function getConstantType(
   node: TemplateChildNode | SimpleExpressionNode,

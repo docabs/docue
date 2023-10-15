@@ -9,19 +9,19 @@ import {
 } from '../../src'
 // import { transformFor } from '../../src/transforms/vFor'
 import { transformText } from '../../src/transforms/transformText'
-// import { transformExpression } from '../../src/transforms/transformExpression'
-// import { transformElement } from '../../src/transforms/transformElement'
-// import { CREATE_TEXT } from '../../src/runtimeHelpers'
-// import { genFlagText } from '../testUtils'
-// import { PatchFlags } from '@docue/shared'
+import { transformExpression } from '../../src/transforms/transformExpression'
+import { transformElement } from '../../src/transforms/transformElement'
+import { CREATE_TEXT } from '../../src/runtimeHelpers'
+import { genFlagText } from '../testUtils'
+import { PatchFlags } from '@docue/shared'
 
 function transformWithTextOpt(template: string, options: CompilerOptions = {}) {
   const ast = parse(template)
   transform(ast, {
     nodeTransforms: [
       // transformFor,
-      // ...(options.prefixIdentifiers ? [transformExpression] : []),
-      // transformElement,
+      ...(options.prefixIdentifiers ? [transformExpression] : []),
+      transformElement,
       transformText
     ],
     ...options

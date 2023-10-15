@@ -34,10 +34,10 @@ export * from './utils'
 // export * from './babelUtils'
 export * from './runtimeHelpers'
 
-// export { getBaseTransformPreset, type TransformPreset } from './compile'
+export { getBaseTransformPreset, type TransformPreset } from './compile'
 // export { transformModel } from './transforms/vModel'
-// export { transformOn } from './transforms/vOn'
-// export { transformBind } from './transforms/vBind'
+export { transformOn } from './transforms/vOn'
+export { transformBind } from './transforms/vBind'
 export { noopDirectiveTransform } from './transforms/noopDirectiveTransform'
 // export { processIf } from './transforms/vIf'
 // export { processFor, createForLoopParams } from './transforms/vFor'
@@ -52,15 +52,15 @@ export {
 //   trackVForSlotScopes,
 //   trackSlotScopes
 // } from './transforms/vSlot'
-// export {
-//   transformElement,
-//   resolveComponentType,
-//   buildProps,
-//   buildDirectiveArgs,
-//   type PropsExpression
-// } from './transforms/transformElement'
+export {
+  transformElement,
+  resolveComponentType,
+  buildProps,
+  buildDirectiveArgs,
+  type PropsExpression
+} from './transforms/transformElement'
 export { processSlotOutlet } from './transforms/transformSlotOutlet'
-// export { getConstantType } from './transforms/hoistStatic'
+export { getConstantType } from './transforms/hoistStatic'
 // export { generateCodeFrame } from '@docue/shared'
 
 // // v2 compat only

@@ -56,8 +56,8 @@ export const enum NodeTypes {
   JS_BLOCK_STATEMENT,
   JS_TEMPLATE_LITERAL,
   JS_IF_STATEMENT,
-  //   JS_ASSIGNMENT_EXPRESSION,
-  //   JS_SEQUENCE_EXPRESSION,
+  JS_ASSIGNMENT_EXPRESSION,
+  JS_SEQUENCE_EXPRESSION,
   JS_RETURN_STATEMENT
 }
 
@@ -321,8 +321,8 @@ export type JSChildNode =
   | FunctionExpression
   | ConditionalExpression
   | CacheExpression
-// | AssignmentExpression
-// | SequenceExpression
+  | AssignmentExpression
+  | SequenceExpression
 
 export interface CallExpression extends Node {
   type: NodeTypes.JS_CALL_EXPRESSION
@@ -397,12 +397,13 @@ interface MemoFactory extends FunctionExpression {
 
 // // SSR-specific Node Types -----------------------------------------------------
 
-export type SSRCodegenNode = BlockStatement
-// | TemplateLiteral
-// | IfStatement
-// | AssignmentExpression
-// | ReturnStatement
-// | SequenceExpression
+export type SSRCodegenNode =
+  | BlockStatement
+  | TemplateLiteral
+  | IfStatement
+  | AssignmentExpression
+  | ReturnStatement
+  | SequenceExpression
 
 export interface BlockStatement extends Node {
   type: NodeTypes.JS_BLOCK_STATEMENT
@@ -421,16 +422,16 @@ export interface IfStatement extends Node {
   alternate: IfStatement | BlockStatement | ReturnStatement | undefined
 }
 
-// export interface AssignmentExpression extends Node {
-//   type: NodeTypes.JS_ASSIGNMENT_EXPRESSION
-//   left: SimpleExpressionNode
-//   right: JSChildNode
-// }
+export interface AssignmentExpression extends Node {
+  type: NodeTypes.JS_ASSIGNMENT_EXPRESSION
+  left: SimpleExpressionNode
+  right: JSChildNode
+}
 
-// export interface SequenceExpression extends Node {
-//   type: NodeTypes.JS_SEQUENCE_EXPRESSION
-//   expressions: JSChildNode[]
-// }
+export interface SequenceExpression extends Node {
+  type: NodeTypes.JS_SEQUENCE_EXPRESSION
+  expressions: JSChildNode[]
+}
 
 export interface ReturnStatement extends Node {
   type: NodeTypes.JS_RETURN_STATEMENT
@@ -659,18 +660,18 @@ export function createSimpleExpression(
   }
 }
 
-// export function createInterpolation(
-//   content: InterpolationNode['content'] | string,
-//   loc: SourceLocation
-// ): InterpolationNode {
-//   return {
-//     type: NodeTypes.INTERPOLATION,
-//     loc,
-//     content: isString(content)
-//       ? createSimpleExpression(content, false, loc)
-//       : content
-//   }
-// }
+export function createInterpolation(
+  content: InterpolationNode['content'] | string,
+  loc: SourceLocation
+): InterpolationNode {
+  return {
+    type: NodeTypes.INTERPOLATION,
+    loc,
+    content: isString(content)
+      ? createSimpleExpression(content, false, loc)
+      : content
+  }
+}
 
 export function createCompoundExpression(
   children: CompoundExpressionNode['children'],
@@ -747,71 +748,71 @@ export function createCacheExpression(
   }
 }
 
-// export function createBlockStatement(
-//   body: BlockStatement['body']
-// ): BlockStatement {
-//   return {
-//     type: NodeTypes.JS_BLOCK_STATEMENT,
-//     body,
-//     loc: locStub
-//   }
-// }
+export function createBlockStatement(
+  body: BlockStatement['body']
+): BlockStatement {
+  return {
+    type: NodeTypes.JS_BLOCK_STATEMENT,
+    body,
+    loc: locStub
+  }
+}
 
-// export function createTemplateLiteral(
-//   elements: TemplateLiteral['elements']
-// ): TemplateLiteral {
-//   return {
-//     type: NodeTypes.JS_TEMPLATE_LITERAL,
-//     elements,
-//     loc: locStub
-//   }
-// }
+export function createTemplateLiteral(
+  elements: TemplateLiteral['elements']
+): TemplateLiteral {
+  return {
+    type: NodeTypes.JS_TEMPLATE_LITERAL,
+    elements,
+    loc: locStub
+  }
+}
 
-// export function createIfStatement(
-//   test: IfStatement['test'],
-//   consequent: IfStatement['consequent'],
-//   alternate?: IfStatement['alternate']
-// ): IfStatement {
-//   return {
-//     type: NodeTypes.JS_IF_STATEMENT,
-//     test,
-//     consequent,
-//     alternate,
-//     loc: locStub
-//   }
-// }
+export function createIfStatement(
+  test: IfStatement['test'],
+  consequent: IfStatement['consequent'],
+  alternate?: IfStatement['alternate']
+): IfStatement {
+  return {
+    type: NodeTypes.JS_IF_STATEMENT,
+    test,
+    consequent,
+    alternate,
+    loc: locStub
+  }
+}
 
-// export function createAssignmentExpression(
-//   left: AssignmentExpression['left'],
-//   right: AssignmentExpression['right']
-// ): AssignmentExpression {
-//   return {
-//     type: NodeTypes.JS_ASSIGNMENT_EXPRESSION,
-//     left,
-//     right,
-//     loc: locStub
-//   }
-// }
+export function createAssignmentExpression(
+  left: AssignmentExpression['left'],
+  right: AssignmentExpression['right']
+): AssignmentExpression {
+  return {
+    type: NodeTypes.JS_ASSIGNMENT_EXPRESSION,
+    left,
+    right,
+    loc: locStub
+  }
+}
 
-// export function createSequenceExpression(
-//   expressions: SequenceExpression['expressions']
-// ): SequenceExpression {
-//   return {
-//     type: NodeTypes.JS_SEQUENCE_EXPRESSION,
-//     expressions,
-//     loc: locStub
-//   }
-// }
+export function createSequenceExpression(
+  expressions: SequenceExpression['expressions']
+): SequenceExpression {
+  return {
+    type: NodeTypes.JS_SEQUENCE_EXPRESSION,
+    expressions,
+    loc: locStub
+  }
+}
 
-// export function createReturnStatement(
-//   returns: ReturnStatement['returns']
-// ): ReturnStatement {
-//   return {
-//     type: NodeTypes.JS_RETURN_STATEMENT,
-//     returns,
-//     loc: locStub
-//   }
-// }
+export function createReturnStatement(
+  returns: ReturnStatement['returns']
+): ReturnStatement {
+  return {
+    type: NodeTypes.JS_RETURN_STATEMENT,
+    returns,
+    loc: locStub
+  }
+}
 
 export function getVNodeHelper(ssr: boolean, isComponent: boolean) {
   return ssr || isComponent ? CREATE_VNODE : CREATE_ELEMENT_VNODE

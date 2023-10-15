@@ -7,25 +7,25 @@ import {
   ExpressionNode,
   NodeTypes,
   JSChildNode,
-  //   CallExpression,
-  //   ArrayExpression,
-  //   ObjectExpression,
+  CallExpression,
+  ArrayExpression,
+  ObjectExpression,
   Position,
-  //   InterpolationNode,
-  //   CompoundExpressionNode,
+  InterpolationNode,
+  CompoundExpressionNode,
   SimpleExpressionNode,
-  //   FunctionExpression,
-  //   ConditionalExpression,
-  //   CacheExpression,
+  FunctionExpression,
+  ConditionalExpression,
+  CacheExpression,
   locStub,
   SSRCodegenNode,
-  //   TemplateLiteral,
-  //   IfStatement,
-  //   AssignmentExpression,
-  //   ReturnStatement,
-  //   VNodeCall,
-  //   SequenceExpression,
-  //   getVNodeBlockHelper,
+  TemplateLiteral,
+  IfStatement,
+  // AssignmentExpression,
+  ReturnStatement,
+  VNodeCall,
+  // SequenceExpression,
+  getVNodeBlockHelper,
   getVNodeHelper
 } from './ast'
 import { SourceMapGenerator, RawSourceMap } from 'source-map-js'
@@ -38,23 +38,23 @@ import {
 import { isString, isArray, isSymbol } from '@docue/shared'
 import {
   helperNameMap,
-  //   TO_DISPLAY_STRING,
-  //   CREATE_VNODE,
-  //   RESOLVE_COMPONENT,
-  //   RESOLVE_DIRECTIVE,
-  //   SET_BLOCK_TRACKING,
+  TO_DISPLAY_STRING,
+  CREATE_VNODE,
+  RESOLVE_COMPONENT,
+  RESOLVE_DIRECTIVE,
+  SET_BLOCK_TRACKING,
   CREATE_COMMENT,
-  //   CREATE_TEXT,
-  //   PUSH_SCOPE_ID,
-  //   POP_SCOPE_ID,
-  //   WITH_DIRECTIVES,
-  //   CREATE_ELEMENT_VNODE,
-  //   OPEN_BLOCK,
-  //   CREATE_STATIC,
-  //   WITH_CTX,
+  CREATE_TEXT,
+  PUSH_SCOPE_ID,
+  POP_SCOPE_ID,
+  WITH_DIRECTIVES,
+  CREATE_ELEMENT_VNODE,
+  OPEN_BLOCK,
+  CREATE_STATIC,
+  WITH_CTX,
   RESOLVE_FILTER
 } from './runtimeHelpers'
-// import { ImportItem } from './transform'
+import { ImportItem } from './transform'
 
 const PURE_ANNOTATION = `/*#__PURE__*/`
 
@@ -180,11 +180,11 @@ function createCodegenContext(
     })
   }
 
-  //   if (!__BROWSER__ && sourceMap) {
-  //     // lazy require source-map implementation, only in non-browser builds
-  //     context.map = new SourceMapGenerator()
-  //     context.map!.setSourceContent(filename, context.source)
-  //   }
+  // if (!__BROWSER__ && sourceMap) {
+  //   // lazy require source-map implementation, only in non-browser builds
+  //   context.map = new SourceMapGenerator()
+  //   context.map!.setSourceContent(filename, context.source)
+  // }
 
   return context
 }
@@ -253,16 +253,16 @@ export function generate(
   }
   // generate asset resolution statements
   if (ast.components.length) {
-    //     genAssets(ast.components, 'component', context)
-    //     if (ast.directives.length || ast.temps > 0) {
-    //       newline()
-    //     }
+    genAssets(ast.components, 'component', context)
+    if (ast.directives.length || ast.temps > 0) {
+      newline()
+    }
   }
   if (ast.directives.length) {
-    //     genAssets(ast.directives, 'directive', context)
-    //     if (ast.temps > 0) {
-    //       newline()
-    //     }
+    genAssets(ast.directives, 'directive', context)
+    if (ast.temps > 0) {
+      newline()
+    }
   }
   //   if (__COMPAT__ && ast.filters && ast.filters.length) {
   //     newline()
@@ -270,10 +270,10 @@ export function generate(
   //     newline()
   //   }
   if (ast.temps > 0) {
-    //     push(`let `)
-    //     for (let i = 0; i < ast.temps; i++) {
-    //       push(`${i > 0 ? `, ` : ``}_temp${i}`)
-    //     }
+    push(`let `)
+    for (let i = 0; i < ast.temps; i++) {
+      push(`${i > 0 ? `, ` : ``}_temp${i}`)
+    }
   }
   if (ast.components.length || ast.directives.length || ast.temps) {
     push(`\n`)
@@ -304,61 +304,63 @@ export function generate(
 }
 
 function genFunctionPreamble(ast: RootNode, context: CodegenContext) {
-  //   const {
-  //     ssr,
-  //     prefixIdentifiers,
-  //     push,
-  //     newline,
-  //     runtimeModuleName,
-  //     runtimeGlobalName,
-  //     ssrRuntimeModuleName
-  //   } = context
-  //   const DocueBinding =
-  //     !__BROWSER__ && ssr
-  //       ? `require(${JSON.stringify(runtimeModuleName)})`
-  //       : runtimeGlobalName
-  //   // Generate const declaration for helpers
-  //   // In prefix mode, we place the const declaration at top so it's done
-  //   // only once; But if we not prefixing, we place the declaration inside the
-  //   // with block so it doesn't incur the `in` check cost for every helper access.
-  //   const helpers = Array.from(ast.helpers)
-  //   if (helpers.length > 0) {
-  //     if (!__BROWSER__ && prefixIdentifiers) {
-  //       push(`const { ${helpers.map(aliasHelper).join(', ')} } = ${DocueBinding}\n`)
-  //     } else {
-  //       // "with" mode.
-  //       // save Docue in a separate variable to avoid collision
-  //       push(`const _Docue = ${DocueBinding}\n`)
-  //       // in "with" mode, helpers are declared inside the with block to avoid
-  //       // has check cost, but hoists are lifted out of the function - we need
-  //       // to provide the helper here.
-  //       if (ast.hoists.length) {
-  //         const staticHelpers = [
-  //           CREATE_VNODE,
-  //           CREATE_ELEMENT_VNODE,
-  //           CREATE_COMMENT,
-  //           CREATE_TEXT,
-  //           CREATE_STATIC
-  //         ]
-  //           .filter(helper => helpers.includes(helper))
-  //           .map(aliasHelper)
-  //           .join(', ')
-  //         push(`const { ${staticHelpers} } = _Docue\n`)
-  //       }
-  //     }
-  //   }
-  //   // generate variables for ssr helpers
-  //   if (!__BROWSER__ && ast.ssrHelpers && ast.ssrHelpers.length) {
-  //     // ssr guarantees prefixIdentifier: true
-  //     push(
-  //       `const { ${ast.ssrHelpers
-  //         .map(aliasHelper)
-  //         .join(', ')} } = require("${ssrRuntimeModuleName}")\n`
-  //     )
-  //   }
+  const {
+    ssr,
+    prefixIdentifiers,
+    push,
+    newline,
+    runtimeModuleName,
+    runtimeGlobalName,
+    ssrRuntimeModuleName
+  } = context
+  const DocueBinding =
+    !__BROWSER__ && ssr
+      ? `require(${JSON.stringify(runtimeModuleName)})`
+      : runtimeGlobalName
+  // Generate const declaration for helpers
+  // In prefix mode, we place the const declaration at top so it's done
+  // only once; But if we not prefixing, we place the declaration inside the
+  // with block so it doesn't incur the `in` check cost for every helper access.
+  const helpers = Array.from(ast.helpers)
+  if (helpers.length > 0) {
+    if (!__BROWSER__ && prefixIdentifiers) {
+      push(
+        `const { ${helpers.map(aliasHelper).join(', ')} } = ${DocueBinding}\n`
+      )
+    } else {
+      // "with" mode.
+      // save Docue in a separate variable to avoid collision
+      push(`const _Docue = ${DocueBinding}\n`)
+      // in "with" mode, helpers are declared inside the with block to avoid
+      // has check cost, but hoists are lifted out of the function - we need
+      // to provide the helper here.
+      if (ast.hoists.length) {
+        const staticHelpers = [
+          CREATE_VNODE,
+          CREATE_ELEMENT_VNODE,
+          CREATE_COMMENT,
+          CREATE_TEXT,
+          CREATE_STATIC
+        ]
+          .filter(helper => helpers.includes(helper))
+          .map(aliasHelper)
+          .join(', ')
+        push(`const { ${staticHelpers} } = _Docue\n`)
+      }
+    }
+  }
+  // generate variables for ssr helpers
+  if (!__BROWSER__ && ast.ssrHelpers && ast.ssrHelpers.length) {
+    //     // ssr guarantees prefixIdentifier: true
+    //     push(
+    //       `const { ${ast.ssrHelpers
+    //         .map(aliasHelper)
+    //         .join(', ')} } = require("${ssrRuntimeModuleName}")\n`
+    //     )
+  }
   //   genHoists(ast.hoists, context)
-  //   newline()
-  //   push(`return `)
+  newline()
+  push(`return `)
 }
 
 function genModulePreamble(
@@ -414,7 +416,7 @@ function genModulePreamble(
   }
   if (ast.imports.length) {
     //     genImports(ast.imports, context)
-    //     newline()
+    newline()
   }
   // genHoists(ast.hoists, context)
   newline()
@@ -423,35 +425,35 @@ function genModulePreamble(
   }
 }
 
-// function genAssets(
-//   assets: string[],
-//   type: 'component' | 'directive' | 'filter',
-//   { helper, push, newline, isTS }: CodegenContext
-// ) {
-//   const resolver = helper(
-//     __COMPAT__ && type === 'filter'
-//       ? RESOLVE_FILTER
-//       : type === 'component'
-//       ? RESOLVE_COMPONENT
-//       : RESOLVE_DIRECTIVE
-//   )
-//   for (let i = 0; i < assets.length; i++) {
-//     let id = assets[i]
-//     // potential component implicit self-reference inferred from SFC filename
-//     const maybeSelfReference = id.endsWith('__self')
-//     if (maybeSelfReference) {
-//       id = id.slice(0, -6)
-//     }
-//     push(
-//       `const ${toValidAssetId(id, type)} = ${resolver}(${JSON.stringify(id)}${
-//         maybeSelfReference ? `, true` : ``
-//       })${isTS ? `!` : ``}`
-//     )
-//     if (i < assets.length - 1) {
-//       newline()
-//     }
-//   }
-// }
+function genAssets(
+  assets: string[],
+  type: 'component' | 'directive' | 'filter',
+  { helper, push, newline, isTS }: CodegenContext
+) {
+  const resolver = helper(
+    __COMPAT__ && type === 'filter'
+      ? RESOLVE_FILTER
+      : type === 'component'
+      ? RESOLVE_COMPONENT
+      : RESOLVE_DIRECTIVE
+  )
+  for (let i = 0; i < assets.length; i++) {
+    let id = assets[i]
+    // potential component implicit self-reference inferred from SFC filename
+    const maybeSelfReference = id.endsWith('__self')
+    if (maybeSelfReference) {
+      id = id.slice(0, -6)
+    }
+    push(
+      `const ${toValidAssetId(id, type)} = ${resolver}(${JSON.stringify(id)}${
+        maybeSelfReference ? `, true` : ``
+      })${isTS ? `!` : ``}`
+    )
+    if (i < assets.length - 1) {
+      newline()
+    }
+  }
+}
 
 // function genHoists(hoists: (JSChildNode | null)[], context: CodegenContext) {
 //   if (!hoists.length) {
@@ -514,46 +516,46 @@ function genModulePreamble(
 //   )
 // }
 
-// function genNodeListAsArray(
-//   nodes: (string | CodegenNode | TemplateChildNode[])[],
-//   context: CodegenContext
-// ) {
-//   const multilines =
-//     nodes.length > 3 ||
-//     ((!__BROWSER__ || __DEV__) && nodes.some(n => isArray(n) || !isText(n)))
-//   context.push(`[`)
-//   multilines && context.indent()
-//   genNodeList(nodes, context, multilines)
-//   multilines && context.deindent()
-//   context.push(`]`)
-// }
+function genNodeListAsArray(
+  nodes: (string | CodegenNode | TemplateChildNode[])[],
+  context: CodegenContext
+) {
+  const multilines =
+    nodes.length > 3 ||
+    ((!__BROWSER__ || __DEV__) && nodes.some(n => isArray(n) || !isText(n)))
+  context.push(`[`)
+  multilines && context.indent()
+  genNodeList(nodes, context, multilines)
+  multilines && context.deindent()
+  context.push(`]`)
+}
 
-// function genNodeList(
-//   nodes: (string | symbol | CodegenNode | TemplateChildNode[])[],
-//   context: CodegenContext,
-//   multilines: boolean = false,
-//   comma: boolean = true
-// ) {
-//   const { push, newline } = context
-//   for (let i = 0; i < nodes.length; i++) {
-//     const node = nodes[i]
-//     if (isString(node)) {
-//       push(node)
-//     } else if (isArray(node)) {
-//       genNodeListAsArray(node, context)
-//     } else {
-//       genNode(node, context)
-//     }
-//     if (i < nodes.length - 1) {
-//       if (multilines) {
-//         comma && push(',')
-//         newline()
-//       } else {
-//         comma && push(', ')
-//       }
-//     }
-//   }
-// }
+function genNodeList(
+  nodes: (string | symbol | CodegenNode | TemplateChildNode[])[],
+  context: CodegenContext,
+  multilines: boolean = false,
+  comma: boolean = true
+) {
+  const { push, newline } = context
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i]
+    if (isString(node)) {
+      push(node)
+    } else if (isArray(node)) {
+      genNodeListAsArray(node, context)
+    } else {
+      genNode(node, context)
+    }
+    if (i < nodes.length - 1) {
+      if (multilines) {
+        comma && push(',')
+        newline()
+      } else {
+        comma && push(', ')
+      }
+    }
+  }
+}
 
 function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
   if (isString(node)) {
@@ -594,9 +596,9 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     case NodeTypes.COMMENT:
       genComment(node, context)
       break
-    //     case NodeTypes.VNODE_CALL:
-    //       genVNodeCall(node, context)
-    //       break
+    case NodeTypes.VNODE_CALL:
+      genVNodeCall(node, context)
+      break
     //     case NodeTypes.JS_CALL_EXPRESSION:
     //       genCallExpression(node, context)
     //       break
@@ -612,9 +614,9 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     //     case NodeTypes.JS_CONDITIONAL_EXPRESSION:
     //       genConditionalExpression(node, context)
     //       break
-    //     case NodeTypes.JS_CACHE_EXPRESSION:
-    //       genCacheExpression(node, context)
-    //       break
+    case NodeTypes.JS_CACHE_EXPRESSION:
+      genCacheExpression(node, context)
+      break
     //     case NodeTypes.JS_BLOCK_STATEMENT:
     //       genNodeList(node.body, context, true, false)
     //       break
@@ -710,54 +712,54 @@ function genComment(node: CommentNode, context: CodegenContext) {
   push(`${helper(CREATE_COMMENT)}(${JSON.stringify(node.content)})`, node)
 }
 
-// function genVNodeCall(node: VNodeCall, context: CodegenContext) {
-//   const { push, helper, pure } = context
-//   const {
-//     tag,
-//     props,
-//     children,
-//     patchFlag,
-//     dynamicProps,
-//     directives,
-//     isBlock,
-//     disableTracking,
-//     isComponent
-//   } = node
-//   if (directives) {
-//     push(helper(WITH_DIRECTIVES) + `(`)
-//   }
-//   if (isBlock) {
-//     push(`(${helper(OPEN_BLOCK)}(${disableTracking ? `true` : ``}), `)
-//   }
-//   if (pure) {
-//     push(PURE_ANNOTATION)
-//   }
-//   const callHelper: symbol = isBlock
-//     ? getVNodeBlockHelper(context.inSSR, isComponent)
-//     : getVNodeHelper(context.inSSR, isComponent)
-//   push(helper(callHelper) + `(`, node)
-//   genNodeList(
-//     genNullableArgs([tag, props, children, patchFlag, dynamicProps]),
-//     context
-//   )
-//   push(`)`)
-//   if (isBlock) {
-//     push(`)`)
-//   }
-//   if (directives) {
-//     push(`, `)
-//     genNode(directives, context)
-//     push(`)`)
-//   }
-// }
+function genVNodeCall(node: VNodeCall, context: CodegenContext) {
+  const { push, helper, pure } = context
+  const {
+    tag,
+    props,
+    children,
+    patchFlag,
+    dynamicProps,
+    directives,
+    isBlock,
+    disableTracking,
+    isComponent
+  } = node
+  if (directives) {
+    push(helper(WITH_DIRECTIVES) + `(`)
+  }
+  if (isBlock) {
+    push(`(${helper(OPEN_BLOCK)}(${disableTracking ? `true` : ``}), `)
+  }
+  if (pure) {
+    push(PURE_ANNOTATION)
+  }
+  const callHelper: symbol = isBlock
+    ? getVNodeBlockHelper(context.inSSR, isComponent)
+    : getVNodeHelper(context.inSSR, isComponent)
+  push(helper(callHelper) + `(`, node)
+  genNodeList(
+    genNullableArgs([tag, props, children, patchFlag, dynamicProps]),
+    context
+  )
+  push(`)`)
+  if (isBlock) {
+    push(`)`)
+  }
+  if (directives) {
+    push(`, `)
+    genNode(directives, context)
+    push(`)`)
+  }
+}
 
-// function genNullableArgs(args: any[]): CallExpression['arguments'] {
-//   let i = args.length
-//   while (i--) {
-//     if (args[i] != null) break
-//   }
-//   return args.slice(0, i + 1).map(arg => arg || `null`)
-// }
+function genNullableArgs(args: any[]): CallExpression['arguments'] {
+  let i = args.length
+  while (i--) {
+    if (args[i] != null) break
+  }
+  return args.slice(0, i + 1).map(arg => arg || `null`)
+}
 
 // // JavaScript
 // function genCallExpression(node: CallExpression, context: CodegenContext) {
@@ -886,26 +888,26 @@ function genComment(node: CommentNode, context: CodegenContext) {
 //   needNewline && deindent(true /* without newline */)
 // }
 
-// function genCacheExpression(node: CacheExpression, context: CodegenContext) {
-//   const { push, helper, indent, deindent, newline } = context
-//   push(`_cache[${node.index}] || (`)
-//   if (node.isVNode) {
-//     indent()
-//     push(`${helper(SET_BLOCK_TRACKING)}(-1),`)
-//     newline()
-//   }
-//   push(`_cache[${node.index}] = `)
-//   genNode(node.value, context)
-//   if (node.isVNode) {
-//     push(`,`)
-//     newline()
-//     push(`${helper(SET_BLOCK_TRACKING)}(1),`)
-//     newline()
-//     push(`_cache[${node.index}]`)
-//     deindent()
-//   }
-//   push(`)`)
-// }
+function genCacheExpression(node: CacheExpression, context: CodegenContext) {
+  const { push, helper, indent, deindent, newline } = context
+  push(`_cache[${node.index}] || (`)
+  if (node.isVNode) {
+    indent()
+    push(`${helper(SET_BLOCK_TRACKING)}(-1),`)
+    newline()
+  }
+  push(`_cache[${node.index}] = `)
+  genNode(node.value, context)
+  if (node.isVNode) {
+    push(`,`)
+    newline()
+    push(`${helper(SET_BLOCK_TRACKING)}(1),`)
+    newline()
+    push(`_cache[${node.index}]`)
+    deindent()
+  }
+  push(`)`)
+}
 
 // function genTemplateLiteral(node: TemplateLiteral, context: CodegenContext) {
 //   const { push, indent, deindent } = context

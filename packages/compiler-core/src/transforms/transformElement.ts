@@ -552,7 +552,7 @@ export function buildProps(
       }
       // skip v-once/v-memo - they are handled by dedicated transforms.
       if (name === 'once' || name === 'memo') {
-        //         continue
+        continue
       }
       //       // skip v-is and :is on <component>
       //       if (

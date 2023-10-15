@@ -38,7 +38,7 @@ import {
   CREATE_COMMENT
 } from './runtimeHelpers'
 import { isVSlot } from './utils'
-// import { hoistStatic, isSingleElementRoot } from './transforms/hoistStatic'
+import { hoistStatic, isSingleElementRoot } from './transforms/hoistStatic'
 import { CompilerCompatOptions } from './compat/compatConfig'
 
 // There are two types of transforms:
@@ -88,13 +88,13 @@ export interface TransformContext
     >,
     CompilerCompatOptions {
   selfName: string | null
-  //   root: RootNode
+  root: RootNode
   helpers: Map<symbol, number>
   components: Set<string>
   directives: Set<string>
   hoists: (JSChildNode | null)[]
   imports: ImportItem[]
-  //   temps: number
+  temps: number
   cached: number
   identifiers: { [name: string]: number | undefined }
   scopes: {
@@ -127,19 +127,19 @@ export function createTransformContext(
   {
     filename = '',
     prefixIdentifiers = false,
-    // hoistStatic = false,
+    hoistStatic = false,
     cacheHandlers = false,
     nodeTransforms = [],
     directiveTransforms = {},
-    // transformHoist = null,
+    transformHoist = null,
     isBuiltInComponent = NOOP,
-    // isCustomElement = NOOP,
+    isCustomElement = NOOP,
     expressionPlugins = [],
     scopeId = null,
     slotted = true,
     ssr = false,
     inSSR = false,
-    // ssrCssVars = ``,
+    ssrCssVars = ``,
     bindingMetadata = EMPTY_OBJ,
     inline = false,
     isTS = false,
@@ -153,34 +153,34 @@ export function createTransformContext(
     // options
     selfName: nameMatch && capitalize(camelize(nameMatch[1])),
     prefixIdentifiers,
-    //     hoistStatic,
+    hoistStatic,
     cacheHandlers,
     nodeTransforms,
     directiveTransforms,
-    //     transformHoist,
+    transformHoist,
     isBuiltInComponent,
-    //     isCustomElement,
+    isCustomElement,
     expressionPlugins,
     scopeId,
     slotted,
     ssr,
     inSSR,
-    //     ssrCssVars,
+    ssrCssVars,
     bindingMetadata,
     inline,
     isTS,
     onError,
     onWarn,
     compatConfig,
-    //     // state
-    //     root,
+    // state
+    root,
     helpers: new Map(),
     components: new Set(),
     directives: new Set(),
     hoists: [],
     imports: [],
     constantCache: new Map(),
-    //     temps: 0,
+    temps: 0,
     cached: 0,
     identifiers: Object.create(null),
     scopes: {
@@ -318,71 +318,71 @@ export function transform(root: RootNode, options: TransformOptions) {
   //   if (options.hoistStatic) {
   //     hoistStatic(root, context)
   //   }
-  //   if (!options.ssr) {
-  //     createRootCodegen(root, context)
-  //   }
+  if (!options.ssr) {
+    createRootCodegen(root, context)
+  }
   // finalize meta information
   root.helpers = new Set([...context.helpers.keys()])
   root.components = [...context.components]
   root.directives = [...context.directives]
   root.imports = context.imports
   root.hoists = context.hoists
-  //   root.temps = context.temps
-  //   root.cached = context.cached
+  root.temps = context.temps
+  root.cached = context.cached
   //   if (__COMPAT__) {
   //     root.filters = [...context.filters!]
   //   }
 }
 
-// function createRootCodegen(root: RootNode, context: TransformContext) {
-//   const { helper } = context
-//   const { children } = root
-//   if (children.length === 1) {
-//     const child = children[0]
-//     // if the single child is an element, turn it into a block.
-//     if (isSingleElementRoot(root, child) && child.codegenNode) {
-//       // single element root is never hoisted so codegenNode will never be
-//       // SimpleExpressionNode
-//       const codegenNode = child.codegenNode
-//       if (codegenNode.type === NodeTypes.VNODE_CALL) {
-//         convertToBlock(codegenNode, context)
-//       }
-//       root.codegenNode = codegenNode
-//     } else {
-//       // - single <slot/>, IfNode, ForNode: already blocks.
-//       // - single text node: always patched.
-//       // root codegen falls through via genNode()
-//       root.codegenNode = child
-//     }
-//   } else if (children.length > 1) {
-//     // root has multiple nodes - return a fragment block.
-//     let patchFlag = PatchFlags.STABLE_FRAGMENT
-//     let patchFlagText = PatchFlagNames[PatchFlags.STABLE_FRAGMENT]
-//     // check if the fragment actually contains a single valid child with
-//     // the rest being comments
-//     if (
-//       __DEV__ &&
-//       children.filter(c => c.type !== NodeTypes.COMMENT).length === 1
-//     ) {
-//       patchFlag |= PatchFlags.DEV_ROOT_FRAGMENT
-//       patchFlagText += `, ${PatchFlagNames[PatchFlags.DEV_ROOT_FRAGMENT]}`
-//     }
-//     root.codegenNode = createVNodeCall(
-//       context,
-//       helper(FRAGMENT),
-//       undefined,
-//       root.children,
-//       patchFlag + (__DEV__ ? ` /* ${patchFlagText} */` : ``),
-//       undefined,
-//       undefined,
-//       true,
-//       undefined,
-//       false /* isComponent */
-//     )
-//   } else {
-//     // no children = noop. codegen will return null.
-//   }
-// }
+function createRootCodegen(root: RootNode, context: TransformContext) {
+  const { helper } = context
+  const { children } = root
+  if (children.length === 1) {
+    const child = children[0]
+    // if the single child is an element, turn it into a block.
+    if (isSingleElementRoot(root, child) && child.codegenNode) {
+      // single element root is never hoisted so codegenNode will never be
+      // SimpleExpressionNode
+      const codegenNode = child.codegenNode
+      if (codegenNode.type === NodeTypes.VNODE_CALL) {
+        convertToBlock(codegenNode, context)
+      }
+      root.codegenNode = codegenNode
+    } else {
+      //       // - single <slot/>, IfNode, ForNode: already blocks.
+      //       // - single text node: always patched.
+      //       // root codegen falls through via genNode()
+      //       root.codegenNode = child
+    }
+  } else if (children.length > 1) {
+    //     // root has multiple nodes - return a fragment block.
+    //     let patchFlag = PatchFlags.STABLE_FRAGMENT
+    //     let patchFlagText = PatchFlagNames[PatchFlags.STABLE_FRAGMENT]
+    //     // check if the fragment actually contains a single valid child with
+    //     // the rest being comments
+    //     if (
+    //       __DEV__ &&
+    //       children.filter(c => c.type !== NodeTypes.COMMENT).length === 1
+    //     ) {
+    //       patchFlag |= PatchFlags.DEV_ROOT_FRAGMENT
+    //       patchFlagText += `, ${PatchFlagNames[PatchFlags.DEV_ROOT_FRAGMENT]}`
+    //     }
+    //     root.codegenNode = createVNodeCall(
+    //       context,
+    //       helper(FRAGMENT),
+    //       undefined,
+    //       root.children,
+    //       patchFlag + (__DEV__ ? ` /* ${patchFlagText} */` : ``),
+    //       undefined,
+    //       undefined,
+    //       true,
+    //       undefined,
+    //       false /* isComponent */
+    //     )
+  } else {
+    //     // no children = noop. codegen will return null.
+  }
+}
 
 export function traverseChildren(
   parent: ParentNode,

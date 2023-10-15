@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler: v-if > codegen > basic v-if 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Docue
+    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = _Docue
 
     return ok
       ? (_openBlock(), _createElementBlock(\\"div\\", { key: 0 }))
@@ -15,11 +15,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > increasing key: v-if + v-else-if + v-else 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, Fragment: _Fragment } = Docue
+    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, Fragment: _Fragment } = _Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, [
       ok
@@ -36,11 +36,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > multiple v-if that are sibling nodes should have different keys 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, Fragment: _Fragment } = Docue
+    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, Fragment: _Fragment } = _Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, [
       ok
@@ -55,11 +55,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > template v-if 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createElementVNode: _createElementVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Docue
+    const { createElementVNode: _createElementVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = _Docue
 
     return ok
       ? (_openBlock(), _createElementBlock(_Fragment, { key: 0 }, [
@@ -73,11 +73,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > template v-if w/ single <slot/> child 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderSlot: _renderSlot, createCommentVNode: _createCommentVNode } = Docue
+    const { renderSlot: _renderSlot, createCommentVNode: _createCommentVNode } = _Docue
 
     return ok
       ? _renderSlot($slots, \\"default\\", { key: 0 })
@@ -87,11 +87,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > v-if + v-else 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Docue
+    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = _Docue
 
     return ok
       ? (_openBlock(), _createElementBlock(\\"div\\", { key: 0 }))
@@ -101,11 +101,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > v-if + v-else-if + v-else 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, Fragment: _Fragment } = Docue
+    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, Fragment: _Fragment } = _Docue
 
     return ok
       ? (_openBlock(), _createElementBlock(\\"div\\", { key: 0 }))
@@ -117,11 +117,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > v-if + v-else-if 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = Docue
+    const { openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode } = _Docue
 
     return ok
       ? (_openBlock(), _createElementBlock(\\"div\\", { key: 0 }))
@@ -133,11 +133,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: v-if > codegen > v-if on <slot/> 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderSlot: _renderSlot, createCommentVNode: _createCommentVNode } = Docue
+    const { renderSlot: _renderSlot, createCommentVNode: _createCommentVNode } = _Docue
 
     return ok
       ? _renderSlot($slots, \\"default\\", { key: 0 })

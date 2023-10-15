@@ -6,14 +6,14 @@ import { RootNode } from './ast'
 import { isString, extend } from '@docue/shared'
 // import { transformIf } from './transforms/vIf'
 // import { transformFor } from './transforms/vFor'
-// import { transformExpression } from './transforms/transformExpression'
-// import { transformSlotOutlet } from './transforms/transformSlotOutlet'
-// import { transformElement } from './transforms/transformElement'
-// import { transformOn } from './transforms/vOn'
-// import { transformBind } from './transforms/vBind'
+import { transformExpression } from './transforms/transformExpression'
+import { transformSlotOutlet } from './transforms/transformSlotOutlet'
+import { transformElement } from './transforms/transformElement'
+import { transformOn } from './transforms/vOn'
+import { transformBind } from './transforms/vBind'
 // import { trackSlotScopes, trackVForSlotScopes } from './transforms/vSlot'
-// import { transformText } from './transforms/transformText'
-// import { transformOnce } from './transforms/vOnce'
+import { transformText } from './transforms/transformText'
+import { transformOnce } from './transforms/vOnce'
 // import { transformModel } from './transforms/vModel'
 // import { transformFilter } from './compat/transformFilter'
 import { defaultOnError, createCompilerError, ErrorCodes } from './errors'
@@ -29,7 +29,7 @@ export function getBaseTransformPreset(
 ): TransformPreset {
   return [
     [
-      //       transformOnce,
+      transformOnce,
       //       transformIf,
       //       transformMemo,
       //       transformFor,
@@ -44,13 +44,13 @@ export function getBaseTransformPreset(
       //         ? [transformExpression]
       //         : []),
       //       transformSlotOutlet,
-      //       transformElement,
+      transformElement,
       //       trackSlotScopes,
-      //       transformText
+      transformText
     ],
     {
-      //       on: transformOn,
-      //       bind: transformBind,
+      on: transformOn,
+      bind: transformBind
       //       model: transformModel
     }
   ]

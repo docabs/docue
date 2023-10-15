@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler: transform text > <template v-for> 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createTextVNode: _createTextVNode } = Docue
+    const { renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock, createTextVNode: _createTextVNode } = _Docue
 
     return (_openBlock(true), _createElementBlock(_Fragment, null, _renderList(list, (i) => {
       return (_openBlock(), _createElementBlock(_Fragment, null, [
@@ -17,11 +17,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform text > consecutive text 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { toDisplayString: _toDisplayString } = Docue
+    const { toDisplayString: _toDisplayString } = _Docue
 
     return _toDisplayString(foo) + \\" bar \\" + _toDisplayString(baz)
   }
@@ -29,11 +29,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform text > consecutive text between elements 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
+    const { createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, [
       _createElementVNode(\\"div\\"),
@@ -45,11 +45,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform text > consecutive text mixed with elements 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
+    const { createElementVNode: _createElementVNode, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, [
       _createElementVNode(\\"div\\"),
@@ -63,11 +63,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform text > element with custom directives and only one text child node 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, resolveDirective: _resolveDirective, openBlock: _openBlock, createElementBlock: _createElementBlock, withDirectives: _withDirectives } = Docue
+    const { toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, resolveDirective: _resolveDirective, openBlock: _openBlock, createElementBlock: _createElementBlock, withDirectives: _withDirectives } = _Docue
 
     const _directive_foo = _resolveDirective(\\"foo\\")
 
@@ -81,11 +81,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform text > no consecutive text 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { toDisplayString: _toDisplayString } = Docue
+    const { toDisplayString: _toDisplayString } = _Docue
 
     return _toDisplayString(foo)
   }
@@ -93,11 +93,11 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: transform text > text between elements (static) 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { createElementVNode: _createElementVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = Docue
+    const { createElementVNode: _createElementVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, [
       _createElementVNode(\\"div\\"),

@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler: integration tests > function mode 1`] = `
-"const Docue = Docue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, renderList: _renderList, createElementVNode: _createElementVNode, normalizeClass: _normalizeClass } = Docue
+    const { toDisplayString: _toDisplayString, openBlock: _openBlock, createElementBlock: _createElementBlock, createCommentVNode: _createCommentVNode, createTextVNode: _createTextVNode, Fragment: _Fragment, renderList: _renderList, createElementVNode: _createElementVNode, normalizeClass: _normalizeClass } = _Docue
 
     return (_openBlock(), _createElementBlock(\\"div\\", {
       id: \\"foo\\",

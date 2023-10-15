@@ -4,38 +4,38 @@ import {
   NodeTypes,
   RootNode,
   createSimpleExpression,
-  //   createObjectExpression,
-  //   createObjectProperty,
-  //   createArrayExpression,
-  //   createCompoundExpression,
-  //   createInterpolation,
-  //   createCallExpression,
-  //   createConditionalExpression,
-  //   ForCodegenNode,
-  //   createCacheExpression,
-  //   createTemplateLiteral,
-  //   createBlockStatement,
-  //   createIfStatement,
-  //   createAssignmentExpression,
-  //   IfConditionalExpression,
-  //   createVNodeCall,
-  //   VNodeCall,
-  //   DirectiveArguments,
+  createObjectExpression,
+  createObjectProperty,
+  createArrayExpression,
+  createCompoundExpression,
+  createInterpolation,
+  createCallExpression,
+  createConditionalExpression,
+  ForCodegenNode,
+  createCacheExpression,
+  createTemplateLiteral,
+  createBlockStatement,
+  createIfStatement,
+  createAssignmentExpression,
+  IfConditionalExpression,
+  createVNodeCall,
+  VNodeCall,
+  DirectiveArguments,
   ConstantTypes
 } from '../src'
 import {
   CREATE_VNODE,
-  //   TO_DISPLAY_STRING,
+  TO_DISPLAY_STRING,
   RESOLVE_DIRECTIVE,
   helperNameMap,
-  //   RESOLVE_COMPONENT,
-  //   CREATE_COMMENT,
-  //   FRAGMENT,
-  //   RENDER_LIST,
+  RESOLVE_COMPONENT,
+  CREATE_COMMENT,
+  FRAGMENT,
+  RENDER_LIST,
   CREATE_ELEMENT_VNODE
 } from '../src/runtimeHelpers'
-// import { createElementWithCodegen, genFlagText } from './testUtils'
-// import { PatchFlags } from '@docue/shared'
+import { createElementWithCodegen, genFlagText } from './testUtils'
+import { PatchFlags } from '@docue/shared'
 
 function createRoot(options: Partial<RootNode> = {}): RootNode {
   return {
@@ -80,61 +80,63 @@ describe('compiler: codegen', () => {
     expect(code).toMatchSnapshot()
   })
 
-  //   test('function mode preamble', () => {
-  //     const root = createRoot({
-  //       helpers: new Set([CREATE_VNODE, RESOLVE_DIRECTIVE])
-  //     })
-  //     const { code } = generate(root, { mode: 'function' })
-  //     expect(code).toMatch(`const _Docue = Docue`)
-  //     expect(code).toMatch(
-  //       `const { ${helperNameMap[CREATE_VNODE]}: _${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]}: _${helperNameMap[RESOLVE_DIRECTIVE]} } = _Docue`
-  //     )
-  //     expect(code).toMatchSnapshot()
-  //   })
+  test('function mode preamble', () => {
+    const root = createRoot({
+      helpers: new Set([CREATE_VNODE, RESOLVE_DIRECTIVE])
+    })
+    const { code } = generate(root, { mode: 'function' })
+    expect(code).toMatch(`const _Docue = Docue`)
+    expect(code).toMatch(
+      `const { ${helperNameMap[CREATE_VNODE]}: _${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]}: _${helperNameMap[RESOLVE_DIRECTIVE]} } = _Docue`
+    )
+    expect(code).toMatchSnapshot()
+  })
 
-  //   test('function mode preamble w/ prefixIdentifiers: true', () => {
-  //     const root = createRoot({
-  //       helpers: new Set([CREATE_VNODE, RESOLVE_DIRECTIVE])
-  //     })
-  //     const { code } = generate(root, {
-  //       mode: 'function',
-  //       prefixIdentifiers: true
-  //     })
-  //     expect(code).not.toMatch(`const _Docue = Docue`)
-  //     expect(code).toMatch(
-  //       `const { ${helperNameMap[CREATE_VNODE]}: _${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]}: _${helperNameMap[RESOLVE_DIRECTIVE]} } = Docue`
-  //     )
-  //     expect(code).toMatchSnapshot()
-  //   })
-  //   test('assets + temps', () => {
-  //     const root = createRoot({
-  //       components: [`Foo`, `bar-baz`, `barbaz`, `Qux__self`],
-  //       directives: [`my_dir_0`, `my_dir_1`],
-  //       temps: 3
-  //     })
-  //     const { code } = generate(root, { mode: 'function' })
-  //     expect(code).toMatch(
-  //       `const _component_Foo = _${helperNameMap[RESOLVE_COMPONENT]}("Foo")\n`
-  //     )
-  //     expect(code).toMatch(
-  //       `const _component_bar_baz = _${helperNameMap[RESOLVE_COMPONENT]}("bar-baz")\n`
-  //     )
-  //     expect(code).toMatch(
-  //       `const _component_barbaz = _${helperNameMap[RESOLVE_COMPONENT]}("barbaz")\n`
-  //     )
-  //     // implicit self reference from SFC filename
-  //     expect(code).toMatch(
-  //       `const _component_Qux = _${helperNameMap[RESOLVE_COMPONENT]}("Qux", true)\n`
-  //     )
-  //     expect(code).toMatch(
-  //       `const _directive_my_dir_0 = _${helperNameMap[RESOLVE_DIRECTIVE]}("my_dir_0")\n`
-  //     )
-  //     expect(code).toMatch(
-  //       `const _directive_my_dir_1 = _${helperNameMap[RESOLVE_DIRECTIVE]}("my_dir_1")\n`
-  //     )
-  //     expect(code).toMatch(`let _temp0, _temp1, _temp2`)
-  //     expect(code).toMatchSnapshot()
-  //   })
+  test('function mode preamble w/ prefixIdentifiers: true', () => {
+    const root = createRoot({
+      helpers: new Set([CREATE_VNODE, RESOLVE_DIRECTIVE])
+    })
+    const { code } = generate(root, {
+      mode: 'function',
+      prefixIdentifiers: true
+    })
+    expect(code).not.toMatch(`const _Docue = Docue`)
+    expect(code).toMatch(
+      `const { ${helperNameMap[CREATE_VNODE]}: _${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]}: _${helperNameMap[RESOLVE_DIRECTIVE]} } = Docue`
+    )
+    expect(code).toMatchSnapshot()
+  })
+
+  test('assets + temps', () => {
+    const root = createRoot({
+      components: [`Foo`, `bar-baz`, `barbaz`, `Qux__self`],
+      directives: [`my_dir_0`, `my_dir_1`],
+      temps: 3
+    })
+    const { code } = generate(root, { mode: 'function' })
+    expect(code).toMatch(
+      `const _component_Foo = _${helperNameMap[RESOLVE_COMPONENT]}("Foo")\n`
+    )
+    expect(code).toMatch(
+      `const _component_bar_baz = _${helperNameMap[RESOLVE_COMPONENT]}("bar-baz")\n`
+    )
+    expect(code).toMatch(
+      `const _component_barbaz = _${helperNameMap[RESOLVE_COMPONENT]}("barbaz")\n`
+    )
+    // implicit self reference from SFC filename
+    expect(code).toMatch(
+      `const _component_Qux = _${helperNameMap[RESOLVE_COMPONENT]}("Qux", true)\n`
+    )
+    expect(code).toMatch(
+      `const _directive_my_dir_0 = _${helperNameMap[RESOLVE_DIRECTIVE]}("my_dir_0")\n`
+    )
+    expect(code).toMatch(
+      `const _directive_my_dir_1 = _${helperNameMap[RESOLVE_DIRECTIVE]}("my_dir_1")\n`
+    )
+    expect(code).toMatch(`let _temp0, _temp1, _temp2`)
+    expect(code).toMatchSnapshot()
+  })
+
   //   test('hoists', () => {
   //     const root = createRoot({
   //       hoists: [
