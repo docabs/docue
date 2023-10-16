@@ -43,9 +43,9 @@ export function getBaseTransformPreset(
       //         : __BROWSER__ && __DEV__
       //         ? [transformExpression]
       //         : []),
-      //       transformSlotOutlet,
+      transformSlotOutlet,
       transformElement,
-      //       trackSlotScopes,
+      // trackSlotScopes,
       transformText
     ],
     {

@@ -5,11 +5,11 @@ import {
 } from '../transform'
 import {
   NodeTypes,
-  //   ElementTypes,
+  ElementTypes,
   ElementNode,
   DirectiveNode,
   IfBranchNode,
-  //   SimpleExpressionNode,
+  SimpleExpressionNode,
   createCallExpression,
   createConditionalExpression,
   createSimpleExpression,
@@ -19,22 +19,22 @@ import {
   BlockCodegenNode,
   IfNode,
   createVNodeCall,
-  //   AttributeNode,
+  AttributeNode,
   locStub,
   CacheExpression,
   ConstantTypes,
   MemoExpression,
   convertToBlock
 } from '../ast'
-// import { createCompilerError, ErrorCodes } from '../errors'
-// import { processExpression } from './transformExpression'
-// import { validateBrowserExpression } from '../validateExpression'
+import { createCompilerError, ErrorCodes } from '../errors'
+import { processExpression } from './transformExpression'
+import { validateBrowserExpression } from '../validateExpression'
 import { FRAGMENT, CREATE_COMMENT } from '../runtimeHelpers'
 import {
   injectProp,
-  //   findDir,
-  //   findProp,
-  //   isBuiltInType,
+  findDir,
+  findProp,
+  isBuiltInType,
   getMemoedVNodeCall
 } from '../utils'
 import { PatchFlags, PatchFlagNames } from '@docue/shared'
@@ -89,127 +89,127 @@ export function processIf(
     isRoot: boolean
   ) => (() => void) | undefined
 ) {
-  //   if (
-  //     dir.name !== 'else' &&
-  //     (!dir.exp || !(dir.exp as SimpleExpressionNode).content.trim())
-  //   ) {
-  //     const loc = dir.exp ? dir.exp.loc : node.loc
-  //     context.onError(
-  //       createCompilerError(ErrorCodes.X_V_IF_NO_EXPRESSION, dir.loc)
-  //     )
-  //     dir.exp = createSimpleExpression(`true`, false, loc)
-  //   }
-  //   if (!__BROWSER__ && context.prefixIdentifiers && dir.exp) {
-  //     // dir.exp can only be simple expression because vIf transform is applied
-  //     // before expression transform.
-  //     dir.exp = processExpression(dir.exp as SimpleExpressionNode, context)
-  //   }
-  //   if (__DEV__ && __BROWSER__ && dir.exp) {
-  //     validateBrowserExpression(dir.exp as SimpleExpressionNode, context)
-  //   }
-  //   if (dir.name === 'if') {
-  //     const branch = createIfBranch(node, dir)
-  //     const ifNode: IfNode = {
-  //       type: NodeTypes.IF,
-  //       loc: node.loc,
-  //       branches: [branch]
-  //     }
-  //     context.replaceNode(ifNode)
-  //     if (processCodegen) {
-  //       return processCodegen(ifNode, branch, true)
-  //     }
-  //   } else {
-  //     // locate the adjacent v-if
-  //     const siblings = context.parent!.children
-  //     const comments = []
-  //     let i = siblings.indexOf(node)
-  //     while (i-- >= -1) {
-  //       const sibling = siblings[i]
-  //       if (sibling && sibling.type === NodeTypes.COMMENT) {
-  //         context.removeNode(sibling)
-  //         __DEV__ && comments.unshift(sibling)
-  //         continue
-  //       }
-  //       if (
-  //         sibling &&
-  //         sibling.type === NodeTypes.TEXT &&
-  //         !sibling.content.trim().length
-  //       ) {
-  //         context.removeNode(sibling)
-  //         continue
-  //       }
-  //       if (sibling && sibling.type === NodeTypes.IF) {
-  //         // Check if v-else was followed by v-else-if
-  //         if (
-  //           dir.name === 'else-if' &&
-  //           sibling.branches[sibling.branches.length - 1].condition === undefined
-  //         ) {
-  //           context.onError(
-  //             createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
-  //           )
-  //         }
-  //         // move the node to the if node's branches
-  //         context.removeNode()
-  //         const branch = createIfBranch(node, dir)
-  //         if (
-  //           __DEV__ &&
-  //           comments.length &&
-  //           // #3619 ignore comments if the v-if is direct child of <transition>
-  //           !(
-  //             context.parent &&
-  //             context.parent.type === NodeTypes.ELEMENT &&
-  //             isBuiltInType(context.parent.tag, 'transition')
-  //           )
-  //         ) {
-  //           branch.children = [...comments, ...branch.children]
-  //         }
-  //         // check if user is forcing same key on different branches
-  //         if (__DEV__ || !__BROWSER__) {
-  //           const key = branch.userKey
-  //           if (key) {
-  //             sibling.branches.forEach(({ userKey }) => {
-  //               if (isSameKey(userKey, key)) {
-  //                 context.onError(
-  //                   createCompilerError(
-  //                     ErrorCodes.X_V_IF_SAME_KEY,
-  //                     branch.userKey!.loc
-  //                   )
-  //                 )
-  //               }
-  //             })
-  //           }
-  //         }
-  //         sibling.branches.push(branch)
-  //         const onExit = processCodegen && processCodegen(sibling, branch, false)
-  //         // since the branch was removed, it will not be traversed.
-  //         // make sure to traverse here.
-  //         traverseNode(branch, context)
-  //         // call on exit
-  //         if (onExit) onExit()
-  //         // make sure to reset currentNode after traversal to indicate this
-  //         // node has been removed.
-  //         context.currentNode = null
-  //       } else {
-  //         context.onError(
-  //           createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
-  //         )
-  //       }
-  //       break
-  //     }
-  //   }
+  if (
+    dir.name !== 'else' &&
+    (!dir.exp || !(dir.exp as SimpleExpressionNode).content.trim())
+  ) {
+    const loc = dir.exp ? dir.exp.loc : node.loc
+    context.onError(
+      createCompilerError(ErrorCodes.X_V_IF_NO_EXPRESSION, dir.loc)
+    )
+    dir.exp = createSimpleExpression(`true`, false, loc)
+  }
+  if (!__BROWSER__ && context.prefixIdentifiers && dir.exp) {
+    // dir.exp can only be simple expression because vIf transform is applied
+    // before expression transform.
+    dir.exp = processExpression(dir.exp as SimpleExpressionNode, context)
+  }
+  if (__DEV__ && __BROWSER__ && dir.exp) {
+    validateBrowserExpression(dir.exp as SimpleExpressionNode, context)
+  }
+  if (dir.name === 'if') {
+    const branch = createIfBranch(node, dir)
+    const ifNode: IfNode = {
+      type: NodeTypes.IF,
+      loc: node.loc,
+      branches: [branch]
+    }
+    context.replaceNode(ifNode)
+    if (processCodegen) {
+      return processCodegen(ifNode, branch, true)
+    }
+  } else {
+    //     // locate the adjacent v-if
+    //     const siblings = context.parent!.children
+    //     const comments = []
+    //     let i = siblings.indexOf(node)
+    //     while (i-- >= -1) {
+    //       const sibling = siblings[i]
+    //       if (sibling && sibling.type === NodeTypes.COMMENT) {
+    //         context.removeNode(sibling)
+    //         __DEV__ && comments.unshift(sibling)
+    //         continue
+    //       }
+    //       if (
+    //         sibling &&
+    //         sibling.type === NodeTypes.TEXT &&
+    //         !sibling.content.trim().length
+    //       ) {
+    //         context.removeNode(sibling)
+    //         continue
+    //       }
+    //       if (sibling && sibling.type === NodeTypes.IF) {
+    //         // Check if v-else was followed by v-else-if
+    //         if (
+    //           dir.name === 'else-if' &&
+    //           sibling.branches[sibling.branches.length - 1].condition === undefined
+    //         ) {
+    //           context.onError(
+    //             createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
+    //           )
+    //         }
+    //         // move the node to the if node's branches
+    //         context.removeNode()
+    //         const branch = createIfBranch(node, dir)
+    //         if (
+    //           __DEV__ &&
+    //           comments.length &&
+    //           // #3619 ignore comments if the v-if is direct child of <transition>
+    //           !(
+    //             context.parent &&
+    //             context.parent.type === NodeTypes.ELEMENT &&
+    //             isBuiltInType(context.parent.tag, 'transition')
+    //           )
+    //         ) {
+    //           branch.children = [...comments, ...branch.children]
+    //         }
+    //         // check if user is forcing same key on different branches
+    //         if (__DEV__ || !__BROWSER__) {
+    //           const key = branch.userKey
+    //           if (key) {
+    //             sibling.branches.forEach(({ userKey }) => {
+    //               if (isSameKey(userKey, key)) {
+    //                 context.onError(
+    //                   createCompilerError(
+    //                     ErrorCodes.X_V_IF_SAME_KEY,
+    //                     branch.userKey!.loc
+    //                   )
+    //                 )
+    //               }
+    //             })
+    //           }
+    //         }
+    //         sibling.branches.push(branch)
+    //         const onExit = processCodegen && processCodegen(sibling, branch, false)
+    //         // since the branch was removed, it will not be traversed.
+    //         // make sure to traverse here.
+    //         traverseNode(branch, context)
+    //         // call on exit
+    //         if (onExit) onExit()
+    //         // make sure to reset currentNode after traversal to indicate this
+    //         // node has been removed.
+    //         context.currentNode = null
+    //       } else {
+    //         context.onError(
+    //           createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
+    //         )
+    //       }
+    //       break
+    //     }
+  }
 }
 
-// function createIfBranch(node: ElementNode, dir: DirectiveNode): IfBranchNode {
-//   const isTemplateIf = node.tagType === ElementTypes.TEMPLATE
-//   return {
-//     type: NodeTypes.IF_BRANCH,
-//     loc: node.loc,
-//     condition: dir.name === 'else' ? undefined : dir.exp,
-//     children: isTemplateIf && !findDir(node, 'for') ? node.children : [node],
-//     userKey: findProp(node, `key`),
-//     isTemplateIf
-//   }
-// }
+function createIfBranch(node: ElementNode, dir: DirectiveNode): IfBranchNode {
+  const isTemplateIf = node.tagType === ElementTypes.TEMPLATE
+  return {
+    type: NodeTypes.IF_BRANCH,
+    loc: node.loc,
+    condition: dir.name === 'else' ? undefined : dir.exp,
+    children: isTemplateIf && !findDir(node, 'for') ? node.children : [node],
+    userKey: findProp(node, `key`),
+    isTemplateIf
+  }
+}
 
 function createCodegenNodeForBranch(
   branch: IfBranchNode,
@@ -300,34 +300,34 @@ function createChildrenCodegenNode(
   }
 }
 
-// function isSameKey(
-//   a: AttributeNode | DirectiveNode | undefined,
-//   b: AttributeNode | DirectiveNode
-// ): boolean {
-//   if (!a || a.type !== b.type) {
-//     return false
-//   }
-//   if (a.type === NodeTypes.ATTRIBUTE) {
-//     if (a.value!.content !== (b as AttributeNode).value!.content) {
-//       return false
-//     }
-//   } else {
-//     // directive
-//     const exp = a.exp!
-//     const branchExp = (b as DirectiveNode).exp!
-//     if (exp.type !== branchExp.type) {
-//       return false
-//     }
-//     if (
-//       exp.type !== NodeTypes.SIMPLE_EXPRESSION ||
-//       exp.isStatic !== (branchExp as SimpleExpressionNode).isStatic ||
-//       exp.content !== (branchExp as SimpleExpressionNode).content
-//     ) {
-//       return false
-//     }
-//   }
-//   return true
-// }
+function isSameKey(
+  a: AttributeNode | DirectiveNode | undefined,
+  b: AttributeNode | DirectiveNode
+): boolean {
+  if (!a || a.type !== b.type) {
+    return false
+  }
+  if (a.type === NodeTypes.ATTRIBUTE) {
+    if (a.value!.content !== (b as AttributeNode).value!.content) {
+      return false
+    }
+  } else {
+    // directive
+    const exp = a.exp!
+    const branchExp = (b as DirectiveNode).exp!
+    if (exp.type !== branchExp.type) {
+      return false
+    }
+    if (
+      exp.type !== NodeTypes.SIMPLE_EXPRESSION ||
+      exp.isStatic !== (branchExp as SimpleExpressionNode).isStatic ||
+      exp.content !== (branchExp as SimpleExpressionNode).content
+    ) {
+      return false
+    }
+  }
+  return true
+}
 
 function getParentCondition(
   node: IfConditionalExpression | CacheExpression

@@ -35,76 +35,76 @@ describe('compiler: v-once transform', () => {
     expect(generate(root).code).toMatchSnapshot()
   })
 
-  // test('on nested plain element', () => {
-  //   const root = transformWithOnce(`<div><div :id="foo" v-once /></div>`)
-  //   expect(root.cached).toBe(1)
-  //   expect(root.helpers).toContain(SET_BLOCK_TRACKING)
-  //   expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
-  //     type: NodeTypes.JS_CACHE_EXPRESSION,
-  //     index: 0,
-  //     value: {
-  //       type: NodeTypes.VNODE_CALL,
-  //       tag: `"div"`
-  //     }
-  //   })
-  //   expect(generate(root).code).toMatchSnapshot()
-  // })
+  test('on nested plain element', () => {
+    const root = transformWithOnce(`<div><div :id="foo" v-once /></div>`)
+    expect(root.cached).toBe(1)
+    expect(root.helpers).toContain(SET_BLOCK_TRACKING)
+    expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
+      type: NodeTypes.JS_CACHE_EXPRESSION,
+      index: 0,
+      value: {
+        type: NodeTypes.VNODE_CALL,
+        tag: `"div"`
+      }
+    })
+    expect(generate(root).code).toMatchSnapshot()
+  })
 
-  // test('on component', () => {
-  //   const root = transformWithOnce(`<div><Comp :id="foo" v-once /></div>`)
-  //   expect(root.cached).toBe(1)
-  //   expect(root.helpers).toContain(SET_BLOCK_TRACKING)
-  //   expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
-  //     type: NodeTypes.JS_CACHE_EXPRESSION,
-  //     index: 0,
-  //     value: {
-  //       type: NodeTypes.VNODE_CALL,
-  //       tag: `_component_Comp`
-  //     }
-  //   })
-  //   expect(generate(root).code).toMatchSnapshot()
-  // })
+  test('on component', () => {
+    const root = transformWithOnce(`<div><Comp :id="foo" v-once /></div>`)
+    expect(root.cached).toBe(1)
+    expect(root.helpers).toContain(SET_BLOCK_TRACKING)
+    expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
+      type: NodeTypes.JS_CACHE_EXPRESSION,
+      index: 0,
+      value: {
+        type: NodeTypes.VNODE_CALL,
+        tag: `_component_Comp`
+      }
+    })
+    expect(generate(root).code).toMatchSnapshot()
+  })
 
-  // test('on slot outlet', () => {
-  //   const root = transformWithOnce(`<div><slot v-once /></div>`)
-  //   expect(root.cached).toBe(1)
-  //   expect(root.helpers).toContain(SET_BLOCK_TRACKING)
-  //   expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
-  //     type: NodeTypes.JS_CACHE_EXPRESSION,
-  //     index: 0,
-  //     value: {
-  //       type: NodeTypes.JS_CALL_EXPRESSION,
-  //       callee: RENDER_SLOT
-  //     }
-  //   })
-  //   expect(generate(root).code).toMatchSnapshot()
-  // })
+  test('on slot outlet', () => {
+    const root = transformWithOnce(`<div><slot v-once /></div>`)
+    expect(root.cached).toBe(1)
+    expect(root.helpers).toContain(SET_BLOCK_TRACKING)
+    expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
+      type: NodeTypes.JS_CACHE_EXPRESSION,
+      index: 0,
+      value: {
+        type: NodeTypes.JS_CALL_EXPRESSION,
+        callee: RENDER_SLOT
+      }
+    })
+    expect(generate(root).code).toMatchSnapshot()
+  })
 
-  // // v-once inside v-once should not be cached
-  // test('inside v-once', () => {
-  //   const root = transformWithOnce(`<div v-once><div v-once/></div>`)
-  //   expect(root.cached).not.toBe(2)
-  //   expect(root.cached).toBe(1)
-  // })
+  // v-once inside v-once should not be cached
+  test('inside v-once', () => {
+    const root = transformWithOnce(`<div v-once><div v-once/></div>`)
+    expect(root.cached).not.toBe(2)
+    expect(root.cached).toBe(1)
+  })
 
-  // // cached nodes should be ignored by hoistStatic transform
-  // test('with hoistStatic: true', () => {
-  //   const root = transformWithOnce(`<div><div v-once /></div>`, {
-  //     hoistStatic: true
-  //   })
-  //   expect(root.cached).toBe(1)
-  //   expect(root.helpers).toContain(SET_BLOCK_TRACKING)
-  //   expect(root.hoists.length).toBe(0)
-  //   expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
-  //     type: NodeTypes.JS_CACHE_EXPRESSION,
-  //     index: 0,
-  //     value: {
-  //       type: NodeTypes.VNODE_CALL,
-  //       tag: `"div"`
-  //     }
-  //   })
-  //   expect(generate(root).code).toMatchSnapshot()
-  // })
+  // cached nodes should be ignored by hoistStatic transform
+  test('with hoistStatic: true', () => {
+    const root = transformWithOnce(`<div><div v-once /></div>`, {
+      hoistStatic: true
+    })
+    expect(root.cached).toBe(1)
+    expect(root.helpers).toContain(SET_BLOCK_TRACKING)
+    expect(root.hoists.length).toBe(0)
+    expect((root.children[0] as any).children[0].codegenNode).toMatchObject({
+      type: NodeTypes.JS_CACHE_EXPRESSION,
+      index: 0,
+      value: {
+        type: NodeTypes.VNODE_CALL,
+        tag: `"div"`
+      }
+    })
+    expect(generate(root).code).toMatchSnapshot()
+  })
 
   // test('with v-if/else', () => {
   //   const root = transformWithOnce(`<div v-if="BOOLEAN" v-once /><p v-else/>`)

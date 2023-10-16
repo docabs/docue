@@ -4,28 +4,28 @@ import { transformIf } from '../../src/transforms/vIf'
 import { transformElement } from '../../src/transforms/transformElement'
 import { transformSlotOutlet } from '../../src/transforms/transformSlotOutlet'
 import {
-  //   CommentNode,
-  //   ConditionalExpression,
+  CommentNode,
+  ConditionalExpression,
   ElementNode,
-  //   ElementTypes,
-  //   IfBranchNode,
+  ElementTypes,
+  IfBranchNode,
   IfConditionalExpression,
   IfNode,
   NodeTypes,
   SimpleExpressionNode,
-  //   TextNode,
+  TextNode,
   VNodeCall
 } from '../../src/ast'
-// import { ErrorCodes } from '../../src/errors'
+import { ErrorCodes } from '../../src/errors'
 import { CompilerOptions, generate, TO_HANDLERS } from '../../src'
-// import {
-//   CREATE_COMMENT,
-//   FRAGMENT,
-//   MERGE_PROPS,
-//   NORMALIZE_PROPS,
-//   RENDER_SLOT
-// } from '../../src/runtimeHelpers'
-// import { createObjectMatcher } from '../testUtils'
+import {
+  CREATE_COMMENT,
+  FRAGMENT,
+  MERGE_PROPS,
+  NORMALIZE_PROPS,
+  RENDER_SLOT
+} from '../../src/runtimeHelpers'
+import { createObjectMatcher } from '../testUtils'
 
 function parseWithIfTransform(
   template: string,
@@ -66,40 +66,42 @@ describe('compiler: v-if', () => {
       expect((node.branches[0].children[0] as ElementNode).tag).toBe(`div`)
     })
 
-    //     test('template v-if', () => {
-    //       const { node } = parseWithIfTransform(
-    //         `<template v-if="ok"><div/>hello<p/></template>`
-    //       )
-    //       expect(node.type).toBe(NodeTypes.IF)
-    //       expect(node.branches.length).toBe(1)
-    //       expect((node.branches[0].condition as SimpleExpressionNode).content).toBe(
-    //         `ok`
-    //       )
-    //       expect(node.branches[0].children.length).toBe(3)
-    //       expect(node.branches[0].children[0].type).toBe(NodeTypes.ELEMENT)
-    //       expect((node.branches[0].children[0] as ElementNode).tag).toBe(`div`)
-    //       expect(node.branches[0].children[1].type).toBe(NodeTypes.TEXT)
-    //       expect((node.branches[0].children[1] as TextNode).content).toBe(`hello`)
-    //       expect(node.branches[0].children[2].type).toBe(NodeTypes.ELEMENT)
-    //       expect((node.branches[0].children[2] as ElementNode).tag).toBe(`p`)
-    //     })
-    //     test('component v-if', () => {
-    //       const { node } = parseWithIfTransform(`<Component v-if="ok"></Component>`)
-    //       expect(node.type).toBe(NodeTypes.IF)
-    //       expect(node.branches.length).toBe(1)
-    //       expect((node.branches[0].children[0] as ElementNode).tag).toBe(
-    //         `Component`
-    //       )
-    //       expect((node.branches[0].children[0] as ElementNode).tagType).toBe(
-    //         ElementTypes.COMPONENT
-    //       )
-    //       // #2058 since a component may fail to resolve and fallback to a plain
-    //       // element, it still needs to be made a block
-    //       expect(
-    //         ((node.branches[0].children[0] as ElementNode)!
-    //           .codegenNode as VNodeCall)!.isBlock
-    //       ).toBe(true)
-    //     })
+    test('template v-if', () => {
+      const { node } = parseWithIfTransform(
+        `<template v-if="ok"><div/>hello<p/></template>`
+      )
+      expect(node.type).toBe(NodeTypes.IF)
+      expect(node.branches.length).toBe(1)
+      expect((node.branches[0].condition as SimpleExpressionNode).content).toBe(
+        `ok`
+      )
+      expect(node.branches[0].children.length).toBe(3)
+      expect(node.branches[0].children[0].type).toBe(NodeTypes.ELEMENT)
+      expect((node.branches[0].children[0] as ElementNode).tag).toBe(`div`)
+      expect(node.branches[0].children[1].type).toBe(NodeTypes.TEXT)
+      expect((node.branches[0].children[1] as TextNode).content).toBe(`hello`)
+      expect(node.branches[0].children[2].type).toBe(NodeTypes.ELEMENT)
+      expect((node.branches[0].children[2] as ElementNode).tag).toBe(`p`)
+    })
+
+    test('component v-if', () => {
+      const { node } = parseWithIfTransform(`<Component v-if="ok"></Component>`)
+      expect(node.type).toBe(NodeTypes.IF)
+      expect(node.branches.length).toBe(1)
+      expect((node.branches[0].children[0] as ElementNode).tag).toBe(
+        `Component`
+      )
+      expect((node.branches[0].children[0] as ElementNode).tagType).toBe(
+        ElementTypes.COMPONENT
+      )
+      // #2058 since a component may fail to resolve and fallback to a plain
+      // element, it still needs to be made a block
+      expect(
+        ((node.branches[0].children[0] as ElementNode)!
+          .codegenNode as VNodeCall)!.isBlock
+      ).toBe(true)
+    })
+
     //     test('v-if + v-else', () => {
     //       const { node } = parseWithIfTransform(`<div v-if="ok"/><p v-else/>`)
     //       expect(node.type).toBe(NodeTypes.IF)

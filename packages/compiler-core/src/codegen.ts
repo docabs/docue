@@ -21,10 +21,10 @@ import {
   SSRCodegenNode,
   TemplateLiteral,
   IfStatement,
-  // AssignmentExpression,
+  AssignmentExpression,
   ReturnStatement,
   VNodeCall,
-  // SequenceExpression,
+  SequenceExpression,
   getVNodeBlockHelper,
   getVNodeHelper
 } from './ast'
@@ -358,7 +358,7 @@ function genFunctionPreamble(ast: RootNode, context: CodegenContext) {
     //         .join(', ')} } = require("${ssrRuntimeModuleName}")\n`
     //     )
   }
-  //   genHoists(ast.hoists, context)
+  genHoists(ast.hoists, context)
   newline()
   push(`return `)
 }
@@ -415,10 +415,10 @@ function genModulePreamble(
     )
   }
   if (ast.imports.length) {
-    //     genImports(ast.imports, context)
+    genImports(ast.imports, context)
     newline()
   }
-  // genHoists(ast.hoists, context)
+  genHoists(ast.hoists, context)
   newline()
   if (!inline) {
     push(`export `)
@@ -455,66 +455,66 @@ function genAssets(
   }
 }
 
-// function genHoists(hoists: (JSChildNode | null)[], context: CodegenContext) {
-//   if (!hoists.length) {
-//     return
-//   }
-//   context.pure = true
-//   const { push, newline, helper, scopeId, mode } = context
-//   const genScopeId = !__BROWSER__ && scopeId != null && mode !== 'function'
-//   newline()
+function genHoists(hoists: (JSChildNode | null)[], context: CodegenContext) {
+  if (!hoists.length) {
+    return
+  }
+  context.pure = true
+  const { push, newline, helper, scopeId, mode } = context
+  const genScopeId = !__BROWSER__ && scopeId != null && mode !== 'function'
+  newline()
 
-//   // generate inlined withScopeId helper
-//   if (genScopeId) {
-//     push(
-//       `const _withScopeId = n => (${helper(
-//         PUSH_SCOPE_ID
-//       )}("${scopeId}"),n=n(),${helper(POP_SCOPE_ID)}(),n)`
-//     )
-//     newline()
-//   }
+  // generate inlined withScopeId helper
+  if (genScopeId) {
+    push(
+      `const _withScopeId = n => (${helper(
+        PUSH_SCOPE_ID
+      )}("${scopeId}"),n=n(),${helper(POP_SCOPE_ID)}(),n)`
+    )
+    newline()
+  }
 
-//   for (let i = 0; i < hoists.length; i++) {
-//     const exp = hoists[i]
-//     if (exp) {
-//       const needScopeIdWrapper = genScopeId && exp.type === NodeTypes.VNODE_CALL
-//       push(
-//         `const _hoisted_${i + 1} = ${
-//           needScopeIdWrapper ? `${PURE_ANNOTATION} _withScopeId(() => ` : ``
-//         }`
-//       )
-//       genNode(exp, context)
-//       if (needScopeIdWrapper) {
-//         push(`)`)
-//       }
-//       newline()
-//     }
-//   }
+  for (let i = 0; i < hoists.length; i++) {
+    const exp = hoists[i]
+    if (exp) {
+      const needScopeIdWrapper = genScopeId && exp.type === NodeTypes.VNODE_CALL
+      push(
+        `const _hoisted_${i + 1} = ${
+          needScopeIdWrapper ? `${PURE_ANNOTATION} _withScopeId(() => ` : ``
+        }`
+      )
+      genNode(exp, context)
+      if (needScopeIdWrapper) {
+        push(`)`)
+      }
+      newline()
+    }
+  }
 
-//   context.pure = false
-// }
+  context.pure = false
+}
 
-// function genImports(importsOptions: ImportItem[], context: CodegenContext) {
-//   if (!importsOptions.length) {
-//     return
-//   }
-//   importsOptions.forEach(imports => {
-//     context.push(`import `)
-//     genNode(imports.exp, context)
-//     context.push(` from '${imports.path}'`)
-//     context.newline()
-//   })
-// }
+function genImports(importsOptions: ImportItem[], context: CodegenContext) {
+  if (!importsOptions.length) {
+    return
+  }
+  importsOptions.forEach(imports => {
+    context.push(`import `)
+    genNode(imports.exp, context)
+    context.push(` from '${imports.path}'`)
+    context.newline()
+  })
+}
 
-// function isText(n: string | CodegenNode) {
-//   return (
-//     isString(n) ||
-//     n.type === NodeTypes.SIMPLE_EXPRESSION ||
-//     n.type === NodeTypes.TEXT ||
-//     n.type === NodeTypes.INTERPOLATION ||
-//     n.type === NodeTypes.COMPOUND_EXPRESSION
-//   )
-// }
+function isText(n: string | CodegenNode) {
+  return (
+    isString(n) ||
+    n.type === NodeTypes.SIMPLE_EXPRESSION ||
+    n.type === NodeTypes.TEXT ||
+    n.type === NodeTypes.INTERPOLATION ||
+    n.type === NodeTypes.COMPOUND_EXPRESSION
+  )
+}
 
 function genNodeListAsArray(
   nodes: (string | CodegenNode | TemplateChildNode[])[],
@@ -584,52 +584,52 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     case NodeTypes.SIMPLE_EXPRESSION:
       genExpression(node, context)
       break
-    //     case NodeTypes.INTERPOLATION:
-    //       genInterpolation(node, context)
-    //       break
-    //     case NodeTypes.TEXT_CALL:
-    //       genNode(node.codegenNode, context)
-    //       break
-    //     case NodeTypes.COMPOUND_EXPRESSION:
-    //       genCompoundExpression(node, context)
-    //       break
+    case NodeTypes.INTERPOLATION:
+      genInterpolation(node, context)
+      break
+    case NodeTypes.TEXT_CALL:
+      genNode(node.codegenNode, context)
+      break
+    case NodeTypes.COMPOUND_EXPRESSION:
+      genCompoundExpression(node, context)
+      break
     case NodeTypes.COMMENT:
       genComment(node, context)
       break
     case NodeTypes.VNODE_CALL:
       genVNodeCall(node, context)
       break
-    //     case NodeTypes.JS_CALL_EXPRESSION:
-    //       genCallExpression(node, context)
-    //       break
-    //     case NodeTypes.JS_OBJECT_EXPRESSION:
-    //       genObjectExpression(node, context)
-    //       break
-    //     case NodeTypes.JS_ARRAY_EXPRESSION:
-    //       genArrayExpression(node, context)
-    //       break
+    case NodeTypes.JS_CALL_EXPRESSION:
+      genCallExpression(node, context)
+      break
+    case NodeTypes.JS_OBJECT_EXPRESSION:
+      genObjectExpression(node, context)
+      break
+    case NodeTypes.JS_ARRAY_EXPRESSION:
+      genArrayExpression(node, context)
+      break
     //     case NodeTypes.JS_FUNCTION_EXPRESSION:
     //       genFunctionExpression(node, context)
     //       break
-    //     case NodeTypes.JS_CONDITIONAL_EXPRESSION:
-    //       genConditionalExpression(node, context)
-    //       break
+    case NodeTypes.JS_CONDITIONAL_EXPRESSION:
+      genConditionalExpression(node, context)
+      break
     case NodeTypes.JS_CACHE_EXPRESSION:
       genCacheExpression(node, context)
       break
-    //     case NodeTypes.JS_BLOCK_STATEMENT:
-    //       genNodeList(node.body, context, true, false)
-    //       break
-    //     // SSR only types
-    //     case NodeTypes.JS_TEMPLATE_LITERAL:
-    //       !__BROWSER__ && genTemplateLiteral(node, context)
-    //       break
-    //     case NodeTypes.JS_IF_STATEMENT:
-    //       !__BROWSER__ && genIfStatement(node, context)
-    //       break
-    //     case NodeTypes.JS_ASSIGNMENT_EXPRESSION:
-    //       !__BROWSER__ && genAssignmentExpression(node, context)
-    //       break
+    case NodeTypes.JS_BLOCK_STATEMENT:
+      genNodeList(node.body, context, true, false)
+      break
+    // SSR only types
+    case NodeTypes.JS_TEMPLATE_LITERAL:
+      !__BROWSER__ && genTemplateLiteral(node, context)
+      break
+    case NodeTypes.JS_IF_STATEMENT:
+      !__BROWSER__ && genIfStatement(node, context)
+      break
+    case NodeTypes.JS_ASSIGNMENT_EXPRESSION:
+      !__BROWSER__ && genAssignmentExpression(node, context)
+      break
     //     case NodeTypes.JS_SEQUENCE_EXPRESSION:
     //       !__BROWSER__ && genSequenceExpression(node, context)
     //       break
@@ -642,7 +642,7 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     //       break
     default:
       if (__DEV__) {
-        // assert(false, `unhandled codegen node type: ${(node as any).type}`)
+        assert(false, `unhandled codegen node type: ${(node as any).type}`)
         // // make sure we exhaust all possible types
         // const exhaustiveCheck: never = node
         // return exhaustiveCheck
@@ -662,47 +662,47 @@ function genExpression(node: SimpleExpressionNode, context: CodegenContext) {
   context.push(isStatic ? JSON.stringify(content) : content, node)
 }
 
-// function genInterpolation(node: InterpolationNode, context: CodegenContext) {
-//   const { push, helper, pure } = context
-//   if (pure) push(PURE_ANNOTATION)
-//   push(`${helper(TO_DISPLAY_STRING)}(`)
-//   genNode(node.content, context)
-//   push(`)`)
-// }
+function genInterpolation(node: InterpolationNode, context: CodegenContext) {
+  const { push, helper, pure } = context
+  if (pure) push(PURE_ANNOTATION)
+  push(`${helper(TO_DISPLAY_STRING)}(`)
+  genNode(node.content, context)
+  push(`)`)
+}
 
-// function genCompoundExpression(
-//   node: CompoundExpressionNode,
-//   context: CodegenContext
-// ) {
-//   for (let i = 0; i < node.children!.length; i++) {
-//     const child = node.children![i]
-//     if (isString(child)) {
-//       context.push(child)
-//     } else {
-//       genNode(child, context)
-//     }
-//   }
-// }
+function genCompoundExpression(
+  node: CompoundExpressionNode,
+  context: CodegenContext
+) {
+  for (let i = 0; i < node.children!.length; i++) {
+    const child = node.children![i]
+    if (isString(child)) {
+      context.push(child)
+    } else {
+      genNode(child, context)
+    }
+  }
+}
 
-// function genExpressionAsPropertyKey(
-//   node: ExpressionNode,
-//   context: CodegenContext
-// ) {
-//   const { push } = context
-//   if (node.type === NodeTypes.COMPOUND_EXPRESSION) {
-//     push(`[`)
-//     genCompoundExpression(node, context)
-//     push(`]`)
-//   } else if (node.isStatic) {
-//     // only quote keys if necessary
-//     const text = isSimpleIdentifier(node.content)
-//       ? node.content
-//       : JSON.stringify(node.content)
-//     push(text, node)
-//   } else {
-//     push(`[${node.content}]`, node)
-//   }
-// }
+function genExpressionAsPropertyKey(
+  node: ExpressionNode,
+  context: CodegenContext
+) {
+  const { push } = context
+  if (node.type === NodeTypes.COMPOUND_EXPRESSION) {
+    push(`[`)
+    genCompoundExpression(node, context)
+    push(`]`)
+  } else if (node.isStatic) {
+    // only quote keys if necessary
+    const text = isSimpleIdentifier(node.content)
+      ? node.content
+      : JSON.stringify(node.content)
+    push(text, node)
+  } else {
+    push(`[${node.content}]`, node)
+  }
+}
 
 function genComment(node: CommentNode, context: CodegenContext) {
   const { push, helper, pure } = context
@@ -761,51 +761,51 @@ function genNullableArgs(args: any[]): CallExpression['arguments'] {
   return args.slice(0, i + 1).map(arg => arg || `null`)
 }
 
-// // JavaScript
-// function genCallExpression(node: CallExpression, context: CodegenContext) {
-//   const { push, helper, pure } = context
-//   const callee = isString(node.callee) ? node.callee : helper(node.callee)
-//   if (pure) {
-//     push(PURE_ANNOTATION)
-//   }
-//   push(callee + `(`, node)
-//   genNodeList(node.arguments, context)
-//   push(`)`)
-// }
+// JavaScript
+function genCallExpression(node: CallExpression, context: CodegenContext) {
+  const { push, helper, pure } = context
+  const callee = isString(node.callee) ? node.callee : helper(node.callee)
+  if (pure) {
+    push(PURE_ANNOTATION)
+  }
+  push(callee + `(`, node)
+  genNodeList(node.arguments, context)
+  push(`)`)
+}
 
-// function genObjectExpression(node: ObjectExpression, context: CodegenContext) {
-//   const { push, indent, deindent, newline } = context
-//   const { properties } = node
-//   if (!properties.length) {
-//     push(`{}`, node)
-//     return
-//   }
-//   const multilines =
-//     properties.length > 1 ||
-//     ((!__BROWSER__ || __DEV__) &&
-//       properties.some(p => p.value.type !== NodeTypes.SIMPLE_EXPRESSION))
-//   push(multilines ? `{` : `{ `)
-//   multilines && indent()
-//   for (let i = 0; i < properties.length; i++) {
-//     const { key, value } = properties[i]
-//     // key
-//     genExpressionAsPropertyKey(key, context)
-//     push(`: `)
-//     // value
-//     genNode(value, context)
-//     if (i < properties.length - 1) {
-//       // will only reach this if it's multilines
-//       push(`,`)
-//       newline()
-//     }
-//   }
-//   multilines && deindent()
-//   push(multilines ? `}` : ` }`)
-// }
+function genObjectExpression(node: ObjectExpression, context: CodegenContext) {
+  const { push, indent, deindent, newline } = context
+  const { properties } = node
+  if (!properties.length) {
+    push(`{}`, node)
+    return
+  }
+  const multilines =
+    properties.length > 1 ||
+    ((!__BROWSER__ || __DEV__) &&
+      properties.some(p => p.value.type !== NodeTypes.SIMPLE_EXPRESSION))
+  push(multilines ? `{` : `{ `)
+  multilines && indent()
+  for (let i = 0; i < properties.length; i++) {
+    const { key, value } = properties[i]
+    // key
+    genExpressionAsPropertyKey(key, context)
+    push(`: `)
+    // value
+    genNode(value, context)
+    if (i < properties.length - 1) {
+      // will only reach this if it's multilines
+      push(`,`)
+      newline()
+    }
+  }
+  multilines && deindent()
+  push(multilines ? `}` : ` }`)
+}
 
-// function genArrayExpression(node: ArrayExpression, context: CodegenContext) {
-//   genNodeListAsArray(node.elements as CodegenNode[], context)
-// }
+function genArrayExpression(node: ArrayExpression, context: CodegenContext) {
+  genNodeListAsArray(node.elements as CodegenNode[], context)
+}
 
 // function genFunctionExpression(
 //   node: FunctionExpression,
@@ -852,41 +852,41 @@ function genNullableArgs(args: any[]): CallExpression['arguments'] {
 //   }
 // }
 
-// function genConditionalExpression(
-//   node: ConditionalExpression,
-//   context: CodegenContext
-// ) {
-//   const { test, consequent, alternate, newline: needNewline } = node
-//   const { push, indent, deindent, newline } = context
-//   if (test.type === NodeTypes.SIMPLE_EXPRESSION) {
-//     const needsParens = !isSimpleIdentifier(test.content)
-//     needsParens && push(`(`)
-//     genExpression(test, context)
-//     needsParens && push(`)`)
-//   } else {
-//     push(`(`)
-//     genNode(test, context)
-//     push(`)`)
-//   }
-//   needNewline && indent()
-//   context.indentLevel++
-//   needNewline || push(` `)
-//   push(`? `)
-//   genNode(consequent, context)
-//   context.indentLevel--
-//   needNewline && newline()
-//   needNewline || push(` `)
-//   push(`: `)
-//   const isNested = alternate.type === NodeTypes.JS_CONDITIONAL_EXPRESSION
-//   if (!isNested) {
-//     context.indentLevel++
-//   }
-//   genNode(alternate, context)
-//   if (!isNested) {
-//     context.indentLevel--
-//   }
-//   needNewline && deindent(true /* without newline */)
-// }
+function genConditionalExpression(
+  node: ConditionalExpression,
+  context: CodegenContext
+) {
+  const { test, consequent, alternate, newline: needNewline } = node
+  const { push, indent, deindent, newline } = context
+  if (test.type === NodeTypes.SIMPLE_EXPRESSION) {
+    const needsParens = !isSimpleIdentifier(test.content)
+    needsParens && push(`(`)
+    genExpression(test, context)
+    needsParens && push(`)`)
+  } else {
+    push(`(`)
+    genNode(test, context)
+    push(`)`)
+  }
+  needNewline && indent()
+  context.indentLevel++
+  needNewline || push(` `)
+  push(`? `)
+  genNode(consequent, context)
+  context.indentLevel--
+  needNewline && newline()
+  needNewline || push(` `)
+  push(`: `)
+  const isNested = alternate.type === NodeTypes.JS_CONDITIONAL_EXPRESSION
+  if (!isNested) {
+    context.indentLevel++
+  }
+  genNode(alternate, context)
+  if (!isNested) {
+    context.indentLevel--
+  }
+  needNewline && deindent(true /* without newline */)
+}
 
 function genCacheExpression(node: CacheExpression, context: CodegenContext) {
   const { push, helper, indent, deindent, newline } = context
@@ -909,58 +909,58 @@ function genCacheExpression(node: CacheExpression, context: CodegenContext) {
   push(`)`)
 }
 
-// function genTemplateLiteral(node: TemplateLiteral, context: CodegenContext) {
-//   const { push, indent, deindent } = context
-//   push('`')
-//   const l = node.elements.length
-//   const multilines = l > 3
-//   for (let i = 0; i < l; i++) {
-//     const e = node.elements[i]
-//     if (isString(e)) {
-//       push(e.replace(/(`|\$|\\)/g, '\\$1'))
-//     } else {
-//       push('${')
-//       if (multilines) indent()
-//       genNode(e, context)
-//       if (multilines) deindent()
-//       push('}')
-//     }
-//   }
-//   push('`')
-// }
+function genTemplateLiteral(node: TemplateLiteral, context: CodegenContext) {
+  const { push, indent, deindent } = context
+  push('`')
+  const l = node.elements.length
+  const multilines = l > 3
+  for (let i = 0; i < l; i++) {
+    const e = node.elements[i]
+    if (isString(e)) {
+      push(e.replace(/(`|\$|\\)/g, '\\$1'))
+    } else {
+      push('${')
+      if (multilines) indent()
+      genNode(e, context)
+      if (multilines) deindent()
+      push('}')
+    }
+  }
+  push('`')
+}
 
-// function genIfStatement(node: IfStatement, context: CodegenContext) {
-//   const { push, indent, deindent } = context
-//   const { test, consequent, alternate } = node
-//   push(`if (`)
-//   genNode(test, context)
-//   push(`) {`)
-//   indent()
-//   genNode(consequent, context)
-//   deindent()
-//   push(`}`)
-//   if (alternate) {
-//     push(` else `)
-//     if (alternate.type === NodeTypes.JS_IF_STATEMENT) {
-//       genIfStatement(alternate, context)
-//     } else {
-//       push(`{`)
-//       indent()
-//       genNode(alternate, context)
-//       deindent()
-//       push(`}`)
-//     }
-//   }
-// }
+function genIfStatement(node: IfStatement, context: CodegenContext) {
+  const { push, indent, deindent } = context
+  const { test, consequent, alternate } = node
+  push(`if (`)
+  genNode(test, context)
+  push(`) {`)
+  indent()
+  genNode(consequent, context)
+  deindent()
+  push(`}`)
+  if (alternate) {
+    push(` else `)
+    if (alternate.type === NodeTypes.JS_IF_STATEMENT) {
+      genIfStatement(alternate, context)
+    } else {
+      push(`{`)
+      indent()
+      genNode(alternate, context)
+      deindent()
+      push(`}`)
+    }
+  }
+}
 
-// function genAssignmentExpression(
-//   node: AssignmentExpression,
-//   context: CodegenContext
-// ) {
-//   genNode(node.left, context)
-//   context.push(` = `)
-//   genNode(node.right, context)
-// }
+function genAssignmentExpression(
+  node: AssignmentExpression,
+  context: CodegenContext
+) {
+  genNode(node.left, context)
+  context.push(` = `)
+  genNode(node.right, context)
+}
 
 // function genSequenceExpression(
 //   node: SequenceExpression,

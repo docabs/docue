@@ -315,9 +315,9 @@ export function createTransformContext(
 export function transform(root: RootNode, options: TransformOptions) {
   const context = createTransformContext(root, options)
   traverseNode(root, context)
-  //   if (options.hoistStatic) {
-  //     hoistStatic(root, context)
-  //   }
+  if (options.hoistStatic) {
+    hoistStatic(root, context)
+  }
   if (!options.ssr) {
     createRootCodegen(root, context)
   }
@@ -349,38 +349,38 @@ function createRootCodegen(root: RootNode, context: TransformContext) {
       }
       root.codegenNode = codegenNode
     } else {
-      //       // - single <slot/>, IfNode, ForNode: already blocks.
-      //       // - single text node: always patched.
-      //       // root codegen falls through via genNode()
-      //       root.codegenNode = child
+      // - single <slot/>, IfNode, ForNode: already blocks.
+      // - single text node: always patched.
+      // root codegen falls through via genNode()
+      root.codegenNode = child
     }
   } else if (children.length > 1) {
-    //     // root has multiple nodes - return a fragment block.
-    //     let patchFlag = PatchFlags.STABLE_FRAGMENT
-    //     let patchFlagText = PatchFlagNames[PatchFlags.STABLE_FRAGMENT]
-    //     // check if the fragment actually contains a single valid child with
-    //     // the rest being comments
-    //     if (
-    //       __DEV__ &&
-    //       children.filter(c => c.type !== NodeTypes.COMMENT).length === 1
-    //     ) {
-    //       patchFlag |= PatchFlags.DEV_ROOT_FRAGMENT
-    //       patchFlagText += `, ${PatchFlagNames[PatchFlags.DEV_ROOT_FRAGMENT]}`
-    //     }
-    //     root.codegenNode = createVNodeCall(
-    //       context,
-    //       helper(FRAGMENT),
-    //       undefined,
-    //       root.children,
-    //       patchFlag + (__DEV__ ? ` /* ${patchFlagText} */` : ``),
-    //       undefined,
-    //       undefined,
-    //       true,
-    //       undefined,
-    //       false /* isComponent */
-    //     )
+    // root has multiple nodes - return a fragment block.
+    let patchFlag = PatchFlags.STABLE_FRAGMENT
+    let patchFlagText = PatchFlagNames[PatchFlags.STABLE_FRAGMENT]
+    // check if the fragment actually contains a single valid child with
+    // the rest being comments
+    if (
+      __DEV__ &&
+      children.filter(c => c.type !== NodeTypes.COMMENT).length === 1
+    ) {
+      patchFlag |= PatchFlags.DEV_ROOT_FRAGMENT
+      patchFlagText += `, ${PatchFlagNames[PatchFlags.DEV_ROOT_FRAGMENT]}`
+    }
+    root.codegenNode = createVNodeCall(
+      context,
+      helper(FRAGMENT),
+      undefined,
+      root.children,
+      patchFlag + (__DEV__ ? ` /* ${patchFlagText} */` : ``),
+      undefined,
+      undefined,
+      true,
+      undefined,
+      false /* isComponent */
+    )
   } else {
-    //     // no children = noop. codegen will return null.
+    // no children = noop. codegen will return null.
   }
 }
 
@@ -442,13 +442,12 @@ export function traverseNode(
         context.helper(TO_DISPLAY_STRING)
       }
       break
-
-    //     // for container types, further traverse downwards
-    //     case NodeTypes.IF:
-    //       for (let i = 0; i < node.branches.length; i++) {
-    //         traverseNode(node.branches[i], context)
-    //       }
-    //       break
+    // for container types, further traverse downwards
+    case NodeTypes.IF:
+      for (let i = 0; i < node.branches.length; i++) {
+        traverseNode(node.branches[i], context)
+      }
+      break
     case NodeTypes.IF_BRANCH:
     case NodeTypes.FOR:
     case NodeTypes.ELEMENT:
