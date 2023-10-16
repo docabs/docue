@@ -119,83 +119,83 @@ export function processIf(
       return processCodegen(ifNode, branch, true)
     }
   } else {
-    //     // locate the adjacent v-if
-    //     const siblings = context.parent!.children
-    //     const comments = []
-    //     let i = siblings.indexOf(node)
-    //     while (i-- >= -1) {
-    //       const sibling = siblings[i]
-    //       if (sibling && sibling.type === NodeTypes.COMMENT) {
-    //         context.removeNode(sibling)
-    //         __DEV__ && comments.unshift(sibling)
-    //         continue
-    //       }
-    //       if (
-    //         sibling &&
-    //         sibling.type === NodeTypes.TEXT &&
-    //         !sibling.content.trim().length
-    //       ) {
-    //         context.removeNode(sibling)
-    //         continue
-    //       }
-    //       if (sibling && sibling.type === NodeTypes.IF) {
-    //         // Check if v-else was followed by v-else-if
-    //         if (
-    //           dir.name === 'else-if' &&
-    //           sibling.branches[sibling.branches.length - 1].condition === undefined
-    //         ) {
-    //           context.onError(
-    //             createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
-    //           )
-    //         }
-    //         // move the node to the if node's branches
-    //         context.removeNode()
-    //         const branch = createIfBranch(node, dir)
-    //         if (
-    //           __DEV__ &&
-    //           comments.length &&
-    //           // #3619 ignore comments if the v-if is direct child of <transition>
-    //           !(
-    //             context.parent &&
-    //             context.parent.type === NodeTypes.ELEMENT &&
-    //             isBuiltInType(context.parent.tag, 'transition')
-    //           )
-    //         ) {
-    //           branch.children = [...comments, ...branch.children]
-    //         }
-    //         // check if user is forcing same key on different branches
-    //         if (__DEV__ || !__BROWSER__) {
-    //           const key = branch.userKey
-    //           if (key) {
-    //             sibling.branches.forEach(({ userKey }) => {
-    //               if (isSameKey(userKey, key)) {
-    //                 context.onError(
-    //                   createCompilerError(
-    //                     ErrorCodes.X_V_IF_SAME_KEY,
-    //                     branch.userKey!.loc
-    //                   )
-    //                 )
-    //               }
-    //             })
-    //           }
-    //         }
-    //         sibling.branches.push(branch)
-    //         const onExit = processCodegen && processCodegen(sibling, branch, false)
-    //         // since the branch was removed, it will not be traversed.
-    //         // make sure to traverse here.
-    //         traverseNode(branch, context)
-    //         // call on exit
-    //         if (onExit) onExit()
-    //         // make sure to reset currentNode after traversal to indicate this
-    //         // node has been removed.
-    //         context.currentNode = null
-    //       } else {
-    //         context.onError(
-    //           createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
-    //         )
-    //       }
-    //       break
-    //     }
+    // locate the adjacent v-if
+    const siblings = context.parent!.children
+    const comments = []
+    let i = siblings.indexOf(node)
+    while (i-- >= -1) {
+      const sibling = siblings[i]
+      if (sibling && sibling.type === NodeTypes.COMMENT) {
+        context.removeNode(sibling)
+        __DEV__ && comments.unshift(sibling)
+        continue
+      }
+      if (
+        sibling &&
+        sibling.type === NodeTypes.TEXT &&
+        !sibling.content.trim().length
+      ) {
+        context.removeNode(sibling)
+        continue
+      }
+      if (sibling && sibling.type === NodeTypes.IF) {
+        // Check if v-else was followed by v-else-if
+        if (
+          dir.name === 'else-if' &&
+          sibling.branches[sibling.branches.length - 1].condition === undefined
+        ) {
+          context.onError(
+            createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
+          )
+        }
+        // move the node to the if node's branches
+        context.removeNode()
+        const branch = createIfBranch(node, dir)
+        if (
+          __DEV__ &&
+          comments.length &&
+          // #3619 ignore comments if the v-if is direct child of <transition>
+          !(
+            context.parent &&
+            context.parent.type === NodeTypes.ELEMENT &&
+            isBuiltInType(context.parent.tag, 'transition')
+          )
+        ) {
+          branch.children = [...comments, ...branch.children]
+        }
+        // check if user is forcing same key on different branches
+        if (__DEV__ || !__BROWSER__) {
+          const key = branch.userKey
+          if (key) {
+            sibling.branches.forEach(({ userKey }) => {
+              if (isSameKey(userKey, key)) {
+                context.onError(
+                  createCompilerError(
+                    ErrorCodes.X_V_IF_SAME_KEY,
+                    branch.userKey!.loc
+                  )
+                )
+              }
+            })
+          }
+        }
+        sibling.branches.push(branch)
+        const onExit = processCodegen && processCodegen(sibling, branch, false)
+        // since the branch was removed, it will not be traversed.
+        // make sure to traverse here.
+        traverseNode(branch, context)
+        // call on exit
+        if (onExit) onExit()
+        // make sure to reset currentNode after traversal to indicate this
+        // node has been removed.
+        context.currentNode = null
+      } else {
+        context.onError(
+          createCompilerError(ErrorCodes.X_V_ELSE_NO_ADJACENT_IF, node.loc)
+        )
+      }
+      break
+    }
   }
 }
 

@@ -149,22 +149,22 @@ export function walkBlockDeclarations(
   block: BlockStatement | Program,
   onIdent: (node: Identifier) => void
 ) {
-  //   for (const stmt of block.body) {
-  //     if (stmt.type === 'VariableDeclaration') {
-  //       if (stmt.declare) continue
-  //       for (const decl of stmt.declarations) {
-  //         for (const id of extractIdentifiers(decl.id)) {
-  //           onIdent(id)
-  //         }
-  //       }
-  //     } else if (
-  //       stmt.type === 'FunctionDeclaration' ||
-  //       stmt.type === 'ClassDeclaration'
-  //     ) {
-  //       if (stmt.declare || !stmt.id) continue
-  //       onIdent(stmt.id)
-  //     }
-  //   }
+  for (const stmt of block.body) {
+    //     if (stmt.type === 'VariableDeclaration') {
+    //       if (stmt.declare) continue
+    //       for (const decl of stmt.declarations) {
+    //         for (const id of extractIdentifiers(decl.id)) {
+    //           onIdent(id)
+    //         }
+    //       }
+    //     } else if (
+    //       stmt.type === 'FunctionDeclaration' ||
+    //       stmt.type === 'ClassDeclaration'
+    //     ) {
+    //       if (stmt.declare || !stmt.id) continue
+    //       onIdent(stmt.id)
+    //     }
+  }
 }
 
 export function extractIdentifiers(
@@ -172,9 +172,9 @@ export function extractIdentifiers(
   nodes: Identifier[] = []
 ): Identifier[] {
   switch (param.type) {
-    //     case 'Identifier':
-    //       nodes.push(param)
-    //       break
+    case 'Identifier':
+      nodes.push(param)
+      break
 
     //     case 'MemberExpression':
     //       let object: any = param
@@ -217,16 +217,16 @@ function markScopeIdentifier(
   child: Identifier,
   knownIds: Record<string, number>
 ) {
-  //   const { name } = child
-  //   if (node.scopeIds && node.scopeIds.has(name)) {
-  //     return
-  //   }
-  //   if (name in knownIds) {
-  //     knownIds[name]++
-  //   } else {
-  //     knownIds[name] = 1
-  //   }
-  //   ;(node.scopeIds || (node.scopeIds = new Set())).add(name)
+  const { name } = child
+  if (node.scopeIds && node.scopeIds.has(name)) {
+    return
+  }
+  if (name in knownIds) {
+    knownIds[name]++
+  } else {
+    knownIds[name] = 1
+  }
+  ;(node.scopeIds || (node.scopeIds = new Set())).add(name)
 }
 
 export const isFunctionType = (node: Node): node is Function => {
@@ -269,10 +269,10 @@ function isReferenced(node: Node, parent: Node, grandparent?: Node): boolean {
     //     case 'VariableDeclarator':
     //       return parent.init === node
 
-    //     // yes: () => NODE
-    //     // no: (NODE) => {}
-    //     case 'ArrowFunctionExpression':
-    //       return parent.body === node
+    // yes: () => NODE
+    // no: (NODE) => {}
+    case 'ArrowFunctionExpression':
+      return parent.body === node
 
     //     // no: class { #NODE; }
     //     // no: class { get #NODE() {} }

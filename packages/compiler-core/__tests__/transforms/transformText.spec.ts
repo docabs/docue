@@ -38,7 +38,7 @@ describe('compiler: transform text', () => {
         content: `foo`
       }
     })
-    // expect(generate(root).code).toMatchSnapshot()
+    expect(generate(root).code).toMatchSnapshot()
   })
 
   //   test('consecutive text', () => {

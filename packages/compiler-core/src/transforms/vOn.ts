@@ -49,7 +49,7 @@ export const transformOn: DirectiveTransform = (
         )
       }
       if (rawName.startsWith('docue:')) {
-        rawName = `vnode-${rawName.slice(4)}`
+        rawName = `vnode-${rawName.slice(6)}`
       }
       const eventString =
         node.tagType !== ElementTypes.ELEMENT ||
