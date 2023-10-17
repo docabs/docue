@@ -11,7 +11,7 @@ import { transformSlotOutlet } from './transforms/transformSlotOutlet'
 import { transformElement } from './transforms/transformElement'
 import { transformOn } from './transforms/vOn'
 import { transformBind } from './transforms/vBind'
-// import { trackSlotScopes, trackVForSlotScopes } from './transforms/vSlot'
+import { trackSlotScopes, trackVForSlotScopes } from './transforms/vSlot'
 import { transformText } from './transforms/transformText'
 import { transformOnce } from './transforms/vOnce'
 // import { transformModel } from './transforms/vModel'
@@ -33,19 +33,19 @@ export function getBaseTransformPreset(
       transformIf,
       transformMemo,
       transformFor,
-      //       ...(__COMPAT__ ? [transformFilter] : []),
-      //       ...(!__BROWSER__ && prefixIdentifiers
-      //         ? [
-      //             // order is important
-      //             trackVForSlotScopes,
-      //             transformExpression
-      //           ]
-      //         : __BROWSER__ && __DEV__
-      //         ? [transformExpression]
-      //         : []),
+      // ...(__COMPAT__ ? [transformFilter] : []),
+      ...(!__BROWSER__ && prefixIdentifiers
+        ? [
+            // order is important
+            trackVForSlotScopes,
+            transformExpression
+          ]
+        : __BROWSER__ && __DEV__
+        ? [transformExpression]
+        : []),
       transformSlotOutlet,
       transformElement,
-      // trackSlotScopes,
+      trackSlotScopes,
       transformText
     ],
     {

@@ -467,17 +467,17 @@ export function hasScopeRef(
     return false
   }
   switch (node.type) {
-    //     case NodeTypes.ELEMENT:
-    //       for (let i = 0; i < node.props.length; i++) {
-    //         const p = node.props[i]
-    //         if (
-    //           p.type === NodeTypes.DIRECTIVE &&
-    //           (hasScopeRef(p.arg, ids) || hasScopeRef(p.exp, ids))
-    //         ) {
-    //           return true
-    //         }
-    //       }
-    //       return node.children.some(c => hasScopeRef(c, ids))
+    case NodeTypes.ELEMENT:
+      for (let i = 0; i < node.props.length; i++) {
+        const p = node.props[i]
+        if (
+          p.type === NodeTypes.DIRECTIVE &&
+          (hasScopeRef(p.arg, ids) || hasScopeRef(p.exp, ids))
+        ) {
+          return true
+        }
+      }
+      return node.children.some(c => hasScopeRef(c, ids))
     //     case NodeTypes.FOR:
     //       if (hasScopeRef(node.source, ids)) {
     //         return true
@@ -490,14 +490,14 @@ export function hasScopeRef(
     //         return true
     //       }
     //       return node.children.some(c => hasScopeRef(c, ids))
-    //     case NodeTypes.SIMPLE_EXPRESSION:
-    //       return (
-    //         !node.isStatic &&
-    //         isSimpleIdentifier(node.content) &&
-    //         !!ids[node.content]
-    //       )
-    // case NodeTypes.COMPOUND_EXPRESSION:
-    //   return node.children.some(c => isObject(c) && hasScopeRef(c, ids))
+    case NodeTypes.SIMPLE_EXPRESSION:
+      return (
+        !node.isStatic &&
+        isSimpleIdentifier(node.content) &&
+        !!ids[node.content]
+      )
+    case NodeTypes.COMPOUND_EXPRESSION:
+      return node.children.some(c => isObject(c) && hasScopeRef(c, ids))
     case NodeTypes.INTERPOLATION:
     case NodeTypes.TEXT_CALL:
       return hasScopeRef(node.content, ids)

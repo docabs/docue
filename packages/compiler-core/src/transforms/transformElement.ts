@@ -543,12 +543,12 @@ export function buildProps(
       const isVOn = name === 'on'
       // skip v-slot - it is handled by its dedicated transform.
       if (name === 'slot') {
-        //         if (!isComponent) {
-        //           context.onError(
-        //             createCompilerError(ErrorCodes.X_V_SLOT_MISPLACED, loc)
-        //           )
-        //         }
-        //         continue
+        if (!isComponent) {
+          context.onError(
+            createCompilerError(ErrorCodes.X_V_SLOT_MISPLACED, loc)
+          )
+        }
+        continue
       }
       // skip v-once/v-memo - they are handled by dedicated transforms.
       if (name === 'once' || name === 'memo') {
