@@ -4,7 +4,7 @@ import { transform, NodeTransform, DirectiveTransform } from './transform'
 import { generate, CodegenResult } from './codegen'
 import { RootNode } from './ast'
 import { isString, extend } from '@docue/shared'
-// import { transformIf } from './transforms/vIf'
+import { transformIf } from './transforms/vIf'
 // import { transformFor } from './transforms/vFor'
 import { transformExpression } from './transforms/transformExpression'
 import { transformSlotOutlet } from './transforms/transformSlotOutlet'
@@ -30,7 +30,7 @@ export function getBaseTransformPreset(
   return [
     [
       transformOnce,
-      //       transformIf,
+      transformIf,
       //       transformMemo,
       //       transformFor,
       //       ...(__COMPAT__ ? [transformFilter] : []),

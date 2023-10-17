@@ -326,27 +326,27 @@ export function isSlotOutlet(
   return node.type === NodeTypes.ELEMENT && node.tagType === ElementTypes.SLOT
 }
 
-// const propsHelperSet = new Set([NORMALIZE_PROPS, GUARD_REACTIVE_PROPS])
+const propsHelperSet = new Set([NORMALIZE_PROPS, GUARD_REACTIVE_PROPS])
 
-// function getUnnormalizedProps(
-//   props: PropsExpression | '{}',
-//   callPath: CallExpression[] = []
-// ): [PropsExpression | '{}', CallExpression[]] {
-//   if (
-//     props &&
-//     !isString(props) &&
-//     props.type === NodeTypes.JS_CALL_EXPRESSION
-//   ) {
-//     const callee = props.callee
-//     if (!isString(callee) && propsHelperSet.has(callee)) {
-//       return getUnnormalizedProps(
-//         props.arguments[0] as PropsExpression,
-//         callPath.concat(props)
-//       )
-//     }
-//   }
-//   return [props, callPath]
-// }
+function getUnnormalizedProps(
+  props: PropsExpression | '{}',
+  callPath: CallExpression[] = []
+): [PropsExpression | '{}', CallExpression[]] {
+  if (
+    props &&
+    !isString(props) &&
+    props.type === NodeTypes.JS_CALL_EXPRESSION
+  ) {
+    const callee = props.callee
+    if (!isString(callee) && propsHelperSet.has(callee)) {
+      return getUnnormalizedProps(
+        props.arguments[0] as PropsExpression,
+        callPath.concat(props)
+      )
+    }
+  }
+  return [props, callPath]
+}
 
 export function injectProp(
   node: VNodeCall | RenderSlotCall,
@@ -371,82 +371,82 @@ export function injectProp(
     !isString(props) &&
     props.type === NodeTypes.JS_CALL_EXPRESSION
   ) {
-    //     const ret = getUnnormalizedProps(props)
-    //     props = ret[0]
-    //     callPath = ret[1]
-    //     parentCall = callPath[callPath.length - 1]
+    const ret = getUnnormalizedProps(props)
+    props = ret[0]
+    callPath = ret[1]
+    parentCall = callPath[callPath.length - 1]
   }
   if (props == null || isString(props)) {
     propsWithInjection = createObjectExpression([prop])
   } else if (props.type === NodeTypes.JS_CALL_EXPRESSION) {
-    //     // merged props... add ours
-    //     // only inject key to object literal if it's the first argument so that
-    //     // if doesn't override user provided keys
-    //     const first = props.arguments[0] as string | JSChildNode
-    //     if (!isString(first) && first.type === NodeTypes.JS_OBJECT_EXPRESSION) {
-    //       // #6631
-    //       if (!hasProp(prop, first)) {
-    //         first.properties.unshift(prop)
-    //       }
-    //     } else {
-    //       if (props.callee === TO_HANDLERS) {
-    //         // #2366
-    //         propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
-    //           createObjectExpression([prop]),
-    //           props
-    //         ])
-    //       } else {
-    //         props.arguments.unshift(createObjectExpression([prop]))
-    //       }
-    //     }
-    //     !propsWithInjection && (propsWithInjection = props)
+    // merged props... add ours
+    // only inject key to object literal if it's the first argument so that
+    // if doesn't override user provided keys
+    const first = props.arguments[0] as string | JSChildNode
+    if (!isString(first) && first.type === NodeTypes.JS_OBJECT_EXPRESSION) {
+      // #6631
+      if (!hasProp(prop, first)) {
+        first.properties.unshift(prop)
+      }
+    } else {
+      if (props.callee === TO_HANDLERS) {
+        // #2366
+        propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
+          createObjectExpression([prop]),
+          props
+        ])
+      } else {
+        props.arguments.unshift(createObjectExpression([prop]))
+      }
+    }
+    !propsWithInjection && (propsWithInjection = props)
   } else if (props.type === NodeTypes.JS_OBJECT_EXPRESSION) {
-    //     if (!hasProp(prop, props)) {
-    //       props.properties.unshift(prop)
-    //     }
-    //     propsWithInjection = props
+    if (!hasProp(prop, props)) {
+      props.properties.unshift(prop)
+    }
+    propsWithInjection = props
   } else {
-    //     // single v-bind with expression, return a merged replacement
-    //     propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
-    //       createObjectExpression([prop]),
-    //       props
-    //     ])
-    //     // in the case of nested helper call, e.g. `normalizeProps(guardReactiveProps(props))`,
-    //     // it will be rewritten as `normalizeProps(mergeProps({ key: 0 }, props))`,
-    //     // the `guardReactiveProps` will no longer be needed
-    //     if (parentCall && parentCall.callee === GUARD_REACTIVE_PROPS) {
-    //       parentCall = callPath[callPath.length - 2]
-    //     }
+    // single v-bind with expression, return a merged replacement
+    propsWithInjection = createCallExpression(context.helper(MERGE_PROPS), [
+      createObjectExpression([prop]),
+      props
+    ])
+    // in the case of nested helper call, e.g. `normalizeProps(guardReactiveProps(props))`,
+    // it will be rewritten as `normalizeProps(mergeProps({ key: 0 }, props))`,
+    // the `guardReactiveProps` will no longer be needed
+    if (parentCall && parentCall.callee === GUARD_REACTIVE_PROPS) {
+      parentCall = callPath[callPath.length - 2]
+    }
   }
 
   if (node.type === NodeTypes.VNODE_CALL) {
     if (parentCall) {
-      //       parentCall.arguments[0] = propsWithInjection
+      parentCall.arguments[0] = propsWithInjection
     } else {
       node.props = propsWithInjection
     }
   } else {
-    //     if (parentCall) {
-    //       parentCall.arguments[0] = propsWithInjection
-    //     } else {
-    //       node.arguments[2] = propsWithInjection
-    //     }
+    if (parentCall) {
+      parentCall.arguments[0] = propsWithInjection
+    } else {
+      node.arguments[2] = propsWithInjection
+    }
   }
 }
 
-// // check existing key to avoid overriding user provided keys
-// function hasProp(prop: Property, props: ObjectExpression) {
-//   let result = false
-//   if (prop.key.type === NodeTypes.SIMPLE_EXPRESSION) {
-//     const propKeyName = prop.key.content
-//     result = props.properties.some(
-//       p =>
-//         p.key.type === NodeTypes.SIMPLE_EXPRESSION &&
-//         p.key.content === propKeyName
-//     )
-//   }
-//   return result
-// }
+// check existing key to avoid overriding user provided keys
+function hasProp(prop: Property, props: ObjectExpression) {
+  let result = false
+  if (prop.key.type === NodeTypes.SIMPLE_EXPRESSION) {
+    const propKeyName = prop.key.content
+    result = props.properties.some(
+      p =>
+        p.key.type === NodeTypes.SIMPLE_EXPRESSION &&
+        p.key.content === propKeyName
+    )
+  }
+  return result
+}
 
 export function toValidAssetId(
   name: string,

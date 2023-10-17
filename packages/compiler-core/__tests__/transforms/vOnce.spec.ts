@@ -106,29 +106,29 @@ describe('compiler: v-once transform', () => {
     expect(generate(root).code).toMatchSnapshot()
   })
 
-  // test('with v-if/else', () => {
-  //   const root = transformWithOnce(`<div v-if="BOOLEAN" v-once /><p v-else/>`)
-  //   expect(root.cached).toBe(1)
-  //   expect(root.helpers).toContain(SET_BLOCK_TRACKING)
-  //   expect(root.children[0]).toMatchObject({
-  //     type: NodeTypes.IF,
-  //     // should cache the entire v-if/else-if/else expression, not just a single branch
-  //     codegenNode: {
-  //       type: NodeTypes.JS_CACHE_EXPRESSION,
-  //       value: {
-  //         type: NodeTypes.JS_CONDITIONAL_EXPRESSION,
-  //         consequent: {
-  //           type: NodeTypes.VNODE_CALL,
-  //           tag: `"div"`
-  //         },
-  //         alternate: {
-  //           type: NodeTypes.VNODE_CALL,
-  //           tag: `"p"`
-  //         }
-  //       }
-  //     }
-  //   })
-  // })
+  test('with v-if/else', () => {
+    const root = transformWithOnce(`<div v-if="BOOLEAN" v-once /><p v-else/>`)
+    expect(root.cached).toBe(1)
+    expect(root.helpers).toContain(SET_BLOCK_TRACKING)
+    expect(root.children[0]).toMatchObject({
+      type: NodeTypes.IF,
+      // should cache the entire v-if/else-if/else expression, not just a single branch
+      codegenNode: {
+        type: NodeTypes.JS_CACHE_EXPRESSION,
+        value: {
+          type: NodeTypes.JS_CONDITIONAL_EXPRESSION,
+          consequent: {
+            type: NodeTypes.VNODE_CALL,
+            tag: `"div"`
+          },
+          alternate: {
+            type: NodeTypes.VNODE_CALL,
+            tag: `"p"`
+          }
+        }
+      }
+    })
+  })
 
   // test('with v-for', () => {
   //   const root = transformWithOnce(`<div v-for="i in list" v-once />`)
