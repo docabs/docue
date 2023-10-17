@@ -5,7 +5,7 @@ import { generate, CodegenResult } from './codegen'
 import { RootNode } from './ast'
 import { isString, extend } from '@docue/shared'
 import { transformIf } from './transforms/vIf'
-// import { transformFor } from './transforms/vFor'
+import { transformFor } from './transforms/vFor'
 import { transformExpression } from './transforms/transformExpression'
 import { transformSlotOutlet } from './transforms/transformSlotOutlet'
 import { transformElement } from './transforms/transformElement'
@@ -17,7 +17,7 @@ import { transformOnce } from './transforms/vOnce'
 // import { transformModel } from './transforms/vModel'
 // import { transformFilter } from './compat/transformFilter'
 import { defaultOnError, createCompilerError, ErrorCodes } from './errors'
-// import { transformMemo } from './transforms/vMemo'
+import { transformMemo } from './transforms/vMemo'
 
 export type TransformPreset = [
   NodeTransform[],
@@ -31,8 +31,8 @@ export function getBaseTransformPreset(
     [
       transformOnce,
       transformIf,
-      //       transformMemo,
-      //       transformFor,
+      transformMemo,
+      transformFor,
       //       ...(__COMPAT__ ? [transformFilter] : []),
       //       ...(!__BROWSER__ && prefixIdentifiers
       //         ? [
@@ -64,14 +64,14 @@ export function baseCompile(
 ): CodegenResult {
   const onError = options.onError || defaultOnError
   const isModuleMode = options.mode === 'module'
-  // /* istanbul ignore if */
-  // if (__BROWSER__) {
-  //   if (options.prefixIdentifiers === true) {
-  //     onError(createCompilerError(ErrorCodes.X_PREFIX_ID_NOT_SUPPORTED))
-  //   } else if (isModuleMode) {
-  //     onError(createCompilerError(ErrorCodes.X_MODULE_MODE_NOT_SUPPORTED))
-  //   }
-  // }
+  /* istanbul ignore if */
+  if (__BROWSER__) {
+    if (options.prefixIdentifiers === true) {
+      onError(createCompilerError(ErrorCodes.X_PREFIX_ID_NOT_SUPPORTED))
+    } else if (isModuleMode) {
+      onError(createCompilerError(ErrorCodes.X_MODULE_MODE_NOT_SUPPORTED))
+    }
+  }
   const prefixIdentifiers =
     !__BROWSER__ && (options.prefixIdentifiers === true || isModuleMode)
   // if (!prefixIdentifiers && options.cacheHandlers) {

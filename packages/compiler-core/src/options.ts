@@ -109,10 +109,10 @@ export const enum BindingTypes {
    * bindings that are guaranteed to be refs
    */
   SETUP_REF = 'setup-ref',
-  //   /**
-  //    * declared by other options, e.g. computed, inject
-  //    */
-  //   OPTIONS = 'options',
+  /**
+   * declared by other options, e.g. computed, inject
+   */
+  OPTIONS = 'options',
   /**
    * a literal constant, e.g. 'foo', 1, true
    */

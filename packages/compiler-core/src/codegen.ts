@@ -608,9 +608,9 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     case NodeTypes.JS_ARRAY_EXPRESSION:
       genArrayExpression(node, context)
       break
-    //     case NodeTypes.JS_FUNCTION_EXPRESSION:
-    //       genFunctionExpression(node, context)
-    //       break
+    case NodeTypes.JS_FUNCTION_EXPRESSION:
+      genFunctionExpression(node, context)
+      break
     case NodeTypes.JS_CONDITIONAL_EXPRESSION:
       genConditionalExpression(node, context)
       break
@@ -807,50 +807,50 @@ function genArrayExpression(node: ArrayExpression, context: CodegenContext) {
   genNodeListAsArray(node.elements as CodegenNode[], context)
 }
 
-// function genFunctionExpression(
-//   node: FunctionExpression,
-//   context: CodegenContext
-// ) {
-//   const { push, indent, deindent } = context
-//   const { params, returns, body, newline, isSlot } = node
-//   if (isSlot) {
-//     // wrap slot functions with owner context
-//     push(`_${helperNameMap[WITH_CTX]}(`)
-//   }
-//   push(`(`, node)
-//   if (isArray(params)) {
-//     genNodeList(params, context)
-//   } else if (params) {
-//     genNode(params, context)
-//   }
-//   push(`) => `)
-//   if (newline || body) {
-//     push(`{`)
-//     indent()
-//   }
-//   if (returns) {
-//     if (newline) {
-//       push(`return `)
-//     }
-//     if (isArray(returns)) {
-//       genNodeListAsArray(returns, context)
-//     } else {
-//       genNode(returns, context)
-//     }
-//   } else if (body) {
-//     genNode(body, context)
-//   }
-//   if (newline || body) {
-//     deindent()
-//     push(`}`)
-//   }
-//   if (isSlot) {
-//     if (__COMPAT__ && node.isNonScopedSlot) {
-//       push(`, undefined, true`)
-//     }
-//     push(`)`)
-//   }
-// }
+function genFunctionExpression(
+  node: FunctionExpression,
+  context: CodegenContext
+) {
+  const { push, indent, deindent } = context
+  const { params, returns, body, newline, isSlot } = node
+  if (isSlot) {
+    // wrap slot functions with owner context
+    push(`_${helperNameMap[WITH_CTX]}(`)
+  }
+  push(`(`, node)
+  if (isArray(params)) {
+    genNodeList(params, context)
+  } else if (params) {
+    genNode(params, context)
+  }
+  push(`) => `)
+  if (newline || body) {
+    push(`{`)
+    indent()
+  }
+  if (returns) {
+    if (newline) {
+      push(`return `)
+    }
+    if (isArray(returns)) {
+      genNodeListAsArray(returns, context)
+    } else {
+      genNode(returns, context)
+    }
+  } else if (body) {
+    genNode(body, context)
+  }
+  if (newline || body) {
+    deindent()
+    push(`}`)
+  }
+  if (isSlot) {
+    // if (__COMPAT__ && node.isNonScopedSlot) {
+    //   push(`, undefined, true`)
+    // }
+    push(`)`)
+  }
+}
 
 function genConditionalExpression(
   node: ConditionalExpression,

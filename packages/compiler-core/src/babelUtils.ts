@@ -184,21 +184,21 @@ export function extractIdentifiers(
     //       nodes.push(object)
     //       break
 
-    //     case 'ObjectPattern':
-    //       for (const prop of param.properties) {
-    //         if (prop.type === 'RestElement') {
-    //           extractIdentifiers(prop.argument, nodes)
-    //         } else {
-    //           extractIdentifiers(prop.value, nodes)
-    //         }
-    //       }
-    //       break
+    case 'ObjectPattern':
+      for (const prop of param.properties) {
+        if (prop.type === 'RestElement') {
+          extractIdentifiers(prop.argument, nodes)
+        } else {
+          extractIdentifiers(prop.value, nodes)
+        }
+      }
+      break
 
-    //     case 'ArrayPattern':
-    //       param.elements.forEach(element => {
-    //         if (element) extractIdentifiers(element, nodes)
-    //       })
-    //       break
+    case 'ArrayPattern':
+      param.elements.forEach(element => {
+        if (element) extractIdentifiers(element, nodes)
+      })
+      break
 
     //     case 'RestElement':
     //       extractIdentifiers(param.argument, nodes)
@@ -292,16 +292,16 @@ function isReferenced(node: Node, parent: Node, grandparent?: Node): boolean {
     //       }
     //       return false
 
-    //     // yes: { [NODE]: "" }
-    //     // no: { NODE: "" }
-    //     // depends: { NODE }
-    //     // depends: { key: NODE }
-    //     case 'ObjectProperty':
-    //       if (parent.key === node) {
-    //         return !!parent.computed
-    //       }
-    //       // parent.value === node
-    //       return !grandparent || grandparent.type !== 'ObjectPattern'
+    // yes: { [NODE]: "" }
+    // no: { NODE: "" }
+    // depends: { NODE }
+    // depends: { key: NODE }
+    case 'ObjectProperty':
+      if (parent.key === node) {
+        return !!parent.computed
+      }
+      // parent.value === node
+      return !grandparent || grandparent.type !== 'ObjectPattern'
     //     // no: class { NODE = value; }
     //     // yes: class { [NODE] = value; }
     //     // yes: class { key = NODE; }
@@ -345,11 +345,11 @@ function isReferenced(node: Node, parent: Node, grandparent?: Node): boolean {
     //     case 'ContinueStatement':
     //       return false
 
-    //     // no: function NODE() {}
-    //     // no: function foo(NODE) {}
-    //     case 'FunctionDeclaration':
-    //     case 'FunctionExpression':
-    //       return false
+    // no: function NODE() {}
+    // no: function foo(NODE) {}
+    case 'FunctionDeclaration':
+    case 'FunctionExpression':
+      return false
 
     //     // no: export NODE from "foo";
     //     // no: export * as NODE from "foo";
