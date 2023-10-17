@@ -130,16 +130,16 @@ describe('compiler: v-once transform', () => {
     })
   })
 
-  // test('with v-for', () => {
-  //   const root = transformWithOnce(`<div v-for="i in list" v-once />`)
-  //   expect(root.cached).toBe(1)
-  //   expect(root.helpers).toContain(SET_BLOCK_TRACKING)
-  //   expect(root.children[0]).toMatchObject({
-  //     type: NodeTypes.FOR,
-  //     // should cache the entire v-for expression, not just a single branch
-  //     codegenNode: {
-  //       type: NodeTypes.JS_CACHE_EXPRESSION
-  //     }
-  //   })
-  // })
+  test('with v-for', () => {
+    const root = transformWithOnce(`<div v-for="i in list" v-once />`)
+    expect(root.cached).toBe(1)
+    expect(root.helpers).toContain(SET_BLOCK_TRACKING)
+    expect(root.children[0]).toMatchObject({
+      type: NodeTypes.FOR,
+      // should cache the entire v-for expression, not just a single branch
+      codegenNode: {
+        type: NodeTypes.JS_CACHE_EXPRESSION
+      }
+    })
+  })
 })

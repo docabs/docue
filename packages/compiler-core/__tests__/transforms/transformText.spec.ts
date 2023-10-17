@@ -7,7 +7,7 @@ import {
   ForNode,
   ElementNode
 } from '../../src'
-// import { transformFor } from '../../src/transforms/vFor'
+import { transformFor } from '../../src/transforms/vFor'
 import { transformText } from '../../src/transforms/transformText'
 import { transformExpression } from '../../src/transforms/transformExpression'
 import { transformElement } from '../../src/transforms/transformElement'
@@ -19,7 +19,7 @@ function transformWithTextOpt(template: string, options: CompilerOptions = {}) {
   const ast = parse(template)
   transform(ast, {
     nodeTransforms: [
-      // transformFor,
+      transformFor,
       ...(options.prefixIdentifiers ? [transformExpression] : []),
       transformElement,
       transformText
@@ -153,19 +153,19 @@ describe('compiler: transform text', () => {
     expect(generate(root).code).toMatchSnapshot()
   })
 
-  // test('<template v-for>', () => {
-  //   const root = transformWithTextOpt(
-  //     `<template v-for="i in list">foo</template>`
-  //   )
-  //   expect(root.children[0].type).toBe(NodeTypes.FOR)
-  //   const forNode = root.children[0] as ForNode
-  //   // should convert template v-for text children because they are inside
-  //   // fragments
-  //   expect(forNode.children[0]).toMatchObject({
-  //     type: NodeTypes.TEXT_CALL
-  //   })
-  //   expect(generate(root).code).toMatchSnapshot()
-  // })
+  test('<template v-for>', () => {
+    const root = transformWithTextOpt(
+      `<template v-for="i in list">foo</template>`
+    )
+    expect(root.children[0].type).toBe(NodeTypes.FOR)
+    const forNode = root.children[0] as ForNode
+    // should convert template v-for text children because they are inside
+    // fragments
+    expect(forNode.children[0]).toMatchObject({
+      type: NodeTypes.TEXT_CALL
+    })
+    expect(generate(root).code).toMatchSnapshot()
+  })
 
   test('with prefixIdentifiers: true', () => {
     const root = transformWithTextOpt(`{{ foo }} bar {{ baz + qux }}`, {

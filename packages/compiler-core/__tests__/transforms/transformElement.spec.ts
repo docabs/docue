@@ -974,14 +974,14 @@ describe('compiler: element transform', () => {
       expect(node.patchFlag).toBe(genFlagText(PatchFlags.NEED_PATCH))
     })
 
-    // test('NEED_PATCH (vnode hooks)', () => {
-    //   const root = baseCompile(`<div @docue:updated="foo" />`, {
-    //     prefixIdentifiers: true,
-    //     cacheHandlers: true
-    //   }).ast
-    //   const node = (root as any).children[0].codegenNode
-    //   expect(node.patchFlag).toBe(genFlagText(PatchFlags.NEED_PATCH))
-    // })
+    test('NEED_PATCH (vnode hooks)', () => {
+      const root = baseCompile(`<div @docue:updated="foo" />`, {
+        prefixIdentifiers: true,
+        cacheHandlers: true
+      }).ast
+      const node = (root as any).children[0].codegenNode
+      expect(node.patchFlag).toBe(genFlagText(PatchFlags.NEED_PATCH))
+    })
 
     test('script setup inline mode template ref (binding exists)', () => {
       const { node } = parseWithElementTransform(`<input ref="input"/>`, {
