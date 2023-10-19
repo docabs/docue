@@ -521,59 +521,59 @@ describe('compiler: expression transform', () => {
       })
     }
 
-    // test('non-inline mode', () => {
-    //   const { code } = compileWithBindingMetadata(
-    //     `<div>{{ props }} {{ setup }} {{ data }} {{ options }}</div>`
-    //   )
-    //   expect(code).toMatch(`$props.props`)
-    //   expect(code).toMatch(`$setup.setup`)
-    //   expect(code).toMatch(`$data.data`)
-    //   expect(code).toMatch(`$options.options`)
-    //   expect(code).toMatch(`_ctx, _cache, $props, $setup, $data, $options`)
-    //   expect(code).toMatchSnapshot()
-    // })
+    test('non-inline mode', () => {
+      const { code } = compileWithBindingMetadata(
+        `<div>{{ props }} {{ setup }} {{ data }} {{ options }}</div>`
+      )
+      expect(code).toMatch(`$props.props`)
+      expect(code).toMatch(`$setup.setup`)
+      expect(code).toMatch(`$data.data`)
+      expect(code).toMatch(`$options.options`)
+      expect(code).toMatch(`_ctx, _cache, $props, $setup, $data, $options`)
+      expect(code).toMatchSnapshot()
+    })
 
-    //   test('inline mode', () => {
-    //     const { code } = compileWithBindingMetadata(
-    //       `<div>{{ props }} {{ setup }} {{ setupConst }} {{ data }} {{ options }}</div>`,
-    //       { inline: true }
-    //     )
-    //     expect(code).toMatch(`__props.props`)
-    //     expect(code).toMatch(`_unref(setup)`)
-    //     expect(code).toMatch(`_toDisplayString(setupConst)`)
-    //     expect(code).toMatch(`_ctx.data`)
-    //     expect(code).toMatch(`_ctx.options`)
-    //     expect(code).toMatchSnapshot()
-    //   })
+    test('inline mode', () => {
+      const { code } = compileWithBindingMetadata(
+        `<div>{{ props }} {{ setup }} {{ setupConst }} {{ data }} {{ options }}</div>`,
+        { inline: true }
+      )
+      expect(code).toMatch(`__props.props`)
+      expect(code).toMatch(`_unref(setup)`)
+      expect(code).toMatch(`_toDisplayString(setupConst)`)
+      expect(code).toMatch(`_ctx.data`)
+      expect(code).toMatch(`_ctx.options`)
+      expect(code).toMatchSnapshot()
+    })
 
-    //   test('literal const handling', () => {
-    //     const { code } = compileWithBindingMetadata(`<div>{{ literal }}</div>`, {
-    //       inline: true
-    //     })
-    //     expect(code).toMatch(`toDisplayString(literal)`)
-    //     // #7973 should skip patch for literal const
-    //     expect(code).not.toMatch(
-    //       `${PatchFlags.TEXT} /* ${PatchFlagNames[PatchFlags.TEXT]} */`
-    //     )
-    //   })
+    test('literal const handling', () => {
+      const { code } = compileWithBindingMetadata(`<div>{{ literal }}</div>`, {
+        inline: true
+      })
+      expect(code).toMatch(`toDisplayString(literal)`)
+      // #7973 should skip patch for literal const
+      expect(code).not.toMatch(
+        `${PatchFlags.TEXT} /* ${PatchFlagNames[PatchFlags.TEXT]} */`
+      )
+    })
 
-    //   test('literal const handling， non-inline mode', () => {
-    //     const { code } = compileWithBindingMetadata(`<div>{{ literal }}</div>`)
-    //     expect(code).toMatch(`toDisplayString($setup.literal)`)
-    //     // #7973 should skip patch for literal const
-    //     expect(code).not.toMatch(
-    //       `${PatchFlags.TEXT} /* ${PatchFlagNames[PatchFlags.TEXT]} */`
-    //     )
-    //   })
+    test('literal const handling， non-inline mode', () => {
+      const { code } = compileWithBindingMetadata(`<div>{{ literal }}</div>`)
+      expect(code).toMatch(`toDisplayString($setup.literal)`)
+      // #7973 should skip patch for literal const
+      expect(code).not.toMatch(
+        `${PatchFlags.TEXT} /* ${PatchFlagNames[PatchFlags.TEXT]} */`
+      )
+    })
 
-    //   test('reactive const handling', () => {
-    //     const { code } = compileWithBindingMetadata(`<div>{{ reactive }}</div>`, {
-    //       inline: true
-    //     })
-    //     // #7973 should not skip patch for reactive const
-    //     expect(code).toMatch(
-    //       `${PatchFlags.TEXT} /* ${PatchFlagNames[PatchFlags.TEXT]} */`
-    //     )
-    //   })
+    test('reactive const handling', () => {
+      const { code } = compileWithBindingMetadata(`<div>{{ reactive }}</div>`, {
+        inline: true
+      })
+      // #7973 should not skip patch for reactive const
+      expect(code).toMatch(
+        `${PatchFlags.TEXT} /* ${PatchFlagNames[PatchFlags.TEXT]} */`
+      )
+    })
   })
 })
