@@ -14,7 +14,7 @@ import { transformBind } from './transforms/vBind'
 import { trackSlotScopes, trackVForSlotScopes } from './transforms/vSlot'
 import { transformText } from './transforms/transformText'
 import { transformOnce } from './transforms/vOnce'
-// import { transformModel } from './transforms/vModel'
+import { transformModel } from './transforms/vModel'
 // import { transformFilter } from './compat/transformFilter'
 import { defaultOnError, createCompilerError, ErrorCodes } from './errors'
 import { transformMemo } from './transforms/vMemo'
@@ -50,8 +50,8 @@ export function getBaseTransformPreset(
     ],
     {
       on: transformOn,
-      bind: transformBind
-      //       model: transformModel
+      bind: transformBind,
+      model: transformModel
     }
   ]
 }
