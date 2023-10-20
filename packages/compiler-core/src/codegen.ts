@@ -180,11 +180,11 @@ function createCodegenContext(
     })
   }
 
-  // if (!__BROWSER__ && sourceMap) {
-  //   // lazy require source-map implementation, only in non-browser builds
-  //   context.map = new SourceMapGenerator()
-  //   context.map!.setSourceContent(filename, context.source)
-  // }
+  if (!__BROWSER__ && sourceMap) {
+    // lazy require source-map implementation, only in non-browser builds
+    context.map = new SourceMapGenerator()
+    context.map!.setSourceContent(filename, context.source)
+  }
 
   return context
 }

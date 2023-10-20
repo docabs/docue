@@ -54,208 +54,208 @@ describe('compiler: integration tests', () => {
     expect(map!.sources).toEqual([`foo.docue`])
     expect(map!.sourcesContent).toEqual([source])
 
-    // const consumer = new SourceMapConsumer(map as RawSourceMap)
+    const consumer = new SourceMapConsumer(map as RawSourceMap)
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `id`))
-    // ).toMatchObject(getPositionInCode(source, `id`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `id`))
+    ).toMatchObject(getPositionInCode(source, `id`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `"foo"`))
-    // ).toMatchObject(getPositionInCode(source, `"foo"`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `"foo"`))
+    ).toMatchObject(getPositionInCode(source, `"foo"`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `class:`))
-    // ).toMatchObject(getPositionInCode(source, `class=`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `class:`))
+    ).toMatchObject(getPositionInCode(source, `class=`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `bar`))
-    // ).toMatchObject(getPositionInCode(source, `bar`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `bar`))
+    ).toMatchObject(getPositionInCode(source, `bar`))
 
-    // // without prefixIdentifiers: true, identifiers inside compound expressions
-    // // are mapped to closest parent expression.
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `baz`))
-    // ).toMatchObject(getPositionInCode(source, `bar`))
+    // without prefixIdentifiers: true, identifiers inside compound expressions
+    // are mapped to closest parent expression.
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `baz`))
+    ).toMatchObject(getPositionInCode(source, `bar`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `world`))
-    // ).toMatchObject(getPositionInCode(source, `world`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `world`))
+    ).toMatchObject(getPositionInCode(source, `world`))
 
-    // // without prefixIdentifiers: true, identifiers inside compound expressions
-    // // are mapped to closest parent expression.
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `burn()`))
-    // ).toMatchObject(getPositionInCode(source, `world`))
+    // without prefixIdentifiers: true, identifiers inside compound expressions
+    // are mapped to closest parent expression.
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `burn()`))
+    ).toMatchObject(getPositionInCode(source, `world`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `ok`))
-    // ).toMatchObject(getPositionInCode(source, `ok`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `ok`))
+    ).toMatchObject(getPositionInCode(source, `ok`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `list`))
-    // ).toMatchObject(getPositionInCode(source, `list`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `list`))
+    ).toMatchObject(getPositionInCode(source, `list`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `value`))
-    // ).toMatchObject(getPositionInCode(source, `value`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `value`))
+    ).toMatchObject(getPositionInCode(source, `value`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `index`))
-    // ).toMatchObject(getPositionInCode(source, `index`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `index`))
+    ).toMatchObject(getPositionInCode(source, `index`))
 
-    // expect(
-    //   consumer.originalPositionFor(getPositionInCode(code, `value + index`))
-    // ).toMatchObject(getPositionInCode(source, `value + index`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `value + index`))
+    ).toMatchObject(getPositionInCode(source, `value + index`))
   })
 
-  // test('function mode w/ prefixIdentifiers: true', () => {
-  //   const { code, map } = compile(source, {
-  //     sourceMap: true,
-  //     filename: `foo.docue`,
-  //     prefixIdentifiers: true
-  //   })
+  test('function mode w/ prefixIdentifiers: true', () => {
+    const { code, map } = compile(source, {
+      sourceMap: true,
+      filename: `foo.docue`,
+      prefixIdentifiers: true
+    })
 
-  //   expect(code).toMatchSnapshot()
-  //   expect(map!.sources).toEqual([`foo.docue`])
-  //   expect(map!.sourcesContent).toEqual([source])
+    expect(code).toMatchSnapshot()
+    expect(map!.sources).toEqual([`foo.docue`])
+    expect(map!.sourcesContent).toEqual([source])
 
-  //   const consumer = new SourceMapConsumer(map as RawSourceMap)
+    const consumer = new SourceMapConsumer(map as RawSourceMap)
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `id`))
-  //   ).toMatchObject(getPositionInCode(source, `id`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `id`))
+    ).toMatchObject(getPositionInCode(source, `id`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `"foo"`))
-  //   ).toMatchObject(getPositionInCode(source, `"foo"`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `"foo"`))
+    ).toMatchObject(getPositionInCode(source, `"foo"`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `class:`))
-  //   ).toMatchObject(getPositionInCode(source, `class=`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `class:`))
+    ).toMatchObject(getPositionInCode(source, `class=`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `bar`))
-  //   ).toMatchObject(getPositionInCode(source, `bar`))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `_ctx.bar`, `bar`))
-  //   ).toMatchObject(getPositionInCode(source, `bar`, true))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `baz`))
-  //   ).toMatchObject(getPositionInCode(source, `baz`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `bar`))
+    ).toMatchObject(getPositionInCode(source, `bar`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `_ctx.bar`, `bar`))
+    ).toMatchObject(getPositionInCode(source, `bar`, true))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `baz`))
+    ).toMatchObject(getPositionInCode(source, `baz`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `world`, true))
-  //   ).toMatchObject(getPositionInCode(source, `world`, `world`))
-  //   expect(
-  //     consumer.originalPositionFor(
-  //       getPositionInCode(code, `_ctx.world`, `world`)
-  //     )
-  //   ).toMatchObject(getPositionInCode(source, `world`, `world`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `world`, true))
+    ).toMatchObject(getPositionInCode(source, `world`, `world`))
+    expect(
+      consumer.originalPositionFor(
+        getPositionInCode(code, `_ctx.world`, `world`)
+      )
+    ).toMatchObject(getPositionInCode(source, `world`, `world`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `burn()`))
-  //   ).toMatchObject(getPositionInCode(source, `burn()`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `burn()`))
+    ).toMatchObject(getPositionInCode(source, `burn()`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `ok`))
-  //   ).toMatchObject(getPositionInCode(source, `ok`))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `_ctx.ok`, `ok`))
-  //   ).toMatchObject(getPositionInCode(source, `ok`, true))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `ok`))
+    ).toMatchObject(getPositionInCode(source, `ok`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `_ctx.ok`, `ok`))
+    ).toMatchObject(getPositionInCode(source, `ok`, true))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `list`))
-  //   ).toMatchObject(getPositionInCode(source, `list`))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `_ctx.list`, `list`))
-  //   ).toMatchObject(getPositionInCode(source, `list`, true))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `list`))
+    ).toMatchObject(getPositionInCode(source, `list`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `_ctx.list`, `list`))
+    ).toMatchObject(getPositionInCode(source, `list`, true))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `value`))
-  //   ).toMatchObject(getPositionInCode(source, `value`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `value`))
+    ).toMatchObject(getPositionInCode(source, `value`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `index`))
-  //   ).toMatchObject(getPositionInCode(source, `index`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `index`))
+    ).toMatchObject(getPositionInCode(source, `index`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `value + index`))
-  //   ).toMatchObject(getPositionInCode(source, `value + index`))
-  // })
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `value + index`))
+    ).toMatchObject(getPositionInCode(source, `value + index`))
+  })
 
-  // test('module mode', () => {
-  //   const { code, map } = compile(source, {
-  //     mode: 'module',
-  //     sourceMap: true,
-  //     filename: `foo.docue`
-  //   })
+  test('module mode', () => {
+    const { code, map } = compile(source, {
+      mode: 'module',
+      sourceMap: true,
+      filename: `foo.docue`
+    })
 
-  //   expect(code).toMatchSnapshot()
-  //   expect(map!.sources).toEqual([`foo.docue`])
-  //   expect(map!.sourcesContent).toEqual([source])
+    expect(code).toMatchSnapshot()
+    expect(map!.sources).toEqual([`foo.docue`])
+    expect(map!.sourcesContent).toEqual([source])
 
-  //   const consumer = new SourceMapConsumer(map as RawSourceMap)
+    const consumer = new SourceMapConsumer(map as RawSourceMap)
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `id`))
-  //   ).toMatchObject(getPositionInCode(source, `id`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `id`))
+    ).toMatchObject(getPositionInCode(source, `id`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `"foo"`))
-  //   ).toMatchObject(getPositionInCode(source, `"foo"`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `"foo"`))
+    ).toMatchObject(getPositionInCode(source, `"foo"`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `class:`))
-  //   ).toMatchObject(getPositionInCode(source, `class=`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `class:`))
+    ).toMatchObject(getPositionInCode(source, `class=`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `bar`))
-  //   ).toMatchObject(getPositionInCode(source, `bar`))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `_ctx.bar`, `bar`))
-  //   ).toMatchObject(getPositionInCode(source, `bar`, true))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `baz`))
-  //   ).toMatchObject(getPositionInCode(source, `baz`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `bar`))
+    ).toMatchObject(getPositionInCode(source, `bar`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `_ctx.bar`, `bar`))
+    ).toMatchObject(getPositionInCode(source, `bar`, true))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `baz`))
+    ).toMatchObject(getPositionInCode(source, `baz`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `world`, true))
-  //   ).toMatchObject(getPositionInCode(source, `world`, `world`))
-  //   expect(
-  //     consumer.originalPositionFor(
-  //       getPositionInCode(code, `_ctx.world`, `world`)
-  //     )
-  //   ).toMatchObject(getPositionInCode(source, `world`, `world`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `world`, true))
+    ).toMatchObject(getPositionInCode(source, `world`, `world`))
+    expect(
+      consumer.originalPositionFor(
+        getPositionInCode(code, `_ctx.world`, `world`)
+      )
+    ).toMatchObject(getPositionInCode(source, `world`, `world`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `burn()`))
-  //   ).toMatchObject(getPositionInCode(source, `burn()`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `burn()`))
+    ).toMatchObject(getPositionInCode(source, `burn()`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `ok`))
-  //   ).toMatchObject(getPositionInCode(source, `ok`))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `_ctx.ok`, `ok`))
-  //   ).toMatchObject(getPositionInCode(source, `ok`, true))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `ok`))
+    ).toMatchObject(getPositionInCode(source, `ok`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `_ctx.ok`, `ok`))
+    ).toMatchObject(getPositionInCode(source, `ok`, true))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `list`))
-  //   ).toMatchObject(getPositionInCode(source, `list`))
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `_ctx.list`, `list`))
-  //   ).toMatchObject(getPositionInCode(source, `list`, true))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `list`))
+    ).toMatchObject(getPositionInCode(source, `list`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `_ctx.list`, `list`))
+    ).toMatchObject(getPositionInCode(source, `list`, true))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `value`))
-  //   ).toMatchObject(getPositionInCode(source, `value`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `value`))
+    ).toMatchObject(getPositionInCode(source, `value`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `index`))
-  //   ).toMatchObject(getPositionInCode(source, `index`))
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `index`))
+    ).toMatchObject(getPositionInCode(source, `index`))
 
-  //   expect(
-  //     consumer.originalPositionFor(getPositionInCode(code, `value + index`))
-  //   ).toMatchObject(getPositionInCode(source, `value + index`))
-  // })
+    expect(
+      consumer.originalPositionFor(getPositionInCode(code, `value + index`))
+    ).toMatchObject(getPositionInCode(source, `value + index`))
+  })
 })

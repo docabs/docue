@@ -10,17 +10,17 @@ import {
 import { ErrorCodes, createCompilerError } from '../src/errors'
 import {
   TO_DISPLAY_STRING,
-  //   FRAGMENT,
-  //   RENDER_SLOT,
+  FRAGMENT,
+  RENDER_SLOT,
   CREATE_COMMENT
 } from '../src/runtimeHelpers'
-// import { transformIf } from '../src/transforms/vIf'
-// import { transformFor } from '../src/transforms/vFor'
-// import { transformElement } from '../src/transforms/transformElement'
-// import { transformSlotOutlet } from '../src/transforms/transformSlotOutlet'
-// import { transformText } from '../src/transforms/transformText'
-// import { genFlagText } from './testUtils'
-// import { PatchFlags } from '@docue/shared'
+import { transformIf } from '../src/transforms/vIf'
+import { transformFor } from '../src/transforms/vFor'
+import { transformElement } from '../src/transforms/transformElement'
+import { transformSlotOutlet } from '../src/transforms/transformSlotOutlet'
+import { transformText } from '../src/transforms/transformText'
+import { genFlagText } from './testUtils'
+import { PatchFlags } from '@docue/shared'
 
 describe('compiler: transform', () => {
   test('context state', () => {
@@ -222,119 +222,130 @@ describe('compiler: transform', () => {
   })
 
   describe('root codegenNode', () => {
-    // function transformWithCodegen(template: string) {
-    //   const ast = baseParse(template)
-    //   transform(ast, {
-    //     nodeTransforms: [
-    //       transformIf,
-    //       transformFor,
-    //       transformText,
-    //       transformSlotOutlet,
-    //       transformElement
-    //     ]
-    //   })
-    //   return ast
-    // }
-    // function createBlockMatcher(
-    //   tag: VNodeCall['tag'],
-    //   props?: VNodeCall['props'],
-    //   children?: VNodeCall['children'],
-    //   patchFlag?: VNodeCall['patchFlag']
-    // ) {
-    //   return {
-    //     type: NodeTypes.VNODE_CALL,
-    //     isBlock: true,
-    //     tag,
-    //     props,
-    //     children,
-    //     patchFlag
-    //   }
-    // }
-    // test('no children', () => {
-    //   const ast = transformWithCodegen(``)
-    //   expect(ast.codegenNode).toBeUndefined()
-    // })
-    //     test('single <slot/>', () => {
-    //       const ast = transformWithCodegen(`<slot/>`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         codegenNode: {
-    //           type: NodeTypes.JS_CALL_EXPRESSION,
-    //           callee: RENDER_SLOT
-    //         }
-    //       })
-    //     })
-    //     test('single element', () => {
-    //       const ast = transformWithCodegen(`<div/>`)
-    //       expect(ast.codegenNode).toMatchObject(createBlockMatcher(`"div"`))
-    //     })
-    //     test('root v-if', () => {
-    //       const ast = transformWithCodegen(`<div v-if="ok" />`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         type: NodeTypes.IF
-    //       })
-    //     })
-    //     test('root v-for', () => {
-    //       const ast = transformWithCodegen(`<div v-for="i in list" />`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         type: NodeTypes.FOR
-    //       })
-    //     })
-    //     test('root element with custom directive', () => {
-    //       const ast = transformWithCodegen(`<div v-foo/>`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         type: NodeTypes.VNODE_CALL,
-    //         directives: { type: NodeTypes.JS_ARRAY_EXPRESSION }
-    //       })
-    //     })
-    //     test('single text', () => {
-    //       const ast = transformWithCodegen(`hello`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         type: NodeTypes.TEXT
-    //       })
-    //     })
-    //     test('single interpolation', () => {
-    //       const ast = transformWithCodegen(`{{ foo }}`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         type: NodeTypes.INTERPOLATION
-    //       })
-    //     })
-    //     test('single CompoundExpression', () => {
-    //       const ast = transformWithCodegen(`{{ foo }} bar baz`)
-    //       expect(ast.codegenNode).toMatchObject({
-    //         type: NodeTypes.COMPOUND_EXPRESSION
-    //       })
-    //     })
-    //     test('multiple children', () => {
-    //       const ast = transformWithCodegen(`<div/><div/>`)
-    //       expect(ast.codegenNode).toMatchObject(
-    //         createBlockMatcher(
-    //           FRAGMENT,
-    //           undefined,
-    //           [
-    //             { type: NodeTypes.ELEMENT, tag: `div` },
-    //             { type: NodeTypes.ELEMENT, tag: `div` }
-    //           ] as any,
-    //           genFlagText(PatchFlags.STABLE_FRAGMENT)
-    //         )
-    //       )
-    //     })
-    //     test('multiple children w/ single root + comments', () => {
-    //       const ast = transformWithCodegen(`<!--foo--><div/><!--bar-->`)
-    //       expect(ast.codegenNode).toMatchObject(
-    //         createBlockMatcher(
-    //           FRAGMENT,
-    //           undefined,
-    //           [
-    //             { type: NodeTypes.COMMENT },
-    //             { type: NodeTypes.ELEMENT, tag: `div` },
-    //             { type: NodeTypes.COMMENT }
-    //           ] as any,
-    //           genFlagText([
-    //             PatchFlags.STABLE_FRAGMENT,
-    //             PatchFlags.DEV_ROOT_FRAGMENT
-    //           ])
-    //         )
-    //       )
-    //     })
+    function transformWithCodegen(template: string) {
+      const ast = baseParse(template)
+      transform(ast, {
+        nodeTransforms: [
+          transformIf,
+          transformFor,
+          transformText,
+          transformSlotOutlet,
+          transformElement
+        ]
+      })
+      return ast
+    }
+    function createBlockMatcher(
+      tag: VNodeCall['tag'],
+      props?: VNodeCall['props'],
+      children?: VNodeCall['children'],
+      patchFlag?: VNodeCall['patchFlag']
+    ) {
+      return {
+        type: NodeTypes.VNODE_CALL,
+        isBlock: true,
+        tag,
+        props,
+        children,
+        patchFlag
+      }
+    }
+
+    test('no children', () => {
+      const ast = transformWithCodegen(``)
+      expect(ast.codegenNode).toBeUndefined()
+    })
+
+    test('single <slot/>', () => {
+      const ast = transformWithCodegen(`<slot/>`)
+      expect(ast.codegenNode).toMatchObject({
+        codegenNode: {
+          type: NodeTypes.JS_CALL_EXPRESSION,
+          callee: RENDER_SLOT
+        }
+      })
+    })
+
+    test('single element', () => {
+      const ast = transformWithCodegen(`<div/>`)
+      expect(ast.codegenNode).toMatchObject(createBlockMatcher(`"div"`))
+    })
+
+    test('root v-if', () => {
+      const ast = transformWithCodegen(`<div v-if="ok" />`)
+      expect(ast.codegenNode).toMatchObject({
+        type: NodeTypes.IF
+      })
+    })
+
+    test('root v-for', () => {
+      const ast = transformWithCodegen(`<div v-for="i in list" />`)
+      expect(ast.codegenNode).toMatchObject({
+        type: NodeTypes.FOR
+      })
+    })
+
+    test('root element with custom directive', () => {
+      const ast = transformWithCodegen(`<div v-foo/>`)
+      expect(ast.codegenNode).toMatchObject({
+        type: NodeTypes.VNODE_CALL,
+        directives: { type: NodeTypes.JS_ARRAY_EXPRESSION }
+      })
+    })
+
+    test('single text', () => {
+      const ast = transformWithCodegen(`hello`)
+      expect(ast.codegenNode).toMatchObject({
+        type: NodeTypes.TEXT
+      })
+    })
+
+    test('single interpolation', () => {
+      const ast = transformWithCodegen(`{{ foo }}`)
+      expect(ast.codegenNode).toMatchObject({
+        type: NodeTypes.INTERPOLATION
+      })
+    })
+
+    test('single CompoundExpression', () => {
+      const ast = transformWithCodegen(`{{ foo }} bar baz`)
+      expect(ast.codegenNode).toMatchObject({
+        type: NodeTypes.COMPOUND_EXPRESSION
+      })
+    })
+
+    test('multiple children', () => {
+      const ast = transformWithCodegen(`<div/><div/>`)
+      expect(ast.codegenNode).toMatchObject(
+        createBlockMatcher(
+          FRAGMENT,
+          undefined,
+          [
+            { type: NodeTypes.ELEMENT, tag: `div` },
+            { type: NodeTypes.ELEMENT, tag: `div` }
+          ] as any,
+          genFlagText(PatchFlags.STABLE_FRAGMENT)
+        )
+      )
+    })
+
+    test('multiple children w/ single root + comments', () => {
+      const ast = transformWithCodegen(`<!--foo--><div/><!--bar-->`)
+      expect(ast.codegenNode).toMatchObject(
+        createBlockMatcher(
+          FRAGMENT,
+          undefined,
+          [
+            { type: NodeTypes.COMMENT },
+            { type: NodeTypes.ELEMENT, tag: `div` },
+            { type: NodeTypes.COMMENT }
+          ] as any,
+          genFlagText([
+            PatchFlags.STABLE_FRAGMENT,
+            PatchFlags.DEV_ROOT_FRAGMENT
+          ])
+        )
+      )
+    })
   })
 })
