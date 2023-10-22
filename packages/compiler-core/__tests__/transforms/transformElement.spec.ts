@@ -33,7 +33,7 @@ import {
   VNodeCall
 } from '../../src/ast'
 import { transformElement } from '../../src/transforms/transformElement'
-// import { transformStyle } from '../../../compiler-dom/src/transforms/transformStyle'
+import { transformStyle } from '../../../compiler-dom/src/transforms/transformStyle'
 import { transformOn } from '../../src/transforms/vOn'
 import { transformBind } from '../../src/transforms/vBind'
 import { PatchFlags } from '@docue/shared'
@@ -742,113 +742,114 @@ describe('compiler: element transform', () => {
     })
   })
 
-  // test(`props merging: style`, () => {
-  //   const { node, root } = parseWithElementTransform(
-  //     `<div style="color: green" :style="{ color: 'red' }" />`,
-  //     {
-  //       nodeTransforms: [transformStyle, transformElement],
-  //       directiveTransforms: {
-  //         bind: transformBind
-  //       }
-  //     }
-  //   )
-  //   expect(root.helpers).toContain(NORMALIZE_STYLE)
-  //   expect(node.props).toMatchObject({
-  //     type: NodeTypes.JS_OBJECT_EXPRESSION,
-  //     properties: [
-  //       {
-  //         type: NodeTypes.JS_PROPERTY,
-  //         key: {
-  //           type: NodeTypes.SIMPLE_EXPRESSION,
-  //           content: `style`,
-  //           isStatic: true
-  //         },
-  //         value: {
-  //           type: NodeTypes.JS_CALL_EXPRESSION,
-  //           callee: NORMALIZE_STYLE,
-  //           arguments: [
-  //             {
-  //               type: NodeTypes.JS_ARRAY_EXPRESSION,
-  //               elements: [
-  //                 {
-  //                   type: NodeTypes.SIMPLE_EXPRESSION,
-  //                   content: `{"color":"green"}`,
-  //                   isStatic: false
-  //                 },
-  //                 {
-  //                   type: NodeTypes.SIMPLE_EXPRESSION,
-  //                   content: `{ color: 'red' }`,
-  //                   isStatic: false
-  //                 }
-  //               ]
-  //             }
-  //           ]
-  //         }
-  //       }
-  //     ]
-  //   })
-  // })
+  test(`props merging: style`, () => {
+    const { node, root } = parseWithElementTransform(
+      `<div style="color: green" :style="{ color: 'red' }" />`,
+      {
+        nodeTransforms: [transformStyle, transformElement],
+        directiveTransforms: {
+          bind: transformBind
+        }
+      }
+    )
+    expect(root.helpers).toContain(NORMALIZE_STYLE)
+    expect(node.props).toMatchObject({
+      type: NodeTypes.JS_OBJECT_EXPRESSION,
+      properties: [
+        {
+          type: NodeTypes.JS_PROPERTY,
+          key: {
+            type: NodeTypes.SIMPLE_EXPRESSION,
+            content: `style`,
+            isStatic: true
+          },
+          value: {
+            type: NodeTypes.JS_CALL_EXPRESSION,
+            callee: NORMALIZE_STYLE,
+            arguments: [
+              {
+                type: NodeTypes.JS_ARRAY_EXPRESSION,
+                elements: [
+                  {
+                    type: NodeTypes.SIMPLE_EXPRESSION,
+                    content: `{"color":"green"}`,
+                    isStatic: false
+                  },
+                  {
+                    type: NodeTypes.SIMPLE_EXPRESSION,
+                    content: `{ color: 'red' }`,
+                    isStatic: false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    })
+  })
 
-  //   test(`props merging: style w/ transformExpression`, () => {
-  //     const { node, root } = parseWithElementTransform(
-  //       `<div style="color: green" :style="{ color: 'red' }" />`,
-  //       {
-  //         nodeTransforms: [transformExpression, transformStyle, transformElement],
-  //         directiveTransforms: {
-  //           bind: transformBind
-  //         },
-  //         prefixIdentifiers: true
-  //       }
-  //     )
-  //     expect(root.helpers).toContain(NORMALIZE_STYLE)
-  //     expect(node.props).toMatchObject({
-  //       type: NodeTypes.JS_OBJECT_EXPRESSION,
-  //       properties: [
-  //         {
-  //           type: NodeTypes.JS_PROPERTY,
-  //           key: {
-  //             type: NodeTypes.SIMPLE_EXPRESSION,
-  //             content: `style`,
-  //             isStatic: true
-  //           },
-  //           value: {
-  //             type: NodeTypes.JS_CALL_EXPRESSION,
-  //             callee: NORMALIZE_STYLE
-  //           }
-  //         }
-  //       ]
-  //     })
-  //   })
-  //   test(':style with array literal', () => {
-  //     const { node, root } = parseWithElementTransform(
-  //       `<div :style="[{ color: 'red' }]" />`,
-  //       {
-  //         nodeTransforms: [transformExpression, transformStyle, transformElement],
-  //         directiveTransforms: {
-  //           bind: transformBind
-  //         },
-  //         prefixIdentifiers: true
-  //       }
-  //     )
-  //     expect(root.helpers).toContain(NORMALIZE_STYLE)
-  //     expect(node.props).toMatchObject({
-  //       type: NodeTypes.JS_OBJECT_EXPRESSION,
-  //       properties: [
-  //         {
-  //           type: NodeTypes.JS_PROPERTY,
-  //           key: {
-  //             type: NodeTypes.SIMPLE_EXPRESSION,
-  //             content: `style`,
-  //             isStatic: true
-  //           },
-  //           value: {
-  //             type: NodeTypes.JS_CALL_EXPRESSION,
-  //             callee: NORMALIZE_STYLE
-  //           }
-  //         }
-  //       ]
-  //     })
-  //   })
+  test(`props merging: style w/ transformExpression`, () => {
+    const { node, root } = parseWithElementTransform(
+      `<div style="color: green" :style="{ color: 'red' }" />`,
+      {
+        nodeTransforms: [transformExpression, transformStyle, transformElement],
+        directiveTransforms: {
+          bind: transformBind
+        },
+        prefixIdentifiers: true
+      }
+    )
+    expect(root.helpers).toContain(NORMALIZE_STYLE)
+    expect(node.props).toMatchObject({
+      type: NodeTypes.JS_OBJECT_EXPRESSION,
+      properties: [
+        {
+          type: NodeTypes.JS_PROPERTY,
+          key: {
+            type: NodeTypes.SIMPLE_EXPRESSION,
+            content: `style`,
+            isStatic: true
+          },
+          value: {
+            type: NodeTypes.JS_CALL_EXPRESSION,
+            callee: NORMALIZE_STYLE
+          }
+        }
+      ]
+    })
+  })
+
+  test(':style with array literal', () => {
+    const { node, root } = parseWithElementTransform(
+      `<div :style="[{ color: 'red' }]" />`,
+      {
+        nodeTransforms: [transformExpression, transformStyle, transformElement],
+        directiveTransforms: {
+          bind: transformBind
+        },
+        prefixIdentifiers: true
+      }
+    )
+    expect(root.helpers).toContain(NORMALIZE_STYLE)
+    expect(node.props).toMatchObject({
+      type: NodeTypes.JS_OBJECT_EXPRESSION,
+      properties: [
+        {
+          type: NodeTypes.JS_PROPERTY,
+          key: {
+            type: NodeTypes.SIMPLE_EXPRESSION,
+            content: `style`,
+            isStatic: true
+          },
+          value: {
+            type: NodeTypes.JS_CALL_EXPRESSION,
+            callee: NORMALIZE_STYLE
+          }
+        }
+      ]
+    })
+  })
 
   test(`props merging: class`, () => {
     const { node, root } = parseWithElementTransform(

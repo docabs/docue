@@ -770,22 +770,22 @@ export function buildProps(
               [classProp.value]
             )
           }
-          // if (
-          //   styleProp &&
-          //   // the static style is compiled into an object,
-          //   // so use `hasStyleBinding` to ensure that it is a dynamic style binding
-          //   (hasStyleBinding ||
-          //     (styleProp.value.type === NodeTypes.SIMPLE_EXPRESSION &&
-          //       styleProp.value.content.trim()[0] === `[`) ||
-          //     // v-bind:style and style both exist,
-          //     // v-bind:style with static literal object
-          //     styleProp.value.type === NodeTypes.JS_ARRAY_EXPRESSION)
-          // ) {
-          //   styleProp.value = createCallExpression(
-          //     context.helper(NORMALIZE_STYLE),
-          //     [styleProp.value]
-          //   )
-          // }
+          if (
+            styleProp &&
+            // the static style is compiled into an object,
+            // so use `hasStyleBinding` to ensure that it is a dynamic style binding
+            (hasStyleBinding ||
+              (styleProp.value.type === NodeTypes.SIMPLE_EXPRESSION &&
+                styleProp.value.content.trim()[0] === `[`) ||
+              // v-bind:style and style both exist,
+              // v-bind:style with static literal object
+              styleProp.value.type === NodeTypes.JS_ARRAY_EXPRESSION)
+          ) {
+            styleProp.value = createCallExpression(
+              context.helper(NORMALIZE_STYLE),
+              [styleProp.value]
+            )
+          }
         } else {
           // dynamic key binding, wrap with `normalizeProps`
           propsExpression = createCallExpression(

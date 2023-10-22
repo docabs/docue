@@ -376,10 +376,10 @@ function genModulePreamble(
     runtimeModuleName,
     ssrRuntimeModuleName
   } = context
-  //   if (genScopeId && ast.hoists.length) {
-  //     ast.helpers.add(PUSH_SCOPE_ID)
-  //     ast.helpers.add(POP_SCOPE_ID)
-  //   }
+  if (genScopeId && ast.hoists.length) {
+    ast.helpers.add(PUSH_SCOPE_ID)
+    ast.helpers.add(POP_SCOPE_ID)
+  }
   // generate import statements for helpers
   if (ast.helpers.size) {
     const helpers = Array.from(ast.helpers)
