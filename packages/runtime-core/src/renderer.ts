@@ -326,7 +326,7 @@ function baseCreateRenderer(
   const target = getGlobalThis()
   target.__DOCUE__ = true
   // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-  //   setDevtoolsHook(target.__VUE_DEVTOOLS_GLOBAL_HOOK__, target)
+  //   setDevtoolsHook(target.__DOCUE_DEVTOOLS_GLOBAL_HOOK__, target)
   // }
 
   const {

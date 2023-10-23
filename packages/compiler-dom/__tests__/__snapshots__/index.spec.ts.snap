@@ -1,11 +1,11 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compile > should contain standard transforms 1`] = `
-"const _Vue = Vue
+"const _Docue = Docue
 
 return function render(_ctx, _cache) {
   with (_ctx) {
-    const { toDisplayString: _toDisplayString, createElementVNode: _createElementVNode, normalizeStyle: _normalizeStyle, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Vue
+    const { toDisplayString: _toDisplayString, createElementVNode: _createElementVNode, normalizeStyle: _normalizeStyle, Fragment: _Fragment, openBlock: _openBlock, createElementBlock: _createElementBlock } = _Docue
 
     return (_openBlock(), _createElementBlock(_Fragment, null, [
       _createElementVNode(\\"div\\", {

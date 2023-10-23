@@ -22,7 +22,7 @@ const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const masterVersion = require('./package.json').version
-const consolidatePkg = require('@vue/consolidate/package.json')
+const consolidatePkg = require('@docue/consolidate/package.json')
 
 const packagesDir = path.resolve(__dirname, 'packages')
 const packageDir = path.resolve(packagesDir, process.env.TARGET)
@@ -103,7 +103,7 @@ function createConfig(format, output, plugins = []) {
   const isNodeBuild = format === 'cjs'
   const isGlobalBuild = /global/.test(format)
   const isCompatPackage =
-    pkg.name === '@vue/compat' || pkg.name === '@vue/compat-canary'
+    pkg.name === '@docue/compat' || pkg.name === '@docue/compat-canary'
   const isCompatBuild = !!packageOptions.compat
   const isBrowserBuild =
     (isGlobalBuild || isBrowserESMBuild || isBundlerESMBuild) &&
@@ -229,7 +229,7 @@ function createConfig(format, output, plugins = []) {
       return [
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.peerDependencies || {}),
-        // for @vue/compiler-sfc / server-renderer
+        // for @docue/compiler-sfc / server-renderer
         ...['path', 'url', 'stream'],
         // somehow these throw warnings for runtime-* package builds
         ...treeShakenDeps

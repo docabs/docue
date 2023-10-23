@@ -136,7 +136,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
   [DeprecationTypes.CONFIG_DEVTOOLS]: {
     message:
       `config.devtools has been removed. To enable devtools for ` +
-      `production, configure the __VUE_PROD_DEVTOOLS__ compile-time flag.`,
+      `production, configure the __DOCUE_PROD_DEVTOOLS__ compile-time flag.`,
     link: `https://github.com/docuejs/core/tree/main/packages/docue#bundler-build-feature-flags`
   },
 

@@ -291,16 +291,16 @@ export function isStaticArgOf(
   return !!(arg && isStaticExp(arg) && arg.content === name)
 }
 
-// export function hasDynamicKeyVBind(node: ElementNode): boolean {
-//   return node.props.some(
-//     p =>
-//       p.type === NodeTypes.DIRECTIVE &&
-//       p.name === 'bind' &&
-//       (!p.arg || // v-bind="obj"
-//         p.arg.type !== NodeTypes.SIMPLE_EXPRESSION || // v-bind:[_ctx.foo]
-//         !p.arg.isStatic) // v-bind:[foo]
-//   )
-// }
+export function hasDynamicKeyVBind(node: ElementNode): boolean {
+  return node.props.some(
+    p =>
+      p.type === NodeTypes.DIRECTIVE &&
+      p.name === 'bind' &&
+      (!p.arg || // v-bind="obj"
+        p.arg.type !== NodeTypes.SIMPLE_EXPRESSION || // v-bind:[_ctx.foo]
+        !p.arg.isStatic) // v-bind:[foo]
+  )
+}
 
 export function isText(
   node: TemplateChildNode

@@ -14,8 +14,8 @@ import * as runtimeTest from '@docue/runtime-test'
 import { registerRuntimeCompiler, createApp } from '@docue/runtime-test'
 import { baseCompile } from '@docue/compiler-core'
 
-declare var __VUE_HMR_RUNTIME__: HMRRuntime
-const { createRecord, rerender, reload } = __VUE_HMR_RUNTIME__
+declare var __DOCUE_HMR_RUNTIME__: HMRRuntime
+const { createRecord, rerender, reload } = __DOCUE_HMR_RUNTIME__
 
 registerRuntimeCompiler(compileToFunction)
 

@@ -48,7 +48,7 @@ if (!inlineDeps) {
       ...external,
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
-      // for @vue/compiler-sfc / server-renderer
+      // for @docue/compiler-sfc / server-renderer
       'path',
       'url',
       'stream'
@@ -57,7 +57,7 @@ if (!inlineDeps) {
 
   if (target === 'compiler-sfc') {
     const consolidatePkgPath = require.resolve(
-      '@vue/consolidate/package.json',
+      '@docue/consolidate/package.json',
       {
         paths: [resolve(__dirname, `../packages/${target}/`)]
       }

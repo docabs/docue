@@ -15,7 +15,8 @@ export default defineConfig({
     __FEATURE_OPTIONS_API__: true,
     __FEATURE_SUSPENSE__: true,
     __FEATURE_PROD_DEVTOOLS__: false,
-    __COMPAT__: true
+    // __COMPAT__: true
+    __COMPAT__: false
   },
   resolve: {
     alias: entries

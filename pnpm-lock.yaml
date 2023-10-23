@@ -14,7 +14,7 @@ importers:
       '@rollup/plugin-terser': ^0.4.3
       '@types/node': ^20.5.9
       '@vitest/coverage-istanbul': ^0.34.3
-      '@vue/consolidate': ^0.17.3
+      '@docue/consolidate': ^0.17.3
       chalk: '4.1'
       esbuild: ^0.19.2
       esbuild-plugin-polyfill-node: ^0.3.0
@@ -46,7 +46,7 @@ importers:
       '@rollup/plugin-terser': registry.npmmirror.com/@rollup/plugin-terser/0.4.3_rollup@3.28.1
       '@types/node': registry.npmmirror.com/@types/node/20.5.9
       '@vitest/coverage-istanbul': registry.npmmirror.com/@vitest/coverage-istanbul/0.34.3_vitest@0.34.3
-      '@vue/consolidate': registry.npmmirror.com/@vue/consolidate/0.17.3
+      '@docue/consolidate': registry.npmmirror.com/@docue/consolidate/0.17.3
       chalk: registry.npmmirror.com/chalk/4.1.2
       esbuild: registry.npmmirror.com/esbuild/0.19.2
       esbuild-plugin-polyfill-node: registry.npmmirror.com/esbuild-plugin-polyfill-node/0.3.0_esbuild@0.19.2
@@ -1326,9 +1326,9 @@ packages:
       pretty-format: registry.npmmirror.com/pretty-format/29.6.3
     dev: true
 
-  registry.npmmirror.com/@vue/consolidate/0.17.3:
-    resolution: {integrity: sha512-nl0SWcTMzaaTnJ5G6V8VlMDA1CVVrNnaQKF1aBZU3kXtjgU9jtHMsEAsgjoRUx+T0EVJk9TgbmxGhK3pOk22zw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@vue/consolidate/-/consolidate-0.17.3.tgz}
-    name: '@vue/consolidate'
+  registry.npmmirror.com/@docue/consolidate/0.17.3:
+    resolution: {integrity: sha512-nl0SWcTMzaaTnJ5G6V8VlMDA1CVVrNnaQKF1aBZU3kXtjgU9jtHMsEAsgjoRUx+T0EVJk9TgbmxGhK3pOk22zw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@docue/consolidate/-/consolidate-0.17.3.tgz}
+    name: '@docue/consolidate'
     version: 0.17.3
     engines: {node: '>= 0.12.0'}
     dev: true
