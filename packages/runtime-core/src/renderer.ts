@@ -686,8 +686,9 @@ function baseCreateRenderer(
     // #1583 For inside suspense + suspense not resolved case, enter hook should call when suspense resolved
     // #1689 For inside suspense + suspense resolved case, just call it
     const needCallTransitionHooks =
-      // (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
-      transition && !transition.persisted
+      (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
+      transition &&
+      !transition.persisted
     if (needCallTransitionHooks) {
       transition!.beforeEnter(el)
     }

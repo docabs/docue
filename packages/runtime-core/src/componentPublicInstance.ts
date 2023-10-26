@@ -516,7 +516,7 @@ export const RuntimeCompiledPublicInstanceProxyHandlers = /*#__PURE__*/ extend(
         warn(
           `Property ${JSON.stringify(
             key
-          )} should not start with _ which is a reserved prefix for Vue internals.`
+          )} should not start with _ which is a reserved prefix for  internals.`
         )
       }
       return has

@@ -554,24 +554,24 @@ export function buildProps(
       if (name === 'once' || name === 'memo') {
         continue
       }
-      //       // skip v-is and :is on <component>
-      //       if (
-      //         name === 'is' ||
-      //         (isVBind &&
-      //           isStaticArgOf(arg, 'is') &&
-      //           (isComponentTag(tag) ||
-      //             (__COMPAT__ &&
-      //               isCompatEnabled(
-      //                 CompilerDeprecationTypes.COMPILER_IS_ON_ELEMENT,
-      //                 context
-      //               ))))
-      //       ) {
-      //         continue
-      //       }
-      //       // skip v-on in SSR compilation
-      //       if (isVOn && ssr) {
-      //         continue
-      //       }
+      // skip v-is and :is on <component>
+      if (
+        name === 'is' ||
+        (isVBind &&
+          isStaticArgOf(arg, 'is') &&
+          (isComponentTag(tag) ||
+            (__COMPAT__ &&
+              isCompatEnabled(
+                CompilerDeprecationTypes.COMPILER_IS_ON_ELEMENT,
+                context
+              ))))
+      ) {
+        continue
+      }
+      // skip v-on in SSR compilation
+      if (isVOn && ssr) {
+        continue
+      }
 
       if (
         // #938: elements with dynamic keys should be forced into blocks

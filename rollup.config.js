@@ -22,7 +22,7 @@ const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const masterVersion = require('./package.json').version
-const consolidatePkg = require('@docue/consolidate/package.json')
+const consolidatePkg = require('@vue/consolidate/package.json')
 
 const packagesDir = path.resolve(__dirname, 'packages')
 const packageDir = path.resolve(packagesDir, process.env.TARGET)

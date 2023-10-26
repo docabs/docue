@@ -1162,26 +1162,26 @@ describe('compiler: element transform', () => {
       })
     })
 
-    //     // TODO remove in 3.4
-    //     test('v-is', () => {
-    //       const { node, root } = parseWithBind(`<div v-is="'foo'" />`)
-    //       expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
-    //       expect(node).toMatchObject({
-    //         tag: {
-    //           callee: RESOLVE_DYNAMIC_COMPONENT,
-    //           arguments: [
-    //             {
-    //               type: NodeTypes.SIMPLE_EXPRESSION,
-    //               content: `'foo'`,
-    //               isStatic: false
-    //             }
-    //           ]
-    //         },
-    //         // should skip v-is runtime check
-    //         directives: undefined
-    //       })
-    //       expect('v-is="component-name" has been deprecated').toHaveBeenWarned()
-    //     })
+    // TODO remove in 3.4
+    test('v-is', () => {
+      const { node, root } = parseWithBind(`<div v-is="'foo'" />`)
+      expect(root.helpers).toContain(RESOLVE_DYNAMIC_COMPONENT)
+      expect(node).toMatchObject({
+        tag: {
+          callee: RESOLVE_DYNAMIC_COMPONENT,
+          arguments: [
+            {
+              type: NodeTypes.SIMPLE_EXPRESSION,
+              content: `'foo'`,
+              isStatic: false
+            }
+          ]
+        },
+        // should skip v-is runtime check
+        directives: undefined
+      })
+      expect('v-is="component-name" has been deprecated').toHaveBeenWarned()
+    })
 
     // #3934
     test('normal component with is prop', () => {

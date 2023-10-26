@@ -196,8 +196,8 @@ export { Transition, type TransitionProps } from './components/Transition'
 export {
   vModelText,
   vModelCheckbox,
-  // vModelRadio,
-  // vModelSelect,
+  vModelRadio,
+  vModelSelect,
   vModelDynamic
 } from './directives/vModel'
 export { withModifiers, withKeys } from './directives/vOn'

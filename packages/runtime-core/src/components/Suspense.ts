@@ -488,20 +488,23 @@ function createSuspenseBoundary(
         container
       } = suspense
 
+      let delayEnter: boolean | null = false
+
       if (suspense.isHydrating) {
         //         suspense.isHydrating = false
       } else if (!resume) {
-        const delayEnter =
+        delayEnter =
           activeBranch &&
           pendingBranch!.transition &&
           pendingBranch!.transition.mode === 'out-in'
-        //         if (delayEnter) {
-        //           activeBranch!.transition!.afterLeave = () => {
-        //             if (pendingId === suspense.pendingId) {
-        //               move(pendingBranch!, container, anchor, MoveType.ENTER)
-        //             }
-        //           }
-        //         }
+        if (delayEnter) {
+          activeBranch!.transition!.afterLeave = () => {
+            if (pendingId === suspense.pendingId) {
+              move(pendingBranch!, container, anchor, MoveType.ENTER)
+              queuePostFlushCb(effects)
+            }
+          }
+        }
         // this is initial anchor on mount
         let { anchor } = suspense
         // unmount current active tree
@@ -534,8 +537,8 @@ function createSuspenseBoundary(
         }
         parent = parent.parent
       }
-      // no pending parent suspense, flush all jobs
-      if (!hasUnresolvedAncestor) {
+      // no pending parent suspense nor transition, flush all jobs
+      if (!hasUnresolvedAncestor && !delayEnter) {
         queuePostFlushCb(effects)
       }
       suspense.effects = []
