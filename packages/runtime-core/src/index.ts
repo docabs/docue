@@ -123,7 +123,7 @@ export {
   resolveDynamicComponent
 } from './helpers/resolveAssets'
 // For integration with runtime compiler
-// export { registerRuntimeCompiler, isRuntimeOnly } from './component'
+export { registerRuntimeCompiler, isRuntimeOnly } from './component'
 export {
   useTransitionState,
   resolveTransitionHooks,
@@ -156,30 +156,30 @@ declare module '@docue/reactivity' {
 export { TrackOpTypes, TriggerOpTypes } from '@docue/reactivity'
 export type {
   Ref,
-  // MaybeRef,
-  // MaybeRefOrGetter,
-  // ToRef,
-  // ToRefs,
+  MaybeRef,
+  MaybeRefOrGetter,
+  ToRef,
+  ToRefs,
   UnwrapRef,
   ShallowRef,
   ShallowUnwrapRef,
-  // CustomRefFactory,
+  CustomRefFactory,
   ReactiveFlags,
-  // DeepReadonly,
-  // ShallowReactive,
+  DeepReadonly,
+  ShallowReactive,
   UnwrapNestedRefs,
   ComputedRef,
   WritableComputedRef,
   WritableComputedOptions,
   ComputedGetter,
-  // ComputedSetter,
+  ComputedSetter,
   ReactiveEffectRunner,
-  // ReactiveEffectOptions,
-  // EffectScheduler,
-  // DebuggerOptions,
-  DebuggerEvent
-  // DebuggerEventExtraInfo,
-  // Raw
+  ReactiveEffectOptions,
+  EffectScheduler,
+  DebuggerOptions,
+  DebuggerEvent,
+  DebuggerEventExtraInfo,
+  Raw
 } from '@docue/reactivity'
 export type {
   WatchEffect,
@@ -228,7 +228,7 @@ export type {
   RenderFunction,
   MethodOptions,
   ComputedOptions,
-  // RuntimeCompilerOptions,
+  RuntimeCompilerOptions,
   ComponentInjectOptions
 } from './componentOptions'
 export type { EmitsOptions, ObjectEmitsOptions } from './componentEmits'
@@ -292,7 +292,7 @@ export { renderList } from './helpers/renderList'
 export { toHandlers } from './helpers/toHandlers'
 export { renderSlot } from './helpers/renderSlot'
 export { createSlots } from './helpers/createSlots'
-// export { withMemo, isMemoSame } from './helpers/withMemo'
+export { withMemo, isMemoSame } from './helpers/withMemo'
 export {
   openBlock,
   createBlock,
@@ -300,8 +300,8 @@ export {
   createTextVNode,
   createCommentVNode,
   createStaticVNode,
-  // createElementVNode,
-  // createElementBlock,
+  createElementVNode,
+  createElementBlock,
   guardReactiveProps
 } from './vnode'
 export {

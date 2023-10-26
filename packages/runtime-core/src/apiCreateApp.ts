@@ -101,10 +101,10 @@ export interface AppConfig {
    */
   compilerOptions: RuntimeCompilerOptions
 
-  // /**
-  //  * @deprecated use config.compilerOptions.isCustomElement
-  //  */
-  // isCustomElement?: (tag: string) => boolean
+  /**
+   * @deprecated use config.compilerOptions.isCustomElement
+   */
+  isCustomElement?: (tag: string) => boolean
 
   // // TODO remove in 3.4
   // /**

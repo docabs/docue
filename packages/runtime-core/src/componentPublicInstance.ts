@@ -31,6 +31,7 @@ import {
   extend,
   hasOwn,
   isFunction,
+  isGloballyAllowed,
   isString
 } from '@docue/shared'
 import { SlotsType, UnwrapSlotsType } from './componentSlots'
@@ -497,6 +498,31 @@ export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
 //     return Reflect.ownKeys(target)
 //   }
 // }
+
+export const RuntimeCompiledPublicInstanceProxyHandlers = /*#__PURE__*/ extend(
+  {},
+  PublicInstanceProxyHandlers,
+  {
+    get(target: ComponentRenderContext, key: string) {
+      // fast path for unscopables when using `with` block
+      if ((key as any) === Symbol.unscopables) {
+        return
+      }
+      return PublicInstanceProxyHandlers.get!(target, key, target)
+    },
+    has(_: ComponentRenderContext, key: string) {
+      const has = key[0] !== '_' && !isGloballyAllowed(key)
+      if (__DEV__ && !has && PublicInstanceProxyHandlers.has!(_, key)) {
+        warn(
+          `Property ${JSON.stringify(
+            key
+          )} should not start with _ which is a reserved prefix for Vue internals.`
+        )
+      }
+      return has
+    }
+  }
+)
 
 // dev only
 // In dev mode, the proxy target exposes the same properties as seen on `this`

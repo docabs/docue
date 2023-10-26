@@ -299,6 +299,30 @@ function setupBlock(vnode: VNode) {
 }
 
 /**
+ * @private
+ */
+export function createElementBlock(
+  type: string | typeof Fragment,
+  props?: Record<string, any> | null,
+  children?: any,
+  patchFlag?: number,
+  dynamicProps?: string[],
+  shapeFlag?: number
+) {
+  return setupBlock(
+    createBaseVNode(
+      type,
+      props,
+      children,
+      patchFlag,
+      dynamicProps,
+      shapeFlag,
+      true /* isBlock */
+    )
+  )
+}
+
+/**
  * Create a block root vnode. Takes the same exact arguments as `createVNode`.
  * A block root keeps track of dynamic nodes within the block in the
  * `dynamicChildren` array.
@@ -477,6 +501,8 @@ function createBaseVNode(
 
   return vnode
 }
+
+export { createBaseVNode as createElementVNode }
 
 export const createVNode = (
   __DEV__ ? createVNodeWithArgsTransform : _createVNode

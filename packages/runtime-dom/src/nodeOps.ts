@@ -1,4 +1,5 @@
 import { RendererOptions } from '@docue/runtime-core'
+
 export const svgNS = 'http://www.w3.org/2000/svg'
 
 const doc = (typeof document !== 'undefined' ? document : null) as Document
@@ -44,6 +45,12 @@ export const nodeOps: Omit<RendererOptions<Node, Element>, 'patchProp'> = {
   parentNode: node => node.parentNode as Element | null,
 
   nextSibling: node => node.nextSibling,
+
+  querySelector: selector => doc.querySelector(selector),
+
+  // setScopeId(el, id) {
+  //   el.setAttribute(id, '')
+  // },
 
   // __UNSAFE__
   // Reason: innerHTML.

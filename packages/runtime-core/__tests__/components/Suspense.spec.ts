@@ -701,48 +701,48 @@ describe('Suspense', () => {
     expect(serializeInner(root)).toBe(`<div>oops</div>`)
   })
 
-  // // #3857
-  // test('error handling w/ template optimization', async () => {
-  //   const Async = {
-  //     async setup() {
-  //       throw new Error('oops')
-  //     }
-  //   }
+  // #3857
+  test('error handling w/ template optimization', async () => {
+    const Async = {
+      async setup() {
+        throw new Error('oops')
+      }
+    }
 
-  //   const Comp = {
-  //     template: `
-  //     <div v-if="errorMessage">{{ errorMessage }}</div>
-  //     <Suspense v-else>
-  //       <div>
-  //         <Async />
-  //       </div>
-  //       <template #fallback>
-  //         <div>fallback</div>
-  //       </template>
-  //     </Suspense>
-  //     `,
-  //     components: { Async },
-  //     setup() {
-  //       const errorMessage = ref<string | null>(null)
-  //       onErrorCaptured(err => {
-  //         errorMessage.value =
-  //           err instanceof Error
-  //             ? err.message
-  //             : `A non-Error value thrown: ${err}`
-  //         return false
-  //       })
-  //       return { errorMessage }
-  //     }
-  //   }
+    const Comp = {
+      template: `
+      <div v-if="errorMessage">{{ errorMessage }}</div>
+      <Suspense v-else>
+        <div>
+          <Async />
+        </div>
+        <template #fallback>
+          <div>fallback</div>
+        </template>
+      </Suspense>
+      `,
+      components: { Async },
+      setup() {
+        const errorMessage = ref<string | null>(null)
+        onErrorCaptured(err => {
+          errorMessage.value =
+            err instanceof Error
+              ? err.message
+              : `A non-Error value thrown: ${err}`
+          return false
+        })
+        return { errorMessage }
+      }
+    }
 
-  //   const root = nodeOps.createElement('div')
-  //   render(h(Comp), root)
-  //   expect(serializeInner(root)).toBe(`<div>fallback</div>`)
+    const root = nodeOps.createElement('div')
+    render(h(Comp), root)
+    expect(serializeInner(root)).toBe(`<div>fallback</div>`)
 
-  //   await Promise.all(deps)
-  //   await nextTick()
-  //   expect(serializeInner(root)).toBe(`<div>oops</div>`)
-  // })
+    await Promise.all(deps)
+    await nextTick()
+    expect(serializeInner(root)).toBe(`<div>oops</div>`)
+  })
 
   it('combined usage (nested async + nested suspense + multiple deps)', async () => {
     const msg = ref('nested msg')
@@ -1182,29 +1182,29 @@ describe('Suspense', () => {
     expect(calls).toEqual([`one mounted`, `one unmounted`, `two mounted`])
   })
 
-  // // #2214
-  // // Since suspense renders its own root like a component, it should not patch
-  // // its content in optimized mode.
-  // test('should not miss nested element updates when used in templates', async () => {
-  //   const n = ref(1)
-  //   const Comp = {
-  //     setup() {
-  //       return { n }
-  //     },
-  //     template: `
-  //     <Suspense>
-  //       <div><span>{{ n }}</span></div>
-  //     </Suspense>
-  //     `
-  //   }
-  //   const root = document.createElement('div')
-  //   createApp(Comp).mount(root)
-  //   expect(root.innerHTML).toBe(`<div><span>1</span></div>`)
+  // #2214
+  // Since suspense renders its own root like a component, it should not patch
+  // its content in optimized mode.
+  test('should not miss nested element updates when used in templates', async () => {
+    const n = ref(1)
+    const Comp = {
+      setup() {
+        return { n }
+      },
+      template: `
+      <Suspense>
+        <div><span>{{ n }}</span></div>
+      </Suspense>
+      `
+    }
+    const root = document.createElement('div')
+    createApp(Comp).mount(root)
+    expect(root.innerHTML).toBe(`<div><span>1</span></div>`)
 
-  //   n.value++
-  //   await nextTick()
-  //   expect(root.innerHTML).toBe(`<div><span>2</span></div>`)
-  // })
+    n.value++
+    await nextTick()
+    expect(root.innerHTML).toBe(`<div><span>2</span></div>`)
+  })
 
   // #2215
   test('toggling nested async setup component inside already resolved suspense', async () => {

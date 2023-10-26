@@ -229,12 +229,12 @@ export function getConstantType(
               return ConstantTypes.NOT_CONSTANT
             }
           }
-          //           context.removeHelper(OPEN_BLOCK)
-          //           context.removeHelper(
-          //             getVNodeBlockHelper(context.inSSR, codegenNode.isComponent)
-          //           )
-          //           codegenNode.isBlock = false
-          //           context.helper(getVNodeHelper(context.inSSR, codegenNode.isComponent))
+          context.removeHelper(OPEN_BLOCK)
+          context.removeHelper(
+            getVNodeBlockHelper(context.inSSR, codegenNode.isComponent)
+          )
+          codegenNode.isBlock = false
+          context.helper(getVNodeHelper(context.inSSR, codegenNode.isComponent))
         }
         constantCache.set(node, returnType)
         return returnType

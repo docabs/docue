@@ -75,69 +75,71 @@ export const stringifyStatic: HoistTransform = (children, context, parent) => {
     return
   }
 
-  // let nc = 0 // current node count
-  // let ec = 0 // current element with binding count
-  // const currentChunk: StringifiableNode[] = []
+  let nc = 0 // current node count
+  let ec = 0 // current element with binding count
+  const currentChunk: StringifiableNode[] = []
 
-  // const stringifyCurrentChunk = (currentIndex: number): number => {
-  //   if (
-  //     nc >= StringifyThresholds.NODE_COUNT ||
-  //     ec >= StringifyThresholds.ELEMENT_WITH_BINDING_COUNT
-  //   ) {
-  //     // combine all currently eligible nodes into a single static vnode call
-  //     const staticCall = createCallExpression(context.helper(CREATE_STATIC), [
-  //       JSON.stringify(
-  //         currentChunk.map(node => stringifyNode(node, context)).join('')
-  //       ).replace(expReplaceRE, `" + $1 + "`),
-  //       // the 2nd argument indicates the number of DOM nodes this static vnode
-  //       // will insert / hydrate
-  //       String(currentChunk.length)
-  //     ])
-  //     // replace the first node's hoisted expression with the static vnode call
-  //     replaceHoist(currentChunk[0], staticCall, context)
+  const stringifyCurrentChunk = (currentIndex: number): number => {
+    if (
+      nc >= StringifyThresholds.NODE_COUNT ||
+      ec >= StringifyThresholds.ELEMENT_WITH_BINDING_COUNT
+    ) {
+      // combine all currently eligible nodes into a single static vnode call
+      const staticCall = createCallExpression(context.helper(CREATE_STATIC), [
+        JSON.stringify(
+          currentChunk.map(node => stringifyNode(node, context)).join('')
+        ).replace(expReplaceRE, `" + $1 + "`),
+        // the 2nd argument indicates the number of DOM nodes this static vnode
+        // will insert / hydrate
+        String(currentChunk.length)
+      ])
 
-  //     if (currentChunk.length > 1) {
-  //       for (let i = 1; i < currentChunk.length; i++) {
-  //         // for the merged nodes, set their hoisted expression to null
-  //         replaceHoist(currentChunk[i], null, context)
-  //       }
+      // replace the first node's hoisted expression with the static vnode call
+      replaceHoist(currentChunk[0], staticCall, context)
 
-  //       // also remove merged nodes from children
-  //       const deleteCount = currentChunk.length - 1
-  //       children.splice(currentIndex - currentChunk.length + 1, deleteCount)
-  //       return deleteCount
-  //     }
-  //   }
-  //   return 0
-  // }
+      if (currentChunk.length > 1) {
+        for (let i = 1; i < currentChunk.length; i++) {
+          // for the merged nodes, set their hoisted expression to null
+          replaceHoist(currentChunk[i], null, context)
+        }
 
-  // let i = 0
-  // for (; i < children.length; i++) {
-  //   const child = children[i]
-  //   const hoisted = getHoistedNode(child)
-  //   if (hoisted) {
-  //     // presence of hoisted means child must be a stringifiable node
-  //     const node = child as StringifiableNode
-  //     const result = analyzeNode(node)
-  //     if (result) {
-  //       // node is stringifiable, record state
-  //       nc += result[0]
-  //       ec += result[1]
-  //       currentChunk.push(node)
-  //       continue
-  //     }
-  //   }
-  //   // we only reach here if we ran into a node that is not stringifiable
-  //   // check if currently analyzed nodes meet criteria for stringification.
-  //   // adjust iteration index
-  //   i -= stringifyCurrentChunk(i)
-  //   // reset state
-  //   nc = 0
-  //   ec = 0
-  //   currentChunk.length = 0
-  // }
-  // // in case the last node was also stringifiable
-  // stringifyCurrentChunk(i)
+        // also remove merged nodes from children
+        const deleteCount = currentChunk.length - 1
+        children.splice(currentIndex - currentChunk.length + 1, deleteCount)
+        return deleteCount
+      }
+    }
+    return 0
+  }
+
+  let i = 0
+  for (; i < children.length; i++) {
+    const child = children[i]
+    const hoisted = getHoistedNode(child)
+    if (hoisted) {
+      // presence of hoisted means child must be a stringifiable node
+      const node = child as StringifiableNode
+      const result = analyzeNode(node)
+      if (result) {
+        // node is stringifiable, record state
+        nc += result[0]
+        ec += result[1]
+        currentChunk.push(node)
+        continue
+      }
+    }
+    // we only reach here if we ran into a node that is not stringifiable
+    // check if currently analyzed nodes meet criteria for stringification.
+    // adjust iteration index
+    i -= stringifyCurrentChunk(i)
+    // reset state
+    nc = 0
+    ec = 0
+    currentChunk.length = 0
+  }
+  
+  // in case the last node was also stringifiable
+  stringifyCurrentChunk(i)
 }
 
 const getHoistedNode = (node: TemplateChildNode) =>

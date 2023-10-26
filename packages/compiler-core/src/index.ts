@@ -61,7 +61,7 @@ export {
 } from './transforms/transformElement'
 export { processSlotOutlet } from './transforms/transformSlotOutlet'
 export { getConstantType } from './transforms/hoistStatic'
-// export { generateCodeFrame } from '@docue/shared'
+export { generateCodeFrame } from '@docue/shared'
 
 // v2 compat only
 export {

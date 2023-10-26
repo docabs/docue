@@ -199,10 +199,10 @@ export interface ComponentOptionsBase<
  * Subset of compiler options that makes sense for the runtime.
  */
 export interface RuntimeCompilerOptions {
-  // isCustomElement?: (tag: string) => boolean
-  // whitespace?: 'preserve' | 'condense'
-  // comments?: boolean
-  // delimiters?: [string, string]
+  isCustomElement?: (tag: string) => boolean
+  whitespace?: 'preserve' | 'condense'
+  comments?: boolean
+  delimiters?: [string, string]
 }
 
 export type ComponentOptionsWithoutProps<

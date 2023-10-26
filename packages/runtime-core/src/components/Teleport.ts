@@ -141,20 +141,20 @@ export const TeleportImpl = {
       const currentAnchor = wasDisabled ? mainAnchor : targetAnchor
       isSVG = isSVG || isTargetSVG(target)
       if (dynamicChildren) {
-        //         // fast path when the teleport happens to be a block root
-        //         patchBlockChildren(
-        //           n1.dynamicChildren!,
-        //           dynamicChildren,
-        //           currentContainer,
-        //           parentComponent,
-        //           parentSuspense,
-        //           isSVG,
-        //           slotScopeIds
-        //         )
-        //         // even in block tree mode we need to make sure all root-level nodes
-        //         // in the teleport inherit previous DOM references so that they can
-        //         // be moved in future patches.
-        //         traverseStaticChildren(n1, n2, true)
+        // fast path when the teleport happens to be a block root
+        patchBlockChildren(
+          n1.dynamicChildren!,
+          dynamicChildren,
+          currentContainer,
+          parentComponent,
+          parentSuspense,
+          isSVG,
+          slotScopeIds
+        )
+        // even in block tree mode we need to make sure all root-level nodes
+        // in the teleport inherit previous DOM references so that they can
+        // be moved in future patches.
+        traverseStaticChildren(n1, n2, true)
       } else if (!optimized) {
         patchChildren(
           n1,

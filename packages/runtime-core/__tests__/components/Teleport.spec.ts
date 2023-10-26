@@ -17,7 +17,7 @@ import {
   createApp
 } from '@docue/runtime-test'
 import { createVNode, Fragment } from '../../src/vnode'
-// import { compile, render as domRender } from 'docue'
+import { compile, render as domRender } from 'docue'
 
 describe('renderer: teleport', () => {
   test('should work', () => {
@@ -40,36 +40,36 @@ describe('renderer: teleport', () => {
     )
   })
 
-  // test('should work with SVG', async () => {
-  //   const root = document.createElement('div')
-  //   const svg = ref()
-  //   const circle = ref()
+  test('should work with SVG', async () => {
+    const root = document.createElement('div')
+    const svg = ref()
+    const circle = ref()
 
-  //   const Comp = defineComponent({
-  //     setup() {
-  //       return {
-  //         svg,
-  //         circle
-  //       }
-  //     },
-  //     template: `
-  //     <svg ref="svg"></svg>
-  //     <teleport :to="svg" v-if="svg">
-  //     <circle ref="circle"></circle>
-  //     </teleport>`
-  //   })
+    const Comp = defineComponent({
+      setup() {
+        return {
+          svg,
+          circle
+        }
+      },
+      template: `
+      <svg ref="svg"></svg>
+      <teleport :to="svg" v-if="svg">
+      <circle ref="circle"></circle>
+      </teleport>`
+    })
 
-  //   domRender(h(Comp), root)
+    domRender(h(Comp), root)
 
-  //   await nextTick()
+    await nextTick()
 
-  //   expect(root.innerHTML).toMatchInlineSnapshot(
-  //     `"<svg><circle></circle></svg><!--teleport start--><!--teleport end-->"`
-  //   )
+    expect(root.innerHTML).toMatchInlineSnapshot(
+      `"<svg><circle></circle></svg><!--teleport start--><!--teleport end-->"`
+    )
 
-  //   expect(svg.value.namespaceURI).toBe('http://www.w3.org/2000/svg')
-  //   expect(circle.value.namespaceURI).toBe('http://www.w3.org/2000/svg')
-  // })
+    expect(svg.value.namespaceURI).toBe('http://www.w3.org/2000/svg')
+    expect(circle.value.namespaceURI).toBe('http://www.w3.org/2000/svg')
+  })
 
   test('should update target', async () => {
     const targetA = nodeOps.createElement('div')
@@ -393,50 +393,50 @@ describe('renderer: teleport', () => {
     expect(serializeInner(target)).toBe('')
   })
 
-  // test('should work with block tree', async () => {
-  //   const target = nodeOps.createElement('div')
-  //   const root = nodeOps.createElement('div')
-  //   const disabled = ref(false)
+  test('should work with block tree', async () => {
+    const target = nodeOps.createElement('div')
+    const root = nodeOps.createElement('div')
+    const disabled = ref(false)
 
-  //   const App = {
-  //     setup() {
-  //       return {
-  //         target: markRaw(target),
-  //         disabled
-  //       }
-  //     },
-  //     render: compile(`
-  //     <teleport :to="target" :disabled="disabled">
-  //       <div>teleported</div><span>{{ disabled }}</span><span v-if="disabled"/>
-  //     </teleport>
-  //     <div>root</div>
-  //     `)
-  //   }
-  //   render(h(App), root)
-  //   expect(serializeInner(root)).toMatchInlineSnapshot(
-  //     `"<!--teleport start--><!--teleport end--><div>root</div>"`
-  //   )
-  //   expect(serializeInner(target)).toMatchInlineSnapshot(
-  //     `"<div>teleported</div><span>false</span><!--v-if-->"`
-  //   )
+    const App = {
+      setup() {
+        return {
+          target: markRaw(target),
+          disabled
+        }
+      },
+      render: compile(`
+      <teleport :to="target" :disabled="disabled">
+        <div>teleported</div><span>{{ disabled }}</span><span v-if="disabled"/>
+      </teleport>
+      <div>root</div>
+      `)
+    }
+    render(h(App), root)
+    expect(serializeInner(root)).toMatchInlineSnapshot(
+      `"<!--teleport start--><!--teleport end--><div>root</div>"`
+    )
+    expect(serializeInner(target)).toMatchInlineSnapshot(
+      `"<div>teleported</div><span>false</span><!--v-if-->"`
+    )
 
-  //   disabled.value = true
-  //   await nextTick()
-  //   expect(serializeInner(root)).toMatchInlineSnapshot(
-  //     `"<!--teleport start--><div>teleported</div><span>true</span><span></span><!--teleport end--><div>root</div>"`
-  //   )
-  //   expect(serializeInner(target)).toBe(``)
+    disabled.value = true
+    await nextTick()
+    expect(serializeInner(root)).toMatchInlineSnapshot(
+      `"<!--teleport start--><div>teleported</div><span>true</span><span></span><!--teleport end--><div>root</div>"`
+    )
+    expect(serializeInner(target)).toBe(``)
 
-  //   // toggle back
-  //   disabled.value = false
-  //   await nextTick()
-  //   expect(serializeInner(root)).toMatchInlineSnapshot(
-  //     `"<!--teleport start--><!--teleport end--><div>root</div>"`
-  //   )
-  //   expect(serializeInner(target)).toMatchInlineSnapshot(
-  //     `"<div>teleported</div><span>false</span><!--v-if-->"`
-  //   )
-  // })
+    // toggle back
+    disabled.value = false
+    await nextTick()
+    expect(serializeInner(root)).toMatchInlineSnapshot(
+      `"<!--teleport start--><!--teleport end--><div>root</div>"`
+    )
+    expect(serializeInner(target)).toMatchInlineSnapshot(
+      `"<div>teleported</div><span>false</span><!--v-if-->"`
+    )
+  })
 
   // #3497
   test(`the dir hooks of the Teleport's children should be called correctly`, async () => {

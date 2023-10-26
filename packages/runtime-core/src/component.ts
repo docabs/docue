@@ -1,73 +1,84 @@
+import { VNode, VNodeChild, isVNode } from './vnode'
 import {
-  EMPTY_OBJ,
-  IfAny,
-  NO,
-  NOOP,
-  ShapeFlags,
-  isArray,
-  isFunction,
-  isObject,
-  isPromise,
-  makeMap
-} from '@docue/shared'
-import {
-  EffectScope,
-  ReactiveEffect,
-  TrackOpTypes,
   isRef,
-  markRaw,
   pauseTracking,
-  proxyRefs,
   resetTracking,
   shallowReadonly,
-  track
+  proxyRefs,
+  EffectScope,
+  markRaw,
+  track,
+  TrackOpTypes,
+  ReactiveEffect
 } from '@docue/reactivity'
-
-import { AppConfig, AppContext, createAppContext } from './apiCreateApp'
-import {
-  EmitFn,
-  EmitsOptions,
-  ObjectEmitsOptions,
-  normalizeEmitsOptions,
-  emit
-} from './componentEmits'
-import {
-  ComponentOptions,
-  ComputedOptions,
-  MethodOptions,
-  applyOptions
-} from './componentOptions'
 import {
   ComponentPublicInstance,
-  ComponentPublicInstanceConstructor,
   PublicInstanceProxyHandlers,
   createDevRenderContext,
   exposePropsOnRenderContext,
   exposeSetupStateOnRenderContext,
-  publicPropertiesMap
+  ComponentPublicInstanceConstructor,
+  publicPropertiesMap,
+  RuntimeCompiledPublicInstanceProxyHandlers
 } from './componentPublicInstance'
-import { LifecycleHooks } from './enums'
-import { VNode, VNodeChild, isVNode } from './vnode'
-import { warn } from './warning'
-import { SuspenseBoundary } from './components/Suspense'
-import { SchedulerJob } from './scheduler'
-import {
-  InternalSlots,
-  Slots,
-  SlotsType,
-  UnwrapSlotsType,
-  initSlots
-} from './componentSlots'
 import {
   ComponentPropsOptions,
   NormalizedPropsOptions,
   initProps,
   normalizePropsOptions
 } from './componentProps'
-import { ErrorCodes, callWithErrorHandling } from './errorHandling'
-import { currentRenderingInstance } from './componentRenderContext'
-import { markAttrsAccessed } from './componentRenderUtils'
+import {
+  initSlots,
+  InternalSlots,
+  Slots,
+  SlotsType,
+  UnwrapSlotsType
+} from './componentSlots'
+import { warn } from './warning'
+import { ErrorCodes, callWithErrorHandling, handleError } from './errorHandling'
+import { AppContext, createAppContext, AppConfig } from './apiCreateApp'
 import { Directive, validateDirectiveName } from './directives'
+import {
+  applyOptions,
+  ComponentOptions,
+  ComputedOptions,
+  MethodOptions,
+  resolveMergedOptions
+} from './componentOptions'
+import {
+  EmitsOptions,
+  ObjectEmitsOptions,
+  EmitFn,
+  emit,
+  normalizeEmitsOptions
+} from './componentEmits'
+import {
+  EMPTY_OBJ,
+  isArray,
+  isFunction,
+  NOOP,
+  isObject,
+  NO,
+  makeMap,
+  isPromise,
+  ShapeFlags,
+  extend,
+  getGlobalThis,
+  IfAny
+} from '@docue/shared'
+import { SuspenseBoundary } from './components/Suspense'
+import { CompilerOptions } from '@docue/compiler-core'
+import { markAttrsAccessed } from './componentRenderUtils'
+import { currentRenderingInstance } from './componentRenderContext'
+import { startMeasure, endMeasure } from './profiling'
+import { convertLegacyRenderFn } from './compat/renderFn'
+import {
+  CompatConfig,
+  globalCompatConfig,
+  validateCompatConfig
+} from './compat/compatConfig'
+import { SchedulerJob } from './scheduler'
+import { LifecycleHooks } from './enums'
 
 export type Data = Record<string, unknown>
 
@@ -103,10 +114,10 @@ export interface ComponentInternalOptions {
   //  * Compat build only, for bailing out of certain compatibility behavior
   //  */
   // __isBuiltIn?: boolean
-  // /**
-  //  * This one should be exposed so that devtools can make use of it
-  //  */
-  // __file?: string
+  /**
+   * This one should be exposed so that devtools can make use of it
+   */
+  __file?: string
   /**
    * name inferred from filename
    */
@@ -692,13 +703,13 @@ function setupStatefulComponent(
         validateDirectiveName(names[i])
       }
     }
-    //   if (Component.compilerOptions && isRuntimeOnly()) {
-    //     warn(
-    //       `"compilerOptions" is only supported when using a build of Docue that ` +
-    //         `includes the runtime compiler. Since you are using a runtime-only ` +
-    //         `build, the options should be passed via your build tool config instead.`
-    //     )
-    //   }
+    if (Component.compilerOptions && isRuntimeOnly()) {
+      warn(
+        `"compilerOptions" is only supported when using a build of Docue that ` +
+          `includes the runtime compiler. Since you are using a runtime-only ` +
+          `build, the options should be passed via your build tool config instead.`
+      )
+    }
   }
   // 0. create render proxy property access cache
   instance.accessCache = Object.create(null)
@@ -802,25 +813,25 @@ export function handleSetupResult(
 }
 
 type CompileFunction = (
-  template: string | object
-  // options?: CompilerOptions
+  template: string | object,
+  options?: CompilerOptions
 ) => InternalRenderFunction
 
 let compile: CompileFunction | undefined
-// let installWithProxy: (i: ComponentInternalInstance) => void
+let installWithProxy: (i: ComponentInternalInstance) => void
 
-// /**
-//  * For runtime-dom to register the compiler.
-//  * Note the exported method uses any to avoid d.ts relying on the compiler types.
-//  */
-// export function registerRuntimeCompiler(_compile: any) {
-//   compile = _compile
-//   installWithProxy = i => {
-//     if (i.render!._rc) {
-//       i.withProxy = new Proxy(i.ctx, RuntimeCompiledPublicInstanceProxyHandlers)
-//     }
-//   }
-// }
+/**
+ * For runtime-dom to register the compiler.
+ * Note the exported method uses any to avoid d.ts relying on the compiler types.
+ */
+export function registerRuntimeCompiler(_compile: any) {
+  compile = _compile
+  installWithProxy = i => {
+    if (i.render!._rc) {
+      i.withProxy = new Proxy(i.ctx, RuntimeCompiledPublicInstanceProxyHandlers)
+    }
+  }
+}
 
 // dev only
 export const isRuntimeOnly = () => !compile
@@ -842,51 +853,51 @@ export function finishComponentSetup(
   if (!instance.render) {
     // only do on-the-fly compile if not in SSR - SSR on-the-fly compilation
     // is done by server-renderer
-    //   if (!isSSR && compile && !Component.render) {
-    //     const template =
-    //       (__COMPAT__ &&
-    //         instance.vnode.props &&
-    //         instance.vnode.props['inline-template']) ||
-    //       Component.template ||
-    //       resolveMergedOptions(instance).template
-    //     if (template) {
-    //       if (__DEV__) {
-    //         startMeasure(instance, `compile`)
-    //       }
-    //       const { isCustomElement, compilerOptions } = instance.appContext.config
-    //       const { delimiters, compilerOptions: componentCompilerOptions } =
-    //         Component
-    //       const finalCompilerOptions: CompilerOptions = extend(
-    //         extend(
-    //           {
-    //             isCustomElement,
-    //             delimiters
-    //           },
-    //           compilerOptions
-    //         ),
-    //         componentCompilerOptions
-    //       )
-    //       if (__COMPAT__) {
-    //         // pass runtime compat config into the compiler
-    //         finalCompilerOptions.compatConfig = Object.create(globalCompatConfig)
-    //         if (Component.compatConfig) {
-    //           // @ts-expect-error types are not compatible
-    //           extend(finalCompilerOptions.compatConfig, Component.compatConfig)
-    //         }
-    //       }
-    //       Component.render = compile(template, finalCompilerOptions)
-    //       if (__DEV__) {
-    //         endMeasure(instance, `compile`)
-    //       }
-    //     }
-    //   }
+    if (!isSSR && compile && !Component.render) {
+      const template =
+        (__COMPAT__ &&
+          instance.vnode.props &&
+          instance.vnode.props['inline-template']) ||
+        Component.template ||
+        resolveMergedOptions(instance).template
+      if (template) {
+        //       if (__DEV__) {
+        //         startMeasure(instance, `compile`)
+        //       }
+        const { isCustomElement, compilerOptions } = instance.appContext.config
+        const { delimiters, compilerOptions: componentCompilerOptions } =
+          Component
+        const finalCompilerOptions: CompilerOptions = extend(
+          extend(
+            {
+              isCustomElement,
+              delimiters
+            },
+            compilerOptions
+          ),
+          componentCompilerOptions
+        )
+        //       if (__COMPAT__) {
+        //         // pass runtime compat config into the compiler
+        //         finalCompilerOptions.compatConfig = Object.create(globalCompatConfig)
+        //         if (Component.compatConfig) {
+        //           // @ts-expect-error types are not compatible
+        //           extend(finalCompilerOptions.compatConfig, Component.compatConfig)
+        //         }
+        //       }
+        Component.render = compile(template, finalCompilerOptions)
+        //       if (__DEV__) {
+        //         endMeasure(instance, `compile`)
+        //       }
+      }
+    }
     instance.render = (Component.render || NOOP) as InternalRenderFunction
     // for runtime-compiled render functions using `with` blocks, the render
     // proxy used needs a different `has` handler which is more performant and
     // also only allows a whitelist of globals to fallthrough.
-    // if (installWithProxy) {
-    //   installWithProxy(instance)
-    // }
+    if (installWithProxy) {
+      installWithProxy(instance)
+    }
   }
   // support for 2.x options
   if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {

@@ -1,3 +1,5 @@
+// import { initCustomFormatter } from '@docue/runtime-dom'
+
 export function initDev() {
   // if (__BROWSER__) {
   //   /* istanbul ignore if */

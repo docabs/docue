@@ -1,5 +1,5 @@
 /**
- *  @TODO: vitest-environment jsdom
+ * @vitest-environment jsdom
  */
 
 import {
@@ -15,13 +15,11 @@ import {
   createApp,
   provide,
   inject,
-  // watch,
+  watch,
   toRefs,
-  SetupContext,
-  nextTick,
-  watch
+  SetupContext
 } from '@docue/runtime-test'
-// import { render as domRender, nextTick } from 'docue'
+import { render as domRender, nextTick } from 'docue'
 
 describe('component props', () => {
   test('stateful', () => {
@@ -225,35 +223,35 @@ describe('component props', () => {
     expect(serializeInner(root)).toBe(`<div>injected</div>`)
   })
 
-  // test('optimized props updates', async () => {
-  //   const Child = defineComponent({
-  //     props: ['foo'],
-  //     template: `<div>{{ foo }}</div>`
-  //   })
-  //   const foo = ref(1)
-  //   const id = ref('a')
-  //   const Comp = defineComponent({
-  //     setup() {
-  //       return {
-  //         foo,
-  //         id
-  //       }
-  //     },
-  //     components: { Child },
-  //     template: `<Child :foo="foo" :id="id"/>`
-  //   })
-  //   // Note this one is using the main Docue render so it can compile template
-  //   // on the fly
-  //   const root = document.createElement('div')
-  //   domRender(h(Comp), root)
-  //   expect(root.innerHTML).toBe('<div id="a">1</div>')
-  //   foo.value++
-  //   await nextTick()
-  //   expect(root.innerHTML).toBe('<div id="a">2</div>')
-  //   id.value = 'b'
-  //   await nextTick()
-  //   expect(root.innerHTML).toBe('<div id="b">2</div>')
-  // })
+  test('optimized props updates', async () => {
+    const Child = defineComponent({
+      props: ['foo'],
+      template: `<div>{{ foo }}</div>`
+    })
+    const foo = ref(1)
+    const id = ref('a')
+    const Comp = defineComponent({
+      setup() {
+        return {
+          foo,
+          id
+        }
+      },
+      components: { Child },
+      template: `<Child :foo="foo" :id="id"/>`
+    })
+    // Note this one is using the main Docue render so it can compile template
+    // on the fly
+    const root = document.createElement('div')
+    domRender(h(Comp), root)
+    expect(root.innerHTML).toBe('<div id="a">1</div>')
+    foo.value++
+    await nextTick()
+    expect(root.innerHTML).toBe('<div id="a">2</div>')
+    id.value = 'b'
+    await nextTick()
+    expect(root.innerHTML).toBe('<div id="b">2</div>')
+  })
 
   test('warn props mutation', () => {
     let instance: ComponentInternalInstance

@@ -251,47 +251,47 @@ export function updateProps(
       // Compiler-generated props & no keys change, just set the updated
       // the props.
       const propsToUpdate = instance.vnode.dynamicProps!
-      //       for (let i = 0; i < propsToUpdate.length; i++) {
-      //         let key = propsToUpdate[i]
-      //         // skip if the prop key is a declared emit event listener
-      //         if (isEmitListener(instance.emitsOptions, key)) {
-      //           continue
-      //         }
-      //         // PROPS flag guarantees rawProps to be non-null
-      //         const value = rawProps![key]
-      //         if (options) {
-      //           // attr / props separation was done on init and will be consistent
-      //           // in this code path, so just check if attrs have it.
-      //           if (hasOwn(attrs, key)) {
-      //             if (value !== attrs[key]) {
-      //               attrs[key] = value
-      //               hasAttrsChanged = true
-      //             }
-      //           } else {
-      //             const camelizedKey = camelize(key)
-      //             props[camelizedKey] = resolvePropValue(
-      //               options,
-      //               rawCurrentProps,
-      //               camelizedKey,
-      //               value,
-      //               instance,
-      //               false /* isAbsent */
-      //             )
-      //           }
-      //         } else {
-      //           if (__COMPAT__) {
-      //             if (isOn(key) && key.endsWith('Native')) {
-      //               key = key.slice(0, -6) // remove Native postfix
-      //             } else if (shouldSkipAttr(key, instance)) {
-      //               continue
-      //             }
-      //           }
-      //           if (value !== attrs[key]) {
-      //             attrs[key] = value
-      //             hasAttrsChanged = true
-      //           }
-      //         }
-      //       }
+      for (let i = 0; i < propsToUpdate.length; i++) {
+        let key = propsToUpdate[i]
+        // skip if the prop key is a declared emit event listener
+        if (isEmitListener(instance.emitsOptions, key)) {
+          //           continue
+        }
+        // PROPS flag guarantees rawProps to be non-null
+        const value = rawProps![key]
+        if (options) {
+          // attr / props separation was done on init and will be consistent
+          // in this code path, so just check if attrs have it.
+          if (hasOwn(attrs, key)) {
+            if (value !== attrs[key]) {
+              attrs[key] = value
+              hasAttrsChanged = true
+            }
+          } else {
+            const camelizedKey = camelize(key)
+            props[camelizedKey] = resolvePropValue(
+              options,
+              rawCurrentProps,
+              camelizedKey,
+              value,
+              instance,
+              false /* isAbsent */
+            )
+          }
+        } else {
+          //           if (__COMPAT__) {
+          //             if (isOn(key) && key.endsWith('Native')) {
+          //               key = key.slice(0, -6) // remove Native postfix
+          //             } else if (shouldSkipAttr(key, instance)) {
+          //               continue
+          //             }
+          //           }
+          if (value !== attrs[key]) {
+            //             attrs[key] = value
+            //             hasAttrsChanged = true
+          }
+        }
+      }
     }
   } else {
     // full props update.

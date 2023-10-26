@@ -1,22 +1,21 @@
-import { PatchFlags, ShapeFlags } from '@docue/shared'
-import { createApp, nodeOps, serializeInner } from '@docue/runtime-test'
 import {
+  createBlock,
   createVNode,
+  openBlock,
   Comment,
-  normalizeVNode,
   Fragment,
   Text,
   cloneVNode,
   mergeProps,
-  openBlock,
-  createBlock,
-  setBlockTracking,
-  transformVNodeArgs
+  normalizeVNode,
+  transformVNodeArgs,
+  isBlockTreeEnabled
 } from '../src/vnode'
-import { setCurrentRenderingInstance } from '../src/componentRenderContext'
-import { isReactive, reactive, ref } from '@docue/reactivity'
 import { Data } from '../src/component'
-import { h } from '../src/h'
+import { ShapeFlags, PatchFlags } from '@docue/shared'
+import { h, reactive, isReactive, setBlockTracking, ref, withCtx } from '../src'
+import { createApp, nodeOps, serializeInner } from '@docue/runtime-test'
+import { setCurrentRenderingInstance } from '../src/componentRenderContext'
 
 describe('vnode', () => {
   test('create with just tag', () => {
@@ -607,29 +606,30 @@ describe('vnode', () => {
         ]))
       expect(vnode.dynamicChildren).toStrictEqual([])
     })
-    //   // #5657
-    //   test('error of slot function execution should not affect block tracking', () => {
-    //     expect(isBlockTreeEnabled).toStrictEqual(1)
-    //     const slotFn = withCtx(
-    //       () => {
-    //         throw new Error('slot execution error')
-    //       },
-    //       { type: {}, appContext: {} } as any
-    //     )
-    //     const Parent = {
-    //       setup(_: any, { slots }: any) {
-    //         return () => {
-    //           try {
-    //             slots.default()
-    //           } catch (e) {}
-    //         }
-    //       }
-    //     }
-    //     const vnode =
-    //       (openBlock(), createBlock(Parent, null, { default: slotFn }))
-    //     createApp(vnode).mount(nodeOps.createElement('div'))
-    //     expect(isBlockTreeEnabled).toStrictEqual(1)
-    //   })
+
+    // #5657
+    test('error of slot function execution should not affect block tracking', () => {
+      expect(isBlockTreeEnabled).toStrictEqual(1)
+      const slotFn = withCtx(
+        () => {
+          throw new Error('slot execution error')
+        },
+        { type: {}, appContext: {} } as any
+      )
+      const Parent = {
+        setup(_: any, { slots }: any) {
+          return () => {
+            try {
+              slots.default()
+            } catch (e) {}
+          }
+        }
+      }
+      const vnode =
+        (openBlock(), createBlock(Parent, null, { default: slotFn }))
+      createApp(vnode).mount(nodeOps.createElement('div'))
+      expect(isBlockTreeEnabled).toStrictEqual(1)
+    })
   })
 
   describe('transformVNodeArgs', () => {
