@@ -58,7 +58,7 @@ export interface App<HostElement = any> {
   // // internal, but we need to expose these for the server-renderer and devtools
   // _uid: number
   _component: ConcreteComponent
-  // _props: Data | null
+  _props: Data | null
   _container: HostElement | null
   _context: AppContext
   // _instance: ComponentInternalInstance | null

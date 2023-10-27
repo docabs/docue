@@ -104,7 +104,7 @@ export {
 // For using custom directives
 export { withDirectives } from './directives'
 // // SSR context
-// export { useSSRContext, ssrContextKey } from './helpers/useSsrContext'
+export { useSSRContext, ssrContextKey } from './helpers/useSsrContext'
 
 // Custom Renderer API ---------------------------------------------------------
 

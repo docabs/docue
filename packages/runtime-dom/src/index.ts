@@ -1,14 +1,28 @@
 import {
-  CreateAppFunction,
-  HydrationRenderer,
-  Renderer,
-  RootRenderFunction,
   createRenderer,
-  warn
+  createHydrationRenderer,
+  warn,
+  RootRenderFunction,
+  CreateAppFunction,
+  Renderer,
+  HydrationRenderer,
+  App,
+  RootHydrateFunction,
+  isRuntimeOnly
+  // DeprecationTypes,
+  // compatUtils
 } from '@docue/runtime-core'
-import { extend, isFunction, isString } from '@docue/shared'
 import { nodeOps } from './nodeOps'
 import { patchProp } from './patchProp'
+// Importing from the compiler, will be tree-shaken in prod
+import {
+  isFunction,
+  isString,
+  isHTMLTag,
+  isSVGTag,
+  extend,
+  NOOP
+} from '@docue/shared'
 
 // declare module '@docue/reactivity' {
 //   export interface RefUnwrapBailTypes {
@@ -203,23 +217,23 @@ export {
 export { withModifiers, withKeys } from './directives/vOn'
 export { vShow } from './directives/vShow'
 
-// import { initVModelForSSR } from './directives/vModel'
-// import { initVShowForSSR } from './directives/vShow'
+import { initVModelForSSR } from './directives/vModel'
+import { initVShowForSSR } from './directives/vShow'
 
-// let ssrDirectiveInitialized = false
+let ssrDirectiveInitialized = false
 
-// /**
-//  * @internal
-//  */
-// export const initDirectivesForSSR = __SSR__
-//   ? () => {
-//       if (!ssrDirectiveInitialized) {
-//         ssrDirectiveInitialized = true
-//         initVModelForSSR()
-//         initVShowForSSR()
-//       }
-//     }
-//   : NOOP
+/**
+ * @internal
+ */
+export const initDirectivesForSSR = __SSR__
+  ? () => {
+      if (!ssrDirectiveInitialized) {
+        ssrDirectiveInitialized = true
+        initVModelForSSR()
+        initVShowForSSR()
+      }
+    }
+  : NOOP
 
 // re-export everything from core
 // h, Component, reactivity API, nextTick, flags & types
