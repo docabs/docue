@@ -345,17 +345,17 @@ function createBlock(
     if (p.type === NodeTypes.ATTRIBUTE) {
       attrs[p.name] = p.value ? p.value.content || true : true
       if (p.name === 'lang') {
-        //         block.lang = p.value && p.value.content
+        block.lang = p.value && p.value.content
       } else if (p.name === 'src') {
-        //         block.src = p.value && p.value.content
+        block.src = p.value && p.value.content
       } else if (type === 'style') {
         if (p.name === 'scoped') {
           ;(block as SFCStyleBlock).scoped = true
         } else if (p.name === 'module') {
-          // ;(block as SFCStyleBlock).module = attrs[p.name]
+          ;(block as SFCStyleBlock).module = attrs[p.name]
         }
       } else if (type === 'script' && p.name === 'setup') {
-        //         ;(block as SFCScriptBlock).setup = attrs.setup
+        ;(block as SFCScriptBlock).setup = attrs.setup
       }
     }
   })

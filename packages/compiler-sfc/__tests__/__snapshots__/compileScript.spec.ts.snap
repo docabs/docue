@@ -14,7 +14,7 @@ return { a }
 `;
 
 exports[`SFC analyze <script> bindings > auto name inference > do not overwrite manual name (call) 1`] = `
-"import { defineComponent } from 'vue'
+"import { defineComponent } from 'docue'
         const __default__ = defineComponent({
           name: 'Baz'
         })
@@ -119,7 +119,7 @@ return { n, get x() { return x } }
 `;
 
 exports[`SFC compile <script setup> > <script> and <script setup> co-usage > script setup first, lang="ts", script block content export default 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { x } from './x'
       
       const __default__ = {
@@ -203,7 +203,7 @@ return { n, get x() { return x } }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > expression statement 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -222,7 +222,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > multiple \`if for\` nested statements 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -257,7 +257,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > multiple \`if while\` nested statements 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -312,7 +312,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > multiple \`if\` nested statements 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -389,7 +389,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > nested await 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -413,7 +413,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > nested await 2`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -437,7 +437,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > nested await 3`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -466,7 +466,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > nested leading await in expression statement 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -492,7 +492,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > nested statements 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -515,7 +515,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > ref 1`] = `
-"import { withAsyncContext as _withAsyncContext, ref as _ref } from 'vue'
+"import { withAsyncContext as _withAsyncContext, ref as _ref } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -579,7 +579,7 @@ return { cls }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > single line conditions 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -598,7 +598,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > async/await detection > variable 1`] = `
-"import { withAsyncContext as _withAsyncContext } from 'vue'
+"import { withAsyncContext as _withAsyncContext } from 'docue'
 
 export default {
   async setup(__props, { expose: __expose }) {
@@ -631,7 +631,7 @@ return { foo, bar, baz, y, z }
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > TS annotations 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { Foo, Bar, Baz, Qux, Fred } from './x'
         const a = 1
         
@@ -648,7 +648,7 @@ return { a, b, get Baz() { return Baz } }
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > attribute expressions 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { bar, baz } from './x'
         const cond = true
         
@@ -664,7 +664,7 @@ return { cond, get bar() { return bar }, get baz() { return baz } }
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > components 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { FooBar, FooBaz, FooQux, foo } from './x'
         const fooBar: FooBar = 1
         
@@ -680,7 +680,7 @@ return { fooBar, get FooBaz() { return FooBaz }, get FooQux() { return FooQux },
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > directive 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { vMyDir } from './x'
         
 export default /*#__PURE__*/_defineComponent({
@@ -695,7 +695,7 @@ return { get vMyDir() { return vMyDir } }
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > dynamic arguments 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { FooBar, foo, bar, unused } from './x'
         
 export default /*#__PURE__*/_defineComponent({
@@ -710,7 +710,7 @@ return { get FooBar() { return FooBar }, get foo() { return foo }, get bar() { r
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > js template string interpolations 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { VAR, VAR2, VAR3 } from './x'
         
 export default /*#__PURE__*/_defineComponent({
@@ -725,7 +725,7 @@ return { get VAR() { return VAR }, get VAR3() { return VAR3 } }
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > last tag 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { FooBaz, Last } from './x'
         
 export default /*#__PURE__*/_defineComponent({
@@ -740,7 +740,7 @@ return { get FooBaz() { return FooBaz }, get Last() { return Last } }
 `;
 
 exports[`SFC compile <script setup> > dev mode import usage check > template ref 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import { foo, bar, Baz } from './foo'
         
 export default /*#__PURE__*/_defineComponent({
@@ -754,8 +754,8 @@ return { get foo() { return foo }, get bar() { return bar }, get Baz() { return 
 })"
 `;
 
-exports[`SFC compile <script setup> > dev mode import usage check > vue interpolations 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+exports[`SFC compile <script setup> > dev mode import usage check > docue interpolations 1`] = `
+"import { defineComponent as _defineComponent } from 'docue'
 import { x, y, z, x$y } from './x'
       
 export default /*#__PURE__*/_defineComponent({
@@ -818,8 +818,8 @@ return { bar }
 `;
 
 exports[`SFC compile <script setup> > imports > dedupe between user & helper 1`] = `
-"import { ref as _ref } from 'vue'
-import { ref } from 'vue'
+"import { ref as _ref } from 'docue'
+import { ref } from 'docue'
       
 export default {
   setup(__props, { expose: __expose }) {
@@ -849,7 +849,7 @@ return { get x() { return x } }
 `;
 
 exports[`SFC compile <script setup> > imports > should allow defineProps/Emit at the start of imports 1`] = `
-"import { ref } from 'vue'
+"import { ref } from 'docue'
       
 export default {
   props: ['foo'],
@@ -883,7 +883,7 @@ return { get a() { return a }, get b() { return b } }
 `;
 
 exports[`SFC compile <script setup> > imports > should hoist and expose imports 1`] = `
-"import { ref } from 'vue'
+"import { ref } from 'docue'
           import 'foo/css'
         
 export default {
@@ -912,9 +912,9 @@ return { get foo() { return foo } }
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > avoid unref() when necessary 1`] = `
-"import { unref as _unref, toDisplayString as _toDisplayString, createTextVNode as _createTextVNode, withCtx as _withCtx, createVNode as _createVNode, createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { unref as _unref, toDisplayString as _toDisplayString, createTextVNode as _createTextVNode, withCtx as _withCtx, createVNode as _createVNode, createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         import Foo, { bar } from './Foo.vue'
         import other from './util'
         import * as tree from './tree'
@@ -946,7 +946,7 @@ return (_ctx, _cache) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > referencing scope components and directives 1`] = `
-"import { unref as _unref, createElementVNode as _createElementVNode, withDirectives as _withDirectives, createVNode as _createVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { unref as _unref, createElementVNode as _createElementVNode, withDirectives as _withDirectives, createVNode as _createVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
 import ChildComp from './Child.vue'
         import SomeOtherComp from './Other.vue'
@@ -971,11 +971,11 @@ return (_ctx, _cache) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > should work 1`] = `
-"import { toDisplayString as _toDisplayString, createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { toDisplayString as _toDisplayString, createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
 const _hoisted_1 = /*#__PURE__*/_createElementVNode(\\"div\\", null, \\"static\\", -1 /* HOISTED */)
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         
 export default {
   setup(__props) {
@@ -994,9 +994,9 @@ return (_ctx, _cache) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > ssr codegen 1`] = `
-"import { ssrRenderAttrs as _ssrRenderAttrs, ssrInterpolate as _ssrInterpolate } from \\"vue/server-renderer\\"
+"import { ssrRenderAttrs as _ssrRenderAttrs, ssrInterpolate as _ssrInterpolate } from \\"docue/server-renderer\\"
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         
 export default {
   __ssrInlineRender: true,
@@ -1022,9 +1022,9 @@ return (_ctx, _push, _parent, _attrs) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > template assignment expression codegen 1`] = `
-"import { createElementVNode as _createElementVNode, isRef as _isRef, unref as _unref, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { createElementVNode as _createElementVNode, isRef as _isRef, unref as _unref, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         
 export default {
   setup(__props) {
@@ -1079,9 +1079,9 @@ return (_ctx, _cache) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > template destructure assignment codegen 1`] = `
-"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         
 export default {
   setup(__props) {
@@ -1110,9 +1110,9 @@ return (_ctx, _cache) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > template update expression codegen 1`] = `
-"import { createElementVNode as _createElementVNode, isRef as _isRef, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { createElementVNode as _createElementVNode, isRef as _isRef, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         
 export default {
   setup(__props) {
@@ -1149,9 +1149,9 @@ return (_ctx, _cache) => {
 `;
 
 exports[`SFC compile <script setup> > inlineTemplate mode > v-model codegen 1`] = `
-"import { vModelText as _vModelText, createElementVNode as _createElementVNode, withDirectives as _withDirectives, unref as _unref, isRef as _isRef, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { vModelText as _vModelText, createElementVNode as _createElementVNode, withDirectives as _withDirectives, unref as _unref, isRef as _isRef, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
-import { ref } from 'vue'
+import { ref } from 'docue'
         
 export default {
   setup(__props) {
@@ -1238,7 +1238,7 @@ return { get aa() { return aa }, set aa(v) { aa = v }, bb, cc, dd, get a() { ret
 `;
 
 exports[`SFC compile <script setup> > with TypeScript > const Enum 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 const enum Foo { A = 123 }
         
 export default /*#__PURE__*/_defineComponent({
@@ -1253,7 +1253,7 @@ return { Foo }
 `;
 
 exports[`SFC compile <script setup> > with TypeScript > hoist type declarations 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 export interface Foo {}
         type Bar = {}
       
@@ -1269,7 +1269,7 @@ return {  }
 `;
 
 exports[`SFC compile <script setup> > with TypeScript > import type 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 import type { Foo } from './main.ts'
         import { type Bar, Baz } from './main.ts'
         
@@ -1285,7 +1285,7 @@ return { get Baz() { return Baz } }
 `;
 
 exports[`SFC compile <script setup> > with TypeScript > runtime Enum 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 enum Foo { A = 123 }
         
 export default /*#__PURE__*/_defineComponent({
@@ -1300,7 +1300,7 @@ return { Foo }
 `;
 
 exports[`SFC compile <script setup> > with TypeScript > runtime Enum in normal script 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 
           export enum D { D = \\"D\\" }
           const enum C { C = \\"C\\" }
@@ -1333,7 +1333,7 @@ return { a }
 `;
 
 exports[`SFC genDefaultAs > <script setup> only w/ ts 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 const a = 1
       
 const _sfc_ = /*#__PURE__*/_defineComponent({
@@ -1378,7 +1378,7 @@ return { a }
 `;
 
 exports[`SFC genDefaultAs > <script> + <script setup> w/ ts 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 
       const __default__ = {}
       
@@ -1405,7 +1405,7 @@ exports[`SFC genDefaultAs > normal <script> w/ cssVars 1`] = `
 "
       const _sfc_ = {}
       
-import { useCssVars as _useCssVars } from 'vue'
+import { useCssVars as _useCssVars } from 'docue'
 const __injectCSSVars__ = () => {
 _useCssVars(_ctx => ({
   \\"xxxxxxxx-x\\": (_ctx.x)
