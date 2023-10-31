@@ -737,14 +737,14 @@ function setupStatefulComponent(
     if (isPromise(setupResult)) {
       setupResult.then(unsetCurrentInstance, unsetCurrentInstance)
       if (isSSR) {
-        //       // return the promise so server-renderer can wait on it
-        //       return setupResult
-        //         .then((resolvedResult: unknown) => {
-        //           handleSetupResult(instance, resolvedResult, isSSR)
-        //         })
-        //         .catch(e => {
-        //           handleError(e, instance, ErrorCodes.SETUP_FUNCTION)
-        //         })
+        // return the promise so server-renderer can wait on it
+        return setupResult
+          .then((resolvedResult: unknown) => {
+            handleSetupResult(instance, resolvedResult, isSSR)
+          })
+          .catch(e => {
+            handleError(e, instance, ErrorCodes.SETUP_FUNCTION)
+          })
       } else if (__FEATURE_SUSPENSE__) {
         // async setup returned Promise.
         // bail here and wait for re-entry.
@@ -778,14 +778,14 @@ export function handleSetupResult(
   isSSR: boolean
 ) {
   if (isFunction(setupResult)) {
-    // // setup returned an inline render function
-    // if (__SSR__ && (instance.type as ComponentOptions).__ssrInlineRender) {
-    //   // when the function's name is `ssrRender` (compiled by SFC inline mode),
-    //   // set it as ssrRender instead.
-    //   instance.ssrRender = setupResult
-    // } else {
-    instance.render = setupResult as InternalRenderFunction
-    // }
+    // setup returned an inline render function
+    if (__SSR__ && (instance.type as ComponentOptions).__ssrInlineRender) {
+      // when the function's name is `ssrRender` (compiled by SFC inline mode),
+      // set it as ssrRender instead.
+      // instance.ssrRender = setupResult
+    } else {
+      instance.render = setupResult as InternalRenderFunction
+    }
   } else if (isObject(setupResult)) {
     // if (__DEV__ && isVNode(setupResult)) {
     //   warn(

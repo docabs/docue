@@ -142,7 +142,7 @@ export interface PlainElementNode extends BaseElementNode {
     | CacheExpression // when cached by v-once
     | MemoExpression // when cached by v-memo
     | undefined
-  //   ssrCodegenNode?: TemplateLiteral
+  ssrCodegenNode?: TemplateLiteral
 }
 
 export interface ComponentNode extends BaseElementNode {
@@ -152,7 +152,7 @@ export interface ComponentNode extends BaseElementNode {
     | CacheExpression // when cached by v-once
     | MemoExpression // when cached by v-memo
     | undefined
-  // ssrCodegenNode?: CallExpression
+  ssrCodegenNode?: CallExpression
 }
 
 export interface SlotOutletNode extends BaseElementNode {
@@ -161,7 +161,7 @@ export interface SlotOutletNode extends BaseElementNode {
     | RenderSlotCall
     | CacheExpression // when cached by v-once
     | undefined
-  // ssrCodegenNode?: CallExpression
+  ssrCodegenNode?: CallExpression
 }
 
 export interface TemplateNode extends BaseElementNode {

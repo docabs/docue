@@ -93,14 +93,14 @@ const KeepAliveImpl: ComponentOptions = {
     // The whole point of this is to avoid importing KeepAlive directly in the
     // renderer to facilitate tree-shaking.
     const sharedContext = instance.ctx as KeepAliveContext
-    //     // if the internal renderer is not registered, it indicates that this is server-side rendering,
-    //     // for KeepAlive, we just need to render its children
-    //     if (__SSR__ && !sharedContext.renderer) {
-    //       return () => {
-    //         const children = slots.default && slots.default()
-    //         return children && children.length === 1 ? children[0] : children
-    //       }
-    //     }
+    // if the internal renderer is not registered, it indicates that this is server-side rendering,
+    // for KeepAlive, we just need to render its children
+    if (__SSR__ && !sharedContext.renderer) {
+      return () => {
+        const children = slots.default && slots.default()
+        return children && children.length === 1 ? children[0] : children
+      }
+    }
     const cache: Cache = new Map()
     const keys: Keys = new Set()
     let current: VNode | null = null

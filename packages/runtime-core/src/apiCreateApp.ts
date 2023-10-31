@@ -1,5 +1,6 @@
 import {
   Component,
+  ComponentInternalInstance,
   ConcreteComponent,
   Data,
   getExposeProxy,
@@ -61,7 +62,7 @@ export interface App<HostElement = any> {
   _props: Data | null
   _container: HostElement | null
   _context: AppContext
-  // _instance: ComponentInternalInstance | null
+  _instance: ComponentInternalInstance | null
 
   // /**
   //  * v2 compat only
@@ -222,10 +223,10 @@ export function createAppAPI<HostElement>(
     const app: App = (context.app = {
       //     _uid: uid++,
       _component: rootComponent as ConcreteComponent,
-      //     _props: rootProps,
+      _props: rootProps,
       _container: null,
       _context: context,
-      //     _instance: null,
+      _instance: null,
       version,
       get config() {
         return context.config

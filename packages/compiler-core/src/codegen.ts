@@ -351,12 +351,12 @@ function genFunctionPreamble(ast: RootNode, context: CodegenContext) {
   }
   // generate variables for ssr helpers
   if (!__BROWSER__ && ast.ssrHelpers && ast.ssrHelpers.length) {
-    //     // ssr guarantees prefixIdentifier: true
-    //     push(
-    //       `const { ${ast.ssrHelpers
-    //         .map(aliasHelper)
-    //         .join(', ')} } = require("${ssrRuntimeModuleName}")\n`
-    //     )
+    // ssr guarantees prefixIdentifier: true
+    push(
+      `const { ${ast.ssrHelpers
+        .map(aliasHelper)
+        .join(', ')} } = require("${ssrRuntimeModuleName}")\n`
+    )
   }
   genHoists(ast.hoists, context)
   newline()
@@ -630,22 +630,22 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     case NodeTypes.JS_ASSIGNMENT_EXPRESSION:
       !__BROWSER__ && genAssignmentExpression(node, context)
       break
-    //     case NodeTypes.JS_SEQUENCE_EXPRESSION:
-    //       !__BROWSER__ && genSequenceExpression(node, context)
-    //       break
-    //     case NodeTypes.JS_RETURN_STATEMENT:
-    //       !__BROWSER__ && genReturnStatement(node, context)
-    //       break
-    //     /* istanbul ignore next */
-    //     case NodeTypes.IF_BRANCH:
-    //       // noop
-    //       break
+    case NodeTypes.JS_SEQUENCE_EXPRESSION:
+      !__BROWSER__ && genSequenceExpression(node, context)
+      break
+    case NodeTypes.JS_RETURN_STATEMENT:
+      !__BROWSER__ && genReturnStatement(node, context)
+      break
+    /* istanbul ignore next */
+    case NodeTypes.IF_BRANCH:
+      // noop
+      break
     default:
       if (__DEV__) {
         assert(false, `unhandled codegen node type: ${(node as any).type}`)
-        // // make sure we exhaust all possible types
-        // const exhaustiveCheck: never = node
-        // return exhaustiveCheck
+        // make sure we exhaust all possible types
+        const exhaustiveCheck: never = node
+        return exhaustiveCheck
       }
   }
 }
@@ -962,23 +962,23 @@ function genAssignmentExpression(
   genNode(node.right, context)
 }
 
-// function genSequenceExpression(
-//   node: SequenceExpression,
-//   context: CodegenContext
-// ) {
-//   context.push(`(`)
-//   genNodeList(node.expressions, context)
-//   context.push(`)`)
-// }
+function genSequenceExpression(
+  node: SequenceExpression,
+  context: CodegenContext
+) {
+  context.push(`(`)
+  genNodeList(node.expressions, context)
+  context.push(`)`)
+}
 
-// function genReturnStatement(
-//   { returns }: ReturnStatement,
-//   context: CodegenContext
-// ) {
-//   context.push(`return `)
-//   if (isArray(returns)) {
-//     genNodeListAsArray(returns, context)
-//   } else {
-//     genNode(returns, context)
-//   }
-// }
+function genReturnStatement(
+  { returns }: ReturnStatement,
+  context: CodegenContext
+) {
+  context.push(`return `)
+  if (isArray(returns)) {
+    genNodeListAsArray(returns, context)
+  } else {
+    genNode(returns, context)
+  }
+}

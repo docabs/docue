@@ -23,7 +23,7 @@ import { escapeHtml } from '@docue/shared'
 import { renderToString } from '../src/renderToString'
 // import { renderToNodeStream, pipeToNodeWritable } from '../src/renderToStream'
 // import { ssrRenderSlot, SSRSlot } from '../src/helpers/ssrRenderSlot'
-// import { ssrRenderComponent } from '../src/helpers/ssrRenderComponent'
+import { ssrRenderComponent } from '../src/helpers/ssrRenderComponent'
 import { Readable, Transform } from 'stream'
 import { ssrRenderVNode } from '../src'
 
