@@ -22,8 +22,8 @@ import {
 import { ssrTransformSlotOutlet } from './transforms/ssrTransformSlotOutlet'
 import { ssrTransformIf } from './transforms/ssrVIf'
 // import { ssrTransformFor } from './transforms/ssrVFor'
-// import { ssrTransformModel } from './transforms/ssrVModel'
-// import { ssrTransformShow } from './transforms/ssrVShow'
+import { ssrTransformModel } from './transforms/ssrVModel'
+import { ssrTransformShow } from './transforms/ssrVShow'
 import { ssrInjectFallthroughAttrs } from './transforms/ssrInjectFallthroughAttrs'
 // import { ssrInjectCssVars } from './transforms/ssrInjectCssVars'
 
@@ -65,7 +65,7 @@ export function compile(
       ssrTransformElement,
       ssrTransformComponent,
       trackSlotScopes,
-      //       transformStyle,
+      transformStyle,
       ...(options.nodeTransforms || []) // user transforms
     ],
     directiveTransforms: {
@@ -73,13 +73,13 @@ export function compile(
       bind: transformBind,
       //       on: transformOn,
       //       // model and show has dedicated SSR handling
-      //       model: ssrTransformModel,
-      //       show: ssrTransformShow,
-      //       // the following are ignored during SSR
-      //       // on: noopDirectiveTransform,
-      //       cloak: noopDirectiveTransform,
-      //       once: noopDirectiveTransform,
-      //       memo: noopDirectiveTransform,
+      model: ssrTransformModel,
+      show: ssrTransformShow,
+      // the following are ignored during SSR
+      // on: noopDirectiveTransform,
+      cloak: noopDirectiveTransform,
+      once: noopDirectiveTransform,
+      memo: noopDirectiveTransform,
       ...(options.directiveTransforms || {}) // user transforms
     }
   })

@@ -33,7 +33,7 @@ export function ssrRenderAttrs(
     if (key === 'class') {
       ret += ` class="${ssrRenderClass(value)}"`
     } else if (key === 'style') {
-      // ret += ` style="${ssrRenderStyle(value)}"`
+      ret += ` style="${ssrRenderStyle(value)}"`
     } else {
       ret += ssrRenderDynamicAttr(key, value, tag)
     }
@@ -87,13 +87,13 @@ export function ssrRenderClass(raw: unknown): string {
   return escapeHtml(normalizeClass(raw))
 }
 
-// export function ssrRenderStyle(raw: unknown): string {
-//   if (!raw) {
-//     return ''
-//   }
-//   if (isString(raw)) {
-//     return escapeHtml(raw)
-//   }
-//   const styles = normalizeStyle(raw)
-//   return escapeHtml(stringifyStyle(styles))
-// }
+export function ssrRenderStyle(raw: unknown): string {
+  if (!raw) {
+    return ''
+  }
+  if (isString(raw)) {
+    return escapeHtml(raw)
+  }
+  const styles = normalizeStyle(raw)
+  return escapeHtml(stringifyStyle(styles))
+}

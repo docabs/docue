@@ -2279,11 +2279,11 @@ function baseCreateRenderer(
 
   let hydrate: ReturnType<typeof createHydrationFunctions>[0] | undefined
   let hydrateNode: ReturnType<typeof createHydrationFunctions>[1] | undefined
-  // if (createHydrationFns) {
-  //   ;[hydrate, hydrateNode] = createHydrationFns(
-  //     internals as RendererInternals<Node, Element>
-  //   )
-  // }
+  if (createHydrationFns) {
+    ;[hydrate, hydrateNode] = createHydrationFns(
+      internals as RendererInternals<Node, Element>
+    )
+  }
 
   return {
     render,

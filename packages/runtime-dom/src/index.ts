@@ -36,13 +36,21 @@ const rendererOptions = /*#__PURE__*/ extend({ patchProp }, nodeOps)
 // in case the user only imports reactivity utilities from Docue.
 let renderer: Renderer<Element | ShadowRoot> | HydrationRenderer
 
-// let enabledHydration = false
+let enabledHydration = false
 
 function ensureRenderer() {
   return (
     renderer ||
     (renderer = createRenderer<Node, Element | ShadowRoot>(rendererOptions))
   )
+}
+
+function ensureHydrationRenderer() {
+  renderer = enabledHydration
+    ? renderer
+    : createHydrationRenderer(rendererOptions)
+  enabledHydration = true
+  return renderer as HydrationRenderer
 }
 
 // use explicit type casts here to avoid import() calls in rolled-up d.ts
@@ -96,24 +104,24 @@ export const createApp = ((...args) => {
   return app
 }) as CreateAppFunction<Element>
 
-// export const createSSRApp = ((...args) => {
-//   const app = ensureHydrationRenderer().createApp(...args)
+export const createSSRApp = ((...args) => {
+  const app = ensureHydrationRenderer().createApp(...args)
 
-//   if (__DEV__) {
-//     injectNativeTagCheck(app)
-//     injectCompilerOptionsCheck(app)
-//   }
+  if (__DEV__) {
+    // injectNativeTagCheck(app)
+    // injectCompilerOptionsCheck(app)
+  }
 
-//   const { mount } = app
-//   app.mount = (containerOrSelector: Element | ShadowRoot | string): any => {
-//     const container = normalizeContainer(containerOrSelector)
-//     if (container) {
-//       return mount(container, true, container instanceof SVGElement)
-//     }
-//   }
+  const { mount } = app
+  app.mount = (containerOrSelector: Element | ShadowRoot | string): any => {
+    const container = normalizeContainer(containerOrSelector)
+    if (container) {
+      return mount(container, true, container instanceof SVGElement)
+    }
+  }
 
-//   return app
-// }) as CreateAppFunction<Element>
+  return app
+}) as CreateAppFunction<Element>
 
 // function injectNativeTagCheck(app: App) {
 //   // Inject `isNativeTag`

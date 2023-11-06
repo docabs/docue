@@ -5,15 +5,15 @@ export { ssrRenderSlot, ssrRenderSlotInner } from './helpers/ssrRenderSlot'
 // export { ssrRenderTeleport } from './helpers/ssrRenderTeleport'
 export {
   ssrRenderClass,
-  //   ssrRenderStyle,
+  ssrRenderStyle,
   ssrRenderAttrs,
   ssrRenderAttr,
   ssrRenderDynamicAttr
 } from './helpers/ssrRenderAttrs'
 export { ssrInterpolate } from './helpers/ssrInterpolate'
-// export { ssrRenderList } from './helpers/ssrRenderList'
+export { ssrRenderList } from './helpers/ssrRenderList'
 // export { ssrRenderSuspense } from './helpers/ssrRenderSuspense'
-// export { ssrGetDirectiveProps } from './helpers/ssrGetDirectiveProps'
+export { ssrGetDirectiveProps } from './helpers/ssrGetDirectiveProps'
 export { includeBooleanAttr as ssrIncludeBooleanAttr } from '@docue/shared'
 
 // // v-model helpers

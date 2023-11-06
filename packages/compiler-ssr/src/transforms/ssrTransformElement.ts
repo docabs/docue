@@ -224,50 +224,50 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
                   )
                 } else if (attrName === 'style') {
                   if (dynamicStyleBinding) {
-                    //                     // already has style binding, merge into it.
-                    //                     mergeCall(dynamicStyleBinding, value)
+                    // already has style binding, merge into it.
+                    mergeCall(dynamicStyleBinding, value)
                   } else {
-                    //                     openTag.push(
-                    //                       ` style="`,
-                    //                       (dynamicStyleBinding = createCallExpression(
-                    //                         context.helper(SSR_RENDER_STYLE),
-                    //                         [value]
-                    //                       )),
-                    //                       `"`
-                    //                     )
+                    openTag.push(
+                      ` style="`,
+                      (dynamicStyleBinding = createCallExpression(
+                        context.helper(SSR_RENDER_STYLE),
+                        [value]
+                      )),
+                      `"`
+                    )
                   }
                 } else {
-                  //                   attrName =
-                  //                     node.tag.indexOf('-') > 0
-                  //                       ? attrName // preserve raw name on custom elements
-                  //                       : propsToAttrMap[attrName] || attrName.toLowerCase()
-                  //                   if (isBooleanAttr(attrName)) {
-                  //                     openTag.push(
-                  //                       createConditionalExpression(
-                  //                         createCallExpression(
-                  //                           context.helper(SSR_INCLUDE_BOOLEAN_ATTR),
-                  //                           [value]
-                  //                         ),
-                  //                         createSimpleExpression(' ' + attrName, true),
-                  //                         createSimpleExpression('', true),
-                  //                         false /* no newline */
-                  //                       )
-                  //                     )
-                  //                   } else if (isSSRSafeAttrName(attrName)) {
-                  //                     openTag.push(
-                  //                       createCallExpression(context.helper(SSR_RENDER_ATTR), [
-                  //                         key,
-                  //                         value
-                  //                       ])
-                  //                     )
-                  //                   } else {
-                  //                     context.onError(
-                  //                       createSSRCompilerError(
-                  //                         SSRErrorCodes.X_SSR_UNSAFE_ATTR_NAME,
-                  //                         key.loc
-                  //                       )
-                  //                     )
-                  //                   }
+                  attrName =
+                    node.tag.indexOf('-') > 0
+                      ? attrName // preserve raw name on custom elements
+                      : propsToAttrMap[attrName] || attrName.toLowerCase()
+                  if (isBooleanAttr(attrName)) {
+                    openTag.push(
+                      createConditionalExpression(
+                        createCallExpression(
+                          context.helper(SSR_INCLUDE_BOOLEAN_ATTR),
+                          [value]
+                        ),
+                        createSimpleExpression(' ' + attrName, true),
+                        createSimpleExpression('', true),
+                        false /* no newline */
+                      )
+                    )
+                  } else if (isSSRSafeAttrName(attrName)) {
+                    openTag.push(
+                      createCallExpression(context.helper(SSR_RENDER_ATTR), [
+                        key,
+                        value
+                      ])
+                    )
+                  } else {
+                    //                     context.onError(
+                    //                       createSSRCompilerError(
+                    //                         SSRErrorCodes.X_SSR_UNSAFE_ATTR_NAME,
+                    //                         key.loc
+                    //                       )
+                    //                     )
+                  }
                 }
               } else {
                 //                 // dynamic key attr
@@ -299,10 +299,10 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
           if (prop.name === 'class' && prop.value) {
             staticClassBinding = JSON.stringify(prop.value.content)
           }
-          // openTag.push(
-          //   ` ${prop.name}` +
-          //     (prop.value ? `="${escapeHtml(prop.value.content)}"` : ``)
-          // )
+          openTag.push(
+            ` ${prop.name}` +
+              (prop.value ? `="${escapeHtml(prop.value.content)}"` : ``)
+          )
         }
       }
     }

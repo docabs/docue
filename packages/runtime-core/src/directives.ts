@@ -37,7 +37,7 @@ export interface ObjectDirective<T = any, V = any> {
   updated?: DirectiveHook<T, VNode<any, T>, V>
   beforeUnmount?: DirectiveHook<T, null, V>
   unmounted?: DirectiveHook<T, null, V>
-  // getSSRProps?: SSRDirectiveHook
+  getSSRProps?: SSRDirectiveHook
   deep?: boolean
 }
 

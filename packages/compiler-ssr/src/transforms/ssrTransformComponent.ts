@@ -165,21 +165,21 @@ export const ssrTransformComponent: NodeTransform = (node, context) => {
       ? buildSlots(node, context, buildSSRSlotFn).slots
       : `null`
     if (typeof component !== 'string') {
-      //       // dynamic component that resolved to a `resolveDynamicComponent` call
-      //       // expression - since the resolved result may be a plain element (string)
-      //       // or a VNode, handle it with `renderVNode`.
-      //       node.ssrCodegenNode = createCallExpression(
-      //         context.helper(SSR_RENDER_VNODE),
-      //         [
-      //           `_push`,
-      //           createCallExpression(context.helper(CREATE_VNODE), [
-      //             component,
-      //             propsExp,
-      //             slots
-      //           ]),
-      //           `_parent`
-      //         ]
-      //       )
+      // dynamic component that resolved to a `resolveDynamicComponent` call
+      // expression - since the resolved result may be a plain element (string)
+      // or a VNode, handle it with `renderVNode`.
+      node.ssrCodegenNode = createCallExpression(
+        context.helper(SSR_RENDER_VNODE),
+        [
+          `_push`,
+          createCallExpression(context.helper(CREATE_VNODE), [
+            component,
+            propsExp,
+            slots
+          ]),
+          `_parent`
+        ]
+      )
     } else {
       node.ssrCodegenNode = createCallExpression(
         context.helper(SSR_RENDER_COMPONENT),
