@@ -21,7 +21,7 @@ import {
 } from './transforms/ssrTransformComponent'
 import { ssrTransformSlotOutlet } from './transforms/ssrTransformSlotOutlet'
 import { ssrTransformIf } from './transforms/ssrVIf'
-// import { ssrTransformFor } from './transforms/ssrVFor'
+import { ssrTransformFor } from './transforms/ssrVFor'
 import { ssrTransformModel } from './transforms/ssrVModel'
 import { ssrTransformShow } from './transforms/ssrVShow'
 import { ssrInjectFallthroughAttrs } from './transforms/ssrInjectFallthroughAttrs'
@@ -56,8 +56,8 @@ export function compile(
     hoistStatic: false,
     nodeTransforms: [
       ssrTransformIf,
-      //       ssrTransformFor,
-      //       trackVForSlotScopes,
+      ssrTransformFor,
+      trackVForSlotScopes,
       transformExpression,
       ssrTransformSlotOutlet,
       ssrInjectFallthroughAttrs,
@@ -71,7 +71,7 @@ export function compile(
     directiveTransforms: {
       // reusing core v-bind
       bind: transformBind,
-      //       on: transformOn,
+      on: transformOn,
       // model and show has dedicated SSR handling
       model: ssrTransformModel,
       show: ssrTransformShow,

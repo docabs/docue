@@ -21,7 +21,7 @@ import {
 import { isString, escapeHtml } from '@docue/shared'
 import { SSR_INTERPOLATE, ssrHelpers } from './runtimeHelpers'
 import { ssrProcessIf } from './transforms/ssrVIf'
-// import { ssrProcessFor } from './transforms/ssrVFor'
+import { ssrProcessFor } from './transforms/ssrVFor'
 import { ssrProcessSlotOutlet } from './transforms/ssrTransformSlotOutlet'
 import { ssrProcessComponent } from './transforms/ssrTransformComponent'
 import { ssrProcessElement } from './transforms/ssrTransformElement'
@@ -188,7 +188,7 @@ export function processChildren(
         ssrProcessIf(child, context, disableNestedFragments)
         break
       case NodeTypes.FOR:
-        //         ssrProcessFor(child, context, disableNestedFragments)
+        ssrProcessFor(child, context, disableNestedFragments)
         break
       case NodeTypes.IF_BRANCH:
         // no-op - handled by ssrProcessIf

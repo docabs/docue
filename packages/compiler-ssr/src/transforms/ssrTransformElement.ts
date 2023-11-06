@@ -313,9 +313,9 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
       removeStaticBinding(openTag, 'class')
     }
 
-    //     if (context.scopeId) {
-    //       openTag.push(` ${context.scopeId}`)
-    //     }
+    if (context.scopeId) {
+      openTag.push(` ${context.scopeId}`)
+    }
 
     node.ssrCodegenNode = createTemplateLiteral(openTag)
   }
