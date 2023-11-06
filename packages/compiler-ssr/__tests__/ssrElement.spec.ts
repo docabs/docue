@@ -56,8 +56,8 @@ describe('ssr: element', () => {
     test('<textarea> with dynamic v-bind', () => {
       expect(compile(`<textarea v-bind="obj">fallback</textarea>`).code)
         .toMatchInlineSnapshot(`
-          "const { mergeProps: _mergeProps } = require(\\"vue\\")
-          const { ssrRenderAttrs: _ssrRenderAttrs, ssrInterpolate: _ssrInterpolate } = require(\\"vue/server-renderer\\")
+          "const { mergeProps: _mergeProps } = require(\\"docue\\")
+          const { ssrRenderAttrs: _ssrRenderAttrs, ssrInterpolate: _ssrInterpolate } = require(\\"docue/server-renderer\\")
 
           return function ssrRender(_ctx, _push, _parent, _attrs) {
             let _temp0
@@ -75,7 +75,7 @@ describe('ssr: element', () => {
       expect(
         compile(`<div>{{ hello }}<textarea v-bind="a"></textarea></div>`).code
       ).toMatchInlineSnapshot(`
-        "const { ssrRenderAttrs: _ssrRenderAttrs, ssrInterpolate: _ssrInterpolate } = require(\\"vue/server-renderer\\")
+        "const { ssrRenderAttrs: _ssrRenderAttrs, ssrInterpolate: _ssrInterpolate } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
           let _temp0
@@ -99,8 +99,8 @@ describe('ssr: element', () => {
           isCustomElement: () => true
         }).code
       ).toMatchInlineSnapshot(`
-        "const { mergeProps: _mergeProps } = require(\\"vue\\")
-        const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"vue/server-renderer\\")
+        "const { mergeProps: _mergeProps } = require(\\"docue\\")
+        const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
           _push(\`<my-foo\${_ssrRenderAttrs(_mergeProps(_ctx.obj, _attrs), \\"my-foo\\")}></my-foo>\`)

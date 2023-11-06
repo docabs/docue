@@ -107,31 +107,31 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
           // If interpolation, this is dynamic <textarea> content, potentially
           // injected by v-model and takes higher priority than v-bind value
           if (!existingText || existingText.type !== NodeTypes.INTERPOLATION) {
-            //             // <textarea> with dynamic v-bind. We don't know if the final props
-            //             // will contain .value, so we will have to do something special:
-            //             // assign the merged props to a temp variable, and check whether
-            //             // it contains value (if yes, render is as children).
-            //             const tempId = `_temp${context.temps++}`
-            //             propsExp.arguments = [
-            //               createAssignmentExpression(
-            //                 createSimpleExpression(tempId, false),
-            //                 mergedProps
-            //               )
-            //             ]
-            //             rawChildrenMap.set(
-            //               node,
-            //               createCallExpression(context.helper(SSR_INTERPOLATE), [
-            //                 createConditionalExpression(
-            //                   createSimpleExpression(`"value" in ${tempId}`, false),
-            //                   createSimpleExpression(`${tempId}.value`, false),
-            //                   createSimpleExpression(
-            //                     existingText ? existingText.content : ``,
-            //                     true
-            //                   ),
-            //                   false
-            //                 )
-            //               ])
-            //             )
+            // <textarea> with dynamic v-bind. We don't know if the final props
+            // will contain .value, so we will have to do something special:
+            // assign the merged props to a temp variable, and check whether
+            // it contains value (if yes, render is as children).
+            const tempId = `_temp${context.temps++}`
+            propsExp.arguments = [
+              createAssignmentExpression(
+                createSimpleExpression(tempId, false),
+                mergedProps
+              )
+            ]
+            rawChildrenMap.set(
+              node,
+              createCallExpression(context.helper(SSR_INTERPOLATE), [
+                createConditionalExpression(
+                  createSimpleExpression(`"value" in ${tempId}`, false),
+                  createSimpleExpression(`${tempId}.value`, false),
+                  createSimpleExpression(
+                    existingText ? existingText.content : ``,
+                    true
+                  ),
+                  false
+                )
+              ])
+            )
           }
         } else if (node.tag === 'input') {
           // <input v-bind="obj" v-model>
@@ -182,17 +182,17 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
       // special cases with children override
       if (prop.type === NodeTypes.DIRECTIVE) {
         if (prop.name === 'html' && prop.exp) {
-          //           rawChildrenMap.set(node, prop.exp)
+          rawChildrenMap.set(node, prop.exp)
         } else if (prop.name === 'text' && prop.exp) {
-          //           node.children = [createInterpolation(prop.exp, prop.loc)]
+          node.children = [createInterpolation(prop.exp, prop.loc)]
         } else if (prop.name === 'slot') {
           //           context.onError(
           //             createCompilerError(ErrorCodes.X_V_SLOT_MISPLACED, prop.loc)
           //           )
         } else if (isTextareaWithValue(node, prop) && prop.exp) {
-          //           if (!needMergeProps) {
-          //             node.children = [createInterpolation(prop.exp, prop.loc)]
-          //           }
+          if (!needMergeProps) {
+            node.children = [createInterpolation(prop.exp, prop.loc)]
+          }
         } else if (!needMergeProps && prop.name !== 'on') {
           // Directive transforms.
           const directiveTransform = context.directiveTransforms[prop.name]
@@ -290,11 +290,11 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
       } else {
         // special case: value on <textarea>
         if (node.tag === 'textarea' && prop.name === 'value' && prop.value) {
-          //           rawChildrenMap.set(node, escapeHtml(prop.value.content))
+          rawChildrenMap.set(node, escapeHtml(prop.value.content))
         } else if (!needMergeProps) {
-          //           if (prop.name === 'key' || prop.name === 'ref') {
-          //             continue
-          //           }
+          if (prop.name === 'key' || prop.name === 'ref') {
+            continue
+          }
           // static prop
           if (prop.name === 'class' && prop.value) {
             staticClassBinding = JSON.stringify(prop.value.content)
@@ -310,7 +310,7 @@ export const ssrTransformElement: NodeTransform = (node, context) => {
     // handle co-existence of dynamic + static class bindings
     if (dynamicClassBinding && staticClassBinding) {
       mergeCall(dynamicClassBinding, staticClassBinding)
-      // removeStaticBinding(openTag, 'class')
+      removeStaticBinding(openTag, 'class')
     }
 
     //     if (context.scopeId) {
