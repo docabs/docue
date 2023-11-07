@@ -42,7 +42,7 @@ import { warn } from './warning'
 // import { DeprecationTypes } from './compat/compatConfig'
 // import { checkCompatEnabled, isCompatEnabled } from './compat/compatConfig'
 import { ObjectWatchOptionItem } from './componentOptions'
-// import { useSSRContext } from '@docue/runtime-core'
+import { useSSRContext } from '@docue/runtime-core'
 
 export type WatchEffect = (onCleanup: OnCleanup) => void
 
@@ -280,28 +280,28 @@ function doWatch(
     }
   }
 
-  // // in SSR there is no need to setup an actual effect, and it should be noop
-  // // unless it's eager or sync flush
-  // let ssrCleanup: (() => void)[] | undefined
-  // if (__SSR__ && isInSSRComponentSetup) {
-  //   // we will also not call the invalidate callback (+ runner is not set up)
-  //   onCleanup = NOOP
-  //   if (!cb) {
-  //     getter()
-  //   } else if (immediate) {
-  //     callWithAsyncErrorHandling(cb, instance, ErrorCodes.WATCH_CALLBACK, [
-  //       getter(),
-  //       isMultiSource ? [] : undefined,
-  //       onCleanup
-  //     ])
-  //   }
-  //   if (flush === 'sync') {
-  //     // const ctx = useSSRContext()!
-  //     // ssrCleanup = ctx.__watcherHandles || (ctx.__watcherHandles = [])
-  //   } else {
-  //     return NOOP
-  //   }
-  // }
+  // in SSR there is no need to setup an actual effect, and it should be noop
+  // unless it's eager or sync flush
+  let ssrCleanup: (() => void)[] | undefined
+  if (__SSR__ && isInSSRComponentSetup) {
+    // we will also not call the invalidate callback (+ runner is not set up)
+    onCleanup = NOOP
+    if (!cb) {
+      //     getter()
+    } else if (immediate) {
+      //     callWithAsyncErrorHandling(cb, instance, ErrorCodes.WATCH_CALLBACK, [
+      //       getter(),
+      //       isMultiSource ? [] : undefined,
+      //       onCleanup
+      //     ])
+    }
+    if (flush === 'sync') {
+      const ctx = useSSRContext()!
+      ssrCleanup = ctx.__watcherHandles || (ctx.__watcherHandles = [])
+    } else {
+      return NOOP
+    }
+  }
 
   let oldValue: any = isMultiSource
     ? new Array((source as []).length).fill(INITIAL_WATCHER_VALUE)
@@ -391,7 +391,7 @@ function doWatch(
     }
   }
 
-  // if (__SSR__ && ssrCleanup) ssrCleanup.push(unwatch)
+  if (__SSR__ && ssrCleanup) ssrCleanup.push(unwatch)
   return unwatch
 }
 

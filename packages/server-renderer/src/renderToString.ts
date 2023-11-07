@@ -65,7 +65,7 @@ export async function renderToString(
 
   const result = await unrollBuffer(buffer as SSRBuffer)
 
-  // await resolveTeleports(context)
+  await resolveTeleports(context)
 
   if (context.__watcherHandles) {
     for (const unwatch of context.__watcherHandles) {

@@ -49,9 +49,9 @@ function setDisplay(el: VShowElement, value: unknown): void {
 // SSR vnode transforms, only used when user includes client-oriented render
 // function in SSR
 export function initVShowForSSR() {
-  // vShow.getSSRProps = ({ value }) => {
-  //   if (!value) {
-  //     return { style: { display: 'none' } }
-  //   }
-  // }
+  vShow.getSSRProps = ({ value }) => {
+    if (!value) {
+      return { style: { display: 'none' } }
+    }
+  }
 }

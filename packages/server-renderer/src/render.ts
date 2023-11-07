@@ -27,7 +27,7 @@ import {
 } from '@docue/shared'
 import { ssrRenderAttrs } from './helpers/ssrRenderAttrs'
 import { ssrCompile } from './helpers/ssrCompile'
-// import { ssrRenderTeleport } from './helpers/ssrRenderTeleport'
+import { ssrRenderTeleport } from './helpers/ssrRenderTeleport'
 
 const {
   createComponentInstance,
@@ -171,8 +171,8 @@ function renderComponentSubTree(
         }
       }
       if (slotScopeId) {
-        //         if (!hasCloned) attrs = { ...attrs }
-        //         attrs![slotScopeId.trim()] = ''
+        if (!hasCloned) attrs = { ...attrs }
+        attrs![slotScopeId.trim()] = ''
       }
       // set current rendering instance for asset resolution
       const prev = setCurrentRenderingInstance(instance)
@@ -228,8 +228,8 @@ export function renderVNode(
       break
     case Fragment:
       if (vnode.slotScopeIds) {
-        //         slotScopeId =
-        //           (slotScopeId ? slotScopeId + ' ' : '') + vnode.slotScopeIds.join(' ')
+        slotScopeId =
+          (slotScopeId ? slotScopeId + ' ' : '') + vnode.slotScopeIds.join(' ')
       }
       push(`<!--[-->`) // open
       renderVNodeChildren(
@@ -246,9 +246,9 @@ export function renderVNode(
       } else if (shapeFlag & ShapeFlags.COMPONENT) {
         push(renderComponentVNode(vnode, parentComponent, slotScopeId))
       } else if (shapeFlag & ShapeFlags.TELEPORT) {
-        // renderTeleportVNode(push, vnode, parentComponent, slotScopeId)
+        renderTeleportVNode(push, vnode, parentComponent, slotScopeId)
       } else if (shapeFlag & ShapeFlags.SUSPENSE) {
-        // renderVNode(push, vnode.ssContent!, parentComponent, slotScopeId)
+        renderVNode(push, vnode.ssContent!, parentComponent, slotScopeId)
       } else {
         warn(
           '[@docue/server-renderer] Invalid VNode type:',
@@ -280,26 +280,26 @@ function renderElementVNode(
   let { props, children, shapeFlag, scopeId, dirs } = vnode
   let openTag = `<${tag}`
   if (dirs) {
-    // props = applySSRDirectives(vnode, props, dirs)
+    props = applySSRDirectives(vnode, props, dirs)
   }
   if (props) {
     openTag += ssrRenderAttrs(props, tag)
   }
   if (scopeId) {
-    // openTag += ` ${scopeId}`
+    openTag += ` ${scopeId}`
   }
   // inherit parent chain scope id if this is the root node
   let curParent: ComponentInternalInstance | null = parentComponent
   let curVnode = vnode
-  // while (curParent && curVnode === curParent.subTree) {
-  //   curVnode = curParent.vnode
-  //   if (curVnode.scopeId) {
-  //     openTag += ` ${curVnode.scopeId}`
-  //   }
-  //   curParent = curParent.parent
-  // }
+  while (curParent && curVnode === curParent.subTree) {
+    curVnode = curParent.vnode
+    if (curVnode.scopeId) {
+      openTag += ` ${curVnode.scopeId}`
+    }
+    curParent = curParent.parent
+  }
   if (slotScopeId) {
-    //     openTag += ` ${slotScopeId}`
+    openTag += ` ${slotScopeId}`
   }
   push(openTag + `>`)
   if (!isVoidTag(tag)) {
@@ -332,57 +332,57 @@ function renderElementVNode(
   }
 }
 
-// function applySSRDirectives(
-//   vnode: VNode,
-//   rawProps: VNodeProps | null,
-//   dirs: DirectiveBinding[]
-// ): VNodeProps {
-//   const toMerge: VNodeProps[] = []
-//   for (let i = 0; i < dirs.length; i++) {
-//     const binding = dirs[i]
-//     const {
-//       dir: { getSSRProps }
-//     } = binding
-//     if (getSSRProps) {
-//       const props = getSSRProps(binding, vnode)
-//       if (props) toMerge.push(props)
-//     }
-//   }
-//   return mergeProps(rawProps || {}, ...toMerge)
-// }
+function applySSRDirectives(
+  vnode: VNode,
+  rawProps: VNodeProps | null,
+  dirs: DirectiveBinding[]
+): VNodeProps {
+  const toMerge: VNodeProps[] = []
+  for (let i = 0; i < dirs.length; i++) {
+    const binding = dirs[i]
+    const {
+      dir: { getSSRProps }
+    } = binding
+    if (getSSRProps) {
+      const props = getSSRProps(binding, vnode)
+      if (props) toMerge.push(props)
+    }
+  }
+  return mergeProps(rawProps || {}, ...toMerge)
+}
 
-// function renderTeleportVNode(
-//   push: PushFn,
-//   vnode: VNode,
-//   parentComponent: ComponentInternalInstance,
-//   slotScopeId: string | undefined
-// ) {
-//   const target = vnode.props && vnode.props.to
-//   const disabled = vnode.props && vnode.props.disabled
-//   if (!target) {
-//     if (!disabled) {
-//       warn(`[@docue/server-renderer] Teleport is missing target prop.`)
-//     }
-//     return []
-//   }
-//   if (!isString(target)) {
-//     warn(
-//       `[@docue/server-renderer] Teleport target must be a query selector string.`
-//     )
-//     return []
-//   }
-//   ssrRenderTeleport(
-//     push,
-//     push => {
-//       renderVNodeChildren(
-//         push,
-//         vnode.children as VNodeArrayChildren,
-//         parentComponent,
-//         slotScopeId
-//       )
-//     },
-//     target,
-//     disabled || disabled === '',
-//     parentComponent
-//   )
-// }
+function renderTeleportVNode(
+  push: PushFn,
+  vnode: VNode,
+  parentComponent: ComponentInternalInstance,
+  slotScopeId: string | undefined
+) {
+  const target = vnode.props && vnode.props.to
+  const disabled = vnode.props && vnode.props.disabled
+  if (!target) {
+    if (!disabled) {
+      warn(`[@docue/server-renderer] Teleport is missing target prop.`)
+    }
+    return []
+  }
+  if (!isString(target)) {
+    warn(
+      `[@docue/server-renderer] Teleport target must be a query selector string.`
+    )
+    return []
+  }
+  ssrRenderTeleport(
+    push,
+    push => {
+      renderVNodeChildren(
+        push,
+        vnode.children as VNodeArrayChildren,
+        parentComponent,
+        slotScopeId
+      )
+    },
+    target,
+    disabled || disabled === '',
+    parentComponent
+  )
+}

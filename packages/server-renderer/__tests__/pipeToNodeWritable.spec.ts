@@ -21,51 +21,51 @@ import {
 } from 'docue'
 import { escapeHtml } from '@docue/shared'
 import { renderToString } from '../src/renderToString'
-// import { renderToNodeStream, pipeToNodeWritable } from '../src/renderToStream'
+import { renderToNodeStream, pipeToNodeWritable } from '../src/renderToStream'
 import { ssrRenderSlot, SSRSlot } from '../src/helpers/ssrRenderSlot'
 import { ssrRenderComponent } from '../src/helpers/ssrRenderComponent'
 import { Readable, Transform } from 'stream'
 import { ssrRenderVNode } from '../src'
 
-// const promisifyStream = (stream: Readable) => {
-//   return new Promise<string>((resolve, reject) => {
-//     let result = ''
-//     stream.on('data', data => {
-//       result += data
-//     })
-//     stream.on('error', () => {
-//       reject(result)
-//     })
-//     stream.on('end', () => {
-//       resolve(result)
-//     })
-//   })
-// }
+const promisifyStream = (stream: Readable) => {
+  return new Promise<string>((resolve, reject) => {
+    let result = ''
+    stream.on('data', data => {
+      result += data
+    })
+    stream.on('error', () => {
+      reject(result)
+    })
+    stream.on('end', () => {
+      resolve(result)
+    })
+  })
+}
 
 // const renderToStream = (app: any, context?: any) => {
 //   return promisifyStream(renderToNodeStream(app, context))
 // }
 
-// const pipeToWritable = (app: any, context?: any) => {
-//   const stream = new Transform({
-//     transform(data, _encoding, cb) {
-//       this.push(data)
-//       cb()
-//     }
-//   })
-//   pipeToNodeWritable(app, context, stream)
-//   return promisifyStream(stream)
-// }
+const pipeToWritable = (app: any, context?: any) => {
+  const stream = new Transform({
+    transform(data, _encoding, cb) {
+      this.push(data)
+      cb()
+    }
+  })
+  pipeToNodeWritable(app, context, stream)
+  return promisifyStream(stream)
+}
 
 // we run the same tests twice, once for renderToString, once for renderToStream
 // testRender(`renderToString`, renderToString)
 // testRender(`renderToNodeStream`, renderToStream)
 // testRender(`pipeToNodeWritable`, pipeToWritable)
 
-const type = 'renderToString'
-const render = renderToString
+const type = 'pipeToNodeWritable'
+const render = pipeToWritable
 
-describe(`ssr: renderToString`, () => {
+describe(`ssr: pipeToNodeWritable`, () => {
   test('should apply app context', async () => {
     const app = createApp({
       render() {

@@ -1,4 +1,4 @@
-import { createApp, h, Suspense } from 'vue'
+import { createApp, h, Suspense } from 'docue'
 import { renderToString } from '../src/renderToString'
 
 describe('SSR Suspense', () => {

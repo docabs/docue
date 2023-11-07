@@ -310,36 +310,36 @@ function callModelHook(
 // SSR vnode transforms, only used when user includes client-oriented render
 // function in SSR
 export function initVModelForSSR() {
-  //   vModelText.getSSRProps = ({ value }) => ({ value })
-  //   vModelRadio.getSSRProps = ({ value }, vnode) => {
-  //     if (vnode.props && looseEqual(vnode.props.value, value)) {
-  //       return { checked: true }
-  //     }
-  //   }
-  //   vModelCheckbox.getSSRProps = ({ value }, vnode) => {
-  //     if (isArray(value)) {
-  //       if (vnode.props && looseIndexOf(value, vnode.props.value) > -1) {
-  //         return { checked: true }
-  //       }
-  //     } else if (isSet(value)) {
-  //       if (vnode.props && value.has(vnode.props.value)) {
-  //         return { checked: true }
-  //       }
-  //     } else if (value) {
-  //       return { checked: true }
-  //     }
-  //   }
-  //   vModelDynamic.getSSRProps = (binding, vnode) => {
-  //     if (typeof vnode.type !== 'string') {
-  //       return
-  //     }
-  //     const modelToUse = resolveDynamicModel(
-  //       // resolveDynamicModel expects an uppercase tag name, but vnode.type is lowercase
-  //       vnode.type.toUpperCase(),
-  //       vnode.props && vnode.props.type
-  //     )
-  //     if (modelToUse.getSSRProps) {
-  //       return modelToUse.getSSRProps(binding, vnode)
-  //     }
-  //   }
+  vModelText.getSSRProps = ({ value }) => ({ value })
+  vModelRadio.getSSRProps = ({ value }, vnode) => {
+    if (vnode.props && looseEqual(vnode.props.value, value)) {
+      return { checked: true }
+    }
+  }
+  vModelCheckbox.getSSRProps = ({ value }, vnode) => {
+    if (isArray(value)) {
+      if (vnode.props && looseIndexOf(value, vnode.props.value) > -1) {
+        return { checked: true }
+      }
+    } else if (isSet(value)) {
+      if (vnode.props && value.has(vnode.props.value)) {
+        return { checked: true }
+      }
+    } else if (value) {
+      return { checked: true }
+    }
+  }
+  vModelDynamic.getSSRProps = (binding, vnode) => {
+    if (typeof vnode.type !== 'string') {
+      return
+    }
+    const modelToUse = resolveDynamicModel(
+      // resolveDynamicModel expects an uppercase tag name, but vnode.type is lowercase
+      vnode.type.toUpperCase(),
+      vnode.props && vnode.props.type
+    )
+    if (modelToUse.getSSRProps) {
+      return modelToUse.getSSRProps(binding, vnode)
+    }
+  }
 }

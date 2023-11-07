@@ -1,4 +1,4 @@
-import { createApp, h, Teleport } from 'vue'
+import { createApp, h, Teleport } from 'docue'
 import { renderToString } from '../src/renderToString'
 import { renderToSimpleStream } from '../src/renderToStream'
 import { SSRContext } from '../src/render'

@@ -21,30 +21,30 @@ import {
 } from 'docue'
 import { escapeHtml } from '@docue/shared'
 import { renderToString } from '../src/renderToString'
-// import { renderToNodeStream, pipeToNodeWritable } from '../src/renderToStream'
+import { renderToNodeStream, pipeToNodeWritable } from '../src/renderToStream'
 import { ssrRenderSlot, SSRSlot } from '../src/helpers/ssrRenderSlot'
 import { ssrRenderComponent } from '../src/helpers/ssrRenderComponent'
 import { Readable, Transform } from 'stream'
 import { ssrRenderVNode } from '../src'
 
-// const promisifyStream = (stream: Readable) => {
-//   return new Promise<string>((resolve, reject) => {
-//     let result = ''
-//     stream.on('data', data => {
-//       result += data
-//     })
-//     stream.on('error', () => {
-//       reject(result)
-//     })
-//     stream.on('end', () => {
-//       resolve(result)
-//     })
-//   })
-// }
+const promisifyStream = (stream: Readable) => {
+  return new Promise<string>((resolve, reject) => {
+    let result = ''
+    stream.on('data', data => {
+      result += data
+    })
+    stream.on('error', () => {
+      reject(result)
+    })
+    stream.on('end', () => {
+      resolve(result)
+    })
+  })
+}
 
-// const renderToStream = (app: any, context?: any) => {
-//   return promisifyStream(renderToNodeStream(app, context))
-// }
+const renderToStream = (app: any, context?: any) => {
+  return promisifyStream(renderToNodeStream(app, context))
+}
 
 // const pipeToWritable = (app: any, context?: any) => {
 //   const stream = new Transform({
@@ -62,10 +62,10 @@ import { ssrRenderVNode } from '../src'
 // testRender(`renderToNodeStream`, renderToStream)
 // testRender(`pipeToNodeWritable`, pipeToWritable)
 
-const type = 'renderToString'
-const render = renderToString
+const type = 'renderToNodeStream'
+const render = renderToStream
 
-describe(`ssr: renderToString`, () => {
+describe(`ssr: renderToNodeStream`, () => {
   test('should apply app context', async () => {
     const app = createApp({
       render() {
