@@ -1,4 +1,4 @@
-import { BindingTypes } from '@vue/compiler-dom'
+import { BindingTypes } from '@docue/compiler-dom'
 import { compile } from '../src'
 
 describe('ssr: inject <style vars>', () => {
@@ -8,8 +8,8 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"vue\\")
-      const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"vue/server-renderer\\")
+      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
         const _cssVars = { style: { color: _ctx.color }}
@@ -24,7 +24,7 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"vue/server-renderer\\")
+      "const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
         const _cssVars = { style: { color: _ctx.color }}
@@ -43,8 +43,8 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { resolveComponent: _resolveComponent } = require(\\"vue\\")
-      const { ssrRenderAttrs: _ssrRenderAttrs, ssrRenderComponent: _ssrRenderComponent } = require(\\"vue/server-renderer\\")
+      "const { resolveComponent: _resolveComponent } = require(\\"docue\\")
+      const { ssrRenderAttrs: _ssrRenderAttrs, ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
         const _component_foo = _resolveComponent(\\"foo\\")
@@ -63,8 +63,8 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"vue\\")
-      const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"vue/server-renderer\\")
+      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
         const _cssVars = { style: { color: _ctx.color }}
@@ -95,8 +95,8 @@ describe('ssr: inject <style vars>', () => {
         }
       ).code
     ).toMatchInlineSnapshot(`
-      "const { withCtx: _withCtx } = require(\\"vue\\")
-      const { ssrRenderAttrs: _ssrRenderAttrs, ssrRenderSuspense: _ssrRenderSuspense } = require(\\"vue/server-renderer\\")
+      "const { withCtx: _withCtx } = require(\\"docue\\")
+      const { ssrRenderAttrs: _ssrRenderAttrs, ssrRenderSuspense: _ssrRenderSuspense } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
         const _cssVars = { style: { color: _ctx.color }}

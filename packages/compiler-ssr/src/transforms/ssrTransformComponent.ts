@@ -50,10 +50,10 @@ import {
 //   ssrProcessSuspense,
 //   ssrTransformSuspense
 // } from './ssrTransformSuspense'
-// import {
-//   ssrProcessTransitionGroup,
-//   ssrTransformTransitionGroup
-// } from './ssrTransformTransitionGroup'
+import {
+  ssrProcessTransitionGroup,
+  ssrTransformTransitionGroup
+} from './ssrTransformTransitionGroup'
 import { isSymbol, isObject, isArray } from '@docue/shared'
 import { buildSSRProps } from './ssrTransformElement'
 import {
@@ -102,7 +102,7 @@ export const ssrTransformComponent: NodeTransform = (node, context) => {
     if (component === SUSPENSE) {
       //       return ssrTransformSuspense(node, context)
     } else if (component === TRANSITION_GROUP) {
-      //       return ssrTransformTransitionGroup(node, context)
+      return ssrTransformTransitionGroup(node, context)
     } else if (component === TRANSITION) {
       return ssrTransformTransition(node, context)
     }
@@ -202,7 +202,7 @@ export function ssrProcessComponent(
     } else if (component === SUSPENSE) {
       //       return ssrProcessSuspense(node, context)
     } else if (component === TRANSITION_GROUP) {
-      //       return ssrProcessTransitionGroup(node, context)
+      return ssrProcessTransitionGroup(node, context)
     } else {
       // real fall-through: Transition / KeepAlive
       // just render its children.

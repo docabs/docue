@@ -25,7 +25,7 @@ import { ssrTransformFor } from './transforms/ssrVFor'
 import { ssrTransformModel } from './transforms/ssrVModel'
 import { ssrTransformShow } from './transforms/ssrVShow'
 import { ssrInjectFallthroughAttrs } from './transforms/ssrInjectFallthroughAttrs'
-// import { ssrInjectCssVars } from './transforms/ssrInjectCssVars'
+import { ssrInjectCssVars } from './transforms/ssrInjectCssVars'
 
 export function compile(
   template: string,
@@ -61,7 +61,7 @@ export function compile(
       transformExpression,
       ssrTransformSlotOutlet,
       ssrInjectFallthroughAttrs,
-      //       ssrInjectCssVars,
+      ssrInjectCssVars,
       ssrTransformElement,
       ssrTransformComponent,
       trackSlotScopes,
