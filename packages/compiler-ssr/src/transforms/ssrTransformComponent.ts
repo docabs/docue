@@ -45,11 +45,11 @@ import {
   processChildren,
   processChildrenAsStatement
 } from '../ssrCodegenTransform'
-// import { ssrProcessTeleport } from './ssrTransformTeleport'
-// import {
-//   ssrProcessSuspense,
-//   ssrTransformSuspense
-// } from './ssrTransformSuspense'
+import { ssrProcessTeleport } from './ssrTransformTeleport'
+import {
+  ssrProcessSuspense,
+  ssrTransformSuspense
+} from './ssrTransformSuspense'
 import {
   ssrProcessTransitionGroup,
   ssrTransformTransitionGroup
@@ -100,7 +100,7 @@ export const ssrTransformComponent: NodeTransform = (node, context) => {
   componentTypeMap.set(node, component)
   if (isSymbol(component)) {
     if (component === SUSPENSE) {
-      //       return ssrTransformSuspense(node, context)
+      return ssrTransformSuspense(node, context)
     } else if (component === TRANSITION_GROUP) {
       return ssrTransformTransitionGroup(node, context)
     } else if (component === TRANSITION) {
@@ -198,9 +198,9 @@ export function ssrProcessComponent(
   if (!node.ssrCodegenNode) {
     // this is a built-in component that fell-through.
     if (component === TELEPORT) {
-      //       return ssrProcessTeleport(node, context)
+      return ssrProcessTeleport(node, context)
     } else if (component === SUSPENSE) {
-      //       return ssrProcessSuspense(node, context)
+      return ssrProcessSuspense(node, context)
     } else if (component === TRANSITION_GROUP) {
       return ssrProcessTransitionGroup(node, context)
     } else {
