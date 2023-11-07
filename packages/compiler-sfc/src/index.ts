@@ -4,7 +4,7 @@ export const version = __VERSION__
 export { parse, parseCache } from './parse'
 // export { compileTemplate } from './compileTemplate'
 // export { compileStyle, compileStyleAsync } from './compileStyle'
-// export { compileScript } from './compileScript'
+export { compileScript } from './compileScript'
 // export { rewriteDefault, rewriteDefaultAST } from './rewriteDefault'
 // export { resolveTypeElements, inferRuntimeType } from './script/resolveType'
 
@@ -34,27 +34,27 @@ export {
 // // Internals for type resolution
 // export { invalidateTypeCache, registerTS } from './script/resolveType'
 
-// // Types
-// export type {
-//   SFCParseOptions,
-//   SFCParseResult,
-//   SFCDescriptor,
-//   SFCBlock,
-//   SFCTemplateBlock,
-//   SFCScriptBlock,
-//   SFCStyleBlock
-// } from './parse'
-// export type {
-//   TemplateCompiler,
-//   SFCTemplateCompileOptions,
-//   SFCTemplateCompileResults
-// } from './compileTemplate'
+// Types
+export type {
+  SFCParseOptions,
+  SFCParseResult,
+  SFCDescriptor,
+  SFCBlock,
+  SFCTemplateBlock,
+  SFCScriptBlock,
+  SFCStyleBlock
+} from './parse'
+export type {
+  TemplateCompiler,
+  SFCTemplateCompileOptions,
+  SFCTemplateCompileResults
+} from './compileTemplate'
 // export type {
 //   SFCStyleCompileOptions,
 //   SFCAsyncStyleCompileOptions,
 //   SFCStyleCompileResults
 // } from './compileStyle'
-// export type { SFCScriptCompileOptions } from './compileScript'
+export type { SFCScriptCompileOptions } from './compileScript'
 // export type { ScriptCompileContext } from './script/context'
 // export type {
 //   TypeResolveContext,

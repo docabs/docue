@@ -11,7 +11,7 @@ import { RawSourceMap, SourceMapGenerator } from 'source-map-js'
 import { TemplateCompiler } from './compileTemplate'
 // import { parseCssVars } from './style/cssVars'
 import { createCache } from './cache'
-// import { ImportBinding } from './compileScript'
+import { ImportBinding } from './compileScript'
 // import { isImportUsed } from './script/importUsageCheck'
 
 export const DEFAULT_FILENAME = 'anonymous.vue'
@@ -44,7 +44,7 @@ export interface SFCScriptBlock extends SFCBlock {
   type: 'script'
   setup?: string | boolean
   bindings?: BindingMetadata
-  // imports?: Record<string, ImportBinding>
+  imports?: Record<string, ImportBinding>
   scriptAst?: import('@babel/types').Statement[]
   scriptSetupAst?: import('@babel/types').Statement[]
   warnings?: string[]
