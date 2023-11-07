@@ -787,12 +787,12 @@ export function handleSetupResult(
       instance.render = setupResult as InternalRenderFunction
     }
   } else if (isObject(setupResult)) {
-    // if (__DEV__ && isVNode(setupResult)) {
-    //   warn(
-    //     `setup() should not return VNodes directly - ` +
-    //       `return a render function instead.`
-    //   )
-    // }
+    if (__DEV__ && isVNode(setupResult)) {
+      warn(
+        `setup() should not return VNodes directly - ` +
+          `return a render function instead.`
+      )
+    }
     // // setup returned bindings.
     // // assuming a render function compiled from template is present.
     // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
@@ -915,17 +915,17 @@ export function finishComponentSetup(
   if (__DEV__ && !Component.render && instance.render === NOOP && !isSSR) {
     /* istanbul ignore if */
     if (!compile && Component.template) {
-      //     warn(
-      //       `Component provided template option but ` +
-      //         `runtime compilation is not supported in this build of Docue.` +
-      //         (__ESM_BUNDLER__
-      //           ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
-      //           : __ESM_BROWSER__
-      //           ? ` Use "docue.esm-browser.js" instead.`
-      //           : __GLOBAL__
-      //           ? ` Use "docue.global.js" instead.`
-      //           : ``) /* should not happen */
-      //     )
+      warn(
+        `Component provided template option but ` +
+          `runtime compilation is not supported in this build of Docue.` +
+          (__ESM_BUNDLER__
+            ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
+            : __ESM_BROWSER__
+            ? ` Use "docue.esm-browser.js" instead.`
+            : __GLOBAL__
+            ? ` Use "docue.global.js" instead.`
+            : ``) /* should not happen */
+      )
     } else {
       warn(`Component is missing template or render function.`)
     }

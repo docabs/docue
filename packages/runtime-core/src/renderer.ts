@@ -72,7 +72,7 @@ import { invokeDirectiveHook } from './directives'
 import { isAsyncWrapper } from './apiAsyncComponent'
 // import { isCompatEnabled } from './compat/compatConfig'
 // import { DeprecationTypes } from './compat/compatConfig'
-// import { TransitionHooks } from './components/BaseTransition'
+import { TransitionHooks } from './components/BaseTransition'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -1305,40 +1305,40 @@ function baseCreateRenderer(
         //       }
         toggleRecurse(instance, true)
         if (el && hydrateNode) {
-          //         // vnode has adopted host node - perform hydration instead of mount.
-          //         const hydrateSubTree = () => {
-          //           if (__DEV__) {
-          //             startMeasure(instance, `render`)
-          //           }
-          //           instance.subTree = renderComponentRoot(instance)
-          //           if (__DEV__) {
-          //             endMeasure(instance, `render`)
-          //           }
-          //           if (__DEV__) {
-          //             startMeasure(instance, `hydrate`)
-          //           }
-          //           hydrateNode!(
-          //             el as Node,
-          //             instance.subTree,
-          //             instance,
-          //             parentSuspense,
-          //             null
-          //           )
-          //           if (__DEV__) {
-          //             endMeasure(instance, `hydrate`)
-          //           }
-          //         }
-          //         if (isAsyncWrapperVNode) {
-          //           ;(initialVNode.type as ComponentOptions).__asyncLoader!().then(
-          //             // note: we are moving the render call into an async callback,
-          //             // which means it won't track dependencies - but it's ok because
-          //             // a server-rendered async wrapper is already in resolved state
-          //             // and it will never need to change.
-          //             () => !instance.isUnmounted && hydrateSubTree()
-          //           )
-          //         } else {
-          //           hydrateSubTree()
-          //         }
+          // vnode has adopted host node - perform hydration instead of mount.
+          const hydrateSubTree = () => {
+            //           if (__DEV__) {
+            //             startMeasure(instance, `render`)
+            //           }
+            instance.subTree = renderComponentRoot(instance)
+            //           if (__DEV__) {
+            //             endMeasure(instance, `render`)
+            //           }
+            //           if (__DEV__) {
+            //             startMeasure(instance, `hydrate`)
+            //           }
+            hydrateNode!(
+              el as Node,
+              instance.subTree,
+              instance,
+              parentSuspense,
+              null
+            )
+            //           if (__DEV__) {
+            //             endMeasure(instance, `hydrate`)
+            //           }
+          }
+          if (isAsyncWrapperVNode) {
+            ;(initialVNode.type as ComponentOptions).__asyncLoader!().then(
+              // note: we are moving the render call into an async callback,
+              // which means it won't track dependencies - but it's ok because
+              // a server-rendered async wrapper is already in resolved state
+              // and it will never need to change.
+              () => !instance.isUnmounted && hydrateSubTree()
+            )
+          } else {
+            hydrateSubTree()
+          }
         } else {
           //         if (__DEV__) {
           //           startMeasure(instance, `render`)
@@ -2306,6 +2306,17 @@ function toggleRecurse(
   allowed: boolean
 ) {
   effect.allowRecurse = update.allowRecurse = allowed
+}
+
+export function needTransition(
+  parentSuspense: SuspenseBoundary | null,
+  transition: TransitionHooks | null
+) {
+  return (
+    (!parentSuspense || (parentSuspense && !parentSuspense.pendingBranch)) &&
+    transition &&
+    !transition.persisted
+  )
 }
 
 /**

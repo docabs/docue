@@ -12,11 +12,11 @@ export {
 } from './helpers/ssrRenderAttrs'
 export { ssrInterpolate } from './helpers/ssrInterpolate'
 export { ssrRenderList } from './helpers/ssrRenderList'
-// export { ssrRenderSuspense } from './helpers/ssrRenderSuspense'
+export { ssrRenderSuspense } from './helpers/ssrRenderSuspense'
 export { ssrGetDirectiveProps } from './helpers/ssrGetDirectiveProps'
 export { includeBooleanAttr as ssrIncludeBooleanAttr } from '@docue/shared'
 
-// // v-model helpers
+// v-model helpers
 export {
   ssrLooseEqual,
   ssrLooseContain,

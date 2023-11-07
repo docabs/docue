@@ -94,8 +94,8 @@ export const SuspenseImpl = {
       )
     }
   },
-  //   hydrate: hydrateSuspense,
-  //   create: createSuspenseBoundary,
+  hydrate: hydrateSuspense,
+  create: createSuspenseBoundary,
   normalize: normalizeSuspenseChildren
 }
 
@@ -399,7 +399,7 @@ export interface SuspenseBoundary {
   unmount(parentSuspense: SuspenseBoundary | null, doRemove?: boolean): void
 }
 
-// let hasWarned = false
+let hasWarned = false
 
 function createSuspenseBoundary(
   vnode: VNode,
@@ -414,14 +414,14 @@ function createSuspenseBoundary(
   rendererInternals: RendererInternals,
   isHydrating = false
 ): SuspenseBoundary {
-  //   /* istanbul ignore if */
-  //   if (__DEV__ && !__TEST__ && !hasWarned) {
-  //     hasWarned = true
-  //     // @ts-ignore `console.info` cannot be null error
-  //     console[console.info ? 'info' : 'log'](
-  //       `<Suspense> is an experimental feature and its API will likely change.`
-  //     )
-  //   }
+  /* istanbul ignore if */
+  if (__DEV__ && !__TEST__ && !hasWarned) {
+    hasWarned = true
+    // @ts-ignore `console.info` cannot be null error
+    console[console.info ? 'info' : 'log'](
+      `<Suspense> is an experimental feature and its API will likely change.`
+    )
+  }
 
   const {
     p: patch,
@@ -442,9 +442,9 @@ function createSuspenseBoundary(
   }
 
   const timeout = vnode.props ? toNumber(vnode.props.timeout) : undefined
-  //   if (__DEV__) {
-  //     assertNumber(timeout, `Suspense timeout`)
-  //   }
+  if (__DEV__) {
+    assertNumber(timeout, `Suspense timeout`)
+  }
 
   const suspense: SuspenseBoundary = {
     vnode,
@@ -465,18 +465,18 @@ function createSuspenseBoundary(
     effects: [],
 
     resolve(resume = false, sync = false) {
-      //       if (__DEV__) {
-      //         if (!resume && !suspense.pendingBranch) {
-      //           throw new Error(
-      //             `suspense.resolve() is called without a pending branch.`
-      //           )
-      //         }
-      //         if (suspense.isUnmounted) {
-      //           throw new Error(
-      //             `suspense.resolve() is called on an already unmounted suspense boundary.`
-      //           )
-      //         }
-      //       }
+      if (__DEV__) {
+        if (!resume && !suspense.pendingBranch) {
+          throw new Error(
+            `suspense.resolve() is called without a pending branch.`
+          )
+        }
+        if (suspense.isUnmounted) {
+          throw new Error(
+            `suspense.resolve() is called on an already unmounted suspense boundary.`
+          )
+        }
+      }
 
       const {
         vnode,
@@ -491,7 +491,7 @@ function createSuspenseBoundary(
       let delayEnter: boolean | null = false
 
       if (suspense.isHydrating) {
-        //         suspense.isHydrating = false
+        suspense.isHydrating = false
       } else if (!resume) {
         delayEnter =
           activeBranch &&
@@ -701,58 +701,58 @@ function createSuspenseBoundary(
   return suspense
 }
 
-// function hydrateSuspense(
-//   node: Node,
-//   vnode: VNode,
-//   parentComponent: ComponentInternalInstance | null,
-//   parentSuspense: SuspenseBoundary | null,
-//   isSVG: boolean,
-//   slotScopeIds: string[] | null,
-//   optimized: boolean,
-//   rendererInternals: RendererInternals,
-//   hydrateNode: (
-//     node: Node,
-//     vnode: VNode,
-//     parentComponent: ComponentInternalInstance | null,
-//     parentSuspense: SuspenseBoundary | null,
-//     slotScopeIds: string[] | null,
-//     optimized: boolean
-//   ) => Node | null
-// ): Node | null {
-//   /* eslint-disable no-restricted-globals */
-//   const suspense = (vnode.suspense = createSuspenseBoundary(
-//     vnode,
-//     parentSuspense,
-//     parentComponent,
-//     node.parentNode!,
-//     document.createElement('div'),
-//     null,
-//     isSVG,
-//     slotScopeIds,
-//     optimized,
-//     rendererInternals,
-//     true /* hydrating */
-//   ))
-//   // there are two possible scenarios for server-rendered suspense:
-//   // - success: ssr content should be fully resolved
-//   // - failure: ssr content should be the fallback branch.
-//   // however, on the client we don't really know if it has failed or not
-//   // attempt to hydrate the DOM assuming it has succeeded, but we still
-//   // need to construct a suspense boundary first
-//   const result = hydrateNode(
-//     node,
-//     (suspense.pendingBranch = vnode.ssContent!),
-//     parentComponent,
-//     suspense,
-//     slotScopeIds,
-//     optimized
-//   )
-//   if (suspense.deps === 0) {
-//     suspense.resolve(false, true)
-//   }
-//   return result
-//   /* eslint-enable no-restricted-globals */
-// }
+function hydrateSuspense(
+  node: Node,
+  vnode: VNode,
+  parentComponent: ComponentInternalInstance | null,
+  parentSuspense: SuspenseBoundary | null,
+  isSVG: boolean,
+  slotScopeIds: string[] | null,
+  optimized: boolean,
+  rendererInternals: RendererInternals,
+  hydrateNode: (
+    node: Node,
+    vnode: VNode,
+    parentComponent: ComponentInternalInstance | null,
+    parentSuspense: SuspenseBoundary | null,
+    slotScopeIds: string[] | null,
+    optimized: boolean
+  ) => Node | null
+): Node | null {
+  /* eslint-disable no-restricted-globals */
+  const suspense = (vnode.suspense = createSuspenseBoundary(
+    vnode,
+    parentSuspense,
+    parentComponent,
+    node.parentNode!,
+    document.createElement('div'),
+    null,
+    isSVG,
+    slotScopeIds,
+    optimized,
+    rendererInternals,
+    true /* hydrating */
+  ))
+  // there are two possible scenarios for server-rendered suspense:
+  // - success: ssr content should be fully resolved
+  // - failure: ssr content should be the fallback branch.
+  // however, on the client we don't really know if it has failed or not
+  // attempt to hydrate the DOM assuming it has succeeded, but we still
+  // need to construct a suspense boundary first
+  const result = hydrateNode(
+    node,
+    (suspense.pendingBranch = vnode.ssContent!),
+    parentComponent,
+    suspense,
+    slotScopeIds,
+    optimized
+  )
+  if (suspense.deps === 0) {
+    suspense.resolve(false, true)
+  }
+  return result
+  /* eslint-enable no-restricted-globals */
+}
 
 function normalizeSuspenseChildren(vnode: VNode) {
   const { shapeFlag, children } = vnode

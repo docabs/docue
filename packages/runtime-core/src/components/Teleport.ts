@@ -304,10 +304,10 @@ function moveTeleport(
   }
 }
 
-// interface TeleportTargetElement extends Element {
-//   // last teleport target
-//   _lpa?: Node | null
-// }
+interface TeleportTargetElement extends Element {
+  // last teleport target
+  _lpa?: Node | null
+}
 
 function hydrateTeleport(
   node: Node,
@@ -329,59 +329,59 @@ function hydrateTeleport(
     optimized: boolean
   ) => Node | null
 ): Node | null {
-  //   const target = (vnode.target = resolveTarget<Element>(
-  //     vnode.props,
-  //     querySelector
-  //   ))
-  //   if (target) {
-  //     // if multiple teleports rendered to the same target element, we need to
-  //     // pick up from where the last teleport finished instead of the first node
-  //     const targetNode =
-  //       (target as TeleportTargetElement)._lpa || target.firstChild
-  //     if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-  //       if (isTeleportDisabled(vnode.props)) {
-  //         vnode.anchor = hydrateChildren(
-  //           nextSibling(node),
-  //           vnode,
-  //           parentNode(node)!,
-  //           parentComponent,
-  //           parentSuspense,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //         vnode.targetAnchor = targetNode
-  //       } else {
-  //         vnode.anchor = nextSibling(node)
-  //         // lookahead until we find the target anchor
-  //         // we cannot rely on return value of hydrateChildren() because there
-  //         // could be nested teleports
-  //         let targetAnchor = targetNode
-  //         while (targetAnchor) {
-  //           targetAnchor = nextSibling(targetAnchor)
-  //           if (
-  //             targetAnchor &&
-  //             targetAnchor.nodeType === 8 &&
-  //             (targetAnchor as Comment).data === 'teleport anchor'
-  //           ) {
-  //             vnode.targetAnchor = targetAnchor
-  //             ;(target as TeleportTargetElement)._lpa =
-  //               vnode.targetAnchor && nextSibling(vnode.targetAnchor as Node)
-  //             break
-  //           }
-  //         }
-  //         hydrateChildren(
-  //           targetNode,
-  //           vnode,
-  //           target,
-  //           parentComponent,
-  //           parentSuspense,
-  //           slotScopeIds,
-  //           optimized
-  //         )
-  //       }
-  //     }
-  //     updateCssVars(vnode)
-  //   }
+  const target = (vnode.target = resolveTarget<Element>(
+    vnode.props,
+    querySelector
+  ))
+  if (target) {
+    // if multiple teleports rendered to the same target element, we need to
+    // pick up from where the last teleport finished instead of the first node
+    const targetNode =
+      (target as TeleportTargetElement)._lpa || target.firstChild
+    if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      if (isTeleportDisabled(vnode.props)) {
+        vnode.anchor = hydrateChildren(
+          nextSibling(node),
+          vnode,
+          parentNode(node)!,
+          parentComponent,
+          parentSuspense,
+          slotScopeIds,
+          optimized
+        )
+        vnode.targetAnchor = targetNode
+      } else {
+        vnode.anchor = nextSibling(node)
+        // lookahead until we find the target anchor
+        // we cannot rely on return value of hydrateChildren() because there
+        // could be nested teleports
+        let targetAnchor = targetNode
+        while (targetAnchor) {
+          targetAnchor = nextSibling(targetAnchor)
+          if (
+            targetAnchor &&
+            targetAnchor.nodeType === 8 &&
+            (targetAnchor as Comment).data === 'teleport anchor'
+          ) {
+            vnode.targetAnchor = targetAnchor
+            ;(target as TeleportTargetElement)._lpa =
+              vnode.targetAnchor && nextSibling(vnode.targetAnchor as Node)
+            break
+          }
+        }
+        hydrateChildren(
+          targetNode,
+          vnode,
+          target,
+          parentComponent,
+          parentSuspense,
+          slotScopeIds,
+          optimized
+        )
+      }
+    }
+    updateCssVars(vnode)
+  }
   return vnode.anchor && nextSibling(vnode.anchor as Node)
 }
 
