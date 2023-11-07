@@ -183,7 +183,7 @@ export function parse(
           // // warn against 2.x <template functional>
           // if (templateBlock.attrs.functional) {
           //   const err = new SyntaxError(
-          //     `<template functional> is no longer supported in Vue 3, since ` +
+          //     `<template functional> is no longer supported in Docue 3, since ` +
           //       `functional components no longer have significant performance ` +
           //       `difference from stateful ones. Just use a normal <template> ` +
           //       `instead.`

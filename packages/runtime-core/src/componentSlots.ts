@@ -17,10 +17,11 @@ import {
   normalizeVNode
 } from './vnode'
 import { ComponentInternalInstance, currentInstance } from './component'
-import { toRaw } from '@docue/reactivity'
+import { TriggerOpTypes, toRaw, trigger } from '@docue/reactivity'
 import { warn } from './warning'
 import { ContextualRenderFn, withCtx } from './componentRenderContext'
 import { isKeepAlive } from './components/KeepAlive'
+import { isHmrUpdating } from './hmr'
 
 export type Slot<T extends any = any> = (
   ...args: IfAny<T, any[], [T] | (T extends undefined ? [] : never)>
@@ -195,13 +196,12 @@ export const updateSlots = (
     const type = (children as RawSlots)._
     if (type) {
       // // compiled slots.
-      // if (__DEV__ && isHmrUpdating) {
-      //   // Parent was HMR updated so slot content may have changed.
-      //   // force update slots and mark instance for hmr as well
-      //   extend(slots, children as Slots)
-      //   trigger(instance, TriggerOpTypes.SET, '$slots')
-      // } else
-      if (optimized && type === SlotFlags.STABLE) {
+      if (__DEV__ && isHmrUpdating) {
+        // Parent was HMR updated so slot content may have changed.
+        // force update slots and mark instance for hmr as well
+        extend(slots, children as Slots)
+        trigger(instance, TriggerOpTypes.SET, '$slots')
+      } else if (optimized && type === SlotFlags.STABLE) {
         // compiled AND stable.
         // no need to update, and skip stale slots removal.
         needDeletionCheck = false

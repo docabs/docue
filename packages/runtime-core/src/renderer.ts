@@ -1,69 +1,78 @@
-// Renderer Node can technically be any object in the context of core renderer
-// logic - they are never directly operated on and always passed to the node op
-// functions provided via options, so the internal constraint is really just
-
 import {
-  EMPTY_ARR,
-  EMPTY_OBJ,
-  NOOP,
-  PatchFlags,
-  ShapeFlags,
-  getGlobalThis,
-  invokeArrayFns,
-  isArray,
-  isReservedProp
-} from '@docue/shared'
-import { ReactiveEffect, pauseTracking, resetTracking } from '@docue/reactivity'
-import { CreateAppFunction, createAppAPI } from './apiCreateApp'
+  Text,
+  Fragment,
+  Comment,
+  cloneIfMounted,
+  normalizeVNode,
+  VNode,
+  VNodeArrayChildren,
+  createVNode,
+  isSameVNodeType,
+  Static,
+  VNodeHook,
+  VNodeProps,
+  invokeVNodeHook
+} from './vnode'
 import {
   ComponentInternalInstance,
-  Data,
+  ComponentOptions,
   createComponentInstance,
+  Data,
   setupComponent
 } from './component'
 import {
-  SuspenseBoundary,
-  SuspenseImpl,
-  queueEffectWithSuspense
-} from './components/Suspense'
-import { RootHydrateFunction, createHydrationFunctions } from './hydration'
-import {
-  Text,
-  Comment,
-  Fragment,
-  VNode,
-  VNodeArrayChildren,
-  VNodeHook,
-  VNodeProps,
-  cloneIfMounted,
-  normalizeVNode,
-  isSameVNodeType,
-  Static,
-  invokeVNodeHook,
-  createVNode
-} from './vnode'
-import { popWarningContext, pushWarningContext, warn } from './warning'
-import {
-  SchedulerJob,
-  flushPostFlushCbs,
-  flushPreFlushCbs,
-  invalidateJob,
-  queueJob,
-  queuePostFlushCb
-} from './scheduler'
-import {
   filterSingleRoot,
   renderComponentRoot,
-  shouldUpdateComponent
+  shouldUpdateComponent,
+  updateHOCHostEl
 } from './componentRenderUtils'
-import { isHmrUpdating } from './hmr'
-import { setRef } from './rendererTemplateRef'
-import { isAsyncWrapper } from './apiAsyncComponent'
+import {
+  EMPTY_OBJ,
+  EMPTY_ARR,
+  isReservedProp,
+  PatchFlags,
+  ShapeFlags,
+  NOOP,
+  invokeArrayFns,
+  isArray,
+  getGlobalThis
+} from '@docue/shared'
+import {
+  queueJob,
+  queuePostFlushCb,
+  flushPostFlushCbs,
+  invalidateJob,
+  flushPreFlushCbs,
+  SchedulerJob
+} from './scheduler'
+import { pauseTracking, resetTracking, ReactiveEffect } from '@docue/reactivity'
 import { updateProps } from './componentProps'
 import { updateSlots } from './componentSlots'
-import { invokeDirectiveHook } from './directives'
-import { KeepAliveContext, isKeepAlive } from './components/KeepAlive'
+import { pushWarningContext, popWarningContext, warn } from './warning'
+import { createAppAPI, CreateAppFunction } from './apiCreateApp'
+import { setRef } from './rendererTemplateRef'
+import {
+  SuspenseBoundary,
+  queueEffectWithSuspense,
+  SuspenseImpl
+} from './components/Suspense'
 import { TeleportImpl, TeleportVNode } from './components/Teleport'
+import { isKeepAlive, KeepAliveContext } from './components/KeepAlive'
+import { registerHMR, unregisterHMR, isHmrUpdating } from './hmr'
+import { createHydrationFunctions, RootHydrateFunction } from './hydration'
+import { invokeDirectiveHook } from './directives'
+// import { startMeasure, endMeasure } from './profiling'
+// import {
+//   devtoolsComponentAdded,
+//   devtoolsComponentRemoved,
+//   devtoolsComponentUpdated,
+//   setDevtoolsHook
+// } from './devtools'
+// import { initFeatureFlags } from './featureFlags'
+import { isAsyncWrapper } from './apiAsyncComponent'
+// import { isCompatEnabled } from './compat/compatConfig'
+// import { DeprecationTypes } from './compat/compatConfig'
+// import { TransitionHooks } from './components/BaseTransition'
 
 export interface Renderer<HostElement = RendererElement> {
   render: RootRenderFunction<HostElement>
@@ -799,12 +808,12 @@ function baseCreateRenderer(
       invokeDirectiveHook(n2, n1, parentComponent, 'beforeUpdate')
     }
     parentComponent && toggleRecurse(parentComponent, true)
-    //   if (__DEV__ && isHmrUpdating) {
-    //     // HMR updated, force full diff
-    //     patchFlag = 0
-    //     optimized = false
-    //     dynamicChildren = null
-    //   }
+    if (__DEV__ && isHmrUpdating) {
+      // HMR updated, force full diff
+      patchFlag = 0
+      optimized = false
+      dynamicChildren = null
+    }
 
     const areChildrenSVG = isSVG && n2.type !== 'foreignObject'
     if (dynamicChildren) {
@@ -817,10 +826,10 @@ function baseCreateRenderer(
         areChildrenSVG,
         slotScopeIds
       )
-      //     if (__DEV__) {
-      //       // necessary for HMR
-      //       traverseStaticChildren(n1, n2)
-      //     }
+      if (__DEV__) {
+        // necessary for HMR
+        // traverseStaticChildren(n1, n2)
+      }
     } else if (!optimized) {
       // full diff
       patchChildren(
@@ -1034,16 +1043,16 @@ function baseCreateRenderer(
     const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(''))!
     const fragmentEndAnchor = (n2.anchor = n1 ? n1.anchor : hostCreateText(''))!
     let { patchFlag, dynamicChildren, slotScopeIds: fragmentSlotScopeIds } = n2
-    //   if (
-    //     __DEV__ &&
-    //     // #5523 dev root fragment may inherit directives
-    //     (isHmrUpdating || patchFlag & PatchFlags.DEV_ROOT_FRAGMENT)
-    //   ) {
-    //     // HMR updated / Dev root fragment (w/ comments), force full diff
-    //     patchFlag = 0
-    //     optimized = false
-    //     dynamicChildren = null
-    //   }
+    if (
+      __DEV__ &&
+      // #5523 dev root fragment may inherit directives
+      (isHmrUpdating || patchFlag & PatchFlags.DEV_ROOT_FRAGMENT)
+    ) {
+      // HMR updated / Dev root fragment (w/ comments), force full diff
+      patchFlag = 0
+      optimized = false
+      dynamicChildren = null
+    }
     // check if this is a slot fragment with :slotted scope ids
     if (fragmentSlotScopeIds) {
       slotScopeIds = slotScopeIds
@@ -1177,9 +1186,9 @@ function baseCreateRenderer(
         parentComponent,
         parentSuspense
       ))
-    //   if (__DEV__ && instance.type.__hmrId) {
-    //     registerHMR(instance)
-    //   }
+    if (__DEV__ && instance.type.__hmrId) {
+      registerHMR(instance)
+    }
     if (__DEV__) {
       pushWarningContext(initialVNode)
       // startMeasure(instance, `mount`)
@@ -2160,9 +2169,9 @@ function baseCreateRenderer(
     parentSuspense: SuspenseBoundary | null,
     doRemove?: boolean
   ) => {
-    // if (__DEV__ && instance.type.__hmrId) {
-    //   unregisterHMR(instance)
-    // }
+    if (__DEV__ && instance.type.__hmrId) {
+      unregisterHMR(instance)
+    }
 
     const { bum, scope, update, subTree, um } = instance
 

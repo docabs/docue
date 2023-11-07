@@ -45,13 +45,11 @@ describe('hot module replacement', () => {
     const root = nodeOps.createElement('div')
     const parentId = 'test2-parent'
     const childId = 'test2-child'
-
     const Child: ComponentOptions = {
       __hmrId: childId,
       render: compileToFunction(`<div><slot/></div>`)
     }
     createRecord(childId, Child)
-
     const Parent: ComponentOptions = {
       __hmrId: parentId,
       data() {
@@ -63,16 +61,13 @@ describe('hot module replacement', () => {
       )
     }
     createRecord(parentId, Parent)
-
     render(h(Parent), root)
     expect(serializeInner(root)).toBe(`<div>0<div>0</div></div>`)
-
     // Perform some state change. This change should be preserved after the
     // re-render!
     triggerEvent(root.children[0] as TestElement, 'click')
     await nextTick()
     expect(serializeInner(root)).toBe(`<div>1<div>1</div></div>`)
-
     // // Update text while preserving state
     rerender(
       parentId,
@@ -81,7 +76,6 @@ describe('hot module replacement', () => {
       )
     )
     expect(serializeInner(root)).toBe(`<div>1!<div>1</div></div>`)
-
     // Should force child update on slot content change
     rerender(
       parentId,
@@ -90,25 +84,23 @@ describe('hot module replacement', () => {
       )
     )
     expect(serializeInner(root)).toBe(`<div>1!<div>1!</div></div>`)
-
     // Should force update element children despite block optimization
     rerender(
       parentId,
       compileToFunction(
         `<div @click="count++">{{ count }}<span>{{ count }}</span>
-        <Child>{{ count }}!</Child>
-      </div>`
+          <Child>{{ count }}!</Child>
+        </div>`
       )
     )
     expect(serializeInner(root)).toBe(`<div>1<span>1</span><div>1!</div></div>`)
-
     // Should force update child slot elements
     rerender(
       parentId,
       compileToFunction(
         `<div @click="count++">
-        <Child><span>{{ count }}</span></Child>
-      </div>`
+          <Child><span>{{ count }}</span></Child>
+        </div>`
       )
     )
     expect(serializeInner(root)).toBe(`<div><div><span>1</span></div></div>`)
@@ -119,7 +111,6 @@ describe('hot module replacement', () => {
     const childId = 'test3-child'
     const unmountSpy = vi.fn()
     const mountSpy = vi.fn()
-
     const Child: ComponentOptions = {
       __hmrId: childId,
       data() {
@@ -129,14 +120,11 @@ describe('hot module replacement', () => {
       render: compileToFunction(`<div @click="count++">{{ count }}</div>`)
     }
     createRecord(childId, Child)
-
     const Parent: ComponentOptions = {
       render: () => h(Child)
     }
-
     render(h(Parent), root)
     expect(serializeInner(root)).toBe(`<div>0</div>`)
-
     reload(childId, {
       __hmrId: childId,
       data() {
@@ -547,6 +535,7 @@ describe('hot module replacement', () => {
       __hmrId: childId,
       computed: {
         slotContent() {
+          debugger
           return this.$slots.default?.()
         }
       },

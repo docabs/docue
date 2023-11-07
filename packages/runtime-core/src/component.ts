@@ -106,10 +106,10 @@ export interface ComponentInternalOptions {
    * @internal
    */
   __cssModules?: Data
-  // /**
-  //  * @internal
-  //  */
-  // __hmrId?: string
+  /**
+   * @internal
+   */
+  __hmrId?: string
   // /**
   //  * Compat build only, for bailing out of certain compatibility behavior
   //  */

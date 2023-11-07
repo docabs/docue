@@ -1,48 +1,50 @@
 import {
   isArray,
   isFunction,
-  isObject,
   isString,
-  PatchFlags,
-  ShapeFlags,
+  isObject,
+  EMPTY_ARR,
+  extend,
   normalizeClass,
   normalizeStyle,
-  isOn,
-  extend,
+  PatchFlags,
+  ShapeFlags,
   SlotFlags,
-  EMPTY_ARR
+  isOn
 } from '@docue/shared'
-import { Ref, ReactiveFlags, isRef, toRaw, isProxy } from '@docue/reactivity'
-
-import { warn } from './warning'
-import { NULL_DYNAMIC_COMPONENT } from './helpers/resolveAssets'
-
 import {
-  ClassComponent,
-  Component,
   ComponentInternalInstance,
   Data,
+  ConcreteComponent,
+  ClassComponent,
+  Component,
   isClassComponent
 } from './component'
-import { ComponentPublicInstance } from './componentPublicInstance'
-
-import {
-  SuspenseBoundary,
-  SuspenseImpl,
-  isSuspense
-} from './components/Suspense'
-import { isTeleport } from './components/Teleport'
 import { RawSlots } from './componentSlots'
+import { isProxy, Ref, toRaw, ReactiveFlags, isRef } from '@docue/reactivity'
 import { AppContext } from './apiCreateApp'
+import {
+  Suspense,
+  SuspenseImpl,
+  isSuspense,
+  SuspenseBoundary
+} from './components/Suspense'
 import { DirectiveBinding } from './directives'
 import { TransitionHooks } from './components/BaseTransition'
+import { warn } from './warning'
+import { Teleport, TeleportImpl, isTeleport } from './components/Teleport'
 import {
-  currentScopeId,
-  currentRenderingInstance
+  currentRenderingInstance,
+  currentScopeId
 } from './componentRenderContext'
-import { ErrorCodes, callWithAsyncErrorHandling } from './errorHandling'
+import { RendererNode, RendererElement } from './renderer'
+import { NULL_DYNAMIC_COMPONENT } from './helpers/resolveAssets'
+import { hmrDirtyComponents } from './hmr'
 import { convertLegacyComponent } from './compat/component'
-import { RendererNode } from './renderer'
+import { convertLegacyVModelProps } from './compat/componentVModel'
+import { defineLegacyVNodeProperties } from './compat/renderFn'
+import { callWithAsyncErrorHandling, ErrorCodes } from './errorHandling'
+import { ComponentPublicInstance } from './componentPublicInstance'
 
 export const Fragment = Symbol.for('v-fgt') as any as {
   __isFragment: true
@@ -50,7 +52,6 @@ export const Fragment = Symbol.for('v-fgt') as any as {
     $props: VNodeProps
   }
 }
-
 export const Text = Symbol.for('v-txt')
 export const Comment = Symbol.for('v-cmt')
 export const Static = Symbol.for('v-stc')
@@ -110,8 +111,6 @@ export type VNodeProps = {
   onVnodeBeforeUnmount?: VNodeMountHook | VNodeMountHook[]
   onVnodeUnmounted?: VNodeMountHook | VNodeMountHook[]
 }
-
-export interface RendererElement extends RendererNode {}
 
 type VNodeChildAtom =
   | VNode
@@ -353,18 +352,19 @@ export function isVNode(value: any): value is VNode {
 }
 
 export function isSameVNodeType(n1: VNode, n2: VNode): boolean {
-  // if (
-  //   __DEV__ &&
-  //   n2.shapeFlag & ShapeFlags.COMPONENT &&
-  //   hmrDirtyComponents.has(n2.type as ConcreteComponent)
-  // ) {
-  //   // #7042, ensure the vnode being unmounted during HMR
-  //   // bitwise operations to remove keep alive flags
-  //   n1.shapeFlag &= ~ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE
-  //   n2.shapeFlag &= ~ShapeFlags.COMPONENT_KEPT_ALIVE
-  //   // HMR only: if the component has been hot-updated, force a reload.
-  //   return false
-  // }
+  if (
+    __DEV__ &&
+    n2.shapeFlag & ShapeFlags.COMPONENT &&
+    hmrDirtyComponents.has(n2.type as ConcreteComponent)
+  ) {
+    // #7042, ensure the vnode being unmounted during HMR
+    // bitwise operations to remove keep alive flags
+    n1.shapeFlag &= ~ShapeFlags.COMPONENT_SHOULD_KEEP_ALIVE
+    n2.shapeFlag &= ~ShapeFlags.COMPONENT_KEPT_ALIVE
+
+    // HMR only: if the component has been hot-updated, force a reload.
+    return false
+  }
   return n1.type === n2.type && n1.key === n2.key
 }
 

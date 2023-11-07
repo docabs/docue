@@ -19,6 +19,7 @@ import { warn } from './warning'
 import { ErrorCodes, handleError } from './errorHandling'
 import { isEmitListener } from './componentEmits'
 import { NormalizedProps } from './componentProps'
+import { isHmrUpdating } from './hmr'
 
 /**
  * dev only flag to track whether $attrs was used during render.
@@ -325,9 +326,9 @@ export function shouldUpdateComponent(
   // Parent component's render function was hot-updated. Since this may have
   // caused the child component's slots content to have changed, we need to
   // force the child to update as well.
-  // if (__DEV__ && (prevChildren || nextChildren) && isHmrUpdating) {
-  //   return true
-  // }
+  if (__DEV__ && (prevChildren || nextChildren) && isHmrUpdating) {
+    return true
+  }
 
   // force child update for runtime directive or transition on component vnode.
   if (nextVNode.dirs || nextVNode.transition) {

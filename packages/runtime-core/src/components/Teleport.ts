@@ -11,7 +11,7 @@ import {
 import { VNode, VNodeArrayChildren, VNodeProps } from '../vnode'
 import { isString, ShapeFlags } from '@docue/shared'
 import { warn } from '../warning'
-// import { isHmrUpdating } from '../hmr'
+import { isHmrUpdating } from '../hmr'
 
 export type TeleportVNode = VNode<RendererNode, RendererElement, TeleportProps>
 
@@ -84,12 +84,12 @@ export const TeleportImpl = {
     } = internals
     const disabled = isTeleportDisabled(n2.props)
     let { shapeFlag, children, dynamicChildren } = n2
-    //     // #3302
-    //     // HMR updated, force full diff
-    //     if (__DEV__ && isHmrUpdating) {
-    //       optimized = false
-    //       dynamicChildren = null
-    //     }
+    // #3302
+    // HMR updated, force full diff
+    if (__DEV__ && isHmrUpdating) {
+      optimized = false
+      dynamicChildren = null
+    }
     if (n1 == null) {
       // insert anchors in the main view
       const placeholder = (n2.el = __DEV__

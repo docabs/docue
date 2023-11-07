@@ -24,6 +24,7 @@ import {
   MergedComponentOptions,
   RuntimeCompilerOptions
 } from './componentOptions'
+import { NormalizedPropsOptions } from './componentProps'
 
 export interface App<HostElement = any> {
   version: string
@@ -130,21 +131,21 @@ export interface AppContext {
    * @internal
    */
   optionsCache: WeakMap<ComponentOptions, MergedComponentOptions>
-  // /**
-  //  * Cache for normalized props options
-  //  * @internal
-  //  */
-  // propsCache: WeakMap<ConcreteComponent, NormalizedPropsOptions>
+  /**
+   * Cache for normalized props options
+   * @internal
+   */
+  propsCache: WeakMap<ConcreteComponent, NormalizedPropsOptions>
   /**
    * Cache for normalized emits options
    * @internal
    */
   emitsCache: WeakMap<ConcreteComponent, ObjectEmitsOptions | null>
-  // /**
-  //  * HMR only
-  //  * @internal
-  //  */
-  // reload?: () => void
+  /**
+   * HMR only
+   * @internal
+   */
+  reload?: () => void
   /**
    * v2 compat only
    * @internal
@@ -181,7 +182,7 @@ export function createAppContext(): AppContext {
     directives: {},
     provides: Object.create(null),
     optionsCache: new WeakMap(),
-    // propsCache: new WeakMap(),
+    propsCache: new WeakMap(),
     emitsCache: new WeakMap()
   }
 }
