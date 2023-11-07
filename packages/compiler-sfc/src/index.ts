@@ -3,7 +3,7 @@ export const version = __VERSION__
 // API
 export { parse, parseCache } from './parse'
 export { compileTemplate } from './compileTemplate'
-// export { compileStyle, compileStyleAsync } from './compileStyle'
+export { compileStyle, compileStyleAsync } from './compileStyle'
 export { compileScript } from './compileScript'
 export { rewriteDefault, rewriteDefaultAST } from './rewriteDefault'
 // export { resolveTypeElements, inferRuntimeType } from './script/resolveType'
@@ -49,11 +49,11 @@ export type {
   SFCTemplateCompileOptions,
   SFCTemplateCompileResults
 } from './compileTemplate'
-// export type {
-//   SFCStyleCompileOptions,
-//   SFCAsyncStyleCompileOptions,
-//   SFCStyleCompileResults
-// } from './compileStyle'
+export type {
+  SFCStyleCompileOptions,
+  SFCAsyncStyleCompileOptions,
+  SFCStyleCompileResults
+} from './compileStyle'
 export type { SFCScriptCompileOptions } from './compileScript'
 export type { ScriptCompileContext } from './script/context'
 // export type {
