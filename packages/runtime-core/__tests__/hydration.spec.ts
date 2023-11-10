@@ -884,195 +884,203 @@ describe('SSR hydration', () => {
     resolve({})
   })
 
-  // test('elements with camel-case in svg ', () => {
-  //   const { vnode, container } = mountWithHydration(
-  //     '<animateTransform></animateTransform>',
-  //     () => h('animateTransform')
-  //   )
-  //   expect(vnode.el).toBe(container.firstChild)
-  //   expect(`Hydration node mismatch`).not.toHaveBeenWarned()
-  // })
+  test('elements with camel-case in svg ', () => {
+    const { vnode, container } = mountWithHydration(
+      '<animateTransform></animateTransform>',
+      () => h('animateTransform')
+    )
+    expect(vnode.el).toBe(container.firstChild)
+    expect(`Hydration node mismatch`).not.toHaveBeenWarned()
+  })
 
-  // test('SVG as a mount container', () => {
-  //   const svgContainer = document.createElement('svg')
-  //   svgContainer.innerHTML = '<g></g>'
-  //   const app = createSSRApp({
-  //     render: () => h('g')
-  //   })
+  test('SVG as a mount container', () => {
+    const svgContainer = document.createElement('svg')
+    svgContainer.innerHTML = '<g></g>'
+    const app = createSSRApp({
+      render: () => h('g')
+    })
 
-  //   expect(
-  //     (
-  //       app.mount(svgContainer).$.subTree as VNode<Node, Element> & {
-  //         el: Element
-  //       }
-  //     ).el instanceof SVGElement
-  //   )
-  // })
+    expect(
+      (
+        app.mount(svgContainer).$.subTree as VNode<Node, Element> & {
+          el: Element
+        }
+      ).el instanceof SVGElement
+    )
+  })
 
-  // test('force hydrate input v-model with non-string value bindings', () => {
-  //   const { container } = mountWithHydration(
-  //     '<input type="checkbox" value="true">',
-  //     () =>
-  //       withDirectives(
-  //         createVNode(
-  //           'input',
-  //           { type: 'checkbox', 'true-value': true },
-  //           null,
-  //           PatchFlags.PROPS,
-  //           ['true-value']
-  //         ),
-  //         [[vModelCheckbox, true]]
-  //       )
-  //   )
-  //   expect((container.firstChild as any)._trueValue).toBe(true)
-  // })
+  test('force hydrate input v-model with non-string value bindings', () => {
+    const { container } = mountWithHydration(
+      '<input type="checkbox" value="true">',
+      () =>
+        withDirectives(
+          createVNode(
+            'input',
+            { type: 'checkbox', 'true-value': true },
+            null,
+            PatchFlags.PROPS,
+            ['true-value']
+          ),
+          [[vModelCheckbox, true]]
+        )
+    )
+    expect((container.firstChild as any)._trueValue).toBe(true)
+  })
 
-  // test('force hydrate select option with non-string value bindings', () => {
-  //   const { container } = mountWithHydration(
-  //     '<select><option :value="true">ok</option></select>',
-  //     () =>
-  //       h('select', [
-  //         // hoisted because bound value is a constant...
-  //         createVNode('option', { value: true }, null, -1 /* HOISTED */)
-  //       ])
-  //   )
-  //   expect((container.firstChild!.firstChild as any)._value).toBe(true)
-  // })
+  test('force hydrate select option with non-string value bindings', () => {
+    const { container } = mountWithHydration(
+      '<select><option :value="true">ok</option></select>',
+      () =>
+        h('select', [
+          // hoisted because bound value is a constant...
+          createVNode('option', { value: true }, null, -1 /* HOISTED */)
+        ])
+    )
+    expect((container.firstChild!.firstChild as any)._value).toBe(true)
+  })
 
-  // // #5728
-  // test('empty text node in slot', () => {
-  //   const Comp = {
-  //     render(this: any) {
-  //       return renderSlot(this.$slots, 'default', {}, () => [
-  //         createTextVNode('')
-  //       ])
-  //     }
-  //   }
-  //   const { container, vnode } = mountWithHydration('<!--[--><!--]-->', () =>
-  //     h(Comp)
-  //   )
-  //   expect(container.childNodes.length).toBe(3)
-  //   const text = container.childNodes[1]
-  //   expect(text.nodeType).toBe(3)
-  //   expect(vnode.el).toBe(container.childNodes[0])
-  //   // component => slot fragment => text node
-  //   expect((vnode as any).component?.subTree.children[0].el).toBe(text)
-  // })
+  // #5728
+  test('empty text node in slot', () => {
+    const Comp = {
+      render(this: any) {
+        return renderSlot(this.$slots, 'default', {}, () => [
+          createTextVNode('')
+        ])
+      }
+    }
+    const { container, vnode } = mountWithHydration('<!--[--><!--]-->', () =>
+      h(Comp)
+    )
+    expect(container.childNodes.length).toBe(3)
+    const text = container.childNodes[1]
+    expect(text.nodeType).toBe(3)
+    expect(vnode.el).toBe(container.childNodes[0])
+    // component => slot fragment => text node
+    expect((vnode as any).component?.subTree.children[0].el).toBe(text)
+  })
 
-  // test('app.unmount()', async () => {
-  //   const container = document.createElement('DIV')
-  //   container.innerHTML = '<button></button>'
-  //   const App = defineComponent({
-  //     setup(_, { expose }) {
-  //       const count = ref(0)
+  test('app.unmount()', async () => {
+    const container = document.createElement('DIV')
+    container.innerHTML = '<button></button>'
+    const App = defineComponent({
+      setup(_, { expose }) {
+        const count = ref(0)
 
-  //       expose({ count })
+        expose({ count })
 
-  //       return () =>
-  //         h('button', {
-  //           onClick: () => count.value++
-  //         })
-  //     }
-  //   })
+        return () =>
+          h('button', {
+            onClick: () => count.value++
+          })
+      }
+    })
 
-  //   const app = createSSRApp(App)
-  //   const vm = app.mount(container)
-  //   await nextTick()
-  //   expect((container as any)._vnode).toBeDefined()
-  //   // @ts-expect-error - expose()'d properties are not available on vm type
-  //   expect(vm.count).toBe(0)
+    const app = createSSRApp(App)
+    const vm = app.mount(container)
+    await nextTick()
+    expect((container as any)._vnode).toBeDefined()
+    // @ts-expect-error - expose()'d properties are not available on vm type
+    expect(vm.count).toBe(0)
 
-  //   app.unmount()
-  //   expect((container as any)._vnode).toBe(null)
-  // })
+    app.unmount()
+    expect((container as any)._vnode).toBe(null)
+  })
 
-  // // #6637
-  // test('stringified root fragment', () => {
-  //   mountWithHydration(`<!--[--><div></div><!--]-->`, () =>
-  //     createStaticVNode(`<div></div>`, 1)
-  //   )
-  //   expect(`mismatch`).not.toHaveBeenWarned()
-  // })
+  // #6637
+  test('stringified root fragment', () => {
+    mountWithHydration(`<!--[--><div></div><!--]-->`, () =>
+      createStaticVNode(`<div></div>`, 1)
+    )
+    expect(`mismatch`).not.toHaveBeenWarned()
+  })
 
   describe('mismatch handling', () => {
-    // test('text node', () => {
-    //   const { container } = mountWithHydration(`foo`, () => 'bar')
-    //   expect(container.textContent).toBe('bar')
-    //   expect(`Hydration text mismatch`).toHaveBeenWarned()
-    // })
-    // test('element text content', () => {
-    //   const { container } = mountWithHydration(`<div>foo</div>`, () =>
-    //     h('div', 'bar')
-    //   )
-    //   expect(container.innerHTML).toBe('<div>bar</div>')
-    //   expect(`Hydration text content mismatch in <div>`).toHaveBeenWarned()
-    // })
-    // test('not enough children', () => {
-    //   const { container } = mountWithHydration(`<div></div>`, () =>
-    //     h('div', [h('span', 'foo'), h('span', 'bar')])
-    //   )
-    //   expect(container.innerHTML).toBe(
-    //     '<div><span>foo</span><span>bar</span></div>'
-    //   )
-    //   expect(`Hydration children mismatch in <div>`).toHaveBeenWarned()
-    // })
-    // test('too many children', () => {
-    //   const { container } = mountWithHydration(
-    //     `<div><span>foo</span><span>bar</span></div>`,
-    //     () => h('div', [h('span', 'foo')])
-    //   )
-    //   expect(container.innerHTML).toBe('<div><span>foo</span></div>')
-    //   expect(`Hydration children mismatch in <div>`).toHaveBeenWarned()
-    // })
-    // test('complete mismatch', () => {
-    //   const { container } = mountWithHydration(
-    //     `<div><span>foo</span><span>bar</span></div>`,
-    //     () => h('div', [h('div', 'foo'), h('p', 'bar')])
-    //   )
-    //   expect(container.innerHTML).toBe('<div><div>foo</div><p>bar</p></div>')
-    //   expect(`Hydration node mismatch`).toHaveBeenWarnedTimes(2)
-    // })
-    // test('fragment mismatch removal', () => {
-    //   const { container } = mountWithHydration(
-    //     `<div><!--[--><div>foo</div><div>bar</div><!--]--></div>`,
-    //     () => h('div', [h('span', 'replaced')])
-    //   )
-    //   expect(container.innerHTML).toBe('<div><span>replaced</span></div>')
-    //   expect(`Hydration node mismatch`).toHaveBeenWarned()
-    // })
-    // test('fragment not enough children', () => {
-    //   const { container } = mountWithHydration(
-    //     `<div><!--[--><div>foo</div><!--]--><div>baz</div></div>`,
-    //     () => h('div', [[h('div', 'foo'), h('div', 'bar')], h('div', 'baz')])
-    //   )
-    //   expect(container.innerHTML).toBe(
-    //     '<div><!--[--><div>foo</div><div>bar</div><!--]--><div>baz</div></div>'
-    //   )
-    //   expect(`Hydration node mismatch`).toHaveBeenWarned()
-    // })
-    // test('fragment too many children', () => {
-    //   const { container } = mountWithHydration(
-    //     `<div><!--[--><div>foo</div><div>bar</div><!--]--><div>baz</div></div>`,
-    //     () => h('div', [[h('div', 'foo')], h('div', 'baz')])
-    //   )
-    //   expect(container.innerHTML).toBe(
-    //     '<div><!--[--><div>foo</div><!--]--><div>baz</div></div>'
-    //   )
-    //   // fragment ends early and attempts to hydrate the extra <div>bar</div>
-    //   // as 2nd fragment child.
-    //   expect(`Hydration text content mismatch`).toHaveBeenWarned()
-    //   // excessive children removal
-    //   expect(`Hydration children mismatch`).toHaveBeenWarned()
-    // })
-    // test('Teleport target has empty children', () => {
-    //   const teleportContainer = document.createElement('div')
-    //   teleportContainer.id = 'teleport'
-    //   document.body.appendChild(teleportContainer)
-    //   mountWithHydration('<!--teleport start--><!--teleport end-->', () =>
-    //     h(Teleport, { to: '#teleport' }, [h('span', 'value')])
-    //   )
-    //   expect(teleportContainer.innerHTML).toBe(`<span>value</span>`)
-    //   expect(`Hydration children mismatch`).toHaveBeenWarned()
-    // })
+    test('text node', () => {
+      const { container } = mountWithHydration(`foo`, () => 'bar')
+      expect(container.textContent).toBe('bar')
+      expect(`Hydration text mismatch`).toHaveBeenWarned()
+    })
+
+    test('element text content', () => {
+      const { container } = mountWithHydration(`<div>foo</div>`, () =>
+        h('div', 'bar')
+      )
+      expect(container.innerHTML).toBe('<div>bar</div>')
+      expect(`Hydration text content mismatch in <div>`).toHaveBeenWarned()
+    })
+
+    test('not enough children', () => {
+      const { container } = mountWithHydration(`<div></div>`, () =>
+        h('div', [h('span', 'foo'), h('span', 'bar')])
+      )
+      expect(container.innerHTML).toBe(
+        '<div><span>foo</span><span>bar</span></div>'
+      )
+      expect(`Hydration children mismatch in <div>`).toHaveBeenWarned()
+    })
+
+    test('too many children', () => {
+      const { container } = mountWithHydration(
+        `<div><span>foo</span><span>bar</span></div>`,
+        () => h('div', [h('span', 'foo')])
+      )
+      expect(container.innerHTML).toBe('<div><span>foo</span></div>')
+      expect(`Hydration children mismatch in <div>`).toHaveBeenWarned()
+    })
+
+    test('complete mismatch', () => {
+      const { container } = mountWithHydration(
+        `<div><span>foo</span><span>bar</span></div>`,
+        () => h('div', [h('div', 'foo'), h('p', 'bar')])
+      )
+      expect(container.innerHTML).toBe('<div><div>foo</div><p>bar</p></div>')
+      expect(`Hydration node mismatch`).toHaveBeenWarnedTimes(2)
+    })
+
+    test('fragment mismatch removal', () => {
+      const { container } = mountWithHydration(
+        `<div><!--[--><div>foo</div><div>bar</div><!--]--></div>`,
+        () => h('div', [h('span', 'replaced')])
+      )
+      expect(container.innerHTML).toBe('<div><span>replaced</span></div>')
+      expect(`Hydration node mismatch`).toHaveBeenWarned()
+    })
+
+    test('fragment not enough children', () => {
+      const { container } = mountWithHydration(
+        `<div><!--[--><div>foo</div><!--]--><div>baz</div></div>`,
+        () => h('div', [[h('div', 'foo'), h('div', 'bar')], h('div', 'baz')])
+      )
+      expect(container.innerHTML).toBe(
+        '<div><!--[--><div>foo</div><div>bar</div><!--]--><div>baz</div></div>'
+      )
+      expect(`Hydration node mismatch`).toHaveBeenWarned()
+    })
+
+    test('fragment too many children', () => {
+      const { container } = mountWithHydration(
+        `<div><!--[--><div>foo</div><div>bar</div><!--]--><div>baz</div></div>`,
+        () => h('div', [[h('div', 'foo')], h('div', 'baz')])
+      )
+      expect(container.innerHTML).toBe(
+        '<div><!--[--><div>foo</div><!--]--><div>baz</div></div>'
+      )
+      // fragment ends early and attempts to hydrate the extra <div>bar</div>
+      // as 2nd fragment child.
+      expect(`Hydration text content mismatch`).toHaveBeenWarned()
+      // excessive children removal
+      expect(`Hydration children mismatch`).toHaveBeenWarned()
+    })
+
+    test('Teleport target has empty children', () => {
+      const teleportContainer = document.createElement('div')
+      teleportContainer.id = 'teleport'
+      document.body.appendChild(teleportContainer)
+      mountWithHydration('<!--teleport start--><!--teleport end-->', () =>
+        h(Teleport, { to: '#teleport' }, [h('span', 'value')])
+      )
+      expect(teleportContainer.innerHTML).toBe(`<span>value</span>`)
+      expect(`Hydration children mismatch`).toHaveBeenWarned()
+    })
   })
 })
