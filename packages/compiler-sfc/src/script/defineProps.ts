@@ -10,13 +10,13 @@ import { BindingTypes, isFunctionType } from '@docue/compiler-dom'
 import { ScriptCompileContext } from './context'
 import { inferRuntimeType, resolveTypeElements } from './resolveType'
 import {
-  //   resolveObjectKey,
+  resolveObjectKey,
   UNKNOWN_TYPE,
-  //   concatStrings,
+  concatStrings,
   //   isLiteralNode,
   isCallOf,
   //   unwrapTSNode,
-  //   toRuntimeTypeString,
+  toRuntimeTypeString,
   getEscapedKey
 } from './utils'
 import { genModelProps } from './defineModel'
@@ -68,11 +68,11 @@ export function processDefineProps(
   // call has type parameters - infer runtime types from it
   if (node.typeParameters) {
     if (ctx.propsRuntimeDecl) {
-      //       ctx.error(
-      //         `${DEFINE_PROPS}() cannot accept both type and non-type arguments ` +
-      //           `at the same time. Use one or the other.`,
-      //         node
-      //       )
+      ctx.error(
+        `${DEFINE_PROPS}() cannot accept both type and non-type arguments ` +
+          `at the same time. Use one or the other.`,
+        node
+      )
     }
     ctx.propsTypeDecl = node.typeParameters.params[0]
   }
@@ -97,10 +97,10 @@ function processWithDefaults(
     return false
   }
   if (!processDefineProps(ctx, node.arguments[0], declId)) {
-    //     ctx.error(
-    //       `${WITH_DEFAULTS}' first argument must be a ${DEFINE_PROPS} call.`,
-    //       node.arguments[0] || node
-    //     )
+    ctx.error(
+      `${WITH_DEFAULTS}' first argument must be a ${DEFINE_PROPS} call.`,
+      node.arguments[0] || node
+    )
   }
 
   if (ctx.propsRuntimeDecl) {
@@ -119,9 +119,9 @@ function processWithDefaults(
   }
   ctx.propsRuntimeDefaults = node.arguments[1]
   if (!ctx.propsRuntimeDefaults) {
-    //     ctx.error(`The 2nd argument of ${WITH_DEFAULTS} is required.`, node)
+    ctx.error(`The 2nd argument of ${WITH_DEFAULTS} is required.`, node)
   }
-  //   ctx.propsCall = node
+  ctx.propsCall = node
 
   return true
 }
@@ -181,7 +181,7 @@ function genRuntimePropsFromTypes(ctx: ScriptCompileContext) {
   }
 
   let propsDecls = `{
-      ${propStrings.join(',\n    ')}\n  }`
+    ${propStrings.join(',\n    ')}\n  }`
 
   if (ctx.propsRuntimeDefaults && !hasStaticDefaults) {
     propsDecls = `${ctx.helper('mergeDefaults')}(${propsDecls}, ${ctx.getString(
@@ -208,7 +208,7 @@ function resolveRuntimePropsFromType(
         type = type.filter(t => t !== UNKNOWN_TYPE)
         skipCheck = true
       } else {
-        //         type = ['null']
+        type = ['null']
       }
     }
     props.push({
@@ -233,32 +233,32 @@ function genRuntimePropFromType(
     //       destructured.needSkipFactory ? `, skipFactory: true` : ``
     //     }`
   } else if (hasStaticDefaults) {
-    //     const prop = (ctx.propsRuntimeDefaults as ObjectExpression).properties.find(
-    //       node => {
-    //         if (node.type === 'SpreadElement') return false
-    //         return resolveObjectKey(node.key, node.computed) === key
-    //       }
-    //     ) as ObjectProperty | ObjectMethod
-    //     if (prop) {
-    //       if (prop.type === 'ObjectProperty') {
-    //         // prop has corresponding static default value
-    //         defaultString = `default: ${ctx.getString(prop.value)}`
-    //       } else {
-    //         defaultString = `${prop.async ? 'async ' : ''}${
-    //           prop.kind !== 'method' ? `${prop.kind} ` : ''
-    //         }default() ${ctx.getString(prop.body)}`
-    //       }
-    //     }
+    const prop = (ctx.propsRuntimeDefaults as ObjectExpression).properties.find(
+      node => {
+        if (node.type === 'SpreadElement') return false
+        return resolveObjectKey(node.key, node.computed) === key
+      }
+    ) as ObjectProperty | ObjectMethod
+    if (prop) {
+      if (prop.type === 'ObjectProperty') {
+        // prop has corresponding static default value
+        defaultString = `default: ${ctx.getString(prop.value)}`
+      } else {
+        defaultString = `${prop.async ? 'async ' : ''}${
+          prop.kind !== 'method' ? `${prop.kind} ` : ''
+        }default() ${ctx.getString(prop.body)}`
+      }
+    }
   }
 
   const finalKey = getEscapedKey(key)
   if (!ctx.options.isProd) {
-    //     return `${finalKey}: { ${concatStrings([
-    //       `type: ${toRuntimeTypeString(type)}`,
-    //       `required: ${required}`,
-    //       skipCheck && 'skipCheck: true',
-    //       defaultString
-    //     ])} }`
+    return `${finalKey}: { ${concatStrings([
+      `type: ${toRuntimeTypeString(type)}`,
+      `required: ${required}`,
+      skipCheck && 'skipCheck: true',
+      defaultString
+    ])} }`
   } else if (
     type.some(
       el =>
@@ -266,16 +266,16 @@ function genRuntimePropFromType(
         ((!hasStaticDefaults || defaultString) && el === 'Function')
     )
   ) {
-    //     // #4783 for boolean, should keep the type
-    //     // #7111 for function, if default value exists or it's not static, should keep it
-    //     // in production
-    //     return `${finalKey}: { ${concatStrings([
-    //       `type: ${toRuntimeTypeString(type)}`,
-    //       defaultString
-    //     ])} }`
+    // #4783 for boolean, should keep the type
+    // #7111 for function, if default value exists or it's not static, should keep it
+    // in production
+    return `${finalKey}: { ${concatStrings([
+      `type: ${toRuntimeTypeString(type)}`,
+      defaultString
+    ])} }`
   } else {
-    //     // production: checks are useless
-    //     return `${finalKey}: ${defaultString ? `{ ${defaultString} }` : `{}`}`
+    // production: checks are useless
+    return `${finalKey}: ${defaultString ? `{ ${defaultString} }` : `{}`}`
   }
 }
 

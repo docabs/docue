@@ -377,36 +377,36 @@ function resolveInterfaceMembers(
 //   return res
 // }
 
-// function resolveIndexType(
-//   ctx: TypeResolveContext,
-//   node: TSIndexedAccessType,
-//   scope: TypeScope
-// ): (TSType & MaybeWithScope)[] {
-//   if (node.indexType.type === 'TSNumberKeyword') {
-//     return resolveArrayElementType(ctx, node.objectType, scope)
-//   }
+function resolveIndexType(
+  ctx: TypeResolveContext,
+  node: TSIndexedAccessType,
+  scope: TypeScope
+): (TSType & MaybeWithScope)[] {
+  if (node.indexType.type === 'TSNumberKeyword') {
+    //     return resolveArrayElementType(ctx, node.objectType, scope)
+  }
 
-//   const { indexType, objectType } = node
-//   const types: TSType[] = []
-//   let keys: string[]
-//   let resolved: ResolvedElements
-//   if (indexType.type === 'TSStringKeyword') {
-//     resolved = resolveTypeElements(ctx, objectType, scope)
-//     keys = Object.keys(resolved.props)
-//   } else {
-//     keys = resolveStringType(ctx, indexType, scope)
-//     resolved = resolveTypeElements(ctx, objectType, scope)
-//   }
-//   for (const key of keys) {
-//     const targetType = resolved.props[key]?.typeAnnotation?.typeAnnotation
-//     if (targetType) {
-//       ;(targetType as TSType & MaybeWithScope)._ownerScope =
-//         resolved.props[key]._ownerScope
-//       types.push(targetType)
-//     }
-//   }
-//   return types
-// }
+  const { indexType, objectType } = node
+  const types: TSType[] = []
+  let keys: string[]
+  let resolved: ResolvedElements
+  if (indexType.type === 'TSStringKeyword') {
+    //     resolved = resolveTypeElements(ctx, objectType, scope)
+    //     keys = Object.keys(resolved.props)
+  } else {
+    //     keys = resolveStringType(ctx, indexType, scope)
+    //     resolved = resolveTypeElements(ctx, objectType, scope)
+  }
+  for (const key of keys) {
+    const targetType = resolved.props[key]?.typeAnnotation?.typeAnnotation
+    if (targetType) {
+      //       ;(targetType as TSType & MaybeWithScope)._ownerScope =
+      //         resolved.props[key]._ownerScope
+      //       types.push(targetType)
+    }
+  }
+  return types
+}
 
 // function resolveArrayElementType(
 //   ctx: TypeResolveContext,
@@ -1323,140 +1323,140 @@ export function inferRuntimeType(
         return ['Number']
       case 'TSBooleanKeyword':
         return ['Boolean']
-      //       case 'TSObjectKeyword':
-      //         return ['Object']
-      //       case 'TSNullKeyword':
-      //         return ['null']
-      //       case 'TSTypeLiteral':
-      //       case 'TSInterfaceDeclaration': {
-      //         // TODO (nice to have) generate runtime property validation
-      //         const types = new Set<string>()
-      //         const members =
-      //           node.type === 'TSTypeLiteral' ? node.members : node.body.body
-      //         for (const m of members) {
-      //           if (
-      //             m.type === 'TSCallSignatureDeclaration' ||
-      //             m.type === 'TSConstructSignatureDeclaration'
-      //           ) {
-      //             types.add('Function')
-      //           } else {
-      //             types.add('Object')
-      //           }
-      //         }
-      //         return types.size ? Array.from(types) : ['Object']
-      //       }
-      //       case 'TSPropertySignature':
-      //         if (node.typeAnnotation) {
-      //           return inferRuntimeType(
-      //             ctx,
-      //             node.typeAnnotation.typeAnnotation,
-      //             scope
-      //           )
-      //         }
+      case 'TSObjectKeyword':
+        return ['Object']
+      case 'TSNullKeyword':
+        return ['null']
+      case 'TSTypeLiteral':
+      case 'TSInterfaceDeclaration': {
+        // TODO (nice to have) generate runtime property validation
+        const types = new Set<string>()
+        const members =
+          node.type === 'TSTypeLiteral' ? node.members : node.body.body
+        for (const m of members) {
+          if (
+            m.type === 'TSCallSignatureDeclaration' ||
+            m.type === 'TSConstructSignatureDeclaration'
+          ) {
+            types.add('Function')
+          } else {
+            types.add('Object')
+          }
+        }
+        return types.size ? Array.from(types) : ['Object']
+      }
+      case 'TSPropertySignature':
+        if (node.typeAnnotation) {
+          return inferRuntimeType(
+            ctx,
+            node.typeAnnotation.typeAnnotation,
+            scope
+          )
+        }
       case 'TSMethodSignature':
       case 'TSFunctionType':
         return ['Function']
-      //       case 'TSArrayType':
-      //       case 'TSTupleType':
-      //         // TODO (nice to have) generate runtime element type/length checks
-      //         return ['Array']
-      //       case 'TSLiteralType':
-      //         switch (node.literal.type) {
-      //           case 'StringLiteral':
-      //             return ['String']
-      //           case 'BooleanLiteral':
-      //             return ['Boolean']
-      //           case 'NumericLiteral':
-      //           case 'BigIntLiteral':
-      //             return ['Number']
-      //           default:
-      //             return [UNKNOWN_TYPE]
-      //         }
-      //       case 'TSTypeReference': {
-      //         const resolved = resolveTypeReference(ctx, node, scope)
-      //         if (resolved) {
-      //           return inferRuntimeType(ctx, resolved, resolved._ownerScope)
-      //         }
-      //         if (node.typeName.type === 'Identifier') {
-      //           switch (node.typeName.name) {
-      //             case 'Array':
-      //             case 'Function':
-      //             case 'Object':
-      //             case 'Set':
-      //             case 'Map':
-      //             case 'WeakSet':
-      //             case 'WeakMap':
-      //             case 'Date':
-      //             case 'Promise':
-      //               return [node.typeName.name]
-      //             // TS built-in utility types
-      //             // https://www.typescriptlang.org/docs/handbook/utility-types.html
-      //             case 'Partial':
-      //             case 'Required':
-      //             case 'Readonly':
-      //             case 'Record':
-      //             case 'Pick':
-      //             case 'Omit':
-      //             case 'InstanceType':
-      //               return ['Object']
-      //             case 'Uppercase':
-      //             case 'Lowercase':
-      //             case 'Capitalize':
-      //             case 'Uncapitalize':
-      //               return ['String']
-      //             case 'Parameters':
-      //             case 'ConstructorParameters':
-      //               return ['Array']
-      //             case 'NonNullable':
-      //               if (node.typeParameters && node.typeParameters.params[0]) {
-      //                 return inferRuntimeType(
-      //                   ctx,
-      //                   node.typeParameters.params[0],
-      //                   scope
-      //                 ).filter(t => t !== 'null')
-      //               }
-      //               break
-      //             case 'Extract':
-      //               if (node.typeParameters && node.typeParameters.params[1]) {
-      //                 return inferRuntimeType(
-      //                   ctx,
-      //                   node.typeParameters.params[1],
-      //                   scope
-      //                 )
-      //               }
-      //               break
-      //             case 'Exclude':
-      //             case 'OmitThisParameter':
-      //               if (node.typeParameters && node.typeParameters.params[0]) {
-      //                 return inferRuntimeType(
-      //                   ctx,
-      //                   node.typeParameters.params[0],
-      //                   scope
-      //                 )
-      //               }
-      //               break
-      //           }
-      //         }
-      //         // cannot infer, fallback to UNKNOWN: ThisParameterType
-      //         break
-      //       }
-      //       case 'TSParenthesizedType':
-      //         return inferRuntimeType(ctx, node.typeAnnotation, scope)
+      case 'TSArrayType':
+      case 'TSTupleType':
+        // TODO (nice to have) generate runtime element type/length checks
+        return ['Array']
+      case 'TSLiteralType':
+        switch (node.literal.type) {
+          case 'StringLiteral':
+            return ['String']
+          case 'BooleanLiteral':
+            return ['Boolean']
+          case 'NumericLiteral':
+          case 'BigIntLiteral':
+            return ['Number']
+          default:
+            return [UNKNOWN_TYPE]
+        }
+      case 'TSTypeReference': {
+        const resolved = resolveTypeReference(ctx, node, scope)
+        if (resolved) {
+          return inferRuntimeType(ctx, resolved, resolved._ownerScope)
+        }
+        if (node.typeName.type === 'Identifier') {
+          switch (node.typeName.name) {
+            case 'Array':
+            case 'Function':
+            case 'Object':
+            case 'Set':
+            case 'Map':
+            case 'WeakSet':
+            case 'WeakMap':
+            case 'Date':
+            case 'Promise':
+              return [node.typeName.name]
+            // TS built-in utility types
+            // https://www.typescriptlang.org/docs/handbook/utility-types.html
+            case 'Partial':
+            case 'Required':
+            case 'Readonly':
+            case 'Record':
+            case 'Pick':
+            case 'Omit':
+            case 'InstanceType':
+              return ['Object']
+            case 'Uppercase':
+            case 'Lowercase':
+            case 'Capitalize':
+            case 'Uncapitalize':
+              return ['String']
+            case 'Parameters':
+            case 'ConstructorParameters':
+              return ['Array']
+            case 'NonNullable':
+              if (node.typeParameters && node.typeParameters.params[0]) {
+                return inferRuntimeType(
+                  ctx,
+                  node.typeParameters.params[0],
+                  scope
+                ).filter(t => t !== 'null')
+              }
+              break
+            case 'Extract':
+              if (node.typeParameters && node.typeParameters.params[1]) {
+                return inferRuntimeType(
+                  ctx,
+                  node.typeParameters.params[1],
+                  scope
+                )
+              }
+              break
+            case 'Exclude':
+            case 'OmitThisParameter':
+              if (node.typeParameters && node.typeParameters.params[0]) {
+                return inferRuntimeType(
+                  ctx,
+                  node.typeParameters.params[0],
+                  scope
+                )
+              }
+              break
+          }
+        }
+        // cannot infer, fallback to UNKNOWN: ThisParameterType
+        break
+      }
+      case 'TSParenthesizedType':
+        return inferRuntimeType(ctx, node.typeAnnotation, scope)
       case 'TSUnionType':
         return flattenTypes(ctx, node.types, scope)
-      //       case 'TSIntersectionType': {
-      //         return flattenTypes(ctx, node.types, scope).filter(
-      //           t => t !== UNKNOWN_TYPE
-      //         )
-      //       }
-      //       case 'TSEnumDeclaration':
-      //         return inferEnumType(node)
-      //       case 'TSSymbolKeyword':
-      //         return ['Symbol']
-      //       case 'TSIndexedAccessType': {
-      //         const types = resolveIndexType(ctx, node, scope)
-      //         return flattenTypes(ctx, types, scope)
-      //       }
+      case 'TSIntersectionType': {
+        return flattenTypes(ctx, node.types, scope).filter(
+          t => t !== UNKNOWN_TYPE
+        )
+      }
+      case 'TSEnumDeclaration':
+        return inferEnumType(node)
+      case 'TSSymbolKeyword':
+        return ['Symbol']
+      // case 'TSIndexedAccessType': {
+      //   const types = resolveIndexType(ctx, node, scope)
+      //   return flattenTypes(ctx, types, scope)
+      // }
       //       case 'ClassDeclaration':
       //         return ['Object']
       //       case 'TSImportType': {
@@ -1507,22 +1507,22 @@ function flattenTypes(
   ]
 }
 
-// function inferEnumType(node: TSEnumDeclaration): string[] {
-//   const types = new Set<string>()
-//   for (const m of node.members) {
-//     if (m.initializer) {
-//       switch (m.initializer.type) {
-//         case 'StringLiteral':
-//           types.add('String')
-//           break
-//         case 'NumericLiteral':
-//           types.add('Number')
-//           break
-//       }
-//     }
-//   }
-//   return types.size ? [...types] : ['Number']
-// }
+function inferEnumType(node: TSEnumDeclaration): string[] {
+  const types = new Set<string>()
+  for (const m of node.members) {
+    if (m.initializer) {
+      switch (m.initializer.type) {
+        case 'StringLiteral':
+          types.add('String')
+          break
+        case 'NumericLiteral':
+          types.add('Number')
+          break
+      }
+    }
+  }
+  return types.size ? [...types] : ['Number']
+}
 
 // /**
 //  * support for the `ExtractPropTypes` helper - it's non-exhaustive, mostly

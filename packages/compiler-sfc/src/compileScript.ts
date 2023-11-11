@@ -108,11 +108,11 @@ export interface SFCScriptCompileOptions {
    * @default false
    */
   defineModel?: boolean
-  //   /**
-  //    * (**Experimental**) Enable reactive destructure for `defineProps`
-  //    * @default false
-  //    */
-  //   propsDestructure?: boolean
+  /**
+   * (**Experimental**) Enable reactive destructure for `defineProps`
+   * @default false
+   */
+  propsDestructure?: boolean
   /**
    * File system access methods to be used when resolving types
    * imported in SFC macros. Defaults to ts.sys in Node.js, can be overwritten
@@ -351,8 +351,8 @@ export function compileScript(
   // 1.3 resolve possible user import alias of `ref` and `reactive`
   const docueImportAliases: Record<string, string> = {}
   for (const key in ctx.userImports) {
-    //     const { source, imported, local } = ctx.userImports[key]
-    //     if (source === 'docue') docueImportAliases[imported] = local
+    const { source, imported, local } = ctx.userImports[key]
+    if (source === 'docue') docueImportAliases[imported] = local
   }
   // 2.1 process normal <script> body
   if (script && scriptAst) {
@@ -629,12 +629,12 @@ export function compileScript(
       node.type === 'ExportAllDeclaration' ||
       node.type === 'ExportDefaultDeclaration'
     ) {
-      //       ctx.error(
-      //         `<script setup> cannot contain ES module exports. ` +
-      //           `If you are using a previous version of <script setup>, please ` +
-      //           `consult the updated RFC at https://github.com/docuejs/rfcs/pull/227.`,
-      //         node
-      //       )
+      ctx.error(
+        `<script setup> cannot contain ES module exports. ` +
+          `If you are using a previous version of <script setup>, please ` +
+          `consult the updated RFC at https://github.com/docuejs/rfcs/pull/227.`,
+        node
+      )
     }
     if (ctx.isTS) {
       // move all Type declarations to outer scope
@@ -745,37 +745,37 @@ export function compileScript(
   //   }
   // 9. finalize setup() argument signature
   let args = `__props`
-  //   if (ctx.propsTypeDecl) {
-  //     // mark as any and only cast on assignment
-  //     // since the user defined complex types may be incompatible with the
-  //     // inferred type from generated runtime declarations
-  //     args += `: any`
-  //   }
-  //   // inject user assignment of props
-  //   // we use a default __props so that template expressions referencing props
-  //   // can use it directly
-  //   if (ctx.propsDecl) {
-  //     if (ctx.propsDestructureRestId) {
-  //       ctx.s.overwrite(
-  //         startOffset + ctx.propsCall!.start!,
-  //         startOffset + ctx.propsCall!.end!,
-  //         `${ctx.helper(`createPropsRestProxy`)}(__props, ${JSON.stringify(
-  //           Object.keys(ctx.propsDestructuredBindings)
-  //         )})`
-  //       )
-  //       ctx.s.overwrite(
-  //         startOffset + ctx.propsDestructureDecl!.start!,
-  //         startOffset + ctx.propsDestructureDecl!.end!,
-  //         ctx.propsDestructureRestId
-  //       )
-  //     } else if (!ctx.propsDestructureDecl) {
-  //       ctx.s.overwrite(
-  //         startOffset + ctx.propsCall!.start!,
-  //         startOffset + ctx.propsCall!.end!,
-  //         '__props'
-  //       )
-  //     }
-  //   }
+  if (ctx.propsTypeDecl) {
+    // mark as any and only cast on assignment
+    // since the user defined complex types may be incompatible with the
+    // inferred type from generated runtime declarations
+    args += `: any`
+  }
+  // inject user assignment of props
+  // we use a default __props so that template expressions referencing props
+  // can use it directly
+  if (ctx.propsDecl) {
+    if (ctx.propsDestructureRestId) {
+      //       ctx.s.overwrite(
+      //         startOffset + ctx.propsCall!.start!,
+      //         startOffset + ctx.propsCall!.end!,
+      //         `${ctx.helper(`createPropsRestProxy`)}(__props, ${JSON.stringify(
+      //           Object.keys(ctx.propsDestructuredBindings)
+      //         )})`
+      //       )
+      //       ctx.s.overwrite(
+      //         startOffset + ctx.propsDestructureDecl!.start!,
+      //         startOffset + ctx.propsDestructureDecl!.end!,
+      //         ctx.propsDestructureRestId
+      //       )
+    } else if (!ctx.propsDestructureDecl) {
+      ctx.s.overwrite(
+        startOffset + ctx.propsCall!.start!,
+        startOffset + ctx.propsCall!.end!,
+        '__props'
+      )
+    }
+  }
   //   // inject temp variables for async context preservation
   //   if (hasAwait) {
   //     const any = ctx.isTS ? `: any` : ``
@@ -924,11 +924,11 @@ export function compileScript(
   const emitsDecl = genRuntimeEmits(ctx)
   if (emitsDecl) runtimeOptions += `\n  emits: ${emitsDecl},`
   let definedOptions = ''
-  //   if (ctx.optionsRuntimeDecl) {
-  //     definedOptions = scriptSetup.content
-  //       .slice(ctx.optionsRuntimeDecl.start!, ctx.optionsRuntimeDecl.end!)
-  //       .trim()
-  //   }
+  if (ctx.optionsRuntimeDecl) {
+    definedOptions = scriptSetup.content
+      .slice(ctx.optionsRuntimeDecl.start!, ctx.optionsRuntimeDecl.end!)
+      .trim()
+  }
   // <script setup> components are closed by default. If the user did not
   // explicitly call `defineExpose`, call expose() with no args.
   const exposeCall =
@@ -1080,7 +1080,7 @@ function walkDeclaration(
         registerBinding(bindings, id, bindingType)
       } else {
         if (isCallOf(init, DEFINE_PROPS)) {
-          //           continue
+          continue
         }
         if (id.type === 'ObjectPattern') {
           walkObjectPattern(id, bindings, isConst, isDefineCall)

@@ -47,8 +47,8 @@ export class ScriptCompileContext {
   emitDecl: Node | undefined
   // defineModel
   modelDecls: Record<string, ModelDecl> = Object.create(null)
-  //   // defineOptions
-  //   optionsRuntimeDecl: Node | undefined
+  // defineOptions
+  optionsRuntimeDecl: Node | undefined
   // codegen
   bindingMetadata: BindingMetadata = {}
   helperImports: Set<string> = new Set()
