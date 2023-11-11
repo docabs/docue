@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`sfc reactive props destructure > aliasing 1`] = `
-"import { toDisplayString as _toDisplayString } from \\"vue\\"
+"import { toDisplayString as _toDisplayString } from \\"docue\\"
 
 
 export default {
@@ -21,7 +21,7 @@ return (_ctx, _cache) => {
 `;
 
 exports[`sfc reactive props destructure > basic usage 1`] = `
-"import { toDisplayString as _toDisplayString } from \\"vue\\"
+"import { toDisplayString as _toDisplayString } from \\"docue\\"
 
 
 export default {
@@ -40,7 +40,7 @@ return (_ctx, _cache) => {
 `;
 
 exports[`sfc reactive props destructure > computed static key 1`] = `
-"import { toDisplayString as _toDisplayString } from \\"vue\\"
+"import { toDisplayString as _toDisplayString } from \\"docue\\"
 
 
 export default {
@@ -59,7 +59,7 @@ return (_ctx, _cache) => {
 `;
 
 exports[`sfc reactive props destructure > default values w/ array runtime declaration 1`] = `
-"import { mergeDefaults as _mergeDefaults } from 'vue'
+"import { mergeDefaults as _mergeDefaults } from 'docue'
 
 export default {
   props: _mergeDefaults(['foo', 'bar', 'baz'], {
@@ -78,7 +78,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > default values w/ object runtime declaration 1`] = `
-"import { mergeDefaults as _mergeDefaults } from 'vue'
+"import { mergeDefaults as _mergeDefaults } from 'docue'
 
 export default {
   props: _mergeDefaults({ foo: Number, bar: Object, func: Function, ext: null }, {
@@ -98,7 +98,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > default values w/ runtime declaration & key is string 1`] = `
-"import { mergeDefaults as _mergeDefaults } from 'vue'
+"import { mergeDefaults as _mergeDefaults } from 'docue'
 
 export default {
   props: _mergeDefaults(['foo', 'foo:bar'], {
@@ -116,7 +116,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > default values w/ type declaration & key is string 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -136,7 +136,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > default values w/ type declaration 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -155,7 +155,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > default values w/ type declaration, prod mode 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -232,7 +232,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > multiple variable declarations 1`] = `
-"import { toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"vue\\"
+"import { toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
 
 export default {
@@ -267,7 +267,7 @@ return () => {}
 `;
 
 exports[`sfc reactive props destructure > non-identifier prop names 1`] = `
-"import { toDisplayString as _toDisplayString } from \\"vue\\"
+"import { toDisplayString as _toDisplayString } from \\"docue\\"
 
 
 export default {
@@ -286,7 +286,7 @@ return (_ctx, _cache) => {
 `;
 
 exports[`sfc reactive props destructure > rest spread 1`] = `
-"import { createPropsRestProxy as _createPropsRestProxy } from 'vue'
+"import { createPropsRestProxy as _createPropsRestProxy } from 'docue'
 
 export default {
   props: ['foo', 'bar', 'baz'],

@@ -14,7 +14,7 @@ function compile(opts: Omit<SFCTemplateCompileOptions, 'id'>) {
 test('should work', () => {
   const source = `<div><p>{{ render }}</p></div>`
 
-  const result = compile({ filename: 'example.vue', source })
+  const result = compile({ filename: 'example.docue', source })
 
   expect(result.errors.length).toBe(0)
   expect(result.source).toBe(source)
@@ -32,7 +32,7 @@ test('should work with style comment', () => {
     ">{{ render }}</div>
   `
 
-  const result = compile({ filename: 'example.vue', source })
+  const result = compile({ filename: 'example.docue', source })
   expect(result.errors.length).toBe(0)
   expect(result.source).toBe(source)
   expect(result.code).toMatch(`{"width":"300px","height":"100px"}`)
@@ -48,11 +48,11 @@ body
     p Cool Pug example!
 </template>
 `,
-    { filename: 'example.vue', sourceMap: true }
+    { filename: 'example.docue', sourceMap: true }
   ).descriptor.template as SFCTemplateBlock
 
   const result = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: template.content,
     preprocessLang: template.lang
   })
@@ -62,12 +62,12 @@ body
 
 test('warn missing preprocessor', () => {
   const template = parse(`<template lang="unknownLang">hi</template>\n`, {
-    filename: 'example.vue',
+    filename: 'example.docue',
     sourceMap: true
   }).descriptor.template as SFCTemplateBlock
 
   const result = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: template.content,
     preprocessLang: template.lang
   })
@@ -76,7 +76,7 @@ test('warn missing preprocessor', () => {
 })
 
 test('transform asset url options', () => {
-  const input = { source: `<foo bar="~baz"/>`, filename: 'example.vue' }
+  const input = { source: `<foo bar="~baz"/>`, filename: 'example.docue' }
   // Object option
   const { code: code1 } = compile({
     ...input,
@@ -110,11 +110,11 @@ test('source map', () => {
   <div><p>{{ render }}</p></div>
 </template>
 `,
-    { filename: 'example.vue', sourceMap: true }
+    { filename: 'example.docue', sourceMap: true }
   ).descriptor.template as SFCTemplateBlock
 
   const result = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: template.content
   })
 
@@ -123,7 +123,7 @@ test('source map', () => {
 
 test('template errors', () => {
   const result = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: `<div :foo
       :bar="a[" v-model="baz"/>`
   })
@@ -137,18 +137,18 @@ test('preprocessor errors', () => {
   div(class='class)
 </template>
 `,
-    { filename: 'example.vue', sourceMap: true }
+    { filename: 'example.docue', sourceMap: true }
   ).descriptor.template as SFCTemplateBlock
 
   const result = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: template.content,
     preprocessLang: template.lang
   })
 
   expect(result.errors.length).toBe(1)
   const message = result.errors[0].toString()
-  expect(message).toMatch(`Error: example.vue:3:1`)
+  expect(message).toMatch(`Error: example.docue:3:1`)
   expect(message).toMatch(
     `The end of the string reached with no closing bracket ) found.`
   )
@@ -157,7 +157,7 @@ test('preprocessor errors', () => {
 // #3447
 test('should generate the correct imports expression', () => {
   const { code } = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: `
       <img src="./foo.svg"/>
       <Comp>
@@ -173,7 +173,7 @@ test('should generate the correct imports expression', () => {
 // #3874
 test('should not hoist srcset URLs in SSR mode', () => {
   const { code } = compile({
-    filename: 'example.vue',
+    filename: 'example.docue',
     source: `
     <picture>
       <source srcset="./img/foo.svg"/>
@@ -195,7 +195,7 @@ test('should not hoist srcset URLs in SSR mode', () => {
 test('dynamic v-on + static v-on should merged', () => {
   const source = `<input @blur="onBlur" @[validateEvent]="onValidateEvent">`
 
-  const result = compile({ filename: 'example.vue', source })
+  const result = compile({ filename: 'example.docue', source })
 
   expect(result.code).toMatchSnapshot()
 })

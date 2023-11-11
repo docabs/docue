@@ -14,7 +14,7 @@ import { createCache } from './cache'
 import { ImportBinding } from './compileScript'
 // import { isImportUsed } from './script/importUsageCheck'
 
-export const DEFAULT_FILENAME = 'anonymous.vue'
+export const DEFAULT_FILENAME = 'anonymous.docue'
 
 export interface SFCParseOptions {
   filename?: string

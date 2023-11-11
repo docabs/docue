@@ -217,7 +217,7 @@ describe('SFC scoped CSS', () => {
   //     )
   //   })
 
-  //   // vue-loader/#1370
+  //   // docue-loader/#1370
   //   test('spaces after selector', () => {
   //     expect(compileScoped(`.foo , .bar { color: red; }`)).toMatchInlineSnapshot(`
   //       ".foo[data-v-test], .bar[data-v-test] { color: red;

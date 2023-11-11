@@ -68,7 +68,7 @@ return () => {}
 `;
 
 exports[`sfc hoist static > should not hoist a constant initialized to a reference value 1`] = `
-"import { defineComponent as _defineComponent } from 'vue'
+"import { defineComponent as _defineComponent } from 'docue'
 
 export default /*#__PURE__*/_defineComponent({
   setup(__props) {

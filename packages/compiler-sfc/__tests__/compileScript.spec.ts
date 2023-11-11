@@ -2,250 +2,268 @@ import { BindingTypes } from '@docue/compiler-core'
 import { compileSFCScript as compile, assertCode, mockId } from './utils'
 
 describe('SFC compile <script setup>', () => {
-  // test('should compile JS syntax', () => {
-  //   const { content } = compile(`
-  //     <script setup lang='js'>
-  //     const a = 1
-  //     const b = 2
-  //     </script>
-  //   `)
-  //   expect(content).toMatch(`return { a, b }`)
-  //   assertCode(content)
-  // })
-  // test('should expose top level declarations', () => {
-  //   const { content, bindings } = compile(`
-  //     <script setup>
-  //     import { x } from './x'
-  //     let a = 1
-  //     const b = 2
-  //     function c() {}
-  //     class d {}
-  //     </script>
-  //     <script>
-  //     import { xx } from './x'
-  //     let aa = 1
-  //     const bb = 2
-  //     function cc() {}
-  //     class dd {}
-  //     </script>
-  //     `)
-  //   expect(content).toMatch(
-  //     `return { get aa() { return aa }, set aa(v) { aa = v }, ` +
-  //       `bb, cc, dd, get a() { return a }, set a(v) { a = v }, b, c, d, ` +
-  //       `get xx() { return xx }, get x() { return x } }`
-  //   )
-  //   expect(bindings).toStrictEqual({
-  //     x: BindingTypes.SETUP_MAYBE_REF,
-  //     a: BindingTypes.SETUP_LET,
-  //     b: BindingTypes.SETUP_CONST,
-  //     c: BindingTypes.SETUP_CONST,
-  //     d: BindingTypes.SETUP_CONST,
-  //     xx: BindingTypes.SETUP_MAYBE_REF,
-  //     aa: BindingTypes.SETUP_LET,
-  //     bb: BindingTypes.LITERAL_CONST,
-  //     cc: BindingTypes.SETUP_CONST,
-  //     dd: BindingTypes.SETUP_CONST
-  //   })
-  //   assertCode(content)
-  // })
-  // test('binding analysis for destructure', () => {
-  //   const { content, bindings } = compile(`
-  //     <script setup>
-  //     const { foo, b: bar, ['x' + 'y']: baz, x: { y, zz: { z }}} = {}
-  //     </script>
-  //     `)
-  //   expect(content).toMatch('return { foo, bar, baz, y, z }')
-  //   expect(bindings).toStrictEqual({
-  //     foo: BindingTypes.SETUP_MAYBE_REF,
-  //     bar: BindingTypes.SETUP_MAYBE_REF,
-  //     baz: BindingTypes.SETUP_MAYBE_REF,
-  //     y: BindingTypes.SETUP_MAYBE_REF,
-  //     z: BindingTypes.SETUP_MAYBE_REF
-  //   })
-  //   assertCode(content)
-  // })
-  // describe('<script> and <script setup> co-usage', () => {
-  //   test('script first', () => {
-  //     const { content } = compile(`
-  //     <script>
-  //     export const n = 1
-  //     export default {}
-  //     </script>
-  //     <script setup>
-  //     import { x } from './x'
-  //     x()
-  //     </script>
-  //     `)
-  //     assertCode(content)
-  //   })
-  //   test('script setup first', () => {
-  //     const { content } = compile(`
-  //     <script setup>
-  //     import { x } from './x'
-  //     x()
-  //     </script>
-  //     <script>
-  //     export const n = 1
-  //     export default {}
-  //     </script>
-  //     `)
-  //     assertCode(content)
-  //   })
-  //   // #7805
-  //   test('keep original semi style', () => {
-  //     const { content } = compile(`
-  //       <script setup>
-  //       console.log('test')
-  //       const props = defineProps(['item']);
-  //       const emit = defineEmits(['change']);
-  //       (function () {})()
-  //       </script>
-  //     `)
-  //     assertCode(content)
-  //     expect(content).toMatch(`console.log('test')`)
-  //     expect(content).toMatch(`const props = __props;`)
-  //     expect(content).toMatch(`const emit = __emit;`)
-  //     expect(content).toMatch(`(function () {})()`)
-  //   })
-  //   test('script setup first, named default export', () => {
-  //     const { content } = compile(`
-  //     <script setup>
-  //     import { x } from './x'
-  //     x()
-  //     </script>
-  //     <script>
-  //     export const n = 1
-  //     const def = {}
-  //     export { def as default }
-  //     </script>
-  //     `)
-  //     assertCode(content)
-  //   })
-  //   // #4395
-  //   test('script setup first, lang="ts", script block content export default', () => {
-  //     const { content } = compile(`
-  //     <script setup lang="ts">
-  //     import { x } from './x'
-  //     x()
-  //     </script>
-  //     <script lang="ts">
-  //     export default {
-  //       name: "test"
-  //     }
-  //     </script>
-  //     `)
-  //     // ensure __default__ is declared before used
-  //     expect(content).toMatch(/const __default__[\S\s]*\.\.\.__default__/m)
-  //     assertCode(content)
-  //   })
-  //   describe('spaces in ExportDefaultDeclaration node', () => {
-  //     // #4371
-  //     test('with many spaces and newline', () => {
-  //       // #4371
-  //       const { content } = compile(`
-  //       <script>
-  //       export const n = 1
-  //       export        default
-  //       {
-  //         some:'option'
-  //       }
-  //       </script>
-  //       <script setup>
-  //       import { x } from './x'
-  //       x()
-  //       </script>
-  //       `)
-  //       assertCode(content)
-  //     })
-  //     test('with minimal spaces', () => {
-  //       const { content } = compile(`
-  //       <script>
-  //       export const n = 1
-  //       export default{
-  //         some:'option'
-  //       }
-  //       </script>
-  //       <script setup>
-  //       import { x } from './x'
-  //       x()
-  //       </script>
-  //       `)
-  //       assertCode(content)
-  //     })
-  //   })
-  //   test('export call expression as default', () => {
-  //     const { content } = compile(`
-  //     <script>
-  //     function fn() {
-  //       return "hello, world";
-  //     }
-  //     export default fn();
-  //     </script>
-  //     <script setup>
-  //     console.log('foo')
-  //     </script>
-  //     `)
-  //     assertCode(content)
-  //   })
-  // })
-  // describe('imports', () => {
-  //   test('should hoist and expose imports', () => {
-  //     assertCode(
-  //       compile(`<script setup>
-  //         import { ref } from 'vue'
-  //         import 'foo/css'
-  //       </script>`).content
-  //     )
-  //   })
-  //   test('should extract comment for import or type declarations', () => {
-  //     assertCode(
-  //       compile(`
-  //       <script setup>
-  //       import a from 'a' // comment
-  //       import b from 'b'
-  //       </script>
-  //       `).content
-  //     )
-  //   })
-  //   // #2740
-  //   test('should allow defineProps/Emit at the start of imports', () => {
-  //     assertCode(
-  //       compile(`<script setup>
-  //     import { ref } from 'vue'
-  //     defineProps(['foo'])
-  //     defineEmits(['bar'])
-  //     const r = ref(0)
-  //     </script>`).content
-  //     )
-  //   })
-  //   test('dedupe between user & helper', () => {
-  //     const { content } = compile(
-  //       `
-  //     <script setup>
-  //     import { ref } from 'vue'
-  //     let foo = $ref(1)
-  //     </script>
-  //     `,
-  //       { reactivityTransform: true }
-  //     )
-  //     assertCode(content)
-  //     expect(content).toMatch(`import { ref } from 'vue'`)
-  //   })
-  //   test('import dedupe between <script> and <script setup>', () => {
-  //     const { content } = compile(`
-  //       <script>
-  //       import { x } from './x'
-  //       </script>
-  //       <script setup>
-  //       import { x } from './x'
-  //       x()
-  //       </script>
-  //       `)
-  //     assertCode(content)
-  //     expect(content.indexOf(`import { x }`)).toEqual(
-  //       content.lastIndexOf(`import { x }`)
-  //     )
-  //   })
+  test('should compile JS syntax', () => {
+    const { content } = compile(`
+      <script setup lang='js'>
+      const a = 1
+      const b = 2
+      </script>
+    `)
+    expect(content).toMatch(`return { a, b }`)
+    assertCode(content)
+  })
+
+  test('should expose top level declarations', () => {
+    const { content, bindings } = compile(`
+      <script setup>
+      import { x } from './x'
+      let a = 1
+      const b = 2
+      function c() {}
+      class d {}
+      </script>
+      <script>
+      import { xx } from './x'
+      let aa = 1
+      const bb = 2
+      function cc() {}
+      class dd {}
+      </script>
+      `)
+
+    expect(content).toMatch(
+      `return { get aa() { return aa }, set aa(v) { aa = v }, ` +
+        `bb, cc, dd, get a() { return a }, set a(v) { a = v }, b, c, d, ` +
+        `get xx() { return xx }, get x() { return x } }`
+    )
+
+    expect(bindings).toStrictEqual({
+      x: BindingTypes.SETUP_MAYBE_REF,
+      a: BindingTypes.SETUP_LET,
+      b: BindingTypes.SETUP_CONST,
+      c: BindingTypes.SETUP_CONST,
+      d: BindingTypes.SETUP_CONST,
+      xx: BindingTypes.SETUP_MAYBE_REF,
+      aa: BindingTypes.SETUP_LET,
+      bb: BindingTypes.LITERAL_CONST,
+      cc: BindingTypes.SETUP_CONST,
+      dd: BindingTypes.SETUP_CONST
+    })
+    assertCode(content)
+  })
+
+  test('binding analysis for destructure', () => {
+    const { content, bindings } = compile(`
+      <script setup>
+      const { foo, b: bar, ['x' + 'y']: baz, x: { y, zz: { z }}} = {}
+      </script>
+      `)
+    expect(content).toMatch('return { foo, bar, baz, y, z }')
+    expect(bindings).toStrictEqual({
+      foo: BindingTypes.SETUP_MAYBE_REF,
+      bar: BindingTypes.SETUP_MAYBE_REF,
+      baz: BindingTypes.SETUP_MAYBE_REF,
+      y: BindingTypes.SETUP_MAYBE_REF,
+      z: BindingTypes.SETUP_MAYBE_REF
+    })
+    assertCode(content)
+  })
+
+  describe('<script> and <script setup> co-usage', () => {
+    test('script first', () => {
+      const { content } = compile(`
+      <script>
+      export const n = 1
+
+      export default {}
+      </script>
+      <script setup>
+      import { x } from './x'
+      x()
+      </script>
+      `)
+      assertCode(content)
+    })
+
+    test('script setup first', () => {
+      const { content } = compile(`
+      <script setup>
+      import { x } from './x'
+      x()
+      </script>
+      <script>
+      export const n = 1
+      export default {}
+      </script>
+      `)
+      assertCode(content)
+    })
+
+    // // #7805
+    // test('keep original semi style', () => {
+    //   const { content } = compile(`
+    //     <script setup>
+    //     console.log('test')
+    //     const props = defineProps(['item']);
+    //     const emit = defineEmits(['change']);
+    //     (function () {})()
+    //     </script>
+    //   `)
+    //   assertCode(content)
+    //   expect(content).toMatch(`console.log('test')`)
+    //   expect(content).toMatch(`const props = __props;`)
+    //   expect(content).toMatch(`const emit = __emit;`)
+    //   expect(content).toMatch(`(function () {})()`)
+    // })
+
+    test('script setup first, named default export', () => {
+      const { content } = compile(`
+      <script setup>
+      import { x } from './x'
+      x()
+      </script>
+      <script>
+      export const n = 1
+      const def = {}
+      export { def as default }
+      </script>
+      `)
+      assertCode(content)
+    })
+
+    // #4395
+    test('script setup first, lang="ts", script block content export default', () => {
+      const { content } = compile(`
+      <script setup lang="ts">
+      import { x } from './x'
+      x()
+      </script>
+      <script lang="ts">
+      export default {
+        name: "test"
+      }
+      </script>
+      `)
+      // ensure __default__ is declared before used
+      expect(content).toMatch(/const __default__[\S\s]*\.\.\.__default__/m)
+      assertCode(content)
+    })
+
+    describe('spaces in ExportDefaultDeclaration node', () => {
+      // #4371
+      test('with many spaces and newline', () => {
+        // #4371
+        const { content } = compile(`
+        <script>
+        export const n = 1
+        export        default
+        {
+          some:'option'
+        }
+        </script>
+        <script setup>
+        import { x } from './x'
+        x()
+        </script>
+        `)
+        assertCode(content)
+      })
+
+      test('with minimal spaces', () => {
+        const { content } = compile(`
+        <script>
+        export const n = 1
+        export default{
+          some:'option'
+        }
+        </script>
+        <script setup>
+        import { x } from './x'
+        x()
+        </script>
+        `)
+        assertCode(content)
+      })
+    })
+
+    test('export call expression as default', () => {
+      const { content } = compile(`
+      <script>
+      function fn() {
+        return "hello, world";
+      }
+      export default fn();
+      </script>
+      <script setup>
+      console.log('foo')
+      </script>
+      `)
+      assertCode(content)
+    })
+  })
+
+  describe('imports', () => {
+    test('should hoist and expose imports', () => {
+      assertCode(
+        compile(`<script setup>
+          import { ref } from 'docue'
+          import 'foo/css'
+        </script>`).content
+      )
+    })
+
+    test('should extract comment for import or type declarations', () => {
+      assertCode(
+        compile(`
+        <script setup>
+        import a from 'a' // comment
+        import b from 'b'
+        </script>
+        `).content
+      )
+    })
+
+    // #2740
+    test('should allow defineProps/Emit at the start of imports', () => {
+      assertCode(
+        compile(`<script setup>
+      import { ref } from 'docue'
+      defineProps(['foo'])
+      defineEmits(['bar'])
+      const r = ref(0)
+      </script>`).content
+      )
+    })
+
+    //   test('dedupe between user & helper', () => {
+    //     const { content } = compile(
+    //       `
+    //     <script setup>
+    //     import { ref } from 'docue'
+    //     let foo = $ref(1)
+    //     </script>
+    //     `,
+    //       { reactivityTransform: true }
+    //     )
+    //     assertCode(content)
+    //     expect(content).toMatch(`import { ref } from 'docue'`)
+    //   })
+    //   test('import dedupe between <script> and <script setup>', () => {
+    //     const { content } = compile(`
+    //       <script>
+    //       import { x } from './x'
+    //       </script>
+    //       <script setup>
+    //       import { x } from './x'
+    //       x()
+    //       </script>
+    //       `)
+    //     assertCode(content)
+    //     expect(content.indexOf(`import { x }`)).toEqual(
+    //       content.lastIndexOf(`import { x }`)
+    //     )
+  })
+
   //   describe('import ref/reactive function from other place', () => {
   //     test('import directly', () => {
   //       const { bindings } = compile(`
@@ -281,7 +299,7 @@ describe('SFC compile <script setup>', () => {
   //       const { bindings } = compile(`
   //       <script setup>
   //         const bar = x(1)
-  //         import { reactive as x } from 'vue'
+  //         import { reactive as x } from 'docue'
   //       </script>
   //     `)
   //       expect(bindings).toStrictEqual({
@@ -379,7 +397,7 @@ describe('SFC compile <script setup>', () => {
   //     )
   //     assertCode(content)
   //   })
-  //   test('vue interpolations', () => {
+  //   test('docue interpolations', () => {
   //     const { content } = compile(`
   //     <script setup lang="ts">
   //     import { x, y, z, x$y } from './x'
@@ -446,7 +464,7 @@ describe('SFC compile <script setup>', () => {
   //     expect(content).toMatch(`return { a, b, get Baz() { return Baz } }`)
   //     assertCode(content)
   //   })
-  //   // vuejs/vue#12591
+  //   // vuejs/docue#12591
   //   test('v-on inline statement', () => {
   //     // should not error
   //     compile(`
@@ -481,7 +499,7 @@ describe('inlineTemplate mode', () => {
   //   const { content } = compile(
   //     `
   //     <script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const count = ref(0)
   //     </script>
   //     <template>
@@ -516,8 +534,8 @@ describe('inlineTemplate mode', () => {
   //   const { content } = compile(
   //     `
   //     <script setup>
-  //     import ChildComp from './Child.vue'
-  //     import SomeOtherComp from './Other.vue'
+  //     import ChildComp from './Child.docue'
+  //     import SomeOtherComp from './Other.docue'
   //     import vMyDir from './my-dir'
   //     </script>
   //     <template>
@@ -538,8 +556,8 @@ describe('inlineTemplate mode', () => {
   //   // function, const, component import
   //   const { content } = compile(
   //     `<script setup>
-  //     import { ref } from 'vue'
-  //     import Foo, { bar } from './Foo.vue'
+  //     import { ref } from 'docue'
+  //     import Foo, { bar } from './Foo.docue'
   //     import other from './util'
   //     import * as tree from './tree'
   //     const count = ref(0)
@@ -556,9 +574,9 @@ describe('inlineTemplate mode', () => {
   //     `,
   //     { inlineTemplate: true }
   //   )
-  //   // no need to unref vue component import
+  //   // no need to unref docue component import
   //   expect(content).toMatch(`createVNode(Foo,`)
-  //   // #2699 should unref named imports from .vue
+  //   // #2699 should unref named imports from .docue
   //   expect(content).toMatch(`unref(bar)`)
   //   // should unref other imports
   //   expect(content).toMatch(`unref(other)`)
@@ -581,7 +599,7 @@ describe('inlineTemplate mode', () => {
   // test('v-model codegen', () => {
   //   const { content } = compile(
   //     `<script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const count = ref(0)
   //     const maybe = foo()
   //     let lett = 1
@@ -607,7 +625,7 @@ describe('inlineTemplate mode', () => {
   // test('v-model should not generate ref assignment code for non-setup bindings', () => {
   //   const { content } = compile(
   //     `<script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const count = ref(0)
   //     </script>
   //     <script>
@@ -626,7 +644,7 @@ describe('inlineTemplate mode', () => {
   // test('template assignment expression codegen', () => {
   //   const { content } = compile(
   //     `<script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const count = ref(0)
   //     const maybe = foo()
   //     let lett = 1
@@ -675,7 +693,7 @@ describe('inlineTemplate mode', () => {
   // test('template update expression codegen', () => {
   //   const { content } = compile(
   //     `<script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const count = ref(0)
   //     const maybe = foo()
   //     let lett = 1
@@ -705,7 +723,7 @@ describe('inlineTemplate mode', () => {
   // test('template destructure assignment codegen', () => {
   //   const { content } = compile(
   //     `<script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const val = {}
   //     const count = ref(0)
   //     const maybe = foo()
@@ -731,7 +749,7 @@ describe('inlineTemplate mode', () => {
   //   const { content } = compile(
   //     `
   //     <script setup>
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const count = ref(0)
   //     </script>
   //     <template>
@@ -761,7 +779,7 @@ describe('inlineTemplate mode', () => {
   //     compile(
   //       `
   //     <script setup lang="ts">
-  //     import { ref } from 'vue'
+  //     import { ref } from 'docue'
   //     const stacks = ref([])
   //     </script>
   //     <template>
@@ -1035,14 +1053,14 @@ describe('SFC analyze <script> bindings', () => {
   // it('can parse decorators syntax in typescript block', () => {
   //   const { scriptAst } = compile(`
   //     <script lang="ts">
-  //       import { Options, Vue } from 'vue-class-component';
+  //       import { Options, Docue } from 'docue-class-component';
   //       @Options({
   //         components: {
   //           HelloWorld,
   //         },
   //         props: ['foo', 'bar']
   //       })
-  //       export default class Home extends Vue {}
+  //       export default class Home extends Docue {}
   //     </script>
   //   `)
   //   expect(scriptAst).toBeDefined()
@@ -1255,7 +1273,7 @@ describe('SFC analyze <script> bindings', () => {
   // it('works for script setup', () => {
   //   const { bindings } = compile(`
   //     <script setup>
-  //     import { ref as r } from 'vue'
+  //     import { ref as r } from 'docue'
   //     defineProps({
   //       foo: String
   //     })
@@ -1283,7 +1301,7 @@ describe('SFC analyze <script> bindings', () => {
   //       <template>{{ a }}</template>`,
   //       undefined,
   //       {
-  //         filename: 'FooBar.vue'
+  //         filename: 'FooBar.docue'
   //       }
   //     )
   //     expect(content).toMatch(`export default {
@@ -1301,7 +1319,7 @@ describe('SFC analyze <script> bindings', () => {
   //       <template>{{ a }}</template>`,
   //       undefined,
   //       {
-  //         filename: 'FooBar.vue'
+  //         filename: 'FooBar.docue'
   //       }
   //     )
   //     expect(content).not.toMatch(`name: 'FooBar'`)
@@ -1311,7 +1329,7 @@ describe('SFC analyze <script> bindings', () => {
   //   test('do not overwrite manual name (call)', () => {
   //     const { content } = compile(
   //       `<script>
-  //       import { defineComponent } from 'vue'
+  //       import { defineComponent } from 'docue'
   //       export default defineComponent({
   //         name: 'Baz'
   //       })
@@ -1320,7 +1338,7 @@ describe('SFC analyze <script> bindings', () => {
   //       <template>{{ a }}</template>`,
   //       undefined,
   //       {
-  //         filename: 'FooBar.vue'
+  //         filename: 'FooBar.docue'
   //       }
   //     )
   //     expect(content).not.toMatch(`name: 'FooBar'`)
@@ -1444,7 +1462,7 @@ describe('SFC genDefaultAs', () => {
   // test('binding type for edge cases', () => {
   //   const { bindings } = compile(
   //     `<script setup lang="ts">
-  //     import { toRef } from 'vue'
+  //     import { toRef } from 'docue'
   //     const props = defineProps<{foo: string}>()
   //     const foo = toRef(() => props.foo)
   //     </script>`

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`defineModel() > basic usage 1`] = `
-"import { useModel as _useModel } from 'vue'
+"import { useModel as _useModel } from 'docue'
 
 export default {
   props: {
@@ -24,7 +24,7 @@ return { modelValue, c, toString }
 `;
 
 exports[`defineModel() > w/ array props 1`] = `
-"import { useModel as _useModel, mergeModels as _mergeModels } from 'vue'
+"import { useModel as _useModel, mergeModels as _mergeModels } from 'docue'
 
 export default {
   props: _mergeModels(['foo', 'bar'], {
@@ -44,7 +44,7 @@ return { count }
 `;
 
 exports[`defineModel() > w/ defineProps and defineEmits 1`] = `
-"import { useModel as _useModel, mergeModels as _mergeModels } from 'vue'
+"import { useModel as _useModel, mergeModels as _mergeModels } from 'docue'
 
 export default {
   props: _mergeModels({ foo: String }, {
@@ -65,7 +65,7 @@ return { count }
 `;
 
 exports[`defineModel() > w/ local flag 1`] = `
-"import { useModel as _useModel } from 'vue'
+"import { useModel as _useModel } from 'docue'
 const local = true
       
 export default {
@@ -97,7 +97,7 @@ return { foo, bar, baz, qux, foo2, local, hoist }
 `;
 
 exports[`defineModel() > w/ types, basic usage 1`] = `
-"import { useModel as _useModel, defineComponent as _defineComponent } from 'vue'
+"import { useModel as _useModel, defineComponent as _defineComponent } from 'docue'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -122,7 +122,7 @@ return { modelValue, count, disabled, any }
 `;
 
 exports[`defineModel() > w/ types, production mode 1`] = `
-"import { useModel as _useModel, defineComponent as _defineComponent } from 'vue'
+"import { useModel as _useModel, defineComponent as _defineComponent } from 'docue'
 
 export default /*#__PURE__*/_defineComponent({
   props: {

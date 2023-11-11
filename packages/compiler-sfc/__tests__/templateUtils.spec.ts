@@ -6,19 +6,19 @@ import {
 
 describe('compiler sfc:templateUtils isRelativeUrl', () => {
   test('should return true when The first character of the string path is .', () => {
-    const url = './**.vue'
+    const url = './**.docue'
     const result = isRelativeUrl(url)
     expect(result).toBe(true)
   })
 
   test('should return true when The first character of the string path is ~', () => {
-    const url = '~/xx.vue'
+    const url = '~/xx.docue'
     const result = isRelativeUrl(url)
     expect(result).toBe(true)
   })
 
   test('should return true when The first character of the string path is @', () => {
-    const url = '@/xx.vue'
+    const url = '@/xx.docue'
     const result = isRelativeUrl(url)
     expect(result).toBe(true)
   })

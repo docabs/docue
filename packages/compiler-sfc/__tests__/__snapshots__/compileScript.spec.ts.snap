@@ -694,6 +694,21 @@ return { get vMyDir() { return vMyDir } }
 })"
 `;
 
+exports[`SFC compile <script setup> > dev mode import usage check > docue interpolations 1`] = `
+"import { defineComponent as _defineComponent } from 'docue'
+import { x, y, z, x$y } from './x'
+      
+export default /*#__PURE__*/_defineComponent({
+  setup(__props, { expose: __expose }) {
+  __expose();
+
+      
+return { get x() { return x }, get z() { return z }, get x$y() { return x$y } }
+}
+
+})"
+`;
+
 exports[`SFC compile <script setup> > dev mode import usage check > dynamic arguments 1`] = `
 "import { defineComponent as _defineComponent } from 'docue'
 import { FooBar, foo, bar, unused } from './x'
@@ -749,21 +764,6 @@ export default /*#__PURE__*/_defineComponent({
 
           
 return { get foo() { return foo }, get bar() { return bar }, get Baz() { return Baz } }
-}
-
-})"
-`;
-
-exports[`SFC compile <script setup> > dev mode import usage check > docue interpolations 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
-import { x, y, z, x$y } from './x'
-      
-export default /*#__PURE__*/_defineComponent({
-  setup(__props, { expose: __expose }) {
-  __expose();
-
-      
-return { get x() { return x }, get z() { return z }, get x$y() { return x$y } }
 }
 
 })"
@@ -915,7 +915,7 @@ exports[`SFC compile <script setup> > inlineTemplate mode > avoid unref() when n
 "import { unref as _unref, toDisplayString as _toDisplayString, createTextVNode as _createTextVNode, withCtx as _withCtx, createVNode as _createVNode, createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
 import { ref } from 'docue'
-        import Foo, { bar } from './Foo.vue'
+        import Foo, { bar } from './Foo.docue'
         import other from './util'
         import * as tree from './tree'
         
@@ -948,8 +948,8 @@ return (_ctx, _cache) => {
 exports[`SFC compile <script setup> > inlineTemplate mode > referencing scope components and directives 1`] = `
 "import { unref as _unref, createElementVNode as _createElementVNode, withDirectives as _withDirectives, createVNode as _createVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
 
-import ChildComp from './Child.vue'
-        import SomeOtherComp from './Other.vue'
+import ChildComp from './Child.docue'
+        import SomeOtherComp from './Other.docue'
         import vMyDir from './my-dir'
         
 export default {

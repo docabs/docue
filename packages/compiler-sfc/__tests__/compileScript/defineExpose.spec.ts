@@ -22,5 +22,6 @@ test('<script> after <script setup> the script content not end with `\\n`', () =
   </script>
   <script>const n = 1</script>
   `)
+
   assertCode(content)
 })
