@@ -122,7 +122,7 @@ export interface CssVarsPluginOptions {
 export const cssVarsPlugin: PluginCreator<CssVarsPluginOptions> = opts => {
   const { id, isProd } = opts!
   return {
-    postcssPlugin: 'vue-sfc-vars',
+    postcssPlugin: 'docue-sfc-vars',
     Declaration(decl) {
       // rewrite CSS variables
       const value = decl.value

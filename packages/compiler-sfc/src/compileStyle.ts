@@ -5,7 +5,7 @@ import postcss, {
   Message,
   LazyResult
 } from 'postcss'
-// import trimPlugin from './style/pluginTrim'
+import trimPlugin from './style/pluginTrim'
 import scopedPlugin from './style/pluginScoped'
 import {
   processors,
@@ -113,32 +113,32 @@ export function doCompileStyle(
 
   const plugins = (postcssPlugins || []).slice()
   // plugins.unshift(cssVarsPlugin({ id: shortId, isProd }))
-  // if (trim) {
-  //   plugins.push(trimPlugin())
-  // }
+  if (trim) {
+    plugins.push(trimPlugin())
+  }
   if (scoped) {
     plugins.push(scopedPlugin(longId))
   }
   let cssModules: Record<string, string> | undefined
   if (modules) {
     if (__GLOBAL__ || __ESM_BROWSER__) {
-      //     throw new Error(
-      //       '[@docue/compiler-sfc] `modules` option is not supported in the browser build.'
-      //     )
+      throw new Error(
+        '[@docue/compiler-sfc] `modules` option is not supported in the browser build.'
+      )
     }
     if (!options.isAsync) {
-      //     throw new Error(
-      //       '[@docue/compiler-sfc] `modules` option can only be used with compileStyleAsync().'
-      //     )
+      throw new Error(
+        '[@docue/compiler-sfc] `modules` option can only be used with compileStyleAsync().'
+      )
     }
-    // plugins.push(
-    //   postcssModules({
-    //     ...modulesOptions,
-    //     getJSON: (_cssFileName: string, json: Record<string, string>) => {
-    //       cssModules = json
-    //     }
-    //   })
-    // )
+    plugins.push(
+      postcssModules({
+        ...modulesOptions,
+        getJSON: (_cssFileName: string, json: Record<string, string>) => {
+          cssModules = json
+        }
+      })
+    )
   }
 
   const postCSSOptions: ProcessOptions = {
@@ -169,38 +169,38 @@ export function doCompileStyle(
     errors.push(...preProcessedSource.errors)
   }
 
-  // const recordPlainCssDependencies = (messages: Message[]) => {
-  //   messages.forEach(msg => {
-  //     if (msg.type === 'dependency') {
-  //       // postcss output path is absolute position path
-  //       dependencies.add(msg.file)
-  //     }
-  //   })
-  //   return dependencies
-  // }
+  const recordPlainCssDependencies = (messages: Message[]) => {
+    messages.forEach(msg => {
+      if (msg.type === 'dependency') {
+        // postcss output path is absolute position path
+        dependencies.add(msg.file)
+      }
+    })
+    return dependencies
+  }
 
   try {
     result = postcss(plugins).process(source, postCSSOptions)
     // In async mode, return a promise.
     if (options.isAsync) {
-      //     return result
-      //       .then(result => ({
-      //         code: result.css || '',
-      //         map: result.map && result.map.toJSON(),
-      //         errors,
-      //         modules: cssModules,
-      //         rawResult: result,
-      //         dependencies: recordPlainCssDependencies(result.messages)
-      //       }))
-      //       .catch(error => ({
-      //         code: '',
-      //         map: undefined,
-      //         errors: [...errors, error],
-      //         rawResult: undefined,
-      //         dependencies
-      //       }))
+      return result
+        .then(result => ({
+          code: result.css || '',
+          map: result.map && result.map.toJSON(),
+          errors,
+          modules: cssModules,
+          rawResult: result,
+          dependencies: recordPlainCssDependencies(result.messages)
+        }))
+        .catch(error => ({
+          code: '',
+          map: undefined,
+          errors: [...errors, error],
+          rawResult: undefined,
+          dependencies
+        }))
     }
-    //   recordPlainCssDependencies(result.messages)
+    recordPlainCssDependencies(result.messages)
     // force synchronous transform (we know we only have sync plugins)
     code = result.css
     outMap = result.map
