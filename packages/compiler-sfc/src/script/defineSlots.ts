@@ -12,22 +12,22 @@ export function processDefineSlots(
   if (!isCallOf(node, DEFINE_SLOTS)) {
     return false
   }
-  //   if (ctx.hasDefineSlotsCall) {
-  //     ctx.error(`duplicate ${DEFINE_SLOTS}() call`, node)
-  //   }
-  //   ctx.hasDefineSlotsCall = true
+  if (ctx.hasDefineSlotsCall) {
+    ctx.error(`duplicate ${DEFINE_SLOTS}() call`, node)
+  }
+  ctx.hasDefineSlotsCall = true
 
-  //   if (node.arguments.length > 0) {
-  //     ctx.error(`${DEFINE_SLOTS}() cannot accept arguments`, node)
-  //   }
+  if (node.arguments.length > 0) {
+    ctx.error(`${DEFINE_SLOTS}() cannot accept arguments`, node)
+  }
 
-  //   if (declId) {
-  //     ctx.s.overwrite(
-  //       ctx.startOffset! + node.start!,
-  //       ctx.startOffset! + node.end!,
-  //       `${ctx.helper('useSlots')}()`
-  //     )
-  //   }
+  if (declId) {
+    ctx.s.overwrite(
+      ctx.startOffset! + node.start!,
+      ctx.startOffset! + node.end!,
+      `${ctx.helper('useSlots')}()`
+    )
+  }
 
   return true
 }
