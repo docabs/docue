@@ -31,7 +31,7 @@ import { warnOnce } from './warn'
 import { ScriptCompileContext } from './script/context'
 import {
   processDefineProps,
-  // genRuntimeProps,
+  genRuntimeProps,
   DEFINE_PROPS,
   WITH_DEFAULTS
 } from './script/defineProps'
@@ -103,11 +103,11 @@ export interface SFCScriptCompileOptions {
    * @default true
    */
   hoistStatic?: boolean
-  //   /**
-  //    * (**Experimental**) Enable macro `defineModel`
-  //    * @default false
-  //    */
-  //   defineModel?: boolean
+  /**
+   * (**Experimental**) Enable macro `defineModel`
+   * @default false
+   */
+  defineModel?: boolean
   //   /**
   //    * (**Experimental**) Enable reactive destructure for `defineProps`
   //    * @default false
@@ -245,20 +245,20 @@ export function compileScript(
     }
   }
   function checkInvalidScopeReference(node: Node | undefined, method: string) {
-    //     if (!node) return
-    //     walkIdentifiers(node, id => {
-    //       const binding = setupBindings[id.name]
-    //       if (binding && binding !== BindingTypes.LITERAL_CONST) {
-    //         ctx.error(
-    //           `\`${method}()\` in <script setup> cannot reference locally ` +
-    //             `declared variables because it will be hoisted outside of the ` +
-    //             `setup() function. If your component options require initialization ` +
-    //             `in the module scope, use a separate normal <script> to export ` +
-    //             `the options instead.`,
-    //           id
-    //         )
-    //       }
-    //     })
+    if (!node) return
+    walkIdentifiers(node, id => {
+      const binding = setupBindings[id.name]
+      if (binding && binding !== BindingTypes.LITERAL_CONST) {
+        //         ctx.error(
+        //           `\`${method}()\` in <script setup> cannot reference locally ` +
+        //             `declared variables because it will be hoisted outside of the ` +
+        //             `setup() function. If your component options require initialization ` +
+        //             `in the module scope, use a separate normal <script> to export ` +
+        //             `the options instead.`,
+        //           id
+        //         )
+      }
+    })
   }
   const scriptAst = ctx.scriptAst
   const scriptSetupAst = ctx.scriptSetupAst!
@@ -919,8 +919,8 @@ export function compileScript(
   if (hasInlinedSsrRenderFn) {
     //     runtimeOptions += `\n  __ssrInlineRender: true,`
   }
-  //   const propsDecl = genRuntimeProps(ctx)
-  //   if (propsDecl) runtimeOptions += `\n  props: ${propsDecl},`
+  const propsDecl = genRuntimeProps(ctx)
+  if (propsDecl) runtimeOptions += `\n  props: ${propsDecl},`
   const emitsDecl = genRuntimeEmits(ctx)
   if (emitsDecl) runtimeOptions += `\n  emits: ${emitsDecl},`
   let definedOptions = ''
@@ -1070,7 +1070,7 @@ function walkDeclaration(
                 m === DEFINE_MODEL
             )
           ) {
-            //             bindingType = BindingTypes.SETUP_REF
+            bindingType = BindingTypes.SETUP_REF
           } else {
             bindingType = BindingTypes.SETUP_MAYBE_REF
           }

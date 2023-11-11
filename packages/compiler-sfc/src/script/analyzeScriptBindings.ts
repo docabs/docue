@@ -5,7 +5,7 @@ import {
   Statement
 } from '@babel/types'
 import { BindingMetadata, BindingTypes } from '@docue/compiler-dom'
-// import { resolveObjectKey } from './utils'
+import { resolveObjectKey } from './utils'
 
 /**
  * Analyze bindings in normal `<script>`
@@ -100,32 +100,32 @@ export function analyzeScriptBindings(ast: Statement[]): BindingMetadata {
 //   return bindings
 // }
 
-// function getObjectExpressionKeys(node: ObjectExpression): string[] {
-//   const keys = []
-//   for (const prop of node.properties) {
-//     if (prop.type === 'SpreadElement') continue
-//     const key = resolveObjectKey(prop.key, prop.computed)
-//     if (key) keys.push(String(key))
-//   }
-//   return keys
-// }
+function getObjectExpressionKeys(node: ObjectExpression): string[] {
+  const keys = []
+  for (const prop of node.properties) {
+    if (prop.type === 'SpreadElement') continue
+    const key = resolveObjectKey(prop.key, prop.computed)
+    if (key) keys.push(String(key))
+  }
+  return keys
+}
 
-// function getArrayExpressionKeys(node: ArrayExpression): string[] {
-//   const keys = []
-//   for (const element of node.elements) {
-//     if (element && element.type === 'StringLiteral') {
-//       keys.push(element.value)
-//     }
-//   }
-//   return keys
-// }
+function getArrayExpressionKeys(node: ArrayExpression): string[] {
+  const keys = []
+  for (const element of node.elements) {
+    if (element && element.type === 'StringLiteral') {
+      keys.push(element.value)
+    }
+  }
+  return keys
+}
 
-// export function getObjectOrArrayExpressionKeys(value: Node): string[] {
-//   if (value.type === 'ArrayExpression') {
-//     return getArrayExpressionKeys(value)
-//   }
-//   if (value.type === 'ObjectExpression') {
-//     return getObjectExpressionKeys(value)
-//   }
-//   return []
-// }
+export function getObjectOrArrayExpressionKeys(value: Node): string[] {
+  if (value.type === 'ArrayExpression') {
+    return getArrayExpressionKeys(value)
+  }
+  if (value.type === 'ObjectExpression') {
+    return getObjectExpressionKeys(value)
+  }
+  return []
+}

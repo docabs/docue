@@ -3,7 +3,7 @@ import { SFCDescriptor } from '../parse'
 import { generateCodeFrame } from '@docue/shared'
 import { parse as babelParse, ParserPlugin } from '@babel/parser'
 import { ImportBinding, SFCScriptCompileOptions } from '../compileScript'
-// import { PropsDestructureBindings } from './defineProps'
+import { PropsDestructureBindings } from './defineProps'
 import { ModelDecl } from './defineModel'
 import { BindingMetadata } from '../../../compiler-core/src'
 import MagicString from 'magic-string'
@@ -32,15 +32,15 @@ export class ScriptCompileContext {
   hasDefineOptionsCall = false
   hasDefineSlotsCall = false
   hasDefineModelCall = false
-  //   // defineProps
-  //   propsCall: CallExpression | undefined
-  //   propsDecl: Node | undefined
-  //   propsRuntimeDecl: Node | undefined
-  //   propsTypeDecl: Node | undefined
+  // defineProps
+  propsCall: CallExpression | undefined
+  propsDecl: Node | undefined
+  propsRuntimeDecl: Node | undefined
+  propsTypeDecl: Node | undefined
   propsDestructureDecl: ObjectPattern | undefined
-  //   propsDestructuredBindings: PropsDestructureBindings = Object.create(null)
+  propsDestructuredBindings: PropsDestructureBindings = Object.create(null)
   propsDestructureRestId: string | undefined
-  //   propsRuntimeDefaults: Node | undefined
+  propsRuntimeDefaults: Node | undefined
   // defineEmits
   emitsRuntimeDecl: Node | undefined
   emitsTypeDecl: Node | undefined
