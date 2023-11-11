@@ -31,8 +31,8 @@ export {
   isStaticProperty
 } from '@docue/compiler-core'
 
-// // Internals for type resolution
-// export { invalidateTypeCache, registerTS } from './script/resolveType'
+// Internals for type resolution
+export { invalidateTypeCache, registerTS } from './script/resolveType'
 
 // Types
 export type {

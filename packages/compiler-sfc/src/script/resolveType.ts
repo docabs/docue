@@ -29,18 +29,18 @@ import {
   // createGetCanonicalFileName,
   getId,
   getImportedName,
-  // normalizePath,
+  normalizePath,
   joinPaths
 } from './utils'
 import { ScriptCompileContext, resolveParserPlugins } from './context'
 import { ImportBinding, SFCScriptCompileOptions } from '../compileScript'
 import { capitalize, hasOwn } from '@docue/shared'
-// import { parse as babelParse } from '@babel/parser'
-// import { parse } from '../parse'
-// import { createCache } from '../cache'
-// import type TS from 'typescript'
-// import { extname, dirname } from 'path'
-// import { minimatch as isMatch } from 'minimatch'
+import { parse as babelParse } from '@babel/parser'
+import { parse } from '../parse'
+import { createCache } from '../cache'
+import type TS from 'typescript'
+import { extname, dirname } from 'path'
+import { minimatch as isMatch } from 'minimatch'
 
 /**
  * TypeResolveContext is compatible with ScriptCompileContext
@@ -151,8 +151,8 @@ function innerResolveTypeElements(
         node.types.map(t => resolveTypeElements(ctx, t, scope)),
         node.type
       )
-    //     case 'TSMappedType':
-    //       return resolveMappedType(ctx, node, scope)
+    case 'TSMappedType':
+      return resolveMappedType(ctx, node, scope)
     //     case 'TSIndexedAccessType': {
     //       const types = resolveIndexType(ctx, node, scope)
     //       return mergeElements(
@@ -356,26 +356,26 @@ function resolveInterfaceMembers(
   return base
 }
 
-// function resolveMappedType(
-//   ctx: TypeResolveContext,
-//   node: TSMappedType,
-//   scope: TypeScope
-// ): ResolvedElements {
-//   const res: ResolvedElements = { props: {} }
-//   const keys = resolveStringType(ctx, node.typeParameter.constraint!, scope)
-//   for (const key of keys) {
-//     res.props[key] = createProperty(
-//       {
-//         type: 'Identifier',
-//         name: key
-//       },
-//       node.typeAnnotation!,
-//       scope,
-//       !!node.optional
-//     )
-//   }
-//   return res
-// }
+function resolveMappedType(
+  ctx: TypeResolveContext,
+  node: TSMappedType,
+  scope: TypeScope
+): ResolvedElements {
+  const res: ResolvedElements = { props: {} }
+  //   const keys = resolveStringType(ctx, node.typeParameter.constraint!, scope)
+  //   for (const key of keys) {
+  //     res.props[key] = createProperty(
+  //       {
+  //         type: 'Identifier',
+  //         name: key
+  //       },
+  //       node.typeAnnotation!,
+  //       scope,
+  //       !!node.optional
+  //     )
+  //   }
+  return res
+}
 
 function resolveIndexType(
   ctx: TypeResolveContext,
@@ -636,17 +636,17 @@ function innerResolveTypeReference(
       if (lookupSource[name]) {
         return lookupSource[name]
       } else {
-        //         // fallback to global
-        //         const globalScopes = resolveGlobalScope(ctx)
-        //         if (globalScopes) {
-        //           for (const s of globalScopes) {
-        //             const src = node.type === 'TSTypeQuery' ? s.declares : s.types
-        //             if (src[name]) {
-        //               ;(ctx.deps || (ctx.deps = new Set())).add(s.filename)
-        //               return src[name]
-        //             }
-        //           }
-        //         }
+        // fallback to global
+        const globalScopes = resolveGlobalScope(ctx)
+        if (globalScopes) {
+          for (const s of globalScopes) {
+            //             const src = node.type === 'TSTypeQuery' ? s.declares : s.types
+            //             if (src[name]) {
+            //               ;(ctx.deps || (ctx.deps = new Set())).add(s.filename)
+            //               return src[name]
+            //             }
+          }
+        }
       }
     }
   } else {
@@ -696,56 +696,58 @@ function getReferenceName(node: ReferenceTypes): string | string[] {
 //   }
 // }
 
-// function resolveGlobalScope(ctx: TypeResolveContext): TypeScope[] | undefined {
-//   if (ctx.options.globalTypeFiles) {
-//     const fs = resolveFS(ctx)
-//     if (!fs) {
-//       throw new Error('[docue/compiler-sfc] globalTypeFiles requires fs access.')
-//     }
-//     return ctx.options.globalTypeFiles.map(file =>
-//       fileToScope(ctx, normalizePath(file), true)
-//     )
-//   }
-// }
+function resolveGlobalScope(ctx: TypeResolveContext): TypeScope[] | undefined {
+  if (ctx.options.globalTypeFiles) {
+    const fs = resolveFS(ctx)
+    if (!fs) {
+      throw new Error(
+        '[docue/compiler-sfc] globalTypeFiles requires fs access.'
+      )
+    }
+    return ctx.options.globalTypeFiles.map(file =>
+      fileToScope(ctx, normalizePath(file), true)
+    )
+  }
+}
 
-// let ts: typeof TS | undefined
-// let loadTS: (() => typeof TS) | undefined
+let ts: typeof TS | undefined
+let loadTS: (() => typeof TS) | undefined
 
-// /**
-//  * @private
-//  */
-// export function registerTS(_loadTS: () => typeof TS) {
-//   loadTS = _loadTS
-// }
+/**
+ * @private
+ */
+export function registerTS(_loadTS: () => typeof TS) {
+  loadTS = _loadTS
+}
 
-// type FS = NonNullable<SFCScriptCompileOptions['fs']>
+type FS = NonNullable<SFCScriptCompileOptions['fs']>
 
-// function resolveFS(ctx: TypeResolveContext): FS | undefined {
-//   if (ctx.fs) {
-//     return ctx.fs
-//   }
-//   if (!ts && loadTS) {
-//     ts = loadTS()
-//   }
-//   const fs = ctx.options.fs || ts?.sys
-//   if (!fs) {
-//     return
-//   }
-//   return (ctx.fs = {
-//     fileExists(file) {
-//       if (file.endsWith('.docue.ts')) {
-//         file = file.replace(/\.ts$/, '')
-//       }
-//       return fs.fileExists(file)
-//     },
-//     readFile(file) {
-//       if (file.endsWith('.docue.ts')) {
-//         file = file.replace(/\.ts$/, '')
-//       }
-//       return fs.readFile(file)
-//     }
-//   })
-// }
+function resolveFS(ctx: TypeResolveContext): FS | undefined {
+  if (ctx.fs) {
+    return ctx.fs
+  }
+  if (!ts && loadTS) {
+    ts = loadTS()
+  }
+  const fs = ctx.options.fs || ts?.sys
+  if (!fs) {
+    return
+  }
+  //   return (ctx.fs = {
+  //     fileExists(file) {
+  //       if (file.endsWith('.docue.ts')) {
+  //         file = file.replace(/\.ts$/, '')
+  //       }
+  //       return fs.fileExists(file)
+  //     },
+  //     readFile(file) {
+  //       if (file.endsWith('.docue.ts')) {
+  //         file = file.replace(/\.ts$/, '')
+  //       }
+  //       return fs.readFile(file)
+  //     }
+  //   })
+}
 
 // function resolveTypeFromImport(
 //   ctx: TypeResolveContext,
@@ -835,13 +837,13 @@ function getReferenceName(node: ReferenceTypes): string | string[] {
 //   )
 // }
 
-// interface CachedConfig {
-//   config: TS.ParsedCommandLine
-//   cache?: TS.ModuleResolutionCache
-// }
+interface CachedConfig {
+  config: TS.ParsedCommandLine
+  cache?: TS.ModuleResolutionCache
+}
 
-// const tsConfigCache = createCache<CachedConfig[]>()
-// const tsConfigRefMap = new Map<string, string>()
+const tsConfigCache = createCache<CachedConfig[]>()
+const tsConfigRefMap = new Map<string, string>()
 
 // function resolveWithTS(
 //   containingFile: string,
@@ -958,85 +960,83 @@ function getReferenceName(node: ReferenceTypes): string | string[] {
 //   return res
 // }
 
-// const fileToScopeCache = createCache<TypeScope>()
+const fileToScopeCache = createCache<TypeScope>()
 
-// /**
-//  * @private
-//  */
-// export function invalidateTypeCache(filename: string) {
-//   filename = normalizePath(filename)
-//   fileToScopeCache.delete(filename)
-//   tsConfigCache.delete(filename)
-//   const affectedConfig = tsConfigRefMap.get(filename)
-//   if (affectedConfig) tsConfigCache.delete(affectedConfig)
-// }
+/**
+ * @private
+ */
+export function invalidateTypeCache(filename: string) {
+  filename = normalizePath(filename)
+  fileToScopeCache.delete(filename)
+  tsConfigCache.delete(filename)
+  const affectedConfig = tsConfigRefMap.get(filename)
+  if (affectedConfig) tsConfigCache.delete(affectedConfig)
+}
 
-// export function fileToScope(
-//   ctx: TypeResolveContext,
-//   filename: string,
-//   asGlobal = false
-// ): TypeScope {
-//   const cached = fileToScopeCache.get(filename)
-//   if (cached) {
-//     return cached
-//   }
-//   // fs should be guaranteed to exist here
-//   const fs = resolveFS(ctx)!
-//   const source = fs.readFile(filename) || ''
-//   const body = parseFile(filename, source, ctx.options.babelParserPlugins)
-//   const scope = new TypeScope(filename, source, 0, recordImports(body))
-//   recordTypes(ctx, body, scope, asGlobal)
-//   fileToScopeCache.set(filename, scope)
-//   return scope
-// }
+export function fileToScope(
+  ctx: TypeResolveContext,
+  filename: string,
+  asGlobal = false
+): TypeScope {
+  const cached = fileToScopeCache.get(filename)
+  if (cached) {
+    return cached
+  }
+  // fs should be guaranteed to exist here
+  const fs = resolveFS(ctx)!
+  const source = fs.readFile(filename) || ''
+  const body = parseFile(filename, source, ctx.options.babelParserPlugins)
+  const scope = new TypeScope(filename, source, 0, recordImports(body))
+  recordTypes(ctx, body, scope, asGlobal)
+  fileToScopeCache.set(filename, scope)
+  return scope
+}
 
-// function parseFile(
-//   filename: string,
-//   content: string,
-//   parserPlugins?: SFCScriptCompileOptions['babelParserPlugins']
-// ): Statement[] {
-//   const ext = extname(filename)
-//   if (ext === '.ts' || ext === '.tsx') {
-//     return babelParse(content, {
-//       plugins: resolveParserPlugins(
-//         ext.slice(1),
-//         parserPlugins,
-//         filename.endsWith('.d.ts')
-//       ),
-//       sourceType: 'module'
-//     }).program.body
-//   } else if (ext === '.docue') {
-//     const {
-//       descriptor: { script, scriptSetup }
-//     } = parse(content)
-//     if (!script && !scriptSetup) {
-//       return []
-//     }
-
-//     // ensure the correct offset with original source
-//     const scriptOffset = script ? script.loc.start.offset : Infinity
-//     const scriptSetupOffset = scriptSetup
-//       ? scriptSetup.loc.start.offset
-//       : Infinity
-//     const firstBlock = scriptOffset < scriptSetupOffset ? script : scriptSetup
-//     const secondBlock = scriptOffset < scriptSetupOffset ? scriptSetup : script
-
-//     let scriptContent =
-//       ' '.repeat(Math.min(scriptOffset, scriptSetupOffset)) +
-//       firstBlock!.content
-//     if (secondBlock) {
-//       scriptContent +=
-//         ' '.repeat(secondBlock.loc.start.offset - script!.loc.end.offset) +
-//         secondBlock.content
-//     }
-//     const lang = script?.lang || scriptSetup?.lang
-//     return babelParse(scriptContent, {
-//       plugins: resolveParserPlugins(lang!, parserPlugins),
-//       sourceType: 'module'
-//     }).program.body
-//   }
-//   return []
-// }
+function parseFile(
+  filename: string,
+  content: string,
+  parserPlugins?: SFCScriptCompileOptions['babelParserPlugins']
+): Statement[] {
+  const ext = extname(filename)
+  if (ext === '.ts' || ext === '.tsx') {
+    //     return babelParse(content, {
+    //       plugins: resolveParserPlugins(
+    //         ext.slice(1),
+    //         parserPlugins,
+    //         filename.endsWith('.d.ts')
+    //       ),
+    //       sourceType: 'module'
+    //     }).program.body
+  } else if (ext === '.docue') {
+    //     const {
+    //       descriptor: { script, scriptSetup }
+    //     } = parse(content)
+    //     if (!script && !scriptSetup) {
+    //       return []
+    //     }
+    //     // ensure the correct offset with original source
+    //     const scriptOffset = script ? script.loc.start.offset : Infinity
+    //     const scriptSetupOffset = scriptSetup
+    //       ? scriptSetup.loc.start.offset
+    //       : Infinity
+    //     const firstBlock = scriptOffset < scriptSetupOffset ? script : scriptSetup
+    //     const secondBlock = scriptOffset < scriptSetupOffset ? scriptSetup : script
+    //     let scriptContent =
+    //       ' '.repeat(Math.min(scriptOffset, scriptSetupOffset)) +
+    //       firstBlock!.content
+    //     if (secondBlock) {
+    //       scriptContent +=
+    //         ' '.repeat(secondBlock.loc.start.offset - script!.loc.end.offset) +
+    //         secondBlock.content
+    //     }
+    //     const lang = script?.lang || scriptSetup?.lang
+    //     return babelParse(scriptContent, {
+    //       plugins: resolveParserPlugins(lang!, parserPlugins),
+    //       sourceType: 'module'
+    //     }).program.body
+  }
+  return []
+}
 
 function ctxToScope(ctx: TypeResolveContext): TypeScope {
   if (ctx.scope) {
@@ -1457,8 +1457,8 @@ export function inferRuntimeType(
       //   const types = resolveIndexType(ctx, node, scope)
       //   return flattenTypes(ctx, types, scope)
       // }
-      //       case 'ClassDeclaration':
-      //         return ['Object']
+      case 'ClassDeclaration':
+        return ['Object']
       //       case 'TSImportType': {
       //         const sourceScope = importSourceToScope(
       //           ctx,

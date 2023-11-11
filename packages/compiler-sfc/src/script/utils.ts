@@ -99,13 +99,13 @@ export function getId(node: Expression) {
 //   return useCaseSensitiveFileNames ? identity : toFileNameLowerCase
 // }
 
-// // in the browser build, the polyfill doesn't expose posix, but defaults to
-// // posix behavior.
-// const normalize = (path.posix || path).normalize
-// const windowsSlashRE = /\\/g
-// export function normalizePath(p: string) {
-//   return normalize(p.replace(windowsSlashRE, '/'))
-// }
+// in the browser build, the polyfill doesn't expose posix, but defaults to
+// posix behavior.
+const normalize = (path.posix || path).normalize
+const windowsSlashRE = /\\/g
+export function normalizePath(p: string) {
+  return normalize(p.replace(windowsSlashRE, '/'))
+}
 
 export const joinPaths = (path.posix || path).join
 
