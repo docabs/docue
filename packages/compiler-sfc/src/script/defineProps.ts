@@ -13,15 +13,15 @@ import {
   resolveObjectKey,
   UNKNOWN_TYPE,
   concatStrings,
-  //   isLiteralNode,
+  isLiteralNode,
   isCallOf,
-  //   unwrapTSNode,
+  unwrapTSNode,
   toRuntimeTypeString,
   getEscapedKey
 } from './utils'
 import { genModelProps } from './defineModel'
 import { getObjectOrArrayExpressionKeys } from './analyzeScriptBindings'
-// import { processPropsDestructure } from './definePropsDestructure'
+import { processPropsDestructure } from './definePropsDestructure'
 
 export const DEFINE_PROPS = 'defineProps'
 export const WITH_DEFAULTS = 'withDefaults'
@@ -79,7 +79,7 @@ export function processDefineProps(
 
   // handle props destructure
   if (declId && declId.type === 'ObjectPattern') {
-    //     processPropsDestructure(ctx, declId)
+    processPropsDestructure(ctx, declId)
   }
 
   ctx.propsCall = node
@@ -111,11 +111,11 @@ function processWithDefaults(
     )
   }
   if (ctx.propsDestructureDecl) {
-    //     ctx.error(
-    //       `${WITH_DEFAULTS}() is unnecessary when using destructure with ${DEFINE_PROPS}().\n` +
-    //         `Prefer using destructure default values, e.g. const { foo = 1 } = defineProps(...).`,
-    //       node.callee
-    //     )
+    ctx.error(
+      `${WITH_DEFAULTS}() is unnecessary when using destructure with ${DEFINE_PROPS}().\n` +
+        `Prefer using destructure default values, e.g. const { foo = 1 } = defineProps(...).`,
+      node.callee
+    )
   }
   ctx.propsRuntimeDefaults = node.arguments[1]
   if (!ctx.propsRuntimeDefaults) {
@@ -132,22 +132,22 @@ export function genRuntimeProps(ctx: ScriptCompileContext): string | undefined {
   if (ctx.propsRuntimeDecl) {
     propsDecls = ctx.getString(ctx.propsRuntimeDecl).trim()
     if (ctx.propsDestructureDecl) {
-      //       const defaults: string[] = []
-      //       for (const key in ctx.propsDestructuredBindings) {
-      //         const d = genDestructuredDefaultValue(ctx, key)
-      //         const finalKey = getEscapedKey(key)
-      //         if (d)
-      //           defaults.push(
-      //             `${finalKey}: ${d.valueString}${
-      //               d.needSkipFactory ? `, __skip_${finalKey}: true` : ``
-      //             }`
-      //           )
-      //       }
-      //       if (defaults.length) {
-      //         propsDecls = `${ctx.helper(
-      //           `mergeDefaults`
-      //         )}(${propsDecls}, {\n  ${defaults.join(',\n  ')}\n})`
-      //       }
+      const defaults: string[] = []
+      for (const key in ctx.propsDestructuredBindings) {
+        const d = genDestructuredDefaultValue(ctx, key)
+        const finalKey = getEscapedKey(key)
+        if (d)
+          defaults.push(
+            `${finalKey}: ${d.valueString}${
+              d.needSkipFactory ? `, __skip_${finalKey}: true` : ``
+            }`
+          )
+      }
+      if (defaults.length) {
+        propsDecls = `${ctx.helper(
+          `mergeDefaults`
+        )}(${propsDecls}, {\n  ${defaults.join(',\n  ')}\n})`
+      }
     }
   } else if (ctx.propsTypeDecl) {
     propsDecls = genRuntimePropsFromTypes(ctx)
@@ -229,9 +229,9 @@ function genRuntimePropFromType(
   let defaultString: string | undefined
   const destructured = genDestructuredDefaultValue(ctx, key, type)
   if (destructured) {
-    //     defaultString = `default: ${destructured.valueString}${
-    //       destructured.needSkipFactory ? `, skipFactory: true` : ``
-    //     }`
+    defaultString = `default: ${destructured.valueString}${
+      destructured.needSkipFactory ? `, skipFactory: true` : ``
+    }`
   } else if (hasStaticDefaults) {
     const prop = (ctx.propsRuntimeDefaults as ObjectExpression).properties.find(
       node => {
@@ -309,52 +309,52 @@ function genDestructuredDefaultValue(
   const destructured = ctx.propsDestructuredBindings[key]
   const defaultVal = destructured && destructured.default
   if (defaultVal) {
-    //     const value = ctx.getString(defaultVal)
-    //     const unwrapped = unwrapTSNode(defaultVal)
-    //     if (inferredType && inferredType.length && !inferredType.includes('null')) {
-    //       const valueType = inferValueType(unwrapped)
-    //       if (valueType && !inferredType.includes(valueType)) {
-    //         ctx.error(
-    //           `Default value of prop "${key}" does not match declared type.`,
-    //           unwrapped
-    //         )
-    //       }
-    //     }
-    //     // If the default value is a function or is an identifier referencing
-    //     // external value, skip factory wrap. This is needed when using
-    //     // destructure w/ runtime declaration since we cannot safely infer
-    //     // whether the expected runtime prop type is `Function`.
-    //     const needSkipFactory =
-    //       !inferredType &&
-    //       (isFunctionType(unwrapped) || unwrapped.type === 'Identifier')
-    //     const needFactoryWrap =
-    //       !needSkipFactory &&
-    //       !isLiteralNode(unwrapped) &&
-    //       !inferredType?.includes('Function')
-    //     return {
-    //       valueString: needFactoryWrap ? `() => (${value})` : value,
-    //       needSkipFactory
-    //     }
+    const value = ctx.getString(defaultVal)
+    const unwrapped = unwrapTSNode(defaultVal)
+    if (inferredType && inferredType.length && !inferredType.includes('null')) {
+      const valueType = inferValueType(unwrapped)
+      if (valueType && !inferredType.includes(valueType)) {
+        ctx.error(
+          `Default value of prop "${key}" does not match declared type.`,
+          unwrapped
+        )
+      }
+    }
+    // If the default value is a function or is an identifier referencing
+    // external value, skip factory wrap. This is needed when using
+    // destructure w/ runtime declaration since we cannot safely infer
+    // whether the expected runtime prop type is `Function`.
+    const needSkipFactory =
+      !inferredType &&
+      (isFunctionType(unwrapped) || unwrapped.type === 'Identifier')
+    const needFactoryWrap =
+      !needSkipFactory &&
+      !isLiteralNode(unwrapped) &&
+      !inferredType?.includes('Function')
+    return {
+      valueString: needFactoryWrap ? `() => (${value})` : value,
+      needSkipFactory
+    }
   }
 }
 
-// // non-comprehensive, best-effort type infernece for a runtime value
-// // this is used to catch default value / type declaration mismatches
-// // when using props destructure.
-// function inferValueType(node: Node): string | undefined {
-//   switch (node.type) {
-//     case 'StringLiteral':
-//       return 'String'
-//     case 'NumericLiteral':
-//       return 'Number'
-//     case 'BooleanLiteral':
-//       return 'Boolean'
-//     case 'ObjectExpression':
-//       return 'Object'
-//     case 'ArrayExpression':
-//       return 'Array'
-//     case 'FunctionExpression':
-//     case 'ArrowFunctionExpression':
-//       return 'Function'
-//   }
-// }
+// non-comprehensive, best-effort type infernece for a runtime value
+// this is used to catch default value / type declaration mismatches
+// when using props destructure.
+function inferValueType(node: Node): string | undefined {
+  switch (node.type) {
+    case 'StringLiteral':
+      return 'String'
+    case 'NumericLiteral':
+      return 'Number'
+    case 'BooleanLiteral':
+      return 'Boolean'
+    case 'ObjectExpression':
+      return 'Object'
+    case 'ArrayExpression':
+      return 'Array'
+    case 'FunctionExpression':
+    case 'ArrowFunctionExpression':
+      return 'Function'
+  }
+}

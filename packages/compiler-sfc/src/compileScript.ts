@@ -6,7 +6,7 @@ import {
 } from '@docue/compiler-dom'
 import { DEFAULT_FILENAME, SFCDescriptor, SFCScriptBlock } from './parse'
 import { ParserPlugin } from '@babel/parser'
-// import { generateCodeFrame } from '@docue/shared'
+import { generateCodeFrame } from '@docue/shared'
 import {
   Node,
   Declaration,
@@ -27,7 +27,7 @@ import {
 import { compileTemplate, SFCTemplateCompileOptions } from './compileTemplate'
 import { warnOnce } from './warn'
 // // import { shouldTransform, transformAST } from '@docue/reactivity-transform'
-// import { transformDestructuredProps } from './script/definePropsDestructure'
+import { transformDestructuredProps } from './script/definePropsDestructure'
 import { ScriptCompileContext } from './script/context'
 import {
   processDefineProps,
@@ -122,14 +122,14 @@ export interface SFCScriptCompileOptions {
     fileExists(file: string): boolean
     readFile(file: string): string | undefined
   }
-  //   /**
-  //    * (Experimental) Enable syntax transform for using refs without `.value` and
-  //    * using destructured props with reactivity
-  //    * @deprecated the Reactivity Transform proposal has been dropped. This
-  //    * feature will be removed from Docue core in 3.4. If you intend to continue
-  //    * using it, disable this and switch to the [Docue Macros implementation](https://docue-macros.sxzz.moe/features/reactivity-transform.html).
-  //    */
-  //   reactivityTransform?: boolean
+  /**
+   * (Experimental) Enable syntax transform for using refs without `.value` and
+   * using destructured props with reactivity
+   * @deprecated the Reactivity Transform proposal has been dropped. This
+   * feature will be removed from Docue core in 3.4. If you intend to continue
+   * using it, disable this and switch to the [Docue Macros implementation](https://docue-macros.sxzz.moe/features/reactivity-transform.html).
+   */
+  reactivityTransform?: boolean
 }
 
 export interface ImportBinding {
@@ -249,14 +249,14 @@ export function compileScript(
     walkIdentifiers(node, id => {
       const binding = setupBindings[id.name]
       if (binding && binding !== BindingTypes.LITERAL_CONST) {
-        //         ctx.error(
-        //           `\`${method}()\` in <script setup> cannot reference locally ` +
-        //             `declared variables because it will be hoisted outside of the ` +
-        //             `setup() function. If your component options require initialization ` +
-        //             `in the module scope, use a separate normal <script> to export ` +
-        //             `the options instead.`,
-        //           id
-        //         )
+        ctx.error(
+          `\`${method}()\` in <script setup> cannot reference locally ` +
+            `declared variables because it will be hoisted outside of the ` +
+            `setup() function. If your component options require initialization ` +
+            `in the module scope, use a separate normal <script> to export ` +
+            `the options instead.`,
+          id
+        )
       }
     })
   }
@@ -515,10 +515,10 @@ export function compileScript(
         const init = decl.init && unwrapTSNode(decl.init)
         if (init) {
           if (processDefineOptions(ctx, init)) {
-            //             ctx.error(
-            //               `${DEFINE_OPTIONS}() has no returning value, it cannot be assigned.`,
-            //               node
-            //             )
+            ctx.error(
+              `${DEFINE_OPTIONS}() has no returning value, it cannot be assigned.`,
+              node
+            )
           }
           // defineProps / defineEmits
           const isDefineProps = processDefineProps(ctx, init, decl.id)
@@ -532,23 +532,23 @@ export function compileScript(
             !ctx.propsDestructureRestId &&
             ctx.propsDestructureDecl
           ) {
-            //             if (left === 1) {
-            //               ctx.s.remove(node.start! + startOffset, node.end! + startOffset)
-            //             } else {
-            //               let start = decl.start! + startOffset
-            //               let end = decl.end! + startOffset
-            //               if (i === total - 1) {
-            //                 // last one, locate the end of the last one that is not removed
-            //                 // if we arrive at this branch, there must have been a
-            //                 // non-removed decl before us, so lastNonRemoved is non-null.
-            //                 start = node.declarations[lastNonRemoved!].end! + startOffset
-            //               } else {
-            //                 // not the last one, locate the start of the next
-            //                 end = node.declarations[i + 1].start! + startOffset
-            //               }
-            //               ctx.s.remove(start, end)
-            //               left--
-            //             }
+            if (left === 1) {
+              ctx.s.remove(node.start! + startOffset, node.end! + startOffset)
+            } else {
+              let start = decl.start! + startOffset
+              let end = decl.end! + startOffset
+              if (i === total - 1) {
+                // last one, locate the end of the last one that is not removed
+                // if we arrive at this branch, there must have been a
+                // non-removed decl before us, so lastNonRemoved is non-null.
+                start = node.declarations[lastNonRemoved!].end! + startOffset
+              } else {
+                // not the last one, locate the start of the next
+                end = node.declarations[i + 1].start! + startOffset
+              }
+              ctx.s.remove(start, end)
+              left--
+            }
           } else if (isDefineEmits) {
             ctx.s.overwrite(
               startOffset + init.start!,
@@ -652,7 +652,7 @@ export function compileScript(
   }
   // 3 props destructure transform
   if (ctx.propsDestructureDecl) {
-    //     transformDestructuredProps(ctx, docueImportAliases)
+    transformDestructuredProps(ctx, docueImportAliases)
   }
   //   // 4. Apply reactivity transform
   //   // TODO remove in 3.4
@@ -672,11 +672,11 @@ export function compileScript(
   //   //     ctx.helperImports.add(h)
   //   //   }
   //   // }
-  //   // 5. check macro args to make sure it doesn't reference setup scope
-  //   // variables
+  // 5. check macro args to make sure it doesn't reference setup scope
+  // variables
   //   checkInvalidScopeReference(ctx.propsRuntimeDecl, DEFINE_PROPS)
   //   checkInvalidScopeReference(ctx.propsRuntimeDefaults, DEFINE_PROPS)
-  //   checkInvalidScopeReference(ctx.propsDestructureDecl, DEFINE_PROPS)
+  checkInvalidScopeReference(ctx.propsDestructureDecl, DEFINE_PROPS)
   //   checkInvalidScopeReference(ctx.emitsRuntimeDecl, DEFINE_EMITS)
   //   checkInvalidScopeReference(ctx.optionsRuntimeDecl, DEFINE_OPTIONS)
   // 6. remove non-script content
@@ -756,18 +756,18 @@ export function compileScript(
   // can use it directly
   if (ctx.propsDecl) {
     if (ctx.propsDestructureRestId) {
-      //       ctx.s.overwrite(
-      //         startOffset + ctx.propsCall!.start!,
-      //         startOffset + ctx.propsCall!.end!,
-      //         `${ctx.helper(`createPropsRestProxy`)}(__props, ${JSON.stringify(
-      //           Object.keys(ctx.propsDestructuredBindings)
-      //         )})`
-      //       )
-      //       ctx.s.overwrite(
-      //         startOffset + ctx.propsDestructureDecl!.start!,
-      //         startOffset + ctx.propsDestructureDecl!.end!,
-      //         ctx.propsDestructureRestId
-      //       )
+      ctx.s.overwrite(
+        startOffset + ctx.propsCall!.start!,
+        startOffset + ctx.propsCall!.end!,
+        `${ctx.helper(`createPropsRestProxy`)}(__props, ${JSON.stringify(
+          Object.keys(ctx.propsDestructuredBindings)
+        )})`
+      )
+      ctx.s.overwrite(
+        startOffset + ctx.propsDestructureDecl!.start!,
+        startOffset + ctx.propsDestructureDecl!.end!,
+        ctx.propsDestructureRestId
+      )
     } else if (!ctx.propsDestructureDecl) {
       ctx.s.overwrite(
         startOffset + ctx.propsCall!.start!,
@@ -862,24 +862,24 @@ export function compileScript(
       }
       const err = errors[0]
       if (typeof err === 'string') {
-        //         throw new Error(err)
+        throw new Error(err)
       } else if (err) {
-        //         if (err.loc) {
-        //           err.message +=
-        //             `\n\n` +
-        //             sfc.filename +
-        //             '\n' +
-        //             generateCodeFrame(
-        //               source,
-        //               err.loc.start.offset,
-        //               err.loc.end.offset
-        //             ) +
-        //             `\n`
-        //         }
-        //         throw err
+        if (err.loc) {
+          err.message +=
+            `\n\n` +
+            sfc.filename +
+            '\n' +
+            generateCodeFrame(
+              source,
+              err.loc.start.offset,
+              err.loc.end.offset
+            ) +
+            `\n`
+        }
+        throw err
       }
       if (preamble) {
-        //         ctx.s.prepend(preamble)
+        ctx.s.prepend(preamble)
       }
       // avoid duplicated unref import
       // as this may get injected by the render function preamble OR the

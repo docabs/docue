@@ -404,7 +404,7 @@ describe('sfc reactive props destructure', () => {
       expect(() =>
         compile(
           `<script setup>
-        import { watch } from 'vue'
+        import { watch } from 'docue'
         const { foo } = defineProps(['foo'])
         watch(foo, () => {})
         </script>`
@@ -416,7 +416,7 @@ describe('sfc reactive props destructure', () => {
       expect(() =>
         compile(
           `<script setup>
-        import { watch as w } from 'vue'
+        import { watch as w } from 'docue'
         const { foo } = defineProps(['foo'])
         w(foo, () => {})
         </script>`
@@ -428,7 +428,7 @@ describe('sfc reactive props destructure', () => {
       expect(() =>
         compile(
           `<script setup>
-        import { toRef } from 'vue'
+        import { toRef } from 'docue'
         const { foo } = defineProps(['foo'])
         toRef(foo)
         </script>`
@@ -440,7 +440,7 @@ describe('sfc reactive props destructure', () => {
       expect(() =>
         compile(
           `<script setup>
-        import { toRef as r } from 'vue'
+        import { toRef as r } from 'docue'
         const { foo } = defineProps(['foo'])
         r(foo)
         </script>`
@@ -466,7 +466,7 @@ describe('sfc reactive props destructure', () => {
       expect(() =>
         compile(
           `<script setup lang='ts'>
-        import { watch } from 'vue'
+        import { watch } from 'docue'
         const { userId } = defineProps({ userId: Number })
         const { error: e, info } = useRequest();
         watch(e, () => {});
