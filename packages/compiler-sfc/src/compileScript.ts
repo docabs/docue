@@ -52,7 +52,7 @@ import {
 } from './script/utils'
 import { analyzeScriptBindings } from './script/analyzeScriptBindings'
 import { isImportUsed } from './script/importUsageCheck'
-// import { processAwait } from './script/topLevelAwait'
+import { processAwait } from './script/topLevelAwait'
 
 export interface SFCScriptCompileOptions {
   /**
@@ -291,18 +291,18 @@ export function compileScript(
       // dedupe imports
       let removed = 0
       const removeSpecifier = (i: number) => {
-        //         const removeLeft = i > removed
-        //         removed++
-        //         const current = node.specifiers[i]
-        //         const next = node.specifiers[i + 1]
-        //         ctx.s.remove(
-        //           removeLeft
-        //             ? node.specifiers[i - 1].end! + startOffset
-        //             : current.start! + startOffset,
-        //           next && !removeLeft
-        //             ? next.start! + startOffset
-        //             : current.end! + startOffset
-        //         )
+        const removeLeft = i > removed
+        removed++
+        const current = node.specifiers[i]
+        const next = node.specifiers[i + 1]
+        ctx.s.remove(
+          removeLeft
+            ? node.specifiers[i - 1].end! + startOffset
+            : current.start! + startOffset,
+          next && !removeLeft
+            ? next.start! + startOffset
+            : current.end! + startOffset
+        )
       }
       for (let i = 0; i < node.specifiers.length; i++) {
         const specifier = node.specifiers[i]
@@ -321,15 +321,15 @@ export function compileScript(
           //           )
           //           removeSpecifier(i)
         } else if (existing) {
-          //           if (existing.source === source && existing.imported === imported) {
-          //             // already imported in <script setup>, dedupe
-          //             removeSpecifier(i)
-          //           } else {
-          //             ctx.error(
-          //               `different imports aliased to same local name.`,
-          //               specifier
-          //             )
-          //           }
+          if (existing.source === source && existing.imported === imported) {
+            // already imported in <script setup>, dedupe
+            removeSpecifier(i)
+          } else {
+            ctx.error(
+              `different imports aliased to same local name.`,
+              specifier
+            )
+          }
         } else {
           registerUserImport(
             source,
@@ -344,7 +344,7 @@ export function compileScript(
         }
       }
       if (node.specifiers.length && removed === node.specifiers.length) {
-        //         ctx.s.remove(node.start! + startOffset, node.end! + startOffset)
+        ctx.s.remove(node.start! + startOffset, node.end! + startOffset)
       }
     }
   }
@@ -599,24 +599,24 @@ export function compileScript(
           }
           if (child.type === 'AwaitExpression') {
             hasAwait = true
-            //             // if the await expression is an expression statement and
-            //             // - is in the root scope
-            //             // - or is not the first statement in a nested block scope
-            //             // then it needs a semicolon before the generated code.
-            //             const currentScope = scope[scope.length - 1]
-            //             const needsSemi = currentScope.some((n, i) => {
-            //               return (
-            //                 (scope.length === 1 || i > 0) &&
-            //                 n.type === 'ExpressionStatement' &&
-            //                 n.start === child.start
-            //               )
-            //             })
-            //             processAwait(
-            //               ctx,
-            //               child,
-            //               needsSemi,
-            //               parent!.type === 'ExpressionStatement'
-            //             )
+            // if the await expression is an expression statement and
+            // - is in the root scope
+            // - or is not the first statement in a nested block scope
+            // then it needs a semicolon before the generated code.
+            const currentScope = scope[scope.length - 1]
+            const needsSemi = currentScope.some((n, i) => {
+              return (
+                (scope.length === 1 || i > 0) &&
+                n.type === 'ExpressionStatement' &&
+                n.start === child.start
+              )
+            })
+            processAwait(
+              ctx,
+              child,
+              needsSemi,
+              parent!.type === 'ExpressionStatement'
+            )
           }
         },
         exit(node: Node) {
@@ -674,11 +674,11 @@ export function compileScript(
   //   // }
   // 5. check macro args to make sure it doesn't reference setup scope
   // variables
-  //   checkInvalidScopeReference(ctx.propsRuntimeDecl, DEFINE_PROPS)
-  //   checkInvalidScopeReference(ctx.propsRuntimeDefaults, DEFINE_PROPS)
+  checkInvalidScopeReference(ctx.propsRuntimeDecl, DEFINE_PROPS)
+  checkInvalidScopeReference(ctx.propsRuntimeDefaults, DEFINE_PROPS)
   checkInvalidScopeReference(ctx.propsDestructureDecl, DEFINE_PROPS)
-  //   checkInvalidScopeReference(ctx.emitsRuntimeDecl, DEFINE_EMITS)
-  //   checkInvalidScopeReference(ctx.optionsRuntimeDecl, DEFINE_OPTIONS)
+  checkInvalidScopeReference(ctx.emitsRuntimeDecl, DEFINE_EMITS)
+  checkInvalidScopeReference(ctx.optionsRuntimeDecl, DEFINE_OPTIONS)
   // 6. remove non-script content
   if (script) {
     if (startOffset < scriptStartOffset!) {
@@ -911,10 +911,10 @@ export function compileScript(
     : `export default`
   let runtimeOptions = ``
   if (!ctx.hasDefaultExportName && filename && filename !== DEFAULT_FILENAME) {
-    //     const match = filename.match(/([^/\\]+)\.\w+$/)
-    //     if (match) {
-    //       runtimeOptions += `\n  __name: '${match[1]}',`
-    //     }
+    const match = filename.match(/([^/\\]+)\.\w+$/)
+    if (match) {
+      runtimeOptions += `\n  __name: '${match[1]}',`
+    }
   }
   if (hasInlinedSsrRenderFn) {
     //     runtimeOptions += `\n  __ssrInlineRender: true,`
@@ -1044,10 +1044,10 @@ function walkDeclaration(
         ) {
           bindingType = BindingTypes.LITERAL_CONST
         } else if (isCallOf(init, userReactiveBinding)) {
-          //           // treat reactive() calls as let since it's meant to be mutable
-          //           bindingType = isConst
-          //             ? BindingTypes.SETUP_REACTIVE_CONST
-          //             : BindingTypes.SETUP_LET
+          // treat reactive() calls as let since it's meant to be mutable
+          bindingType = isConst
+            ? BindingTypes.SETUP_REACTIVE_CONST
+            : BindingTypes.SETUP_LET
         } else if (
           // if a declaration is a const literal, we can mark it so that
           // the generated render fn code doesn't need to unref() it

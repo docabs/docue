@@ -150,20 +150,20 @@ export function walkBlockDeclarations(
   onIdent: (node: Identifier) => void
 ) {
   for (const stmt of block.body) {
-    //     if (stmt.type === 'VariableDeclaration') {
-    //       if (stmt.declare) continue
-    //       for (const decl of stmt.declarations) {
-    //         for (const id of extractIdentifiers(decl.id)) {
-    //           onIdent(id)
-    //         }
-    //       }
-    //     } else if (
-    //       stmt.type === 'FunctionDeclaration' ||
-    //       stmt.type === 'ClassDeclaration'
-    //     ) {
-    //       if (stmt.declare || !stmt.id) continue
-    //       onIdent(stmt.id)
-    //     }
+    if (stmt.type === 'VariableDeclaration') {
+      if (stmt.declare) continue
+      for (const decl of stmt.declarations) {
+        for (const id of extractIdentifiers(decl.id)) {
+          onIdent(id)
+        }
+      }
+    } else if (
+      stmt.type === 'FunctionDeclaration' ||
+      stmt.type === 'ClassDeclaration'
+    ) {
+      if (stmt.declare || !stmt.id) continue
+      onIdent(stmt.id)
+    }
   }
 }
 
@@ -262,35 +262,35 @@ function isReferenced(node: Node, parent: Node, grandparent?: Node): boolean {
       }
       return parent.object === node
 
-    //     case 'JSXMemberExpression':
-    //       return parent.object === node
-    //     // no: let NODE = init;
-    //     // yes: let id = NODE;
-    //     case 'VariableDeclarator':
-    //       return parent.init === node
+    case 'JSXMemberExpression':
+      return parent.object === node
+    // no: let NODE = init;
+    // yes: let id = NODE;
+    case 'VariableDeclarator':
+      return parent.init === node
 
     // yes: () => NODE
     // no: (NODE) => {}
     case 'ArrowFunctionExpression':
       return parent.body === node
 
-    //     // no: class { #NODE; }
-    //     // no: class { get #NODE() {} }
-    //     // no: class { #NODE() {} }
-    //     // no: class { fn() { return this.#NODE; } }
-    //     case 'PrivateName':
-    //       return false
+    // no: class { #NODE; }
+    // no: class { get #NODE() {} }
+    // no: class { #NODE() {} }
+    // no: class { fn() { return this.#NODE; } }
+    case 'PrivateName':
+      return false
 
-    //     // no: class { NODE() {} }
-    //     // yes: class { [NODE]() {} }
-    //     // no: class { foo(NODE) {} }
-    //     case 'ClassMethod':
-    //     case 'ClassPrivateMethod':
-    //     case 'ObjectMethod':
-    //       if (parent.key === node) {
-    //         return !!parent.computed
-    //       }
-    //       return false
+    // no: class { NODE() {} }
+    // yes: class { [NODE]() {} }
+    // no: class { foo(NODE) {} }
+    case 'ClassMethod':
+    case 'ClassPrivateMethod':
+    case 'ObjectMethod':
+      if (parent.key === node) {
+        return !!parent.computed
+      }
+      return false
 
     // yes: { [NODE]: "" }
     // no: { NODE: "" }
@@ -302,48 +302,48 @@ function isReferenced(node: Node, parent: Node, grandparent?: Node): boolean {
       }
       // parent.value === node
       return !grandparent || grandparent.type !== 'ObjectPattern'
-    //     // no: class { NODE = value; }
-    //     // yes: class { [NODE] = value; }
-    //     // yes: class { key = NODE; }
-    //     case 'ClassProperty':
-    //       if (parent.key === node) {
-    //         return !!parent.computed
-    //       }
-    //       return true
-    //     case 'ClassPrivateProperty':
-    //       return parent.key !== node
+    // no: class { NODE = value; }
+    // yes: class { [NODE] = value; }
+    // yes: class { key = NODE; }
+    case 'ClassProperty':
+      if (parent.key === node) {
+        return !!parent.computed
+      }
+      return true
+    case 'ClassPrivateProperty':
+      return parent.key !== node
 
-    //     // no: class NODE {}
-    //     // yes: class Foo extends NODE {}
-    //     case 'ClassDeclaration':
-    //     case 'ClassExpression':
-    //       return parent.superClass === node
+    // no: class NODE {}
+    // yes: class Foo extends NODE {}
+    case 'ClassDeclaration':
+    case 'ClassExpression':
+      return parent.superClass === node
 
-    //     // yes: left = NODE;
-    //     // no: NODE = right;
-    //     case 'AssignmentExpression':
-    //       return parent.right === node
+    // yes: left = NODE;
+    // no: NODE = right;
+    case 'AssignmentExpression':
+      return parent.right === node
 
-    //     // no: [NODE = foo] = [];
-    //     // yes: [foo = NODE] = [];
-    //     case 'AssignmentPattern':
-    //       return parent.right === node
+    // no: [NODE = foo] = [];
+    // yes: [foo = NODE] = [];
+    case 'AssignmentPattern':
+      return parent.right === node
 
-    //     // no: NODE: for (;;) {}
-    //     case 'LabeledStatement':
-    //       return false
+    // no: NODE: for (;;) {}
+    case 'LabeledStatement':
+      return false
 
-    //     // no: try {} catch (NODE) {}
-    //     case 'CatchClause':
-    //       return false
+    // no: try {} catch (NODE) {}
+    case 'CatchClause':
+      return false
 
-    //     // no: function foo(...NODE) {}
-    //     case 'RestElement':
-    //       return false
+    // no: function foo(...NODE) {}
+    case 'RestElement':
+      return false
 
-    //     case 'BreakStatement':
-    //     case 'ContinueStatement':
-    //       return false
+    case 'BreakStatement':
+    case 'ContinueStatement':
+      return false
 
     // no: function NODE() {}
     // no: function foo(NODE) {}

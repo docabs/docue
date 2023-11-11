@@ -1,4 +1,4 @@
-import { shouldTransform, transformAST } from '@docue/reactivity-transform'
+// import { shouldTransform, transformAST } from '@docue/reactivity-transform'
 import { analyzeScriptBindings } from './analyzeScriptBindings'
 import { ScriptCompileContext } from './context'
 import MagicString from 'magic-string'
@@ -22,10 +22,10 @@ export function processNormalScript(
     let map = script.map
     const scriptAst = ctx.scriptAst!
     const bindings = analyzeScriptBindings(scriptAst.body)
-    // const { source, filename, cssVars } = ctx.descriptor
-    // const { sourceMap, genDefaultAs, isProd } = ctx.options
+    const { source, filename, cssVars } = ctx.descriptor
+    const { sourceMap, genDefaultAs, isProd } = ctx.options
 
-    // // TODO remove in 3.4
+    // TODO remove in 3.4
     // if (ctx.options.reactivityTransform && shouldTransform(content)) {
     //   const s = new MagicString(source)
     //   const startOffset = script.loc.start.offset
@@ -50,24 +50,24 @@ export function processNormalScript(
     //   }
     // }
 
-    // if (cssVars.length || genDefaultAs) {
-    //   const defaultVar = genDefaultAs || normalScriptDefaultVar
-    //   const s = new MagicString(content)
-    //   rewriteDefaultAST(scriptAst.body, s, defaultVar)
-    //   content = s.toString()
-    //   if (cssVars.length && !ctx.options.templateOptions?.ssr) {
-    //     content += genNormalScriptCssVarsCode(
-    //       cssVars,
-    //       bindings,
-    //       scopeId,
-    //       !!isProd,
-    //       defaultVar
-    //     )
-    //   }
-    //   if (!genDefaultAs) {
-    //     content += `\nexport default ${defaultVar}`
-    //   }
-    // }
+    if (cssVars.length || genDefaultAs) {
+      const defaultVar = genDefaultAs || normalScriptDefaultVar
+      const s = new MagicString(content)
+      rewriteDefaultAST(scriptAst.body, s, defaultVar)
+      content = s.toString()
+      if (cssVars.length && !ctx.options.templateOptions?.ssr) {
+        //     content += genNormalScriptCssVarsCode(
+        //       cssVars,
+        //       bindings,
+        //       scopeId,
+        //       !!isProd,
+        //       defaultVar
+        //     )
+      }
+      if (!genDefaultAs) {
+        content += `\nexport default ${defaultVar}`
+      }
+    }
     return {
       ...script,
       content,
