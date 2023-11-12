@@ -14,7 +14,7 @@ import {
   PreprocessLang
 } from './style/preprocessors'
 import { RawSourceMap } from 'source-map-js'
-// import { cssVarsPlugin } from './style/cssVars'
+import { cssVarsPlugin } from './style/cssVars'
 import postcssModules from 'postcss-modules'
 
 export interface SFCStyleCompileOptions {
@@ -112,7 +112,7 @@ export function doCompileStyle(
   const longId = `data-v-${shortId}`
 
   const plugins = (postcssPlugins || []).slice()
-  // plugins.unshift(cssVarsPlugin({ id: shortId, isProd }))
+  plugins.unshift(cssVarsPlugin({ id: shortId, isProd }))
   if (trim) {
     plugins.push(trimPlugin())
   }

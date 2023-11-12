@@ -23,7 +23,7 @@ import {
   processNormalScript,
   normalScriptDefaultVar
 } from './script/normalScript'
-// import { CSS_VARS_HELPER, genCssVarsCode } from './style/cssVars'
+import { CSS_VARS_HELPER, genCssVarsCode } from './style/cssVars'
 import { compileTemplate, SFCTemplateCompileOptions } from './compileTemplate'
 import { warnOnce } from './warn'
 // // import { shouldTransform, transformAST } from '@docue/reactivity-transform'
@@ -316,10 +316,10 @@ export function compileScript(
             imported === DEFINE_EMITS ||
             imported === DEFINE_EXPOSE)
         ) {
-          //           warnOnce(
-          //             `\`${imported}\` is a compiler macro and no longer needs to be imported.`
-          //           )
-          //           removeSpecifier(i)
+          warnOnce(
+            `\`${imported}\` is a compiler macro and no longer needs to be imported.`
+          )
+          removeSpecifier(i)
         } else if (existing) {
           if (existing.source === source && existing.imported === imported) {
             // already imported in <script setup>, dedupe
@@ -725,24 +725,24 @@ export function compileScript(
   //       ctx.bindingMetadata[key] = BindingTypes.SETUP_REF
   //     }
   //   }
-  //   // 8. inject `useCssVars` calls
-  //   if (
-  //     sfc.cssVars.length &&
-  //     // no need to do this when targeting SSR
-  //     !options.templateOptions?.ssr
-  //   ) {
-  //     ctx.helperImports.add(CSS_VARS_HELPER)
-  //     ctx.helperImports.add('unref')
-  //     ctx.s.prependLeft(
-  //       startOffset,
-  //       `\n${genCssVarsCode(
-  //         sfc.cssVars,
-  //         ctx.bindingMetadata,
-  //         scopeId,
-  //         !!options.isProd
-  //       )}\n`
-  //     )
-  //   }
+  // 8. inject `useCssVars` calls
+  if (
+    sfc.cssVars.length &&
+    // no need to do this when targeting SSR
+    !options.templateOptions?.ssr
+  ) {
+    ctx.helperImports.add(CSS_VARS_HELPER)
+    ctx.helperImports.add('unref')
+    ctx.s.prependLeft(
+      startOffset,
+      `\n${genCssVarsCode(
+        sfc.cssVars,
+        ctx.bindingMetadata,
+        scopeId,
+        !!options.isProd
+      )}\n`
+    )
+  }
   // 9. finalize setup() argument signature
   let args = `__props`
   if (ctx.propsTypeDecl) {
@@ -836,7 +836,7 @@ export function compileScript(
     // inline mode
     if (sfc.template && !sfc.template.src) {
       if (options.templateOptions && options.templateOptions.ssr) {
-        // hasInlinedSsrRenderFn = true
+        hasInlinedSsrRenderFn = true
       }
       // inline render function mode - we are going to compile the template and
       // inline it right here
@@ -917,7 +917,7 @@ export function compileScript(
     }
   }
   if (hasInlinedSsrRenderFn) {
-    //     runtimeOptions += `\n  __ssrInlineRender: true,`
+    runtimeOptions += `\n  __ssrInlineRender: true,`
   }
   const propsDecl = genRuntimeProps(ctx)
   if (propsDecl) runtimeOptions += `\n  props: ${propsDecl},`

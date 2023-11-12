@@ -27,7 +27,7 @@ import * as CompilerDOM from '@docue/compiler-dom'
 import * as CompilerSSR from '@docue/compiler-ssr'
 import consolidate from '@vue/consolidate'
 import { warnOnce } from './warn'
-// import { genCssVarsFromList } from './style/cssVars'
+import { genCssVarsFromList } from './style/cssVars'
 
 export interface TemplateCompiler {
   compile(template: string, options: CompilerOptions): CodegenResult
@@ -202,10 +202,10 @@ function doCompileTemplate({
     prefixIdentifiers: true,
     hoistStatic: true,
     cacheHandlers: true,
-    // ssrCssVars:
-    //   ssr && ssrCssVars && ssrCssVars.length
-    //     ? genCssVarsFromList(ssrCssVars, shortId, isProd, true)
-    //     : '',
+    ssrCssVars:
+      ssr && ssrCssVars && ssrCssVars.length
+        ? genCssVarsFromList(ssrCssVars, shortId, isProd, true)
+        : '',
     scopeId: scoped ? longId : undefined,
     slotted,
     sourceMap: true,

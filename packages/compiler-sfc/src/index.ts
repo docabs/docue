@@ -6,7 +6,7 @@ export { compileTemplate } from './compileTemplate'
 export { compileStyle, compileStyleAsync } from './compileStyle'
 export { compileScript } from './compileScript'
 export { rewriteDefault, rewriteDefaultAST } from './rewriteDefault'
-// export { resolveTypeElements, inferRuntimeType } from './script/resolveType'
+export { resolveTypeElements, inferRuntimeType } from './script/resolveType'
 
 // // TODO remove in 3.4
 // export {
@@ -56,10 +56,10 @@ export type {
 } from './compileStyle'
 export type { SFCScriptCompileOptions } from './compileScript'
 export type { ScriptCompileContext } from './script/context'
-// export type {
-//   TypeResolveContext,
-//   SimpleTypeResolveContext
-// } from './script/resolveType'
+export type {
+  TypeResolveContext,
+  SimpleTypeResolveContext
+} from './script/resolveType'
 export type {
   AssetURLOptions,
   AssetURLTagConfig

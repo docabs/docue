@@ -9,7 +9,7 @@ import {
 import * as CompilerDOM from '@docue/compiler-dom'
 import { RawSourceMap, SourceMapGenerator } from 'source-map-js'
 import { TemplateCompiler } from './compileTemplate'
-// import { parseCssVars } from './style/cssVars'
+import { parseCssVars } from './style/cssVars'
 import { createCache } from './cache'
 import { ImportBinding } from './compileScript'
 // import { isImportUsed } from './script/importUsageCheck'
@@ -273,8 +273,8 @@ export function parse(
     descriptor.customBlocks.forEach(genMap)
   }
 
-  //   // parse CSS vars
-  //   descriptor.cssVars = parseCssVars(descriptor)
+  // parse CSS vars
+  descriptor.cssVars = parseCssVars(descriptor)
 
   // check if the SFC uses :slotted
   const slottedRE = /(?:::v-|:)slotted\(/

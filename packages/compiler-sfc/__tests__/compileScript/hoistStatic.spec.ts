@@ -62,27 +62,27 @@ describe('sfc hoist static', () => {
     assertCode(content)
   })
 
-  // test('should hoist w/ defineProps/Emits', () => {
-  //   const hoistCode = `const defaultValue = 'default value'`
-  //   const { content, bindings } = compile(`
-  //   <script setup>
-  //   ${hoistCode}
-  //   defineProps({
-  //     foo: {
-  //       default: defaultValue
-  //     }
-  //   })
-  //   </script>
-  //   `)
+  test('should hoist w/ defineProps/Emits', () => {
+    const hoistCode = `const defaultValue = 'default value'`
+    const { content, bindings } = compile(`
+    <script setup>
+    ${hoistCode}
+    defineProps({
+      foo: {
+        default: defaultValue
+      }
+    })
+    </script>
+    `)
 
-  //   // should hoist to first line
-  //   expect(content.startsWith(hoistCode)).toBe(true)
-  //   expect(bindings).toStrictEqual({
-  //     foo: BindingTypes.PROPS,
-  //     defaultValue: BindingTypes.LITERAL_CONST
-  //   })
-  //   assertCode(content)
-  // })
+    // should hoist to first line
+    expect(content.startsWith(hoistCode)).toBe(true)
+    expect(bindings).toStrictEqual({
+      foo: BindingTypes.PROPS,
+      defaultValue: BindingTypes.LITERAL_CONST
+    })
+    assertCode(content)
+  })
 
   test('should not hoist a variable', () => {
     const code = `

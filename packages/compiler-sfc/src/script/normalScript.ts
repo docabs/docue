@@ -4,7 +4,7 @@ import { ScriptCompileContext } from './context'
 import MagicString from 'magic-string'
 import { RawSourceMap } from 'source-map-js'
 import { rewriteDefaultAST } from '../rewriteDefault'
-// import { genNormalScriptCssVarsCode } from '../style/cssVars'
+import { genNormalScriptCssVarsCode } from '../style/cssVars'
 
 export const normalScriptDefaultVar = `__default__`
 
@@ -56,13 +56,13 @@ export function processNormalScript(
       rewriteDefaultAST(scriptAst.body, s, defaultVar)
       content = s.toString()
       if (cssVars.length && !ctx.options.templateOptions?.ssr) {
-        //     content += genNormalScriptCssVarsCode(
-        //       cssVars,
-        //       bindings,
-        //       scopeId,
-        //       !!isProd,
-        //       defaultVar
-        //     )
+        content += genNormalScriptCssVarsCode(
+          cssVars,
+          bindings,
+          scopeId,
+          !!isProd,
+          defaultVar
+        )
       }
       if (!genDefaultAs) {
         content += `\nexport default ${defaultVar}`
