@@ -26,7 +26,7 @@ import {
 } from '@babel/types'
 import {
   UNKNOWN_TYPE,
-  // createGetCanonicalFileName,
+  createGetCanonicalFileName,
   getId,
   getImportedName,
   normalizePath,
@@ -215,16 +215,16 @@ function innerResolveTypeElements(
           scope
         )
       }
-      //       const sourceScope = importSourceToScope(
-      //         ctx,
-      //         node.argument,
-      //         scope,
-      //         node.argument.value
-      //       )
-      //       const resolved = resolveTypeReference(ctx, node, sourceScope)
-      //       if (resolved) {
-      //         return resolveTypeElements(ctx, resolved, resolved._ownerScope)
-      //       }
+      const sourceScope = importSourceToScope(
+        ctx,
+        node.argument,
+        scope,
+        node.argument.value
+      )
+      const resolved = resolveTypeReference(ctx, node, sourceScope)
+      if (resolved) {
+        return resolveTypeElements(ctx, resolved, resolved._ownerScope)
+      }
       break
     }
     case 'TSTypeQuery':
@@ -623,7 +623,7 @@ function innerResolveTypeReference(
 ): ScopeTypeNode | undefined {
   if (typeof name === 'string') {
     if (scope.imports[name]) {
-      //       return resolveTypeFromImport(ctx, node, name, scope)
+      return resolveTypeFromImport(ctx, node, name, scope)
     } else {
       const lookupSource =
         node.type === 'TSTypeQuery'
@@ -640,11 +640,11 @@ function innerResolveTypeReference(
         const globalScopes = resolveGlobalScope(ctx)
         if (globalScopes) {
           for (const s of globalScopes) {
-            //             const src = node.type === 'TSTypeQuery' ? s.declares : s.types
-            //             if (src[name]) {
-            //               ;(ctx.deps || (ctx.deps = new Set())).add(s.filename)
-            //               return src[name]
-            //             }
+            const src = node.type === 'TSTypeQuery' ? s.declares : s.types
+            if (src[name]) {
+              ;(ctx.deps || (ctx.deps = new Set())).add(s.filename)
+              return src[name]
+            }
           }
         }
       }
@@ -733,32 +733,32 @@ function resolveFS(ctx: TypeResolveContext): FS | undefined {
   if (!fs) {
     return
   }
-  //   return (ctx.fs = {
-  //     fileExists(file) {
-  //       if (file.endsWith('.docue.ts')) {
-  //         file = file.replace(/\.ts$/, '')
-  //       }
-  //       return fs.fileExists(file)
-  //     },
-  //     readFile(file) {
-  //       if (file.endsWith('.docue.ts')) {
-  //         file = file.replace(/\.ts$/, '')
-  //       }
-  //       return fs.readFile(file)
-  //     }
-  //   })
+  return (ctx.fs = {
+    fileExists(file) {
+      if (file.endsWith('.docue.ts')) {
+        file = file.replace(/\.ts$/, '')
+      }
+      return fs.fileExists(file)
+    },
+    readFile(file) {
+      if (file.endsWith('.docue.ts')) {
+        file = file.replace(/\.ts$/, '')
+      }
+      return fs.readFile(file)
+    }
+  })
 }
 
-// function resolveTypeFromImport(
-//   ctx: TypeResolveContext,
-//   node: ReferenceTypes,
-//   name: string,
-//   scope: TypeScope
-// ): ScopeTypeNode | undefined {
-//   const { source, imported } = scope.imports[name]
-//   const sourceScope = importSourceToScope(ctx, node, scope, source)
-//   return resolveTypeReference(ctx, node, sourceScope, imported, true)
-// }
+function resolveTypeFromImport(
+  ctx: TypeResolveContext,
+  node: ReferenceTypes,
+  name: string,
+  scope: TypeScope
+): ScopeTypeNode | undefined {
+  const { source, imported } = scope.imports[name]
+  const sourceScope = importSourceToScope(ctx, node, scope, source)
+  return resolveTypeReference(ctx, node, sourceScope, imported, true)
+}
 
 function importSourceToScope(
   ctx: TypeResolveContext,
@@ -778,63 +778,63 @@ function importSourceToScope(
   let resolved: string | undefined = scope.resolvedImportSources[source]
   if (!resolved) {
     if (source.startsWith('.')) {
-      //       // relative import - fast path
-      //       const filename = joinPaths(dirname(scope.filename), source)
-      //       resolved = resolveExt(filename, fs)
+      // relative import - fast path
+      const filename = joinPaths(dirname(scope.filename), source)
+      resolved = resolveExt(filename, fs)
     } else {
       // module or aliased import - use full TS resolution, only supported in Node
       if (!__NODE_JS__) {
-        //         return ctx.error(
-        //           `Type import from non-relative sources is not supported in the browser build.`,
-        //           node,
-        //           scope
-        //         )
+        return ctx.error(
+          `Type import from non-relative sources is not supported in the browser build.`,
+          node,
+          scope
+        )
       }
       if (!ts) {
-        //         if (loadTS) ts = loadTS()
-        //         if (!ts) {
-        //           return ctx.error(
-        //             `Failed to resolve import source ${JSON.stringify(source)}. ` +
-        //               `typescript is required as a peer dep for docue in order ` +
-        //               `to support resolving types from module imports.`,
-        //             node,
-        //             scope
-        //           )
-        //         }
+        if (loadTS) ts = loadTS()
+        if (!ts) {
+          return ctx.error(
+            `Failed to resolve import source ${JSON.stringify(source)}. ` +
+              `typescript is required as a peer dep for docue in order ` +
+              `to support resolving types from module imports.`,
+            node,
+            scope
+          )
+        }
       }
-      //       resolved = resolveWithTS(scope.filename, source, ts, fs)
+      resolved = resolveWithTS(scope.filename, source, ts, fs)
     }
     if (resolved) {
-      //       resolved = scope.resolvedImportSources[source] = normalizePath(resolved)
+      resolved = scope.resolvedImportSources[source] = normalizePath(resolved)
     }
   }
   if (resolved) {
-    //     // (hmr) register dependency file on ctx
-    //     ;(ctx.deps || (ctx.deps = new Set())).add(resolved)
-    //     return fileToScope(ctx, resolved)
+    // (hmr) register dependency file on ctx
+    ;(ctx.deps || (ctx.deps = new Set())).add(resolved)
+    return fileToScope(ctx, resolved)
   } else {
-    //     return ctx.error(
-    //       `Failed to resolve import source ${JSON.stringify(source)}.`,
-    //       node,
-    //       scope
-    //     )
+    return ctx.error(
+      `Failed to resolve import source ${JSON.stringify(source)}.`,
+      node,
+      scope
+    )
   }
 }
 
-// function resolveExt(filename: string, fs: FS) {
-//   // #8339 ts may import .js but we should resolve to corresponding ts or d.ts
-//   filename = filename.replace(/\.js$/, '')
-//   const tryResolve = (filename: string) => {
-//     if (fs.fileExists(filename)) return filename
-//   }
-//   return (
-//     tryResolve(filename) ||
-//     tryResolve(filename + `.ts`) ||
-//     tryResolve(filename + `.d.ts`) ||
-//     tryResolve(joinPaths(filename, `index.ts`)) ||
-//     tryResolve(joinPaths(filename, `index.d.ts`))
-//   )
-// }
+function resolveExt(filename: string, fs: FS) {
+  // #8339 ts may import .js but we should resolve to corresponding ts or d.ts
+  filename = filename.replace(/\.js$/, '')
+  const tryResolve = (filename: string) => {
+    if (fs.fileExists(filename)) return filename
+  }
+  return (
+    tryResolve(filename) ||
+    tryResolve(filename + `.ts`) ||
+    tryResolve(filename + `.d.ts`) ||
+    tryResolve(joinPaths(filename, `index.ts`)) ||
+    tryResolve(joinPaths(filename, `index.d.ts`))
+  )
+}
 
 interface CachedConfig {
   config: TS.ParsedCommandLine
@@ -844,120 +844,120 @@ interface CachedConfig {
 const tsConfigCache = createCache<CachedConfig[]>()
 const tsConfigRefMap = new Map<string, string>()
 
-// function resolveWithTS(
-//   containingFile: string,
-//   source: string,
-//   ts: typeof TS,
-//   fs: FS
-// ): string | undefined {
-//   if (!__NODE_JS__) return
+function resolveWithTS(
+  containingFile: string,
+  source: string,
+  ts: typeof TS,
+  fs: FS
+): string | undefined {
+  if (!__NODE_JS__) return
 
-//   // 1. resolve tsconfig.json
-//   const configPath = ts.findConfigFile(containingFile, fs.fileExists)
-//   // 2. load tsconfig.json
-//   let tsCompilerOptions: TS.CompilerOptions
-//   let tsResolveCache: TS.ModuleResolutionCache | undefined
-//   if (configPath) {
-//     let configs: CachedConfig[]
-//     const normalizedConfigPath = normalizePath(configPath)
-//     const cached = tsConfigCache.get(normalizedConfigPath)
-//     if (!cached) {
-//       configs = loadTSConfig(configPath, ts, fs).map(config => ({ config }))
-//       tsConfigCache.set(normalizedConfigPath, configs)
-//     } else {
-//       configs = cached
-//     }
-//     let matchedConfig: CachedConfig | undefined
-//     if (configs.length === 1) {
-//       matchedConfig = configs[0]
-//     } else {
-//       // resolve which config matches the current file
-//       for (const c of configs) {
-//         const base = normalizePath(
-//           (c.config.options.pathsBasePath as string) ||
-//             dirname(c.config.options.configFilePath as string)
-//         )
-//         const included: string[] = c.config.raw?.include
-//         const excluded: string[] = c.config.raw?.exclude
-//         if (
-//           (!included && (!base || containingFile.startsWith(base))) ||
-//           included.some(p => isMatch(containingFile, joinPaths(base, p)))
-//         ) {
-//           if (
-//             excluded &&
-//             excluded.some(p => isMatch(containingFile, joinPaths(base, p)))
-//           ) {
-//             continue
-//           }
-//           matchedConfig = c
-//           break
-//         }
-//       }
-//       if (!matchedConfig) {
-//         matchedConfig = configs[configs.length - 1]
-//       }
-//     }
-//     tsCompilerOptions = matchedConfig.config.options
-//     tsResolveCache =
-//       matchedConfig.cache ||
-//       (matchedConfig.cache = ts.createModuleResolutionCache(
-//         process.cwd(),
-//         createGetCanonicalFileName(ts.sys.useCaseSensitiveFileNames),
-//         tsCompilerOptions
-//       ))
-//   } else {
-//     tsCompilerOptions = {}
-//   }
+  // 1. resolve tsconfig.json
+  const configPath = ts.findConfigFile(containingFile, fs.fileExists)
+  // 2. load tsconfig.json
+  let tsCompilerOptions: TS.CompilerOptions
+  let tsResolveCache: TS.ModuleResolutionCache | undefined
+  if (configPath) {
+    let configs: CachedConfig[]
+    const normalizedConfigPath = normalizePath(configPath)
+    const cached = tsConfigCache.get(normalizedConfigPath)
+    if (!cached) {
+      configs = loadTSConfig(configPath, ts, fs).map(config => ({ config }))
+      tsConfigCache.set(normalizedConfigPath, configs)
+    } else {
+      configs = cached
+    }
+    let matchedConfig: CachedConfig | undefined
+    if (configs.length === 1) {
+      matchedConfig = configs[0]
+    } else {
+      // resolve which config matches the current file
+      for (const c of configs) {
+        const base = normalizePath(
+          (c.config.options.pathsBasePath as string) ||
+            dirname(c.config.options.configFilePath as string)
+        )
+        const included: string[] = c.config.raw?.include
+        const excluded: string[] = c.config.raw?.exclude
+        if (
+          (!included && (!base || containingFile.startsWith(base))) ||
+          included.some(p => isMatch(containingFile, joinPaths(base, p)))
+        ) {
+          if (
+            excluded &&
+            excluded.some(p => isMatch(containingFile, joinPaths(base, p)))
+          ) {
+            continue
+          }
+          matchedConfig = c
+          break
+        }
+      }
+      if (!matchedConfig) {
+        matchedConfig = configs[configs.length - 1]
+      }
+    }
+    tsCompilerOptions = matchedConfig.config.options
+    tsResolveCache =
+      matchedConfig.cache ||
+      (matchedConfig.cache = ts.createModuleResolutionCache(
+        process.cwd(),
+        createGetCanonicalFileName(ts.sys.useCaseSensitiveFileNames),
+        tsCompilerOptions
+      ))
+  } else {
+    tsCompilerOptions = {}
+  }
 
-//   // 3. resolve
-//   const res = ts.resolveModuleName(
-//     source,
-//     containingFile,
-//     tsCompilerOptions,
-//     fs,
-//     tsResolveCache
-//   )
+  // 3. resolve
+  const res = ts.resolveModuleName(
+    source,
+    containingFile,
+    tsCompilerOptions,
+    fs,
+    tsResolveCache
+  )
 
-//   if (res.resolvedModule) {
-//     let filename = res.resolvedModule.resolvedFileName
-//     if (filename.endsWith('.docue.ts')) {
-//       filename = filename.replace(/\.ts$/, '')
-//     }
-//     return filename
-//   }
-// }
+  if (res.resolvedModule) {
+    let filename = res.resolvedModule.resolvedFileName
+    if (filename.endsWith('.docue.ts')) {
+      filename = filename.replace(/\.ts$/, '')
+    }
+    return filename
+  }
+}
 
-// function loadTSConfig(
-//   configPath: string,
-//   ts: typeof TS,
-//   fs: FS
-// ): TS.ParsedCommandLine[] {
-//   // The only case where `fs` is NOT `ts.sys` is during tests.
-//   // parse config host requires an extra `readDirectory` method
-//   // during tests, which is stubbed.
-//   const parseConfigHost = __TEST__
-//     ? {
-//         ...fs,
-//         useCaseSensitiveFileNames: true,
-//         readDirectory: () => []
-//       }
-//     : ts.sys
-//   const config = ts.parseJsonConfigFileContent(
-//     ts.readConfigFile(configPath, fs.readFile).config,
-//     parseConfigHost,
-//     dirname(configPath),
-//     undefined,
-//     configPath
-//   )
-//   const res = [config]
-//   if (config.projectReferences) {
-//     for (const ref of config.projectReferences) {
-//       tsConfigRefMap.set(ref.path, configPath)
-//       res.unshift(...loadTSConfig(ref.path, ts, fs))
-//     }
-//   }
-//   return res
-// }
+function loadTSConfig(
+  configPath: string,
+  ts: typeof TS,
+  fs: FS
+): TS.ParsedCommandLine[] {
+  // The only case where `fs` is NOT `ts.sys` is during tests.
+  // parse config host requires an extra `readDirectory` method
+  // during tests, which is stubbed.
+  const parseConfigHost = __TEST__
+    ? {
+        ...fs,
+        useCaseSensitiveFileNames: true,
+        readDirectory: () => []
+      }
+    : ts.sys
+  const config = ts.parseJsonConfigFileContent(
+    ts.readConfigFile(configPath, fs.readFile).config,
+    parseConfigHost,
+    dirname(configPath),
+    undefined,
+    configPath
+  )
+  const res = [config]
+  if (config.projectReferences) {
+    for (const ref of config.projectReferences) {
+      tsConfigRefMap.set(ref.path, configPath)
+      res.unshift(...loadTSConfig(ref.path, ts, fs))
+    }
+  }
+  return res
+}
 
 const fileToScopeCache = createCache<TypeScope>()
 
@@ -998,41 +998,41 @@ function parseFile(
 ): Statement[] {
   const ext = extname(filename)
   if (ext === '.ts' || ext === '.tsx') {
-    //     return babelParse(content, {
-    //       plugins: resolveParserPlugins(
-    //         ext.slice(1),
-    //         parserPlugins,
-    //         filename.endsWith('.d.ts')
-    //       ),
-    //       sourceType: 'module'
-    //     }).program.body
+    return babelParse(content, {
+      plugins: resolveParserPlugins(
+        ext.slice(1),
+        parserPlugins,
+        filename.endsWith('.d.ts')
+      ),
+      sourceType: 'module'
+    }).program.body
   } else if (ext === '.docue') {
-    //     const {
-    //       descriptor: { script, scriptSetup }
-    //     } = parse(content)
-    //     if (!script && !scriptSetup) {
-    //       return []
-    //     }
-    //     // ensure the correct offset with original source
-    //     const scriptOffset = script ? script.loc.start.offset : Infinity
-    //     const scriptSetupOffset = scriptSetup
-    //       ? scriptSetup.loc.start.offset
-    //       : Infinity
-    //     const firstBlock = scriptOffset < scriptSetupOffset ? script : scriptSetup
-    //     const secondBlock = scriptOffset < scriptSetupOffset ? scriptSetup : script
-    //     let scriptContent =
-    //       ' '.repeat(Math.min(scriptOffset, scriptSetupOffset)) +
-    //       firstBlock!.content
-    //     if (secondBlock) {
-    //       scriptContent +=
-    //         ' '.repeat(secondBlock.loc.start.offset - script!.loc.end.offset) +
-    //         secondBlock.content
-    //     }
-    //     const lang = script?.lang || scriptSetup?.lang
-    //     return babelParse(scriptContent, {
-    //       plugins: resolveParserPlugins(lang!, parserPlugins),
-    //       sourceType: 'module'
-    //     }).program.body
+    const {
+      descriptor: { script, scriptSetup }
+    } = parse(content)
+    if (!script && !scriptSetup) {
+      return []
+    }
+    // ensure the correct offset with original source
+    const scriptOffset = script ? script.loc.start.offset : Infinity
+    const scriptSetupOffset = scriptSetup
+      ? scriptSetup.loc.start.offset
+      : Infinity
+    const firstBlock = scriptOffset < scriptSetupOffset ? script : scriptSetup
+    const secondBlock = scriptOffset < scriptSetupOffset ? scriptSetup : script
+    let scriptContent =
+      ' '.repeat(Math.min(scriptOffset, scriptSetupOffset)) +
+      firstBlock!.content
+    if (secondBlock) {
+      scriptContent +=
+        ' '.repeat(secondBlock.loc.start.offset - script!.loc.end.offset) +
+        secondBlock.content
+    }
+    const lang = script?.lang || scriptSetup?.lang
+    return babelParse(scriptContent, {
+      plugins: resolveParserPlugins(lang!, parserPlugins),
+      sourceType: 'module'
+    }).program.body
   }
   return []
 }
@@ -1107,11 +1107,11 @@ function recordTypes(
     if (asGlobal) {
       if (isAmbient) {
         if ((stmt as any).declare) {
-          //           recordType(stmt, types, declares)
+          recordType(stmt, types, declares)
         }
       } else if (stmt.type === 'TSModuleDeclaration' && stmt.global) {
         for (const s of (stmt.body as TSModuleBlock).body) {
-          //           recordType(s, types, declares)
+          recordType(s, types, declares)
         }
       }
     } else {
@@ -1127,49 +1127,49 @@ function recordTypes(
         } else {
           for (const spec of stmt.specifiers) {
             if (spec.type === 'ExportSpecifier') {
-              //               const local = spec.local.name
-              //               const exported = getId(spec.exported)
-              //               if (stmt.source) {
-              //                 // re-export, register an import + export as a type reference
-              //                 imports[exported] = {
-              //                   source: stmt.source.value,
-              //                   imported: local
-              //                 }
-              //                 exportedTypes[exported] = {
-              //                   type: 'TSTypeReference',
-              //                   typeName: {
-              //                     type: 'Identifier',
-              //                     name: local
-              //                   },
-              //                   _ownerScope: scope
-              //                 }
-              //               } else if (types[local]) {
-              //                 // exporting local defined type
-              //                 exportedTypes[exported] = types[local]
-              //               }
+              const local = spec.local.name
+              const exported = getId(spec.exported)
+              if (stmt.source) {
+                // re-export, register an import + export as a type reference
+                imports[exported] = {
+                  source: stmt.source.value,
+                  imported: local
+                }
+                exportedTypes[exported] = {
+                  type: 'TSTypeReference',
+                  typeName: {
+                    type: 'Identifier',
+                    name: local
+                  },
+                  _ownerScope: scope
+                }
+              } else if (types[local]) {
+                // exporting local defined type
+                exportedTypes[exported] = types[local]
+              }
             }
           }
         }
       } else if (stmt.type === 'ExportAllDeclaration') {
-        //         const sourceScope = importSourceToScope(
-        //           ctx,
-        //           stmt.source,
-        //           scope,
-        //           stmt.source.value
-        //         )
-        //         Object.assign(scope.exportedTypes, sourceScope.exportedTypes)
+        const sourceScope = importSourceToScope(
+          ctx,
+          stmt.source,
+          scope,
+          stmt.source.value
+        )
+        Object.assign(scope.exportedTypes, sourceScope.exportedTypes)
       } else if (stmt.type === 'ExportDefaultDeclaration' && stmt.declaration) {
-        //         if (stmt.declaration.type !== 'Identifier') {
-        //           recordType(stmt.declaration, types, declares, 'default')
-        //           recordType(
-        //             stmt.declaration,
-        //             exportedTypes,
-        //             exportedDeclares,
-        //             'default'
-        //           )
-        //         } else if (types[stmt.declaration.name]) {
-        //           exportedTypes['default'] = types[stmt.declaration.name]
-        //         }
+        if (stmt.declaration.type !== 'Identifier') {
+          recordType(stmt.declaration, types, declares, 'default')
+          recordType(
+            stmt.declaration,
+            exportedTypes,
+            exportedDeclares,
+            'default'
+          )
+        } else if (types[stmt.declaration.name]) {
+          exportedTypes['default'] = types[stmt.declaration.name]
+        }
       }
     }
   }
@@ -1265,13 +1265,13 @@ function mergeNamespaces(to: TSModuleDeclaration, from: TSModuleDeclaration) {
       })
     }
   } else if (fromBody.type === 'TSModuleDeclaration') {
-    //     // to: block <- from: decl
-    //     toBody.body.push({
-    //       type: 'ExportNamedDeclaration',
-    //       declaration: fromBody,
-    //       exportKind: 'type',
-    //       specifiers: []
-    //     })
+    // to: block <- from: decl
+    toBody.body.push({
+      type: 'ExportNamedDeclaration',
+      declaration: fromBody,
+      exportKind: 'type',
+      specifiers: []
+    })
   } else {
     // both block
     toBody.body.push(...fromBody.body)
@@ -1585,8 +1585,8 @@ function reverseInferType(
   ) {
     // try if we can catch Foo.Bar<XXXConstructor>
     for (const t of node.typeParameters.params) {
-      //       const inferred = reverseInferType(key, t, scope, optional)
-      //       if (inferred) return inferred
+      const inferred = reverseInferType(key, t, scope, optional)
+      if (inferred) return inferred
     }
   }
   return createProperty(key, { type: `TSNullKeyword` }, scope, optional)

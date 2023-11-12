@@ -80,24 +80,24 @@ export function getId(node: Expression) {
     : null
 }
 
-// const identity = (str: string) => str
-// const fileNameLowerCaseRegExp = /[^\u0130\u0131\u00DFa-z0-9\\/:\-_\. ]+/g
-// const toLowerCase = (str: string) => str.toLowerCase()
+const identity = (str: string) => str
+const fileNameLowerCaseRegExp = /[^\u0130\u0131\u00DFa-z0-9\\/:\-_\. ]+/g
+const toLowerCase = (str: string) => str.toLowerCase()
 
-// function toFileNameLowerCase(x: string) {
-//   return fileNameLowerCaseRegExp.test(x)
-//     ? x.replace(fileNameLowerCaseRegExp, toLowerCase)
-//     : x
-// }
+function toFileNameLowerCase(x: string) {
+  return fileNameLowerCaseRegExp.test(x)
+    ? x.replace(fileNameLowerCaseRegExp, toLowerCase)
+    : x
+}
 
-// /**
-//  * We need `getCanonicalFileName` when creating ts module resolution cache,
-//  * but TS does not expose it directly. This implementation is repllicated from
-//  * the TS source code.
-//  */
-// export function createGetCanonicalFileName(useCaseSensitiveFileNames: boolean) {
-//   return useCaseSensitiveFileNames ? identity : toFileNameLowerCase
-// }
+/**
+ * We need `getCanonicalFileName` when creating ts module resolution cache,
+ * but TS does not expose it directly. This implementation is repllicated from
+ * the TS source code.
+ */
+export function createGetCanonicalFileName(useCaseSensitiveFileNames: boolean) {
+  return useCaseSensitiveFileNames ? identity : toFileNameLowerCase
+}
 
 // in the browser build, the polyfill doesn't expose posix, but defaults to
 // posix behavior.
