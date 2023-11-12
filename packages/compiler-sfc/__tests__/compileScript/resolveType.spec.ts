@@ -419,7 +419,7 @@ describe('resolveType', () => {
   test('ExtractPropTypes (element-plus)', () => {
     const { props, raw } = resolve(
       `
-      import { ExtractPropTypes } from 'vue'
+      import { ExtractPropTypes } from 'docue'
       declare const props: {
         foo: StringConstructor,
         bar: {
@@ -445,7 +445,7 @@ describe('resolveType', () => {
         foo: StringConstructor,
         bar: { type: PropType<boolean> }
       }
-      type Props = Partial<import('vue').ExtractPropTypes<ReturnType<typeof props>>>
+      type Props = Partial<import('docue').ExtractPropTypes<ReturnType<typeof props>>>
       defineProps<Props>()
     `
     )
@@ -495,7 +495,7 @@ describe('resolveType', () => {
     `,
         files,
         {},
-        'C:\\Test\\Test.vue'
+        'C:\\Test\\Test.docue'
       )
       expect(props).toStrictEqual({
         foo: ['Number'],
@@ -523,17 +523,17 @@ describe('resolveType', () => {
       })
     })
 
-    test('relative vue', () => {
+    test('relative docue', () => {
       const files = {
-        '/foo.vue':
+        '/foo.docue':
           '<script lang="ts">export type P = { foo: number }</script>',
-        '/bar.vue':
+        '/bar.docue':
           '<script setup lang="tsx">export type P = { bar: string }</script>'
       }
       const { props, deps } = resolve(
         `
-        import { P } from './foo.vue'
-        import { P as PP } from './bar.vue'
+        import { P } from './foo.docue'
+        import { P as PP } from './bar.docue'
         defineProps<P & PP>()
       `,
         files
@@ -547,9 +547,9 @@ describe('resolveType', () => {
 
     test('relative (chained)', () => {
       const files = {
-        '/foo.ts': `import type { P as PP } from './nested/bar.vue'
+        '/foo.ts': `import type { P as PP } from './nested/bar.docue'
           export type P = { foo: number } & PP`,
-        '/nested/bar.vue':
+        '/nested/bar.docue':
           '<script setup lang="ts">export type P = { bar: string }</script>'
       }
       const { props, deps } = resolve(
@@ -745,7 +745,7 @@ describe('resolveType', () => {
           ]
         }),
         '/tsconfig.app.json': JSON.stringify({
-          include: ['**/*.ts', '**/*.vue'],
+          include: ['**/*.ts', '**/*.docue'],
           extends: './tsconfig.web.json'
         }),
         '/tsconfig.web.json': JSON.stringify({
@@ -773,23 +773,23 @@ describe('resolveType', () => {
       expect(deps && [...deps]).toStrictEqual(['/user.ts'])
     })
 
-    test('ts module resolve w/ path aliased vue file', () => {
+    test('ts module resolve w/ path aliased docue file', () => {
       const files = {
         '/tsconfig.json': JSON.stringify({
           compilerOptions: {
-            include: ['**/*.ts', '**/*.vue'],
+            include: ['**/*.ts', '**/*.docue'],
             paths: {
               '@/*': ['./src/*']
             }
           }
         }),
-        '/src/Foo.vue':
+        '/src/Foo.docue':
           '<script lang="ts">export type P = { bar: string }</script>'
       }
 
       const { props, deps } = resolve(
         `
-        import { P } from '@/Foo.vue'
+        import { P } from '@/Foo.docue'
         defineProps<P>()
         `,
         files
@@ -798,7 +798,7 @@ describe('resolveType', () => {
       expect(props).toStrictEqual({
         bar: ['String']
       })
-      expect(deps && [...deps]).toStrictEqual(['/src/Foo.vue'])
+      expect(deps && [...deps]).toStrictEqual(['/src/Foo.docue'])
     })
 
     test('global types', () => {
@@ -899,7 +899,7 @@ describe('resolveType', () => {
         interface Props extends Base {}
         defineProps<Props>()
       `)
-      ).toThrow(`@vue-ignore`)
+      ).toThrow(`@docue-ignore`)
     })
 
     test('allow ignoring failed extends', () => {
@@ -909,12 +909,12 @@ describe('resolveType', () => {
         () =>
           (res = resolve(`
         import type Base from 'unknown'
-        interface Props extends /*@vue-ignore*/ Base {
+        interface Props extends /*@docue-ignore*/ Base {
           foo: string
         }
         defineProps<Props>()
       `))
-      ).not.toThrow(`@vue-ignore`)
+      ).not.toThrow(`@docue-ignore`)
 
       expect(res.props).toStrictEqual({
         foo: ['String']
@@ -927,7 +927,7 @@ function resolve(
   code: string,
   files: Record<string, string> = {},
   options?: Partial<SFCScriptCompileOptions>,
-  sourceFileName: string = '/Test.vue'
+  sourceFileName: string = '/Test.docue'
 ) {
   const { descriptor } = parse(`<script setup lang="ts">\n${code}\n</script>`, {
     filename: sourceFileName
