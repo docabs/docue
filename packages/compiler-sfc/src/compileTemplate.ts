@@ -25,7 +25,7 @@ import {
 import { generateCodeFrame, isObject } from '@docue/shared'
 import * as CompilerDOM from '@docue/compiler-dom'
 import * as CompilerSSR from '@docue/compiler-ssr'
-import consolidate from '@vue/consolidate'
+import consolidate from '@docue/consolidate'
 import { warnOnce } from './warn'
 import { genCssVarsFromList } from './style/cssVars'
 

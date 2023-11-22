@@ -1,6 +1,6 @@
 import { E2E_TIMEOUT, setupPuppeteer } from './e2eUtils'
 import path from 'path'
-import { createApp, ref } from 'vue'
+import { createApp, ref } from 'docue'
 
 describe('e2e: TransitionGroup', () => {
   const { page, html, nextFrame, timeout } = setupPuppeteer()

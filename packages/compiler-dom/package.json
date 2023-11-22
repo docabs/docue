@@ -1,16 +1,28 @@
 {
   "name": "@docue/compiler-dom",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "@docue/compiler-dom",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "module": "dist/compiler-dom.esm-bundler.js",
+  "types": "dist/compiler-dom.d.ts",
+  "unpkg": "dist/compiler-dom.global.js",
+  "jsdelivr": "dist/compiler-dom.global.js",
+  "sideEffects": false,
+  "buildOptions": {
+    "name": "DocueCompilerDOM",
+    "compat": true,
+    "formats": [
+      "esm-bundler",
+      "esm-browser",
+      "cjs",
+      "global"
+    ]
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "docue"
+  ],
   "dependencies": {
-    "@docue/shared": "1.0.0",
-    "@docue/compiler-core": "1.0.0"
+    "@docue/compiler-core": "workspace:*",
+    "@docue/shared": "workspace:*"
   }
 }

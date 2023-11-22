@@ -1,12 +1,22 @@
 {
   "name": "@docue/shared",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "internal utils shared across @docue packages",
   "main": "index.js",
+  "module": "dist/shared.esm-bundler.js",
+  "types": "dist/shared.d.ts",
+  "files": [
+    "index.js",
+    "dist"
+  ],
   "sideEffects": false,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "buildOptions": {
+    "formats": [
+      "esm-bundler",
+      "cjs"
+    ]
   },
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "docue"
+  ]
 }

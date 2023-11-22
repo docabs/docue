@@ -1,7 +1,8 @@
-import { NOOP, isFunction } from '@docue/shared'
 import { DebuggerOptions, ReactiveEffect } from './effect'
-import { ReactiveFlags, toRaw } from './reactive'
 import { Ref, trackRefValue, triggerRefValue } from './ref'
+import { isFunction, NOOP } from '@docue/shared'
+import { ReactiveFlags, toRaw } from './reactive'
+import { Dep } from './dep'
 
 declare const ComputedRefSymbol: unique symbol
 
@@ -66,6 +67,47 @@ export class ComputedRefImpl<T> {
   }
 }
 
+/**
+ * Takes a getter function and returns a readonly reactive ref object for the
+ * returned value from the getter. It can also take an object with get and set
+ * functions to create a writable ref object.
+ *
+ * @example
+ * ```js
+ * // Creating a readonly computed ref:
+ * const count = ref(1)
+ * const plusOne = computed(() => count.value + 1)
+ *
+ * console.log(plusOne.value) // 2
+ * plusOne.value++ // error
+ * ```
+ *
+ * ```js
+ * // Creating a writable computed ref:
+ * const count = ref(1)
+ * const plusOne = computed({
+ *   get: () => count.value + 1,
+ *   set: (val) => {
+ *     count.value = val - 1
+ *   }
+ * })
+ *
+ * plusOne.value = 1
+ * console.log(count.value) // 0
+ * ```
+ *
+ * @param getter - Function that produces the next value.
+ * @param debugOptions - For debugging. See {@link https://vuejs.org/guide/extras/reactivity-in-depth.html#computed-debugging}.
+ * @see {@link https://vuejs.org/api/reactivity-core.html#computed}
+ */
+export function computed<T>(
+  getter: ComputedGetter<T>,
+  debugOptions?: DebuggerOptions
+): ComputedRef<T>
+export function computed<T>(
+  options: WritableComputedOptions<T>,
+  debugOptions?: DebuggerOptions
+): WritableComputedRef<T>
 export function computed<T>(
   getterOrOptions: ComputedGetter<T> | WritableComputedOptions<T>,
   debugOptions?: DebuggerOptions,

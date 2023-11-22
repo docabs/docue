@@ -14,6 +14,7 @@
  * This file is expected to be executed with project root as cwd.
  */
 
+import { execaSync } from 'execa'
 import {
   existsSync,
   mkdirSync,
@@ -21,11 +22,9 @@ import {
   rmSync,
   writeFileSync
 } from 'node:fs'
-import path from 'node:path'
 import { parse } from '@babel/parser'
+import path from 'node:path'
 import MagicString from 'magic-string'
-
-import execa from 'execa'
 
 const ENUM_CACHE_PATH = 'temp/enum.json'
 
@@ -46,7 +45,7 @@ export function scanEnums() {
   }
 
   // 1. grep for files with exported const enum
-  const { stdout } = execa.sync('git', ['grep', `export const enum`])
+  const { stdout } = execaSync('git', ['grep', `export const enum`])
   const files = [...new Set(stdout.split('\n').map(line => line.split(':')[0]))]
 
   // 2. parse matched files to collect enum info

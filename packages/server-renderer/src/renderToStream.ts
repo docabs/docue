@@ -99,7 +99,7 @@ export function renderToStream(
   context: SSRContext = {}
 ): Readable {
   console.warn(
-    `[@vue/server-renderer] renderToStream is deprecated - use renderToNodeStream instead.`
+    `[@docue/server-renderer] renderToStream is deprecated - use renderToNodeStream instead.`
   )
   return renderToNodeStream(input, context)
 }

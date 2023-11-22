@@ -17,18 +17,17 @@ nr build core --formats cjs
 */
 
 import fs from 'node:fs/promises'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
+import minimist from 'minimist'
+import { gzipSync, brotliCompressSync } from 'node:zlib'
+import pico from 'picocolors'
+import { execa, execaSync } from 'execa'
 import { cpus } from 'node:os'
 import { createRequire } from 'node:module'
-import { gzipSync, brotliCompressSync } from 'node:zlib'
-import minimist from 'minimist'
-import chalk from 'chalk'
-import execa from 'execa'
-import prettyBytes from 'pretty-bytes'
-
 import { targets as allTargets, fuzzyMatchTarget } from './utils.js'
 import { scanEnums } from './const-enum.js'
+import prettyBytes from 'pretty-bytes'
 
 const require = createRequire(import.meta.url)
 const args = minimist(process.argv.slice(2))
@@ -37,15 +36,15 @@ const formats = args.formats || args.f
 const devOnly = args.devOnly || args.d
 const prodOnly = !devOnly && (args.prodOnly || args.p)
 const buildTypes = args.withTypes || args.t
-const sourceMap = args.sourcemap || args.s || true
+const sourceMap = args.sourcemap || args.s
 const isRelease = args.release
 const buildAllMatching = args.all || args.a
 const writeSize = args.size
-const commit = execa.sync('git', ['rev-parse', 'HEAD']).stdout.slice(0, 7)
-
-run()
+const commit = execaSync('git', ['rev-parse', '--short=7', 'HEAD']).stdout
 
 const sizeDir = path.resolve('temp/size')
+
+run()
 
 async function run() {
   if (writeSize) await fs.mkdir(sizeDir, { recursive: true })
@@ -165,7 +164,7 @@ async function checkFileSize(filePath) {
   const brotli = brotliCompressSync(file)
 
   console.log(
-    `${chalk.gray(chalk.bold(fileName))} min:${prettyBytes(
+    `${pico.gray(pico.bold(fileName))} min:${prettyBytes(
       file.length
     )} / gzip:${prettyBytes(gzipped.length)} / brotli:${prettyBytes(
       brotli.length

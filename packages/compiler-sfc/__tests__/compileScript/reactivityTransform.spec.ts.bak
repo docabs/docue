@@ -1,5 +1,5 @@
 // TODO remove in 3.4
-import { BindingTypes } from '@vue/compiler-core'
+import { BindingTypes } from '@docue/compiler-core'
 import { compileSFCScript as compile, assertCode } from '../utils'
 
 // this file only tests integration with SFC - main test case for the ref
@@ -11,7 +11,7 @@ describe('sfc ref transform', () => {
 
   test('$ unwrapping', () => {
     const { content, bindings } = compileWithReactivityTransform(`<script setup>
-    import { ref, shallowRef } from 'vue'
+    import { ref, shallowRef } from 'docue'
     let foo = $(ref())
     let a = $(ref(1))
     let b = $(shallowRef({
@@ -60,7 +60,7 @@ describe('sfc ref transform', () => {
     let d
     </script>`)
     expect(content).toMatch(
-      `import { ref as _ref, shallowRef as _shallowRef } from 'vue'`
+      `import { ref as _ref, shallowRef as _shallowRef } from 'docue'`
     )
     expect(content).not.toMatch(`$ref()`)
     expect(content).not.toMatch(`$ref(1)`)
@@ -96,7 +96,7 @@ describe('sfc ref transform', () => {
     }
     </script>`)
     expect(content).not.toMatch(`$ref(0)`)
-    expect(content).toMatch(`import { ref as _ref } from 'vue'`)
+    expect(content).toMatch(`import { ref as _ref } from 'docue'`)
     expect(content).toMatch(`let count = _ref(0)`)
     expect(content).toMatch(`count.value++`)
     expect(content).toMatch(`return ({ count })`)
@@ -131,7 +131,7 @@ describe('sfc ref transform', () => {
     }
     </script>`)
     // should dedupe helper imports
-    expect(content).toMatch(`import { ref as _ref } from 'vue'`)
+    expect(content).toMatch(`import { ref as _ref } from 'docue'`)
 
     expect(content).toMatch(`let a = _ref(0)`)
     expect(content).toMatch(`let b = _ref(0)`)

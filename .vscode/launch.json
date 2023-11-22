@@ -5,6 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch via PNPM",
+      "request": "launch",
+      "runtimeArgs": ["build", "reactivity"],
+      "runtimeExecutable": "pnpm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Jest",
       "type": "node",
       "request": "launch",

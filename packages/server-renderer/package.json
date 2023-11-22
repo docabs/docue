@@ -1,12 +1,33 @@
 {
   "name": "@docue/server-renderer",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "@docue/server-renderer",
   "main": "index.js",
+  "module": "dist/server-renderer.esm-bundler.js",
+  "types": "dist/server-renderer.d.ts",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "buildOptions": {
+    "name": "DocueServerRenderer",
+    "formats": [
+      "esm-bundler",
+      "esm-browser",
+      "cjs"
+    ]
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "docue"
+  ],
+  "peerDependencies": {
+    "docue": "workspace:*"
+  },
+  "dependencies": {
+    "@docue/shared": "workspace:*",
+    "@docue/compiler-ssr": "workspace:*"
+  }
 }

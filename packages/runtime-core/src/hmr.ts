@@ -24,7 +24,7 @@ export interface HMRRuntime {
 
 // Expose the HMR runtime on the global object
 // This makes it entirely tree-shakable without polluting the exports and makes
-// it easier to be used in toolings like vue-loader
+// it easier to be used in toolings like docue-loader
 // Note: for a component to be eligible for HMR it also needs the __hmrId option
 // to be set so that its instances can be registered / removed.
 if (__DEV__) {

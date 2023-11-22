@@ -50,8 +50,8 @@ export interface SFCScriptBlock extends SFCBlock {
   warnings?: string[]
   /**
    * Fully resolved dependency file paths (unix slashes) with imported types
-   * used in macros, used for HMR cache busting in @vitejs/plugin-vue and
-   * vue-loader.
+   * used in macros, used for HMR cache busting in @vitejs/plugin-docue and
+   * docue-loader.
    */
   deps?: string[]
 }
@@ -214,7 +214,7 @@ export function parse(
           errors.push(
             new SyntaxError(
               `<style vars> has been replaced by a new proposal: ` +
-                `https://github.com/vuejs/rfcs/pull/231`
+                `https://github.com/docuejs/rfcs/pull/231`
             )
           )
         }

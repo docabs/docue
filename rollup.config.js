@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import replace from '@rollup/plugin-replace'
 import json from '@rollup/plugin-json'
-import chalk from 'chalk'
+import pico from 'picocolors'
 import commonJS from '@rollup/plugin-commonjs'
 import polyfillNode from 'rollup-plugin-polyfill-node'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
@@ -22,7 +22,7 @@ const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const masterVersion = require('./package.json').version
-const consolidatePkg = require('@vue/consolidate/package.json')
+const consolidatePkg = require('@docue/consolidate/package.json')
 
 const packagesDir = path.resolve(__dirname, 'packages')
 const packageDir = path.resolve(packagesDir, process.env.TARGET)
@@ -51,7 +51,7 @@ const outputConfigs = {
     file: resolve(`dist/${name}.global.js`),
     format: `iife`
   },
-  // runtime-only builds, for main "vue" package only
+  // runtime-only builds, for main "docue" package only
   'esm-bundler-runtime': {
     file: resolve(`dist/${name}.runtime.esm-bundler.js`),
     format: `es`
@@ -91,7 +91,7 @@ export default packageConfigs
 
 function createConfig(format, output, plugins = []) {
   if (!output) {
-    console.log(chalk.yellow(`invalid format: "${format}"`))
+    console.log(pico.yellow(`invalid format: "${format}"`))
     process.exit(1)
   }
 

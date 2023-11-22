@@ -70,13 +70,13 @@ import { SuspenseBoundary } from './components/Suspense'
 import { CompilerOptions } from '@docue/compiler-core'
 import { markAttrsAccessed } from './componentRenderUtils'
 import { currentRenderingInstance } from './componentRenderContext'
-import { startMeasure, endMeasure } from './profiling'
-import { convertLegacyRenderFn } from './compat/renderFn'
-import {
-  CompatConfig,
-  globalCompatConfig,
-  validateCompatConfig
-} from './compat/compatConfig'
+// import { startMeasure, endMeasure } from './profiling'
+// import { convertLegacyRenderFn } from './compat/renderFn'
+// import {
+//   CompatConfig,
+//   globalCompatConfig,
+//   validateCompatConfig
+// } from './compat/compatConfig'
 import { SchedulerJob } from './scheduler'
 import { LifecycleHooks } from './enums'
 
@@ -110,10 +110,10 @@ export interface ComponentInternalOptions {
    * @internal
    */
   __hmrId?: string
-  // /**
-  //  * Compat build only, for bailing out of certain compatibility behavior
-  //  */
-  // __isBuiltIn?: boolean
+  /**
+   * Compat build only, for bailing out of certain compatibility behavior
+   */
+  __isBuiltIn?: boolean
   /**
    * This one should be exposed so that devtools can make use of it
    */

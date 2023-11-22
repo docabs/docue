@@ -1,12 +1,23 @@
 {
   "name": "@docue/compiler-ssr",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "version": "0.0.0",
+  "description": "@docue/compiler-ssr",
+  "main": "dist/compiler-ssr.cjs.js",
+  "types": "dist/compiler-ssr.d.ts",
+  "files": [
+    "dist"
+  ],
+  "buildOptions": {
+    "prod": false,
+    "formats": [
+      "cjs"
+    ]
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "docue"
+  ],
+  "dependencies": {
+    "@docue/shared": "workspace:*",
+    "@docue/compiler-dom": "workspace:*"
+  }
 }

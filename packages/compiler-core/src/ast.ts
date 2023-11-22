@@ -34,14 +34,12 @@ export const enum NodeTypes {
   INTERPOLATION,
   ATTRIBUTE,
   DIRECTIVE,
-
   // containers
   COMPOUND_EXPRESSION,
   IF,
   IF_BRANCH,
   FOR,
   TEXT_CALL,
-
   // codegen
   VNODE_CALL,
   JS_CALL_EXPRESSION,
@@ -114,6 +112,7 @@ export interface RootNode extends Node {
   temps: number
   ssrHelpers?: symbol[]
   codegenNode?: TemplateChildNode | JSChildNode | BlockStatement
+
   // // v2 compat only
   // filters?: string[]
 }
@@ -243,6 +242,7 @@ export interface CompoundExpressionNode extends Node {
     | string
     | symbol
   )[]
+
   /**
    * an expression parsed as the params of a function will track
    * the identifiers declared inside the function body.
@@ -395,7 +395,7 @@ interface MemoFactory extends FunctionExpression {
   returns: BlockCodegenNode
 }
 
-// // SSR-specific Node Types -----------------------------------------------------
+// SSR-specific Node Types -----------------------------------------------------
 
 export type SSRCodegenNode =
   | BlockStatement

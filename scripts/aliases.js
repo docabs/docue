@@ -13,9 +13,9 @@ const resolveEntryForPkg = p =>
 const dirs = readdirSync(new URL('../packages', import.meta.url))
 
 const entries = {
-  docue: resolveEntryForPkg('docue')
-  // 'docue/compiler-sfc': resolveEntryForPkg('compiler-sfc'),
-  // 'docue/server-renderer': resolveEntryForPkg('server-renderer'),
+  docue: resolveEntryForPkg('docue'),
+  'docue/compiler-sfc': resolveEntryForPkg('compiler-sfc'),
+  'docue/server-renderer': resolveEntryForPkg('server-renderer')
   // '@docue/compat': resolveEntryForPkg('docue-compat')
 }
 

@@ -1,12 +1,12 @@
 {
   "name": "docue",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "main": "index.js",
-  "module": "dist/vue.runtime.esm-bundler.js",
-  "types": "dist/vue.d.ts",
-  "unpkg": "dist/vue.global.js",
-  "jsdelivr": "dist/vue.global.js",
+  "module": "dist/docue.runtime.esm-bundler.js",
+  "types": "dist/docue.d.ts",
+  "unpkg": "dist/docue.global.js",
+  "jsdelivr": "dist/docue.global.js",
   "files": [
     "index.js",
     "index.mjs",
@@ -22,12 +22,12 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/vue.d.mts",
+        "types": "./dist/docue.d.mts",
         "node": "./index.mjs",
-        "default": "./dist/vue.runtime.esm-bundler.js"
+        "default": "./dist/docue.runtime.esm-bundler.js"
       },
       "require": {
-        "types": "./dist/vue.d.ts",
+        "types": "./dist/docue.d.ts",
         "default": "./index.js"
       }
     },
@@ -82,17 +82,9 @@
       "esm-browser-runtime"
     ]
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vuejs/core.git"
-  },
   "keywords": [
     "docue"
   ],
-  "bugs": {
-    "url": "https://github.com/vuejs/core/issues"
-  },
-  "homepage": "https://github.com/vuejs/core/tree/main/packages/vue#readme",
   "dependencies": {},
   "peerDependencies": {
     "typescript": "*"

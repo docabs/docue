@@ -347,7 +347,6 @@ function getUnnormalizedProps(
   }
   return [props, callPath]
 }
-
 export function injectProp(
   node: VNodeCall | RenderSlotCall,
   prop: Property,
@@ -376,6 +375,7 @@ export function injectProp(
     callPath = ret[1]
     parentCall = callPath[callPath.length - 1]
   }
+
   if (props == null || isString(props)) {
     propsWithInjection = createObjectExpression([prop])
   } else if (props.type === NodeTypes.JS_CALL_EXPRESSION) {
@@ -418,7 +418,6 @@ export function injectProp(
       parentCall = callPath[callPath.length - 2]
     }
   }
-
   if (node.type === NodeTypes.VNODE_CALL) {
     if (parentCall) {
       parentCall.arguments[0] = propsWithInjection

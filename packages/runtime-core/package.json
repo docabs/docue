@@ -1,11 +1,27 @@
 {
   "name": "@docue/runtime-core",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0",
+  "description": "@docue/runtime-core",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "module": "dist/runtime-core.esm-bundler.js",
+  "types": "dist/runtime-core.d.ts",
+  "files": [
+    "index.js",
+    "dist"
+  ],
+  "buildOptions": {
+    "name": "DocueRuntimeCore",
+    "formats": [
+      "esm-bundler",
+      "cjs"
+    ]
   },
-  "author": "",
-  "license": "ISC"
+  "sideEffects": false,
+  "keywords": [
+    "docue"
+  ],
+  "dependencies": {
+    "@docue/shared": "workspace:*",
+    "@docue/reactivity": "workspace:*"
+  }
 }

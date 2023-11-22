@@ -25,6 +25,7 @@ export {
   shallowReadonly,
   markRaw,
   toRaw,
+  // effect
   effect,
   stop,
   ReactiveEffect,
@@ -72,8 +73,13 @@ export {
   defineSlots,
   defineModel,
   withDefaults,
-  useModel,
-  // internal
+  useModel
+} from './apiSetupHelpers'
+
+/**
+ * @internal
+ */
+export {
   mergeDefaults,
   mergeModels,
   createPropsRestProxy,
@@ -103,14 +109,16 @@ export {
 } from './components/BaseTransition'
 // For using custom directives
 export { withDirectives } from './directives'
-// // SSR context
+// SSR context
 export { useSSRContext, ssrContextKey } from './helpers/useSsrContext'
 
 // Custom Renderer API ---------------------------------------------------------
 
 export { createRenderer, createHydrationRenderer } from './renderer'
 export { queuePostFlushCb } from './scheduler'
-export { warn, assertNumber } from './warning'
+export { warn } from './warning'
+/** @internal */
+export { assertNumber } from './warning'
 export {
   handleError,
   callWithErrorHandling,
@@ -273,7 +281,7 @@ export type {
   AsyncComponentOptions,
   AsyncComponentLoader
 } from './apiAsyncComponent'
-// export type { HMRRuntime } from './hmr'
+export type { HMRRuntime } from './hmr'
 
 // Internal API ----------------------------------------------------------------
 

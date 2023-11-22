@@ -1582,11 +1582,7 @@ describe('e2e: Transition', () => {
       await nextFrame()
       await transitionFinish()
 
-      debugger
-
       const c = await html('#container')
-
-      debugger
 
       expect(await html('#container')).toBe('<div id="bar" class="">Bar</div>')
 
