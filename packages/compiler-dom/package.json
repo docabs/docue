@@ -1,6 +1,6 @@
 {
   "name": "@docue/compiler-dom",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "@docue/compiler-dom",
   "main": "index.js",
   "module": "dist/compiler-dom.esm-bundler.js",

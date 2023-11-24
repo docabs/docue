@@ -1,3 +1,12 @@
+## [0.0.2](https://github.com/docabs/docue/compare/v0.0.1...v0.0.2) (2023-11-24)
+
+
+### Features
+
+* 调整主包为docuejs ([945162f](https://github.com/docabs/docue/commit/945162f2d95df4a607e3a826b72a0c30df36b83f))
+
+
+
 ## 0.0.1 (2023-11-24)
 
 
