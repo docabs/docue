@@ -29,5 +29,8 @@
   "dependencies": {
     "@docue/shared": "workspace:*",
     "@docue/compiler-ssr": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

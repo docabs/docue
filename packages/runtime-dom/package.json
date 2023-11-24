@@ -12,7 +12,7 @@
   ],
   "sideEffects": false,
   "buildOptions": {
-    "name": "VueRuntimeDOM",
+    "name": "DocueRuntimeDOM",
     "formats": [
       "esm-bundler",
       "esm-browser",
@@ -27,5 +27,8 @@
     "@docue/shared": "workspace:*",
     "@docue/runtime-core": "workspace:*",
     "csstype": "^3.1.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

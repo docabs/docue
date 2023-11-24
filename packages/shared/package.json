@@ -18,5 +18,8 @@
   },
   "keywords": [
     "docue"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

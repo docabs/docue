@@ -24,5 +24,8 @@
   "dependencies": {
     "@docue/compiler-core": "workspace:*",
     "@docue/shared": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

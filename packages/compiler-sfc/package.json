@@ -17,14 +17,9 @@
     "prod": false,
     "enableNonBrowserBranches": true
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "docue"
   ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@babel/parser": "^7.23.4",
     "@docue/compiler-core": "workspace:*",
@@ -47,5 +42,8 @@
     "postcss-selector-parser": "^6.0.13",
     "pug": "^3.0.2",
     "sass": "^1.69.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

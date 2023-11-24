@@ -24,12 +24,10 @@
   "keywords": [
     "docue"
   ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "dependencies": {
     "@docue/shared": "workspace:*"
   },
-  "author": "",
-  "license": "ISC"
+  "publishConfig": {
+    "access": "public"
+  }
 }

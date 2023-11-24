@@ -23,5 +23,8 @@
   "dependencies": {
     "@docue/shared": "workspace:*",
     "@docue/reactivity": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
