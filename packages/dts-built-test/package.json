@@ -1,0 +1,11 @@
+{
+  "name": "@docue/dts-built-test",
+  "private": true,
+  "version": "0.0.0",
+  "types": "dist/dts-built-test.d.ts",
+  "dependencies": {
+    "@docue/shared": "workspace:*",
+    "@docue/reactivity": "workspace:*",
+    "docue": "workspace:*"
+  }
+}

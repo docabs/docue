@@ -13,6 +13,8 @@
     "size-esm": "node scripts/build.js runtime-dom runtime-core reactivity shared -f esm-bundler",
     "check": "tsc --incremental --noEmit",
     "test": "vitest",
+    "test-dts": "run-s build-dts test-dts-only",
+    "test-dts-only": "tsc -p ./packages/dts-test/tsconfig.test.json",
     "release": "node scripts/release.js",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "preinstall": "npx only-allow pnpm"
@@ -63,7 +65,7 @@
     "todomvc-app-css": "2.4.3",
     "tslib": "^2.6.2",
     "tsx": "^3.14.0",
-    "typescript": "^5.2.2",
+    "typescript": "5.2.2",
     "vite": "^4.5.0",
     "vitest": "^0.34.6"
   },

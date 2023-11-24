@@ -10,7 +10,7 @@
   "sideEffects": false,
   "buildOptions": {
     "name": "DocueCompilerDOM",
-    "compat": true,
+    "compat": false,
     "formats": [
       "esm-bundler",
       "esm-browser",

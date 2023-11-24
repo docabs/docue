@@ -24,7 +24,7 @@ export default targetPackages.map(pkg => {
       file: `packages/${pkg}/dist/${pkg}.d.ts`,
       format: 'es'
     },
-    plugins: [dts(), patchTypes(pkg), ...(pkg === 'vue' ? [copyMts()] : [])],
+    plugins: [dts(), patchTypes(pkg), ...(pkg === 'docue' ? [copyMts()] : [])],
     onwarn(warning, warn) {
       // during dts rollup, everything is externalized by default
       if (
@@ -172,19 +172,19 @@ function patchTypes(pkg) {
 /**
  * According to https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-7.html#packagejson-exports-imports-and-self-referencing
  * the only way to correct provide types for both Node ESM and CJS is to have
- * two separate declaration files, so we need to copy vue.d.ts to vue.d.mts
+ * two separate declaration files, so we need to copy docue.d.ts to docue.d.mts
  * upon build.
  *
  * @returns {import('rollup').Plugin}
  */
 function copyMts() {
   return {
-    name: 'copy-vue-mts',
+    name: 'copy-docue-mts',
     writeBundle(_, bundle) {
       writeFileSync(
-        'packages/vue/dist/vue.d.mts',
+        'packages/docue/dist/docue.d.mts',
         // @ts-ignore
-        bundle['vue.d.ts'].code
+        bundle['docue.d.ts'].code
       )
     }
   }

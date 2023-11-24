@@ -247,4 +247,4 @@ export const initDirectivesForSSR = __SSR__
 // h, Component, reactivity API, nextTick, flags & types
 export * from '@docue/runtime-core'
 
-// export * from './jsx'
+export * from './jsx'

@@ -11,20 +11,15 @@
   ],
   "buildOptions": {
     "name": "DocueCompilerCore",
-    "compat": true,
+    "compat": false,
     "formats": [
       "esm-bundler",
       "cjs"
     ]
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "docue"
   ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@babel/parser": "^7.23.4",
     "@docue/shared": "workspace:*",

@@ -85,7 +85,13 @@
   "keywords": [
     "docue"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@docue/shared": "workspace:*",
+    "@docue/compiler-dom": "workspace:*",
+    "@docue/runtime-dom": "workspace:*",
+    "@docue/compiler-sfc": "workspace:*",
+    "@docue/server-renderer": "workspace:*"
+  },
   "peerDependencies": {
     "typescript": "*"
   },
