@@ -26,7 +26,7 @@ describe('ssr: scopeId', () => {
         mode: 'module'
       }).code
     ).toMatchInlineSnapshot(`
-      "import { resolveComponent as _resolveComponent, withCtx as _withCtx, createTextVNode as _createTextVNode } from \\"docue\\"
+      "import { resolveComponent as _resolveComponent, withCtx as _withCtx, createTextVNode as _createTextVNode } from \\"docuejs\\"
       import { ssrRenderComponent as _ssrRenderComponent } from \\"docue/server-renderer\\"
 
       export function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -55,7 +55,7 @@ describe('ssr: scopeId', () => {
         mode: 'module'
       }).code
     ).toMatchInlineSnapshot(`
-      "import { resolveComponent as _resolveComponent, withCtx as _withCtx, createVNode as _createVNode } from \\"docue\\"
+      "import { resolveComponent as _resolveComponent, withCtx as _withCtx, createVNode as _createVNode } from \\"docuejs\\"
       import { ssrRenderComponent as _ssrRenderComponent } from \\"docue/server-renderer\\"
 
       export function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -84,7 +84,7 @@ describe('ssr: scopeId', () => {
         mode: 'module'
       }).code
     ).toMatchInlineSnapshot(`
-      "import { resolveComponent as _resolveComponent, withCtx as _withCtx, createVNode as _createVNode } from \\"docue\\"
+      "import { resolveComponent as _resolveComponent, withCtx as _withCtx, createVNode as _createVNode } from \\"docuejs\\"
       import { ssrRenderComponent as _ssrRenderComponent } from \\"docue/server-renderer\\"
 
       export function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -136,7 +136,7 @@ describe('ssr: scopeId', () => {
         }
       ).code
     ).toMatchInlineSnapshot(`
-      "import { mergeProps as _mergeProps } from \\"docue\\"
+      "import { mergeProps as _mergeProps } from \\"docuejs\\"
       import { ssrRenderAttrs as _ssrRenderAttrs } from \\"docue/server-renderer\\"
 
       export function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -154,7 +154,7 @@ describe('ssr: scopeId', () => {
         }
       ).code
     ).toMatchInlineSnapshot(`
-      "import { mergeProps as _mergeProps } from \\"docue\\"
+      "import { mergeProps as _mergeProps } from \\"docuejs\\"
       import { ssrRenderAttrs as _ssrRenderAttrs } from \\"docue/server-renderer\\"
 
       export function ssrRender(_ctx, _push, _parent, _attrs) {

@@ -19,7 +19,7 @@ import {
   toRefs,
   SetupContext
 } from '@docue/runtime-test'
-import { render as domRender, nextTick } from 'docue'
+import { render as domRender, nextTick } from 'docuejs'
 
 describe('component props', () => {
   test('stateful', () => {

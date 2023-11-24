@@ -19,7 +19,7 @@
     ]
   },
   "keywords": [
-    "docue"
+    "docuejs"
   ],
   "dependencies": {
     "@docue/compiler-core": "workspace:*",

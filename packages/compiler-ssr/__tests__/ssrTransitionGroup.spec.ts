@@ -97,7 +97,7 @@ describe('transition-group', () => {
         </transition-group>`
       ).code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {

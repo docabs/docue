@@ -16,7 +16,7 @@ import {
   createApp,
   computed
 } from '@docue/runtime-test'
-import { render as domRender } from 'docue'
+import { render as domRender } from 'docuejs'
 
 describe('api: options', () => {
   test('data', async () => {

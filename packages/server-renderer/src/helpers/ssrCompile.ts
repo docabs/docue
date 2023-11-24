@@ -1,10 +1,10 @@
-import { ComponentInternalInstance, ComponentOptions, warn } from 'docue'
+import { ComponentInternalInstance, ComponentOptions, warn } from 'docuejs'
 import { compile } from '@docue/compiler-ssr'
 import { extend, generateCodeFrame, isFunction, NO } from '@docue/shared'
 import { CompilerError, CompilerOptions } from '@docue/compiler-core'
 import { PushFn } from '../render'
 
-import * as Docue from 'docue'
+import * as Docue from 'docuejs'
 import * as helpers from '../internal'
 
 type SSRRenderFunction = (
@@ -81,9 +81,10 @@ export function ssrCompile(
 
   const { code } = compile(template, finalCompilerOptions)
   const requireMap = {
-    docue: Docue,
+    docuejs: Docue,
     'docue/server-renderer': helpers
   }
-  const fakeRequire = (id: 'docue' | 'docue/server-renderer') => requireMap[id]
+  const fakeRequire = (id: 'docuejs' | 'docue/server-renderer') =>
+    requireMap[id]
   return (compileCache[cacheKey] = Function('require', code)(fakeRequire))
 }

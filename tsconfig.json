@@ -23,7 +23,7 @@
     "rootDir": ".",
     "paths": {
       "@docue/*": ["packages/*/src"],
-      "docue": ["packages/docue/src"]
+      "docuejs": ["packages/docuejs/src"]
     }
   },
   "include": [
@@ -32,7 +32,7 @@
     "packages/runtime-dom/types/jsx.d.ts",
     "packages/*/__tests__",
     "packages/dts-test",
-    "packages/docue/jsx-runtime",
+    "packages/docuejs/jsx-runtime",
     "scripts/setupVitest.ts"
   ]
 }

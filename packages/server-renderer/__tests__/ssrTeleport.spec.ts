@@ -1,4 +1,4 @@
-import { createApp, h, Teleport } from 'docue'
+import { createApp, h, Teleport } from 'docuejs'
 import { renderToString } from '../src/renderToString'
 import { renderToSimpleStream } from '../src/renderToStream'
 import { SSRContext } from '../src/render'

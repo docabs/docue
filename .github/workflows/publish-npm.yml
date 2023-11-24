@@ -33,6 +33,7 @@ jobs:
       - run: pnpm install
       - run: pnpm build
       - run: pnpm build-dts
+      - run: pnpm release
       - run: pnpm publish -r
         env:
           NODE_AUTH_TOKEN: ${{secrets.DOCABS_NPM_TOKEN}}

@@ -919,12 +919,12 @@ export function finishComponentSetup(
         `Component provided template option but ` +
           `runtime compilation is not supported in this build of Docue.` +
           (__ESM_BUNDLER__
-            ? ` Configure your bundler to alias "docue" to "docue/dist/docue.esm-bundler.js".`
+            ? ` Configure your bundler to alias "docuejs" to "docue/dist/docue.esm-bundler.js".`
             : __ESM_BROWSER__
-            ? ` Use "docue.esm-browser.js" instead.`
-            : __GLOBAL__
-            ? ` Use "docue.global.js" instead.`
-            : ``) /* should not happen */
+              ? ` Use "docue.esm-browser.js" instead.`
+              : __GLOBAL__
+                ? ` Use "docue.global.js" instead.`
+                : ``) /* should not happen */
       )
     } else {
       warn(`Component is missing template or render function.`)

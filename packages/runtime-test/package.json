@@ -11,7 +11,7 @@
     "dist"
   ],
   "keywords": [
-    "docue"
+    "docuejs"
   ],
   "dependencies": {
     "@docue/shared": "workspace:*",

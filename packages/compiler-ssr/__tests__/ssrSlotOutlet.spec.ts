@@ -94,7 +94,7 @@ describe('ssr: <slot>', () => {
         scopeId: 'hello'
       }).code
     ).toMatchInlineSnapshot(`
-      "const { resolveComponent: _resolveComponent, withCtx: _withCtx, renderSlot: _renderSlot } = require(\\"docue\\")
+      "const { resolveComponent: _resolveComponent, withCtx: _withCtx, renderSlot: _renderSlot } = require(\\"docuejs\\")
       const { ssrRenderSlot: _ssrRenderSlot, ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {

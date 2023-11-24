@@ -1,4 +1,4 @@
-import { initDirectivesForSSR } from 'docue'
+import { initDirectivesForSSR } from 'docuejs'
 initDirectivesForSSR()
 
 // public

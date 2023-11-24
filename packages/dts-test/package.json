@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "docue": "workspace:*",
+    "docuejs": "workspace:*",
     "@docue/dts-built-test": "workspace:*"
   }
 }

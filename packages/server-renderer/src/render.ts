@@ -13,7 +13,7 @@ import {
   VNodeArrayChildren,
   VNodeProps,
   warn
-} from 'docue'
+} from 'docuejs'
 import {
   escapeHtml,
   escapeHtmlComment,

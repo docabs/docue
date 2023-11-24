@@ -56,7 +56,7 @@ export function ssrCodegenTransform(ast: RootNode, options: CompilerOptions) {
   processChildren(ast, context, isFragment)
   ast.codegenNode = createBlockStatement(context.body)
   // Finalize helpers.
-  // We need to separate helpers imported from 'docue' vs. '@docue/server-renderer'
+  // We need to separate helpers imported from 'docuejs' vs. '@docue/server-renderer'
   ast.ssrHelpers = Array.from(
     new Set([
       ...Array.from(ast.helpers).filter(h => h in ssrHelpers),

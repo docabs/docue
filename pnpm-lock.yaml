@@ -242,7 +242,7 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
-  packages/docue:
+  packages/docuejs:
     dependencies:
       '@docue/compiler-dom':
         specifier: workspace:*
@@ -261,7 +261,7 @@ importers:
         version: link:../shared
       typescript:
         specifier: '*'
-        version: 5.3.2
+        version: 5.2.2
 
   packages/dts-built-test:
     dependencies:
@@ -271,18 +271,18 @@ importers:
       '@docue/shared':
         specifier: workspace:*
         version: link:../shared
-      docue:
+      docuejs:
         specifier: workspace:*
-        version: link:../docue
+        version: link:../docuejs
 
   packages/dts-test:
     dependencies:
       '@docue/dts-built-test':
         specifier: workspace:*
         version: link:../dts-built-test
-      docue:
+      docuejs:
         specifier: workspace:*
-        version: link:../docue
+        version: link:../docuejs
 
   packages/reactivity:
     dependencies:
@@ -328,9 +328,9 @@ importers:
       '@docue/shared':
         specifier: workspace:*
         version: link:../shared
-      docue:
+      docuejs:
         specifier: workspace:*
-        version: link:../docue
+        version: link:../docuejs
 
   packages/shared: {}
 
@@ -5136,13 +5136,6 @@ packages:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
-
-  /typescript@5.3.2:
-    resolution: {integrity: sha512-6l+RyNy7oAHDfxC4FzSJcz9vnjTKxrLpDG5M2Vu4SHRVNg6xzqZp6LYSR9zjqQTu8DU/f5xwxUdADOkbrIX2gQ==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-    dev: false
 
   /ufo@1.3.2:
     resolution: {integrity: sha512-o+ORpgGwaYQXgqGDwd+hkS4PuZ3QnmqMMxRuajK/a38L6fTpcE5GPIfrf+L/KemFzfUpeUQc1rRS1iDBozvnFA==}

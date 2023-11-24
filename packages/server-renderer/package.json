@@ -21,10 +21,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "docue"
+    "docuejs"
   ],
   "peerDependencies": {
-    "docue": "workspace:*"
+    "docuejs": "workspace:*"
   },
   "dependencies": {
     "@docue/shared": "workspace:*",

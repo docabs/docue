@@ -40,7 +40,7 @@ export const IS_REF = Symbol(__DEV__ ? `isRef` : ``)
 export const WITH_MEMO = Symbol(__DEV__ ? `withMemo` : ``)
 export const IS_MEMO_SAME = Symbol(__DEV__ ? `isMemoSame` : ``)
 
-// Name mapping for runtime helpers that need to be imported from 'docue' in
+// Name mapping for runtime helpers that need to be imported from 'docuejs' in
 // generated code. Make sure these are correctly exported in the runtime!
 export const helperNameMap: Record<symbol, string> = {
   [FRAGMENT]: `Fragment`,

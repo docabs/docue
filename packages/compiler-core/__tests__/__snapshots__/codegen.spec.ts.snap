@@ -165,7 +165,7 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: codegen > module mode preamble 1`] = `
-"import { createVNode as _createVNode, resolveDirective as _resolveDirective } from \\"docue\\"
+"import { createVNode as _createVNode, resolveDirective as _resolveDirective } from \\"docuejs\\"
 
 export function render(_ctx, _cache) {
   return null
@@ -173,7 +173,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler: codegen > module mode preamble w/ optimizeImports: true 1`] = `
-"import { createVNode, resolveDirective } from \\"docue\\"
+"import { createVNode, resolveDirective } from \\"docuejs\\"
 
 // Binding optimization for webpack code-split
 const _createVNode = createVNode, _resolveDirective = resolveDirective

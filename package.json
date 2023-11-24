@@ -13,6 +13,8 @@
     "size-esm": "node scripts/build.js runtime-dom runtime-core reactivity shared -f esm-bundler",
     "check": "tsc --incremental --noEmit",
     "test": "vitest",
+    "test-unit": "vitest -c vitest.unit.config.ts",
+    "test-e2e": "node scripts/build.js docue -f global -d && vitest -c vitest.e2e.config.ts",
     "test-dts": "run-s build-dts test-dts-only",
     "test-dts-only": "tsc -p ./packages/dts-test/tsconfig.test.json",
     "release": "node scripts/release.js",

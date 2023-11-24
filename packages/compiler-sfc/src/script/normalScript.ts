@@ -35,7 +35,7 @@ export function processNormalScript(
     //     s.prepend(
     //       `import { ${importedHelpers
     //         .map(h => `${h} as _${h}`)
-    //         .join(', ')} } from 'docue'\n`
+    //         .join(', ')} } from 'docuejs'\n`
     //     )
     //   }
     //   s.remove(0, startOffset)

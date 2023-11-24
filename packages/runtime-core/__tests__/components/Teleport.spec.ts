@@ -17,7 +17,7 @@ import {
   createApp
 } from '@docue/runtime-test'
 import { createVNode, Fragment } from '../../src/vnode'
-import { compile, render as domRender } from 'docue'
+import { compile, render as domRender } from 'docuejs'
 
 describe('renderer: teleport', () => {
   test('should work', () => {

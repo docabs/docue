@@ -7,7 +7,7 @@
     {
       "name": "Launch via PNPM",
       "request": "launch",
-      "runtimeArgs": ["build", "reactivity"],
+      "runtimeArgs": ["release"],
       "runtimeExecutable": "pnpm",
       "skipFiles": ["<node_internals>/**"],
       "type": "node",

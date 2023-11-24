@@ -1,4 +1,4 @@
-import { defineComponent } from 'docue'
+import { defineComponent } from 'docuejs'
 
 const _CustomPropsNotErased = defineComponent({
   props: {},

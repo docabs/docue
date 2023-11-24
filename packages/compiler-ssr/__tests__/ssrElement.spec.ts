@@ -56,7 +56,7 @@ describe('ssr: element', () => {
     test('<textarea> with dynamic v-bind', () => {
       expect(compile(`<textarea v-bind="obj">fallback</textarea>`).code)
         .toMatchInlineSnapshot(`
-          "const { mergeProps: _mergeProps } = require(\\"docue\\")
+          "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
           const { ssrRenderAttrs: _ssrRenderAttrs, ssrInterpolate: _ssrInterpolate } = require(\\"docue/server-renderer\\")
 
           return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -99,7 +99,7 @@ describe('ssr: element', () => {
           isCustomElement: () => true
         }).code
       ).toMatchInlineSnapshot(`
-        "const { mergeProps: _mergeProps } = require(\\"docue\\")
+        "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
         const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {

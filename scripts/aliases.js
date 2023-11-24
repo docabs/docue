@@ -13,7 +13,7 @@ const resolveEntryForPkg = p =>
 const dirs = readdirSync(new URL('../packages', import.meta.url))
 
 const entries = {
-  docue: resolveEntryForPkg('docue'),
+  docuejs: resolveEntryForPkg('docuejs'),
   'docue/compiler-sfc': resolveEntryForPkg('compiler-sfc'),
   'docue/server-renderer': resolveEntryForPkg('server-renderer')
   // '@docue/compat': resolveEntryForPkg('docue-compat')
@@ -24,7 +24,7 @@ const nonSrcPackages = ['sfc-playground', 'template-explorer', 'dts-test']
 for (const dir of dirs) {
   const key = `@docue/${dir}`
   if (
-    dir !== 'docue' &&
+    dir !== 'docuejs' &&
     !nonSrcPackages.includes(dir) &&
     !(key in entries) &&
     statSync(new URL(`../packages/${dir}`, import.meta.url)).isDirectory()

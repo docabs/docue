@@ -1,4 +1,4 @@
-import { createSSRApp, defineComponent, h, watch, ref } from 'docue'
+import { createSSRApp, defineComponent, h, watch, ref } from 'docuejs'
 import { SSRContext, renderToString } from '../src'
 
 describe('ssr: watch', () => {

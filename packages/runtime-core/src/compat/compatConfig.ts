@@ -116,7 +116,7 @@ export const deprecationData: Record<DeprecationTypes, DeprecationData> = {
   [DeprecationTypes.GLOBAL_OBSERVABLE]: {
     message:
       `Docue.observable() has been removed. ` +
-      `Use \`import { reactive } from "docue"\` from Composition API instead.`,
+      `Use \`import { reactive } from "docuejs"\` from Composition API instead.`,
     link: `https://docuejs.org/api/reactivity-core.html#reactive`
   },
 

@@ -1,4 +1,4 @@
-import { createApp, createVNode } from 'docue'
+import { createApp, createVNode } from 'docuejs'
 import { renderToString } from '../src/renderToString'
 
 describe('ssr: dynamic component', () => {

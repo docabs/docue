@@ -1,4 +1,4 @@
-import { createApp, h, Suspense } from 'docue'
+import { createApp, h, Suspense } from 'docuejs'
 import { renderToString } from '../src/renderToString'
 
 describe('SSR Suspense', () => {

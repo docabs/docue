@@ -187,7 +187,7 @@ export function genNormalScriptCssVarsCode(
   defaultVar: string
 ): string {
   return (
-    `\nimport { ${CSS_VARS_HELPER} as _${CSS_VARS_HELPER} } from 'docue'\n` +
+    `\nimport { ${CSS_VARS_HELPER} as _${CSS_VARS_HELPER} } from 'docuejs'\n` +
     `const __injectCSSVars__ = () => {\n${genCssVarsCode(
       cssVars,
       bindings,

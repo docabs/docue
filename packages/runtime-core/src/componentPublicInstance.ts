@@ -53,7 +53,7 @@ import { markAttrsAccessed } from './componentRenderUtils'
  * @example
  * Here is an example of adding a property `$router` to every component instance:
  * ```ts
- * import { createApp } from 'docue'
+ * import { createApp } from 'docuejs'
  * import { Router, createRouter } from 'docue-router'
  *
  * declare module '@docue/runtime-core' {

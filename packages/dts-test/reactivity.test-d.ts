@@ -1,4 +1,4 @@
-import { ref, readonly, shallowReadonly, Ref, reactive, markRaw } from 'docue'
+import { ref, readonly, shallowReadonly, Ref, reactive, markRaw } from 'docuejs'
 import { describe, expectType } from './utils'
 
 describe('should support DeepReadonly', () => {

@@ -5,7 +5,7 @@ import {
   ssrContextKey,
   ssrUtils,
   VNode
-} from 'docue'
+} from 'docuejs'
 import { isPromise, isString } from '@docue/shared'
 import { SSRContext, renderComponentVNode, SSRBuffer } from './render'
 

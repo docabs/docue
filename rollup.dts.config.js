@@ -24,7 +24,11 @@ export default targetPackages.map(pkg => {
       file: `packages/${pkg}/dist/${pkg}.d.ts`,
       format: 'es'
     },
-    plugins: [dts(), patchTypes(pkg), ...(pkg === 'docue' ? [copyMts()] : [])],
+    plugins: [
+      dts(),
+      patchTypes(pkg),
+      ...(pkg === 'docuejs' ? [copyMts()] : [])
+    ],
     onwarn(warning, warn) {
       // during dts rollup, everything is externalized by default
       if (
@@ -182,9 +186,9 @@ function copyMts() {
     name: 'copy-docue-mts',
     writeBundle(_, bundle) {
       writeFileSync(
-        'packages/docue/dist/docue.d.mts',
+        'packages/docuejs/dist/docuejs.d.mts',
         // @ts-ignore
-        bundle['docue.d.ts'].code
+        bundle['docuejs.d.ts'].code
       )
     }
   }

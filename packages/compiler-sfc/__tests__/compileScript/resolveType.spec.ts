@@ -419,7 +419,7 @@ describe('resolveType', () => {
   test('ExtractPropTypes (element-plus)', () => {
     const { props, raw } = resolve(
       `
-      import { ExtractPropTypes } from 'docue'
+      import { ExtractPropTypes } from 'docuejs'
       declare const props: {
         foo: StringConstructor,
         bar: {
@@ -445,7 +445,7 @@ describe('resolveType', () => {
         foo: StringConstructor,
         bar: { type: PropType<boolean> }
       }
-      type Props = Partial<import('docue').ExtractPropTypes<ReturnType<typeof props>>>
+      type Props = Partial<import('docuejs').ExtractPropTypes<ReturnType<typeof props>>>
       defineProps<Props>()
     `
     )

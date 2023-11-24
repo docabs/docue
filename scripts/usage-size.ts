@@ -7,7 +7,9 @@ import replace from '@rollup/plugin-replace'
 import { brotliCompressSync, gzipSync } from 'node:zlib'
 
 const sizeDir = path.resolve('temp/size')
-const entry = path.resolve('./packages/docue/dist/docue.runtime.esm-bundler.js')
+const entry = path.resolve(
+  './packages/docuejs/dist/docue.runtime.esm-bundler.js'
+)
 
 interface Preset {
   name: string
@@ -70,8 +72,8 @@ async function generateBundle(preset: Preset) {
       nodeResolve(),
       replace({
         'process.env.NODE_ENV': '"production"',
-        __VUE_PROD_DEVTOOLS__: 'false',
-        __VUE_OPTIONS_API__: 'true',
+        __DOCUE_PROD_DEVTOOLS__: 'false',
+        __DOCUE_OPTIONS_API__: 'true',
         preventAssignment: true
       })
     ]

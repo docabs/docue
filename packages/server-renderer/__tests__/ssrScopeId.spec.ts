@@ -1,4 +1,4 @@
-import { createApp, h, mergeProps, withCtx } from 'docue'
+import { createApp, h, mergeProps, withCtx } from 'docuejs'
 import { renderToString } from '../src/renderToString'
 import { ssrRenderComponent, ssrRenderAttrs, ssrRenderSlot } from '../src'
 

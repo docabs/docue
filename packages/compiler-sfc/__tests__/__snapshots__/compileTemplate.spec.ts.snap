@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`dynamic v-on + static v-on should merged 1`] = `
-"import { toHandlerKey as _toHandlerKey, mergeProps as _mergeProps, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
+"import { toHandlerKey as _toHandlerKey, mergeProps as _mergeProps, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docuejs\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"input\\", _mergeProps({
@@ -13,7 +13,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`should not hoist srcset URLs in SSR mode 1`] = `
-"import { resolveComponent as _resolveComponent, withCtx as _withCtx, createVNode as _createVNode } from \\"docue\\"
+"import { resolveComponent as _resolveComponent, withCtx as _withCtx, createVNode as _createVNode } from \\"docuejs\\"
 import { ssrRenderAttr as _ssrRenderAttr, ssrRenderComponent as _ssrRenderComponent } from \\"docue/server-renderer\\"
 import _imports_0 from './img/foo.svg'
 import _imports_1 from './img/bar.svg'

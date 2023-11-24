@@ -51,7 +51,7 @@ const outputConfigs = {
     file: resolve(`dist/${name}.global.js`),
     format: `iife`
   },
-  // runtime-only builds, for main "docue" package only
+  // runtime-only builds, for main "docuejs" package only
   'esm-bundler-runtime': {
     file: resolve(`dist/${name}.runtime.esm-bundler.js`),
     format: `es`
@@ -135,7 +135,7 @@ function createConfig(format, output, plugins = []) {
     const replacements = {
       __COMMIT__: `"${process.env.COMMIT}"`,
       __VERSION__: `"${masterVersion}"`,
-      // this is only used during Vue's internal tests
+      // this is only used during Docue's internal tests
       __TEST__: `false`,
       // If the build is expected to run directly in the browser (global / esm builds)
       __BROWSER__: String(isBrowserBuild),
@@ -153,10 +153,10 @@ function createConfig(format, output, plugins = []) {
       // feature flags
       __FEATURE_SUSPENSE__: `true`,
       __FEATURE_OPTIONS_API__: isBundlerESMBuild
-        ? `__VUE_OPTIONS_API__`
+        ? `__DOCUE_OPTIONS_API__`
         : `true`,
       __FEATURE_PROD_DEVTOOLS__: isBundlerESMBuild
-        ? `__VUE_PROD_DEVTOOLS__`
+        ? `__DOCUE_PROD_DEVTOOLS__`
         : `false`
     }
 

@@ -167,7 +167,7 @@ function innerResolveTypeElements(
         (typeName === 'ExtractPropTypes' ||
           typeName === 'ExtractPublicPropTypes') &&
         node.typeParameters &&
-        scope.imports[typeName]?.source === 'docue'
+        scope.imports[typeName]?.source === 'docuejs'
       ) {
         return resolveExtractPropTypes(
           resolveTypeElements(ctx, node.typeParameters.params[0], scope),
@@ -205,7 +205,7 @@ function innerResolveTypeElements(
     }
     case 'TSImportType': {
       if (
-        getId(node.argument) === 'docue' &&
+        getId(node.argument) === 'docuejs' &&
         node.qualifier?.type === 'Identifier' &&
         node.qualifier.name === 'ExtractPropTypes' &&
         node.typeParameters
@@ -631,8 +631,8 @@ function innerResolveTypeReference(
             ? scope.exportedDeclares
             : scope.declares
           : onlyExported
-          ? scope.exportedTypes
-          : scope.types
+            ? scope.exportedTypes
+            : scope.types
       if (lookupSource[name]) {
         return lookupSource[name]
       } else {
@@ -675,10 +675,10 @@ function getReferenceName(node: ReferenceTypes): string | string[] {
     node.type === 'TSTypeReference'
       ? node.typeName
       : node.type === 'TSExpressionWithTypeArguments'
-      ? node.expression
-      : node.type === 'TSImportType'
-      ? node.qualifier
-      : node.exprName
+        ? node.expression
+        : node.type === 'TSImportType'
+          ? node.qualifier
+          : node.exprName
   if (ref?.type === 'Identifier') {
     return ref.name
   } else if (ref?.type === 'TSQualifiedName') {
@@ -1046,8 +1046,8 @@ function ctxToScope(ctx: TypeResolveContext): TypeScope {
     'ast' in ctx
       ? ctx.ast
       : ctx.scriptAst
-      ? [...ctx.scriptAst.body, ...ctx.scriptSetupAst!.body]
-      : ctx.scriptSetupAst!.body
+        ? [...ctx.scriptAst.body, ...ctx.scriptSetupAst!.body]
+        : ctx.scriptSetupAst!.body
 
   const scope = new TypeScope(
     ctx.filename,

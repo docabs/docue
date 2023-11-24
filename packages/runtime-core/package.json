@@ -18,7 +18,7 @@
   },
   "sideEffects": false,
   "keywords": [
-    "docue"
+    "docuejs"
   ],
   "dependencies": {
     "@docue/shared": "workspace:*",

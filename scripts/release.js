@@ -39,7 +39,7 @@ const packages = fs
 const isCorePackage = pkgName => {
   if (!pkgName) return
 
-  if (pkgName === 'docue' || pkgName === '@docue/compat') {
+  if (pkgName === 'docuejs' || pkgName === '@docue/compat') {
     return true
   }
 
@@ -50,7 +50,7 @@ const isCorePackage = pkgName => {
 }
 
 const renamePackageToCanary = pkgName => {
-  if (pkgName === 'docue') {
+  if (pkgName === 'docuejs') {
     return '@docue/canary'
   }
 
@@ -110,7 +110,7 @@ async function main() {
     // check the registry to avoid version collision
     // in case we need to publish more than one canary versions in a day
     try {
-      const pkgName = renamePackageToCanary('docue')
+      const pkgName = renamePackageToCanary('docuejs')
       const { stdout } = await run(
         'pnpm',
         ['view', `${pkgName}@~${canaryVersion}`, 'version', '--json'],

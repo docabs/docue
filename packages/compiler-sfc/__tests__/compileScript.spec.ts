@@ -207,7 +207,7 @@ describe('SFC compile <script setup>', () => {
     test('should hoist and expose imports', () => {
       assertCode(
         compile(`<script setup>
-          import { ref } from 'docue'
+          import { ref } from 'docuejs'
           import 'foo/css'
         </script>`).content
       )
@@ -228,7 +228,7 @@ describe('SFC compile <script setup>', () => {
     test('should allow defineProps/Emit at the start of imports', () => {
       assertCode(
         compile(`<script setup>
-      import { ref } from 'docue'
+      import { ref } from 'docuejs'
       defineProps(['foo'])
       defineEmits(['bar'])
       const r = ref(0)
@@ -240,14 +240,14 @@ describe('SFC compile <script setup>', () => {
     //   const { content } = compile(
     //     `
     //   <script setup>
-    //   import { ref } from 'docue'
+    //   import { ref } from 'docuejs'
     //   let foo = $ref(1)
     //   </script>
     //   `,
     //     { reactivityTransform: true }
     //   )
     //   assertCode(content)
-    //   expect(content).toMatch(`import { ref } from 'docue'`)
+    //   expect(content).toMatch(`import { ref } from 'docuejs'`)
     // })
 
     test('import dedupe between <script> and <script setup>', () => {
@@ -305,7 +305,7 @@ describe('SFC compile <script setup>', () => {
         const { bindings } = compile(`
         <script setup>
           const bar = x(1)
-          import { reactive as x } from 'docue'
+          import { reactive as x } from 'docuejs'
         </script>
       `)
         expect(bindings).toStrictEqual({
@@ -516,7 +516,7 @@ describe('SFC compile <script setup>', () => {
       const { content } = compile(
         `
         <script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const count = ref(0)
         </script>
         <template>
@@ -576,7 +576,7 @@ describe('SFC compile <script setup>', () => {
       // function, const, component import
       const { content } = compile(
         `<script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         import Foo, { bar } from './Foo.docue'
         import other from './util'
         import * as tree from './tree'
@@ -620,7 +620,7 @@ describe('SFC compile <script setup>', () => {
     test('v-model codegen', () => {
       const { content } = compile(
         `<script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const count = ref(0)
         const maybe = foo()
         let lett = 1
@@ -647,7 +647,7 @@ describe('SFC compile <script setup>', () => {
     test('v-model should not generate ref assignment code for non-setup bindings', () => {
       const { content } = compile(
         `<script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const count = ref(0)
         </script>
         <script>
@@ -667,7 +667,7 @@ describe('SFC compile <script setup>', () => {
     test('template assignment expression codegen', () => {
       const { content } = compile(
         `<script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const count = ref(0)
         const maybe = foo()
         let lett = 1
@@ -717,7 +717,7 @@ describe('SFC compile <script setup>', () => {
     test('template update expression codegen', () => {
       const { content } = compile(
         `<script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const count = ref(0)
         const maybe = foo()
         let lett = 1
@@ -748,7 +748,7 @@ describe('SFC compile <script setup>', () => {
     test('template destructure assignment codegen', () => {
       const { content } = compile(
         `<script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const val = {}
         const count = ref(0)
         const maybe = foo()
@@ -775,7 +775,7 @@ describe('SFC compile <script setup>', () => {
       const { content } = compile(
         `
         <script setup>
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const count = ref(0)
         </script>
         <template>
@@ -806,7 +806,7 @@ describe('SFC compile <script setup>', () => {
         compile(
           `
         <script setup lang="ts">
-        import { ref } from 'docue'
+        import { ref } from 'docuejs'
         const stacks = ref([])
         </script>
         <template>
@@ -1105,14 +1105,14 @@ describe('SFC analyze <script> bindings', () => {
   it('can parse decorators syntax in typescript block', () => {
     const { scriptAst } = compile(`
       <script lang="ts">
-        import { Options, Vue } from 'docue-class-component';
+        import { Options, Docue } from 'docue-class-component';
         @Options({
           components: {
             HelloWorld,
           },
           props: ['foo', 'bar']
         })
-        export default class Home extends Vue {}
+        export default class Home extends Docue {}
       </script>
     `)
 
@@ -1338,7 +1338,7 @@ describe('SFC analyze <script> bindings', () => {
   it('works for script setup', () => {
     const { bindings } = compile(`
       <script setup>
-      import { ref as r } from 'docue'
+      import { ref as r } from 'docuejs'
       defineProps({
         foo: String
       })
@@ -1399,7 +1399,7 @@ describe('SFC analyze <script> bindings', () => {
     test('do not overwrite manual name (call)', () => {
       const { content } = compile(
         `<script>
-        import { defineComponent } from 'docue'
+        import { defineComponent } from 'docuejs'
         export default defineComponent({
           name: 'Baz'
         })
@@ -1539,7 +1539,7 @@ describe('SFC genDefaultAs', () => {
   test('binding type for edge cases', () => {
     const { bindings } = compile(
       `<script setup lang="ts">
-      import { toRef } from 'docue'
+      import { toRef } from 'docuejs'
       const props = defineProps<{foo: string}>()
       const foo = toRef(() => props.foo)
       </script>`

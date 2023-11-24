@@ -51,7 +51,7 @@ return function render(_ctx, _cache) {
 `;
 
 exports[`compiler: integration tests > module mode 1`] = `
-"import { toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, Fragment as _Fragment, renderList as _renderList, createElementVNode as _createElementVNode, normalizeClass as _normalizeClass } from \\"docue\\"
+"import { toDisplayString as _toDisplayString, openBlock as _openBlock, createElementBlock as _createElementBlock, createCommentVNode as _createCommentVNode, createTextVNode as _createTextVNode, Fragment as _Fragment, renderList as _renderList, createElementVNode as _createElementVNode, normalizeClass as _normalizeClass } from \\"docuejs\\"
 
 export function render(_ctx, _cache) {
   return (_openBlock(), _createElementBlock(\\"div\\", {

@@ -37,14 +37,16 @@ describe('CSS vars injection', () => {
     expect(content).toMatch(`_useCssVars(_ctx => ({
   "${mockId}-size": (_ctx.size)
 })`)
-    expect(content).toMatch(`import { useCssVars as _useCssVars } from 'docue'`)
+    expect(content).toMatch(
+      `import { useCssVars as _useCssVars } from 'docuejs'`
+    )
     assertCode(content)
   })
 
   test('w/ <script setup> binding analysis', () => {
     const { content } = compileSFCScript(
       `<script setup>
-        import { defineProps, ref } from 'docue'
+        import { defineProps, ref } from 'docuejs'
         const color = 'red'
         const size = ref('10px')
         defineProps({
@@ -69,7 +71,7 @@ describe('CSS vars injection', () => {
   "${mockId}-foo": (__props.foo)
 })`)
     expect(content).toMatch(
-      `import { useCssVars as _useCssVars, unref as _unref } from 'docue'`
+      `import { useCssVars as _useCssVars, unref as _unref } from 'docuejs'`
     )
     assertCode(content)
   })
@@ -259,7 +261,7 @@ describe('CSS vars injection', () => {
     // #7759
     test('It should correctly parse the case where there is no space after the script tag', () => {
       const { content } = compileSFCScript(
-        `<script setup>import { ref as _ref } from 'docue';
+        `<script setup>import { ref as _ref } from 'docuejs';
                 let background = _ref('red')
              </script>
              <style>

@@ -286,7 +286,7 @@ export interface CodegenOptions extends SharedTransformCodegenOptions {
   optimizeImports?: boolean
   /**
    * Customize where to import runtime helpers from.
-   * @default 'docue'
+   * @default 'docuejs'
    */
   runtimeModuleName?: string
   /**

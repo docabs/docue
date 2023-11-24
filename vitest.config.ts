@@ -26,7 +26,7 @@ export default defineConfig({
     threads: !process.env.GITHUB_ACTIONS,
     setupFiles: 'scripts/setupVitest.ts',
     environmentMatchGlobs: [
-      ['packages/{docue,docue-compat,runtime-dom}/**', 'jsdom']
+      ['packages/{docuejs,docue-compat,runtime-dom}/**', 'jsdom']
     ],
     sequence: {
       hooks: 'list'

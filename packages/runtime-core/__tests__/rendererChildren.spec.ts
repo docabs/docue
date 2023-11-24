@@ -1,4 +1,4 @@
-// reference: https://github.com/vuejs/docue/blob/dev/test/unit/modules/vdom/patch/children.spec.js
+// reference: https://github.com/docabs/docue/blob/dev/test/unit/modules/vdom/patch/children.spec.js
 import {
   h,
   render,

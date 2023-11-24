@@ -1,4 +1,4 @@
-import { ComponentInternalInstance, Slots } from 'docue'
+import { ComponentInternalInstance, Slots } from 'docuejs'
 import { Props, PushFn, renderVNodeChildren, SSRBufferItem } from '../render'
 import { isArray } from '@docue/shared'
 

@@ -311,7 +311,7 @@ export function compileScript(
         const source = node.source.value
         const existing = ctx.userImports[local]
         if (
-          source === 'docue' &&
+          source === 'docuejs' &&
           (imported === DEFINE_PROPS ||
             imported === DEFINE_EMITS ||
             imported === DEFINE_EXPOSE)
@@ -352,7 +352,7 @@ export function compileScript(
   const docueImportAliases: Record<string, string> = {}
   for (const key in ctx.userImports) {
     const { source, imported, local } = ctx.userImports[key]
-    if (source === 'docue') docueImportAliases[imported] = local
+    if (source === 'docuejs') docueImportAliases[imported] = local
   }
   // 2.1 process normal <script> body
   if (script && scriptAst) {
@@ -709,7 +709,7 @@ export function compileScript(
     ctx.bindingMetadata[key] =
       imported === '*' ||
       (imported === 'default' && source.endsWith('.docue')) ||
-      source === 'docue'
+      source === 'docuejs'
         ? BindingTypes.SETUP_CONST
         : BindingTypes.SETUP_MAYBE_REF
   }
@@ -815,7 +815,7 @@ export function compileScript(
     for (const key in allBindings) {
       if (
         allBindings[key] === true &&
-        ctx.userImports[key].source !== 'docue' &&
+        ctx.userImports[key].source !== 'docuejs' &&
         !ctx.userImports[key].source.endsWith('.docue')
       ) {
         // generate getter for import bindings
@@ -978,7 +978,7 @@ export function compileScript(
     ctx.s.prepend(
       `import { ${[...ctx.helperImports]
         .map(h => `${h} as _${h}`)
-        .join(', ')} } from 'docue'\n`
+        .join(', ')} } from 'docuejs'\n`
     )
   }
   ctx.s.trim()
@@ -1121,8 +1121,8 @@ function walkObjectPattern(
         const type = isDefineCall
           ? BindingTypes.SETUP_CONST
           : isConst
-          ? BindingTypes.SETUP_MAYBE_REF
-          : BindingTypes.SETUP_LET
+            ? BindingTypes.SETUP_MAYBE_REF
+            : BindingTypes.SETUP_LET
         registerBinding(bindings, p.key, type)
       } else {
         walkPattern(p.value, bindings, isConst, isDefineCall)
@@ -1157,8 +1157,8 @@ function walkPattern(
     const type = isDefineCall
       ? BindingTypes.SETUP_CONST
       : isConst
-      ? BindingTypes.SETUP_MAYBE_REF
-      : BindingTypes.SETUP_LET
+        ? BindingTypes.SETUP_MAYBE_REF
+        : BindingTypes.SETUP_LET
     registerBinding(bindings, node, type)
   } else if (node.type === 'RestElement') {
     // argument can only be identifier when destructuring
@@ -1173,8 +1173,8 @@ function walkPattern(
       const type = isDefineCall
         ? BindingTypes.SETUP_CONST
         : isConst
-        ? BindingTypes.SETUP_MAYBE_REF
-        : BindingTypes.SETUP_LET
+          ? BindingTypes.SETUP_MAYBE_REF
+          : BindingTypes.SETUP_LET
       registerBinding(bindings, node.left, type)
     } else {
       walkPattern(node.left, bindings, isConst)

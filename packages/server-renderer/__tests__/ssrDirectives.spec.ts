@@ -9,7 +9,7 @@ import {
   vModelCheckbox,
   vModelDynamic,
   resolveDirective
-} from 'docue'
+} from 'docuejs'
 import { ssrGetDirectiveProps, ssrRenderAttrs } from '../src'
 
 describe('ssr: directives', () => {

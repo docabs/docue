@@ -575,7 +575,7 @@ const props = defineProps({ foo: String })
   test('should not override local bindings', () => {
     const { bindings } = compile(`
     <script setup lang="ts">
-    import { computed } from 'docue'
+    import { computed } from 'docuejs'
     defineProps<{ bar: string }>()
     const bar = computed(() => 1)
     </script>

@@ -3,7 +3,7 @@ import { compile } from '../src'
 describe('ssr: components', () => {
   test('basic', () => {
     expect(compile(`<foo id="a" :prop="b" />`).code).toMatchInlineSnapshot(`
-      "const { resolveComponent: _resolveComponent, mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { resolveComponent: _resolveComponent, mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -20,7 +20,7 @@ describe('ssr: components', () => {
   // event listeners should still be passed
   test('event listeners', () => {
     expect(compile(`<foo @click="bar" />`).code).toMatchInlineSnapshot(`
-      "const { resolveComponent: _resolveComponent, mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { resolveComponent: _resolveComponent, mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -34,7 +34,7 @@ describe('ssr: components', () => {
   test('dynamic component', () => {
     expect(compile(`<component is="foo" prop="b" />`).code)
       .toMatchInlineSnapshot(`
-        "const { resolveDynamicComponent: _resolveDynamicComponent, mergeProps: _mergeProps, createVNode: _createVNode } = require(\\"docue\\")
+        "const { resolveDynamicComponent: _resolveDynamicComponent, mergeProps: _mergeProps, createVNode: _createVNode } = require(\\"docuejs\\")
         const { ssrRenderVNode: _ssrRenderVNode } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -44,7 +44,7 @@ describe('ssr: components', () => {
 
     expect(compile(`<component :is="foo" prop="b" />`).code)
       .toMatchInlineSnapshot(`
-        "const { resolveDynamicComponent: _resolveDynamicComponent, mergeProps: _mergeProps, createVNode: _createVNode } = require(\\"docue\\")
+        "const { resolveDynamicComponent: _resolveDynamicComponent, mergeProps: _mergeProps, createVNode: _createVNode } = require(\\"docuejs\\")
         const { ssrRenderVNode: _ssrRenderVNode } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -56,7 +56,7 @@ describe('ssr: components', () => {
   describe('slots', () => {
     test('implicit default slot', () => {
       expect(compile(`<foo>hello<div/></foo>`).code).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createVNode: _createVNode, createTextVNode: _createTextVNode } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createVNode: _createVNode, createTextVNode: _createTextVNode } = require(\\"docuejs\\")
         const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -82,7 +82,7 @@ describe('ssr: components', () => {
     test('explicit default slot', () => {
       expect(compile(`<foo v-slot="{ msg }">{{ msg + outer }}</foo>`).code)
         .toMatchInlineSnapshot(`
-          "const { resolveComponent: _resolveComponent, withCtx: _withCtx, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode } = require(\\"docue\\")
+          "const { resolveComponent: _resolveComponent, withCtx: _withCtx, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode } = require(\\"docuejs\\")
           const { ssrRenderComponent: _ssrRenderComponent, ssrInterpolate: _ssrInterpolate } = require(\\"docue/server-renderer\\")
 
           return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -116,7 +116,7 @@ describe('ssr: components', () => {
         <template v-slot:named>bar</template>
       </foo>`).code
       ).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createTextVNode: _createTextVNode } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createTextVNode: _createTextVNode } = require(\\"docuejs\\")
         const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -153,7 +153,7 @@ describe('ssr: components', () => {
         <template v-slot:named v-if="ok">foo</template>
       </foo>`).code
       ).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createTextVNode: _createTextVNode, createSlots: _createSlots } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createTextVNode: _createTextVNode, createSlots: _createSlots } = require(\\"docuejs\\")
         const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -186,7 +186,7 @@ describe('ssr: components', () => {
         <template v-for="key in names" v-slot:[key]="{ msg }">{{ msg + key + bar }}</template>
       </foo>`).code
       ).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, renderList: _renderList, createSlots: _createSlots } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, toDisplayString: _toDisplayString, createTextVNode: _createTextVNode, renderList: _renderList, createSlots: _createSlots } = require(\\"docuejs\\")
         const { ssrRenderComponent: _ssrRenderComponent, ssrInterpolate: _ssrInterpolate } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -227,7 +227,7 @@ describe('ssr: components', () => {
         </template>
       </foo>`).code
       ).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createBlock: _createBlock, createCommentVNode: _createCommentVNode } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, renderList: _renderList, Fragment: _Fragment, openBlock: _openBlock, createBlock: _createBlock, createCommentVNode: _createCommentVNode } = require(\\"docuejs\\")
         const { ssrRenderComponent: _ssrRenderComponent, ssrRenderList: _ssrRenderList } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -291,7 +291,7 @@ describe('ssr: components', () => {
       const { code } = compile(`<foo><bar v-once /></foo>`)
       expect(code).not.toMatch(`_cache`)
       expect(compile(`<foo><bar v-once /></foo>`).code).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createVNode: _createVNode } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, withCtx: _withCtx, createVNode: _createVNode } = require(\\"docuejs\\")
         const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -329,7 +329,7 @@ describe('ssr: components', () => {
       test('keep-alive', () => {
         expect(compile(`<keep-alive><foo/></keep-alive>`).code)
           .toMatchInlineSnapshot(`
-            "const { resolveComponent: _resolveComponent } = require(\\"docue\\")
+            "const { resolveComponent: _resolveComponent } = require(\\"docuejs\\")
             const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
             return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -346,7 +346,7 @@ describe('ssr: components', () => {
           compile(`<foo><transition><div v-if="false"/></transition></foo>`)
             .code
         ).toMatchInlineSnapshot(`
-          "const { resolveComponent: _resolveComponent, withCtx: _withCtx, openBlock: _openBlock, createBlock: _createBlock, createCommentVNode: _createCommentVNode, Transition: _Transition, createVNode: _createVNode } = require(\\"docue\\")
+          "const { resolveComponent: _resolveComponent, withCtx: _withCtx, openBlock: _openBlock, createBlock: _createBlock, createCommentVNode: _createCommentVNode, Transition: _Transition, createVNode: _createVNode } = require(\\"docuejs\\")
           const { ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
           return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -385,7 +385,7 @@ describe('ssr: components', () => {
   describe('custom directive', () => {
     test('basic', () => {
       expect(compile(`<foo v-xxx:x.y="z" />`).code).toMatchInlineSnapshot(`
-        "const { resolveComponent: _resolveComponent, resolveDirective: _resolveDirective, mergeProps: _mergeProps } = require(\\"docue\\")
+        "const { resolveComponent: _resolveComponent, resolveDirective: _resolveDirective, mergeProps: _mergeProps } = require(\\"docuejs\\")
         const { ssrGetDirectiveProps: _ssrGetDirectiveProps, ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {

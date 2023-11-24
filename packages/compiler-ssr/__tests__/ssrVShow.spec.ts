@@ -7,7 +7,7 @@ function compileWithWrapper(src: string) {
 describe('ssr: v-show', () => {
   test('basic as root', () => {
     expect(compile(`<div v-show="foo"/>`).code).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -98,7 +98,7 @@ describe('ssr: v-show', () => {
         `<div v-bind="baz" style="color:red" :style="{ fontSize: 14 }" v-show="foo"/>`
       ).code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {

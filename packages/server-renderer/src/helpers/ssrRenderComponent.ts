@@ -1,4 +1,9 @@
-import { Component, ComponentInternalInstance, createVNode, Slots } from 'docue'
+import {
+  Component,
+  ComponentInternalInstance,
+  createVNode,
+  Slots
+} from 'docuejs'
 import { Props, renderComponentVNode, SSRBuffer } from '../render'
 import { SSRSlots } from './ssrRenderSlot'
 

@@ -19,7 +19,7 @@ import {
   shallowRef,
   Fragment
 } from '@docue/runtime-test'
-import { createApp, defineComponent } from 'docue'
+import { createApp, defineComponent } from 'docuejs'
 
 describe('Suspense', () => {
   const deps: Promise<any>[] = []

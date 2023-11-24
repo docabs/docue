@@ -6,6 +6,6 @@
   "dependencies": {
     "@docue/shared": "workspace:*",
     "@docue/reactivity": "workspace:*",
-    "docue": "workspace:*"
+    "docuejs": "workspace:*"
   }
 }

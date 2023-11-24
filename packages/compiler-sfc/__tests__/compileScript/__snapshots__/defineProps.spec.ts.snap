@@ -19,7 +19,7 @@ return { props, bar }
 `;
 
 exports[`defineProps > defineProps w/ runtime options 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
 export default /*#__PURE__*/_defineComponent({
   props: { foo: String },
@@ -35,7 +35,7 @@ return { props }
 `;
 
 exports[`defineProps > destructure without enabling reactive destructure 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -53,7 +53,7 @@ return {  }
 `;
 
 exports[`defineProps > w/ TS assertion 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
 export default /*#__PURE__*/_defineComponent({
   props: ['foo'],
@@ -69,7 +69,7 @@ return {  }
 `;
 
 exports[`defineProps > w/ exported interface 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 export interface Props { x?: number }
     
 export default /*#__PURE__*/_defineComponent({
@@ -88,7 +88,7 @@ return {  }
 `;
 
 exports[`defineProps > w/ exported interface in normal script 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
       export interface Props { x?: number }
     
@@ -108,7 +108,7 @@ return {  }
 `;
 
 exports[`defineProps > w/ exported type alias 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 export type Props = { x?: number }
     
 export default /*#__PURE__*/_defineComponent({
@@ -127,7 +127,7 @@ return {  }
 `;
 
 exports[`defineProps > w/ extends interface 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 interface Bar extends Foo { y?: number }
       interface Props extends Bar {
         z: number
@@ -170,7 +170,7 @@ return { props, get propsModel() { return propsModel } }
 `;
 
 exports[`defineProps > w/ interface 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 interface Props { x?: number }
     
 export default /*#__PURE__*/_defineComponent({
@@ -204,7 +204,7 @@ return { props, get x() { return x } }
 `;
 
 exports[`defineProps > w/ type 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 interface Test {}
 
     type Alias = number[]
@@ -263,7 +263,7 @@ return {  }
 `;
 
 exports[`defineProps > w/ type alias 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 type Props = { x?: number }
     
 export default /*#__PURE__*/_defineComponent({
@@ -282,7 +282,7 @@ return {  }
 `;
 
 exports[`defineProps > withDefaults (dynamic) 1`] = `
-"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docue'
+"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docuejs'
 import { defaults } from './foo'
     
 export default /*#__PURE__*/_defineComponent({
@@ -303,7 +303,7 @@ return { props, get defaults() { return defaults } }
 `;
 
 exports[`defineProps > withDefaults (dynamic) w/ production mode 1`] = `
-"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docue'
+"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docuejs'
 import { defaults } from './foo'
     
 export default /*#__PURE__*/_defineComponent({
@@ -325,7 +325,7 @@ return { props, get defaults() { return defaults } }
 `;
 
 exports[`defineProps > withDefaults (reference) 1`] = `
-"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docue'
+"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docuejs'
 import { defaults } from './foo'
     
 export default /*#__PURE__*/_defineComponent({
@@ -346,7 +346,7 @@ return { props, get defaults() { return defaults } }
 `;
 
 exports[`defineProps > withDefaults (static) + normal script 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
       interface Props {
         a?: string;
@@ -368,7 +368,7 @@ return { props }
 `;
 
 exports[`defineProps > withDefaults (static) 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -392,7 +392,7 @@ return { props }
 `;
 
 exports[`defineProps > withDefaults (static) w/ production mode 1`] = `
-"import { defineComponent as _defineComponent } from 'docue'
+"import { defineComponent as _defineComponent } from 'docuejs'
 
 export default /*#__PURE__*/_defineComponent({
   props: {
@@ -413,7 +413,7 @@ return { props }
 `;
 
 exports[`defineProps > withDefaults w/ dynamic object method 1`] = `
-"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docue'
+"import { mergeDefaults as _mergeDefaults, defineComponent as _defineComponent } from 'docuejs'
 
 export default /*#__PURE__*/_defineComponent({
   props: _mergeDefaults({

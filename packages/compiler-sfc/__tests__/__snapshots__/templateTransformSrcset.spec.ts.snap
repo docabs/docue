@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`compiler sfc: transform srcset > srcset w/ explicit base option 1`] = `
-"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
+"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docuejs\\"
 import _imports_0 from '@/logo.png'
 
 
@@ -19,7 +19,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler sfc: transform srcset > transform srcset 1`] = `
-"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
+"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docuejs\\"
 import _imports_0 from './logo.png'
 
 
@@ -99,7 +99,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler sfc: transform srcset > transform srcset w/ base 1`] = `
-"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
+"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docuejs\\"
 
 const _hoisted_1 = /*#__PURE__*/_createElementVNode(\\"img\\", {
   src: \\"./logo.png\\",
@@ -169,7 +169,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler sfc: transform srcset > transform srcset w/ includeAbsolute: true 1`] = `
-"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
+"import { createElementVNode as _createElementVNode, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docuejs\\"
 import _imports_0 from './logo.png'
 import _imports_1 from '/logo.png'
 
@@ -251,7 +251,7 @@ export function render(_ctx, _cache) {
 `;
 
 exports[`compiler sfc: transform srcset > transform srcset w/ stringify 1`] = `
-"import { createElementVNode as _createElementVNode, createStaticVNode as _createStaticVNode, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docue\\"
+"import { createElementVNode as _createElementVNode, createStaticVNode as _createStaticVNode, openBlock as _openBlock, createElementBlock as _createElementBlock } from \\"docuejs\\"
 import _imports_0 from './logo.png'
 import _imports_1 from '/logo.png'
 

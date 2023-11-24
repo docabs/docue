@@ -61,7 +61,7 @@ describe('compiler: codegen', () => {
     })
     const { code } = generate(root, { mode: 'module' })
     expect(code).toMatch(
-      `import { ${helperNameMap[CREATE_VNODE]} as _${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]} as _${helperNameMap[RESOLVE_DIRECTIVE]} } from "docue"`
+      `import { ${helperNameMap[CREATE_VNODE]} as _${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]} as _${helperNameMap[RESOLVE_DIRECTIVE]} } from "docuejs"`
     )
     expect(code).toMatchSnapshot()
   })
@@ -72,7 +72,7 @@ describe('compiler: codegen', () => {
     })
     const { code } = generate(root, { mode: 'module', optimizeImports: true })
     expect(code).toMatch(
-      `import { ${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]} } from "docue"`
+      `import { ${helperNameMap[CREATE_VNODE]}, ${helperNameMap[RESOLVE_DIRECTIVE]} } from "docuejs"`
     )
     expect(code).toMatch(
       `const _${helperNameMap[CREATE_VNODE]} = ${helperNameMap[CREATE_VNODE]}, _${helperNameMap[RESOLVE_DIRECTIVE]} = ${helperNameMap[RESOLVE_DIRECTIVE]}`

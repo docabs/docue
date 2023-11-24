@@ -11,7 +11,7 @@ describe('sfc ref transform', () => {
 
   test('$ unwrapping', () => {
     const { content, bindings } = compileWithReactivityTransform(`<script setup>
-    import { ref, shallowRef } from 'docue'
+    import { ref, shallowRef } from 'docuejs'
     let foo = $(ref())
     let a = $(ref(1))
     let b = $(shallowRef({
@@ -60,7 +60,7 @@ describe('sfc ref transform', () => {
     let d
     </script>`)
     expect(content).toMatch(
-      `import { ref as _ref, shallowRef as _shallowRef } from 'docue'`
+      `import { ref as _ref, shallowRef as _shallowRef } from 'docuejs'`
     )
     expect(content).not.toMatch(`$ref()`)
     expect(content).not.toMatch(`$ref(1)`)
@@ -96,7 +96,7 @@ describe('sfc ref transform', () => {
     }
     </script>`)
     expect(content).not.toMatch(`$ref(0)`)
-    expect(content).toMatch(`import { ref as _ref } from 'docue'`)
+    expect(content).toMatch(`import { ref as _ref } from 'docuejs'`)
     expect(content).toMatch(`let count = _ref(0)`)
     expect(content).toMatch(`count.value++`)
     expect(content).toMatch(`return ({ count })`)
@@ -131,7 +131,7 @@ describe('sfc ref transform', () => {
     }
     </script>`)
     // should dedupe helper imports
-    expect(content).toMatch(`import { ref as _ref } from 'docue'`)
+    expect(content).toMatch(`import { ref as _ref } from 'docuejs'`)
 
     expect(content).toMatch(`let a = _ref(0)`)
     expect(content).toMatch(`let b = _ref(0)`)

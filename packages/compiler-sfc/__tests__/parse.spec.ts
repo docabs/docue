@@ -309,7 +309,7 @@ h1 { color: red }
     // # 6676
     test('should throw error if no <template> or <script> is present', () => {
       assertWarning(
-        parse(`import { ref } from 'docue'`).errors,
+        parse(`import { ref } from 'docuejs'`).errors,
         `At least one <template> or <script> is required in a single file component`
       )
     })

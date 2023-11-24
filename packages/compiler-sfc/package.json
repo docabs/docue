@@ -18,7 +18,7 @@
     "enableNonBrowserBranches": true
   },
   "keywords": [
-    "docue"
+    "docuejs"
   ],
   "dependencies": {
     "@babel/parser": "^7.23.4",

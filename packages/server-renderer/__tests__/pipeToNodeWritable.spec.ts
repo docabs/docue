@@ -18,7 +18,7 @@ import {
   onErrorCaptured,
   onServerPrefetch,
   getCurrentInstance
-} from 'docue'
+} from 'docuejs'
 import { escapeHtml } from '@docue/shared'
 import { renderToString } from '../src/renderToString'
 import { renderToNodeStream, pipeToNodeWritable } from '../src/renderToStream'

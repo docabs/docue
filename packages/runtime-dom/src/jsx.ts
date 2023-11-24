@@ -243,7 +243,7 @@ interface AriaAttributes {
   'aria-valuetext'?: string
 }
 
-// Vue's style normalization supports nested arrays
+// Docue's style normalization supports nested arrays
 export type StyleValue =
   | false
   | null

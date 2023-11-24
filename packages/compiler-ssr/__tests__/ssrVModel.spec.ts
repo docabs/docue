@@ -273,7 +273,7 @@ describe('ssr: v-model', () => {
   test('<input v-bind="obj">', () => {
     expect(compileWithWrapper(`<input v-bind="obj" v-model="foo">`).code)
       .toMatchInlineSnapshot(`
-        "const { mergeProps: _mergeProps } = require(\\"docue\\")
+        "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
         const { ssrRenderAttrs: _ssrRenderAttrs, ssrGetDynamicModelProps: _ssrGetDynamicModelProps } = require(\\"docue/server-renderer\\")
 
         return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -291,7 +291,7 @@ describe('ssr: v-model', () => {
       compileWithWrapper(`<input id="x" v-bind="obj" v-model="foo" class="y">`)
         .code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs, ssrGetDynamicModelProps: _ssrGetDynamicModelProps } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {

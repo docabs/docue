@@ -1,4 +1,4 @@
-import { createApp } from 'docue'
+import { createApp } from 'docuejs'
 import { renderToString } from '../src/renderToString'
 
 describe('ssr: attr fallthrough', () => {

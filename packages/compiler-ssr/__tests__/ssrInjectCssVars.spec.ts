@@ -8,7 +8,7 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -43,7 +43,7 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { resolveComponent: _resolveComponent } = require(\\"docue\\")
+      "const { resolveComponent: _resolveComponent } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs, ssrRenderComponent: _ssrRenderComponent } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -63,7 +63,7 @@ describe('ssr: inject <style vars>', () => {
         ssrCssVars: `{ color }`
       }).code
     ).toMatchInlineSnapshot(`
-      "const { mergeProps: _mergeProps } = require(\\"docue\\")
+      "const { mergeProps: _mergeProps } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {
@@ -95,7 +95,7 @@ describe('ssr: inject <style vars>', () => {
         }
       ).code
     ).toMatchInlineSnapshot(`
-      "const { withCtx: _withCtx } = require(\\"docue\\")
+      "const { withCtx: _withCtx } = require(\\"docuejs\\")
       const { ssrRenderAttrs: _ssrRenderAttrs, ssrRenderSuspense: _ssrRenderSuspense } = require(\\"docue/server-renderer\\")
 
       return function ssrRender(_ctx, _push, _parent, _attrs) {

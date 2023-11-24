@@ -27,7 +27,7 @@ declare namespace jest {
   }
 }
 
-declare module '*.vue' {}
+declare module '*.docue' {}
 
 declare module 'file-saver' {
   export function saveAs(blob: any, name: any): void

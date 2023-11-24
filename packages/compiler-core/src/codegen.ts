@@ -96,7 +96,7 @@ function createCodegenContext(
     scopeId = null,
     optimizeImports = false,
     runtimeGlobalName = `Docue`,
-    runtimeModuleName = `docue`,
+    runtimeModuleName = `docuejs`,
     ssrRuntimeModuleName = 'docue/server-renderer',
     ssr = false,
     isTS = false,
@@ -434,8 +434,8 @@ function genAssets(
     __COMPAT__ && type === 'filter'
       ? RESOLVE_FILTER
       : type === 'component'
-      ? RESOLVE_COMPONENT
-      : RESOLVE_DIRECTIVE
+        ? RESOLVE_COMPONENT
+        : RESOLVE_DIRECTIVE
   )
   for (let i = 0; i < assets.length; i++) {
     let id = assets[i]

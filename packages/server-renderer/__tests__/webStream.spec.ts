@@ -1,4 +1,4 @@
-import { createApp, h, defineAsyncComponent } from 'docue'
+import { createApp, h, defineAsyncComponent } from 'docuejs'
 import { ReadableStream, TransformStream } from 'stream/web'
 import { pipeToWebWritable, renderToWebStream } from '../src'
 

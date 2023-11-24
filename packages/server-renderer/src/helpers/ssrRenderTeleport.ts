@@ -1,4 +1,4 @@
-import { ComponentInternalInstance, ssrContextKey } from 'docue'
+import { ComponentInternalInstance, ssrContextKey } from 'docuejs'
 import { createBuffer, PushFn, SSRBufferItem, SSRContext } from '../render'
 
 export function ssrRenderTeleport(

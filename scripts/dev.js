@@ -14,7 +14,7 @@ import { polyfillNode } from 'esbuild-plugin-polyfill-node'
 const require = createRequire(import.meta.url)
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const args = minimist(process.argv.slice(2))
-const target = args._[0] || 'docue'
+const target = args._[0] || 'docuejs'
 const format = args.f || 'global'
 const inlineDeps = args.i || args.inline
 const pkg = require(`../packages/${target}/package.json`)
@@ -23,8 +23,8 @@ const pkg = require(`../packages/${target}/package.json`)
 const outputFormat = format.startsWith('global')
   ? 'iife'
   : format === 'cjs'
-  ? 'cjs'
-  : 'esm'
+    ? 'cjs'
+    : 'esm'
 
 const postfix = format.endsWith('-runtime')
   ? `runtime.${format.replace(/-runtime$/, '')}`
