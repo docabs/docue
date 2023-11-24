@@ -1,6 +1,6 @@
 {
   "name": "@docue/compiler-sfc",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "@docue/compiler-sfc",
   "main": "dist/compiler-sfc.cjs.js",
   "module": "dist/compiler-sfc.esm-browser.js",

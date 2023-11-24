@@ -1,6 +1,6 @@
 {
   "name": "@docue/reactivity",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "@docue/reactivity",
   "main": "index.js",
   "module": "dist/reactivity.esm-bundler.js",

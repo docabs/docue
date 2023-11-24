@@ -1,7 +1,7 @@
 {
   "name": "dts-test",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "dependencies": {
     "docue": "workspace:*",
     "@docue/dts-built-test": "workspace:*"

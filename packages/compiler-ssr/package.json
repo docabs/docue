@@ -1,6 +1,6 @@
 {
   "name": "@docue/compiler-ssr",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "@docue/compiler-ssr",
   "main": "dist/compiler-ssr.cjs.js",
   "types": "dist/compiler-ssr.d.ts",

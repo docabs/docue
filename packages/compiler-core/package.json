@@ -1,6 +1,6 @@
 {
   "name": "@docue/compiler-core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "@docue/compiler-core",
   "main": "index.js",
   "module": "dist/compiler-core.esm-bundler.js",
