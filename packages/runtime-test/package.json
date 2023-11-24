@@ -1,6 +1,6 @@
 {
   "name": "@docue/runtime-test",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "@docue/runtime-test",
   "private": true,
   "main": "index.js",

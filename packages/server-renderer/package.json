@@ -1,6 +1,6 @@
 {
   "name": "@docue/server-renderer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "@docue/server-renderer",
   "main": "index.js",
   "module": "dist/server-renderer.esm-bundler.js",
