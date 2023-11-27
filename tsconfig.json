@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "allowJs": false,
     "strict": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
