@@ -1,3 +1,12 @@
+## [0.0.3](https://github.com/docabs/docue/compare/v0.0.2...v0.0.3) (2023-11-27)
+
+
+### Features
+
+* 支持devtools ([afe2fec](https://github.com/docabs/docue/commit/afe2fecf969b8b9f6959bde54357f9343a57e738))
+
+
+
 ## [0.0.2](https://github.com/docabs/docue/compare/v0.0.1...v0.0.2) (2023-11-24)
 
 
