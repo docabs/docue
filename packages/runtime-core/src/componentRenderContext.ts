@@ -1,4 +1,5 @@
 import { ComponentInternalInstance } from './component'
+import { devtoolsComponentUpdated } from './devtools'
 import { setBlockTracking } from './vnode'
 
 /**
@@ -98,9 +99,9 @@ export function withCtx(
       }
     }
 
-    // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-    //   devtoolsComponentUpdated(ctx)
-    // }
+    if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+      devtoolsComponentUpdated(ctx)
+    }
 
     return res
   }

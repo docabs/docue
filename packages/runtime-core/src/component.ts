@@ -793,11 +793,11 @@ export function handleSetupResult(
           `return a render function instead.`
       )
     }
-    // // setup returned bindings.
-    // // assuming a render function compiled from template is present.
-    // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-    //   instance.devtoolsRawSetupState = setupResult
-    // }
+    // setup returned bindings.
+    // assuming a render function compiled from template is present.
+    if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+      instance.devtoolsRawSetupState = setupResult
+    }
     instance.setupState = proxyRefs(setupResult)
     if (__DEV__) {
       exposeSetupStateOnRenderContext(instance)

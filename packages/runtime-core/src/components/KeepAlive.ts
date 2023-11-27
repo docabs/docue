@@ -41,7 +41,7 @@ import {
 } from '../renderer'
 // import { setTransitionHooks } from './BaseTransition'
 import { ComponentRenderContext } from '../componentPublicInstance'
-// import { devtoolsComponentAdded } from '../devtools'
+import { devtoolsComponentAdded } from '../devtools'
 import { isAsyncWrapper } from '../apiAsyncComponent'
 import { isSuspense } from './Suspense'
 import { LifecycleHooks } from '../enums'
@@ -104,9 +104,9 @@ const KeepAliveImpl: ComponentOptions = {
     const cache: Cache = new Map()
     const keys: Keys = new Set()
     let current: VNode | null = null
-    // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-    //   ;(instance as any).__v_cache = cache
-    // }
+    if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+      ;(instance as any).__v_cache = cache
+    }
     const parentSuspense = instance.suspense
     const {
       renderer: {
@@ -142,10 +142,10 @@ const KeepAliveImpl: ComponentOptions = {
           invokeVNodeHook(vnodeHook, instance.parent, vnode)
         }
       }, parentSuspense)
-      // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-      //   // Update components tree
-      //   devtoolsComponentAdded(instance)
-      // }
+      if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+        // Update components tree
+        devtoolsComponentAdded(instance)
+      }
     }
     sharedContext.deactivate = (vnode: VNode) => {
       const instance = vnode.component!
@@ -160,10 +160,10 @@ const KeepAliveImpl: ComponentOptions = {
         }
         instance.isDeactivated = true
       }, parentSuspense)
-      // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-      //   // Update components tree
-      //   devtoolsComponentAdded(instance)
-      // }
+      if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+        // Update components tree
+        devtoolsComponentAdded(instance)
+      }
     }
     function unmount(vnode: VNode) {
       // reset the shapeFlag so it can be properly unmounted

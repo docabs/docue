@@ -5,7 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch via PNPM",
+      "name": "PNPM build",
+      "request": "launch",
+      "runtimeArgs": ["run", "build", "--withTypes"],
+      "runtimeExecutable": "pnpm",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "PNPM release",
       "request": "launch",
       "runtimeArgs": ["release"],
       "runtimeExecutable": "pnpm",

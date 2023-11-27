@@ -64,10 +64,10 @@ export type VNodeTypes =
   | typeof Static
   | typeof Comment
   | typeof Fragment
-// | typeof Teleport
-// | typeof TeleportImpl
-// | typeof Suspense
-// | typeof SuspenseImpl
+  | typeof Teleport
+  | typeof TeleportImpl
+  | typeof Suspense
+  | typeof SuspenseImpl
 
 export type VNodeRef =
   | string
@@ -574,14 +574,14 @@ function _createVNode(
   const shapeFlag = isString(type)
     ? ShapeFlags.ELEMENT
     : __FEATURE_SUSPENSE__ && isSuspense(type)
-    ? ShapeFlags.SUSPENSE
-    : isTeleport(type)
-    ? ShapeFlags.TELEPORT
-    : isObject(type)
-    ? ShapeFlags.STATEFUL_COMPONENT
-    : isFunction(type)
-    ? ShapeFlags.FUNCTIONAL_COMPONENT
-    : 0
+      ? ShapeFlags.SUSPENSE
+      : isTeleport(type)
+        ? ShapeFlags.TELEPORT
+        : isObject(type)
+          ? ShapeFlags.STATEFUL_COMPONENT
+          : isFunction(type)
+            ? ShapeFlags.FUNCTIONAL_COMPONENT
+            : 0
 
   if (__DEV__ && shapeFlag & ShapeFlags.STATEFUL_COMPONENT && isProxy(type)) {
     type = toRaw(type)
