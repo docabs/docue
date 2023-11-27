@@ -141,7 +141,7 @@ export {
 // export { initCustomFormatter } from './customFormatter'
 
 // For devtools
-// export { devtools, setDevtoolsHook } from './devtools'
+export { devtools, setDevtoolsHook } from './devtools'
 
 // Types -------------------------------------------------------------------------
 

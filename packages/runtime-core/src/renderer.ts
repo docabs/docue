@@ -62,12 +62,12 @@ import { registerHMR, unregisterHMR, isHmrUpdating } from './hmr'
 import { createHydrationFunctions, RootHydrateFunction } from './hydration'
 import { invokeDirectiveHook } from './directives'
 // import { startMeasure, endMeasure } from './profiling'
-// import {
-//   devtoolsComponentAdded,
-//   devtoolsComponentRemoved,
-//   devtoolsComponentUpdated,
-//   setDevtoolsHook
-// } from './devtools'
+import {
+  devtoolsComponentAdded,
+  devtoolsComponentRemoved,
+  devtoolsComponentUpdated,
+  setDevtoolsHook
+} from './devtools'
 // import { initFeatureFlags } from './featureFlags'
 import { isAsyncWrapper } from './apiAsyncComponent'
 // import { isCompatEnabled } from './compat/compatConfig'
@@ -334,9 +334,9 @@ function baseCreateRenderer(
 
   const target = getGlobalThis()
   target.__DOCUE__ = true
-  // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-  //   setDevtoolsHook(target.__DOCUE_DEVTOOLS_GLOBAL_HOOK__, target)
-  // }
+  if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+    setDevtoolsHook(target.__DOCUE_DEVTOOLS_GLOBAL_HOOK__, target)
+  }
 
   const {
     insert: hostInsert,
@@ -679,16 +679,16 @@ function baseCreateRenderer(
         invokeVNodeHook(vnodeHook, parentComponent, vnode)
       }
     }
-    //   if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-    //     Object.defineProperty(el, '__vnode', {
-    //       value: vnode,
-    //       enumerable: false
-    //     })
-    //     Object.defineProperty(el, '__docueParentComponent', {
-    //       value: parentComponent,
-    //       enumerable: false
-    //     })
-    //   }
+    if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+      Object.defineProperty(el, '__vnode', {
+        value: vnode,
+        enumerable: false
+      })
+      Object.defineProperty(el, '__docueParentComponent', {
+        value: parentComponent,
+        enumerable: false
+      })
+    }
     if (dirs) {
       invokeDirectiveHook(vnode, null, parentComponent, 'beforeMount')
     }
@@ -1409,9 +1409,9 @@ function baseCreateRenderer(
           // }
         }
         instance.isMounted = true
-        // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-        //   devtoolsComponentAdded(instance)
-        // }
+        if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+          devtoolsComponentAdded(instance)
+        }
         // #2458: deference mount-only object parameters to prevent memleaks
         // initialVNode = container = anchor = null as any
       } else {
@@ -1501,9 +1501,9 @@ function baseCreateRenderer(
         //           parentSuspense
         //         )
         //       }
-        //       if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-        //         devtoolsComponentUpdated(instance)
-        //       }
+        if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+          devtoolsComponentUpdated(instance)
+        }
         if (__DEV__) {
           popWarningContext()
         }
@@ -2232,9 +2232,9 @@ function baseCreateRenderer(
       }
     }
 
-    // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-    //   devtoolsComponentRemoved(instance)
-    // }
+    if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+      devtoolsComponentRemoved(instance)
+    }
   }
 
   const unmountChildren: UnmountChildrenFn = (

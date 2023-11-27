@@ -1,30 +1,32 @@
 import {
-  Component,
-  ComponentInternalInstance,
   ConcreteComponent,
   Data,
-  getExposeProxy,
-  validateComponentName
+  validateComponentName,
+  Component,
+  ComponentInternalInstance,
+  getExposeProxy
 } from './component'
-import {
-  ComponentCustomProperties,
-  ComponentPublicInstance
-} from './componentPublicInstance'
-import { RootHydrateFunction } from './hydration'
-import { RootRenderFunction } from './renderer'
-import { ObjectEmitsOptions } from './componentEmits'
-import { warn } from './warning'
-import { VNode, cloneVNode, createVNode } from './vnode'
-import { InjectionKey } from './apiInject'
-import { Directive, validateDirectiveName } from './directives'
-import { version } from '.'
-import { NO, extend, isFunction, isObject } from '@docue/shared'
 import {
   ComponentOptions,
   MergedComponentOptions,
   RuntimeCompilerOptions
 } from './componentOptions'
+import {
+  ComponentCustomProperties,
+  ComponentPublicInstance
+} from './componentPublicInstance'
+import { Directive, validateDirectiveName } from './directives'
+import { RootRenderFunction } from './renderer'
+import { InjectionKey } from './apiInject'
+import { warn } from './warning'
+import { createVNode, cloneVNode, VNode } from './vnode'
+import { RootHydrateFunction } from './hydration'
+import { devtoolsInitApp, devtoolsUnmountApp } from './devtools'
+import { isFunction, NO, isObject, extend } from '@docue/shared'
+import { version } from '.'
+import { installAppCompatProperties } from './compat/global'
 import { NormalizedPropsOptions } from './componentProps'
+import { ObjectEmitsOptions } from './componentEmits'
 
 export interface App<HostElement = any> {
   version: string
@@ -332,10 +334,10 @@ export function createAppAPI<HostElement>(
           app._container = rootContainer
           // for devtools and telemetry
           ;(rootContainer as any).__docue_app__ = app
-          // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-          //   app._instance = vnode.component
-          //   devtoolsInitApp(app, version)
-          // }
+          if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+            app._instance = vnode.component
+            devtoolsInitApp(app, version)
+          }
           return getExposeProxy(vnode.component!) || vnode.component!.proxy
         } else if (__DEV__) {
           warn(
@@ -349,10 +351,10 @@ export function createAppAPI<HostElement>(
       unmount() {
         if (isMounted) {
           render(null, app._container)
-          // if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
-          //   app._instance = null
-          //   devtoolsUnmountApp(app)
-          // }
+          if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
+            app._instance = null
+            devtoolsUnmountApp(app)
+          }
           delete app._container.__docue_app__
         } else if (__DEV__) {
           warn(`Cannot unmount an app that is not mounted.`)
