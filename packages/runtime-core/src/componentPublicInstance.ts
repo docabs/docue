@@ -489,15 +489,15 @@ export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
   }
 }
 
-// if (__DEV__ && !__TEST__) {
-//   PublicInstanceProxyHandlers.ownKeys = (target: ComponentRenderContext) => {
-//     warn(
-//       `Avoid app logic that relies on enumerating keys on a component instance. ` +
-//         `The keys will be empty in production mode to avoid performance overhead.`
-//     )
-//     return Reflect.ownKeys(target)
-//   }
-// }
+if (__DEV__ && !__TEST__) {
+  PublicInstanceProxyHandlers.ownKeys = (target: ComponentRenderContext) => {
+    warn(
+      `Avoid app logic that relies on enumerating keys on a component instance. ` +
+        `The keys will be empty in production mode to avoid performance overhead.`
+    )
+    return Reflect.ownKeys(target)
+  }
+}
 
 export const RuntimeCompiledPublicInstanceProxyHandlers = /*#__PURE__*/ extend(
   {},

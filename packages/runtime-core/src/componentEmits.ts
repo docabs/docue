@@ -144,21 +144,21 @@ export function emit(
     devtoolsComponentEmit(instance, event, args)
   }
 
-  // if (__DEV__) {
-  //   const lowerCaseEvent = event.toLowerCase()
-  //   if (lowerCaseEvent !== event && props[toHandlerKey(lowerCaseEvent)]) {
-  //     warn(
-  //       `Event "${lowerCaseEvent}" is emitted in component ` +
-  //         `${formatComponentName(
-  //           instance,
-  //           instance.type
-  //         )} but the handler is registered for "${event}". ` +
-  //         `Note that HTML attributes are case-insensitive and you cannot use ` +
-  //         `v-on to listen to camelCase events when using in-DOM templates. ` +
-  //         `You should probably use "${hyphenate(event)}" instead of "${event}".`
-  //     )
-  //   }
-  // }
+  if (__DEV__) {
+    const lowerCaseEvent = event.toLowerCase()
+    if (lowerCaseEvent !== event && props[toHandlerKey(lowerCaseEvent)]) {
+      warn(
+        `Event "${lowerCaseEvent}" is emitted in component ` +
+          `${formatComponentName(
+            instance,
+            instance.type
+          )} but the handler is registered for "${event}". ` +
+          `Note that HTML attributes are case-insensitive and you cannot use ` +
+          `v-on to listen to camelCase events when using in-DOM templates. ` +
+          `You should probably use "${hyphenate(event)}" instead of "${event}".`
+      )
+    }
+  }
 
   let handlerName
   let handler =

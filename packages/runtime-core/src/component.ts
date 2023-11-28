@@ -963,20 +963,20 @@ function getAttrsProxy(instance: ComponentInternalInstance): Data {
   )
 }
 
-// /**
-//  * Dev-only
-//  */
-// function getSlotsProxy(instance: ComponentInternalInstance): Slots {
-//   return (
-//     instance.slotsProxy ||
-//     (instance.slotsProxy = new Proxy(instance.slots, {
-//       get(target, key: string) {
-//         track(instance, TrackOpTypes.GET, '$slots')
-//         return target[key]
-//       }
-//     }))
-//   )
-// }
+/**
+ * Dev-only
+ */
+function getSlotsProxy(instance: ComponentInternalInstance): Slots {
+  return (
+    instance.slotsProxy ||
+    (instance.slotsProxy = new Proxy(instance.slots, {
+      get(target, key: string) {
+        track(instance, TrackOpTypes.GET, '$slots')
+        return target[key]
+      }
+    }))
+  )
+}
 
 export function createSetupContext(
   instance: ComponentInternalInstance
@@ -1004,31 +1004,31 @@ export function createSetupContext(
     }
     instance.exposed = exposed || {}
   }
-  // if (__DEV__) {
-  // We use getters in dev in case libs like test-utils overwrite instance
-  // properties (overwrites should not be done in prod)
-  // return Object.freeze({
-  // get attrs() {
-  //   return getAttrsProxy(instance)
-  // },
-  // get slots() {
-  //   return getSlotsProxy(instance)
-  // },
-  // get emit() {
-  //   return (event: string, ...args: any[]) => instance.emit(event, ...args)
-  // },
-  // expose
-  // })
-  // } else {
-  return {
-    get attrs() {
-      return getAttrsProxy(instance)
-    },
-    slots: instance.slots,
-    emit: instance.emit,
-    expose
+  if (__DEV__) {
+    // We use getters in dev in case libs like test-utils overwrite instance
+    // properties (overwrites should not be done in prod)
+    return Object.freeze({
+      get attrs() {
+        return getAttrsProxy(instance)
+      },
+      get slots() {
+        return getSlotsProxy(instance)
+      },
+      get emit() {
+        return (event: string, ...args: any[]) => instance.emit(event, ...args)
+      },
+      expose
+    })
+  } else {
+    return {
+      get attrs() {
+        return getAttrsProxy(instance)
+      },
+      slots: instance.slots,
+      emit: instance.emit,
+      expose
+    }
   }
-  // }
 }
 
 export function getExposeProxy(instance: ComponentInternalInstance) {

@@ -35,29 +35,29 @@ const resolveTarget = <T = RendererElement>(
   const targetSelector = props && props.to
   if (isString(targetSelector)) {
     if (!select) {
-      //       __DEV__ &&
-      //         warn(
-      //           `Current renderer does not support string target for Teleports. ` +
-      //             `(missing querySelector renderer option)`
-      //         )
+      __DEV__ &&
+        warn(
+          `Current renderer does not support string target for Teleports. ` +
+            `(missing querySelector renderer option)`
+        )
       return null
     } else {
       const target = select(targetSelector)
-      //       if (!target) {
-      //         __DEV__ &&
-      //           warn(
-      //             `Failed to locate Teleport target with selector "${targetSelector}". ` +
-      //               `Note the target element must exist before the component is mounted - ` +
-      //               `i.e. the target cannot be rendered by the component itself, and ` +
-      //               `ideally should be outside of the entire Docue component tree.`
-      //           )
-      //       }
+      if (!target) {
+        __DEV__ &&
+          warn(
+            `Failed to locate Teleport target with selector "${targetSelector}". ` +
+              `Note the target element must exist before the component is mounted - ` +
+              `i.e. the target cannot be rendered by the component itself, and ` +
+              `ideally should be outside of the entire Docue component tree.`
+          )
+      }
       return target as T
     }
   } else {
-    //     if (__DEV__ && !targetSelector && !isTeleportDisabled(props)) {
-    //       warn(`Invalid Teleport target: ${targetSelector}`)
-    //     }
+    if (__DEV__ && !targetSelector && !isTeleportDisabled(props)) {
+      warn(`Invalid Teleport target: ${targetSelector}`)
+    }
     return targetSelector as T
   }
 }

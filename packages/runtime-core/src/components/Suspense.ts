@@ -639,9 +639,9 @@ function createSuspenseBoundary(
           // retry from this component
           instance.asyncResolved = true
           const { vnode } = instance
-          // if (__DEV__) {
-          //   pushWarningContext(vnode)
-          // }
+          if (__DEV__) {
+            pushWarningContext(vnode)
+          }
           handleSetupResult(instance, asyncSetupResult, false)
           if (hydratedEl) {
             // vnode may have been replaced if an update happened before the
@@ -667,9 +667,9 @@ function createSuspenseBoundary(
             remove(placeholder)
           }
           // updateHOCHostEl(instance, vnode.el)
-          // if (__DEV__) {
-          //   popWarningContext()
-          // }
+          if (__DEV__) {
+            popWarningContext()
+          }
           // only decrease deps count if suspense is not already resolved
           if (isInPendingSuspense && --suspense.deps === 0) {
             suspense.resolve()
@@ -785,9 +785,9 @@ function normalizeSuspenseSlot(s: any) {
   }
   if (isArray(s)) {
     const singleChild = filterSingleRoot(s)
-    //     if (__DEV__ && !singleChild) {
-    //       warn(`<Suspense> slots expect a single root node.`)
-    //     }
+    if (__DEV__ && !singleChild) {
+      warn(`<Suspense> slots expect a single root node.`)
+    }
     s = singleChild
   }
   s = normalizeVNode(s)
