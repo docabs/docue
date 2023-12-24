@@ -1,6 +1,6 @@
 {
   "name": "@docue/runtime-core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "@docue/runtime-core",
   "main": "index.js",
   "module": "dist/runtime-core.esm-bundler.js",

@@ -269,11 +269,11 @@ async function main() {
     }
   }
 
-  // publish packages
-  step('\nPublishing packages...')
-  for (const pkg of packages) {
-    await publishPackage(pkg, targetVersion)
-  }
+  // publish packages(暂不本地发布)
+  // step('\nPublishing packages...')
+  // for (const pkg of packages) {
+  //   await publishPackage(pkg, targetVersion)
+  // }
 
   // push to GitHub
   if (!skipGit) {

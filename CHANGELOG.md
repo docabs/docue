@@ -3,6 +3,42 @@
 
 ### Features
 
+* 触发release ([24e4b14](https://github.com/docabs/docue/commit/24e4b140604d20042ad9adeedb9e5a2cdb6e3366))
+* 放开部分__DEV__标记 ([7c93172](https://github.com/docabs/docue/commit/7c931726227997bfdf2b37eb3294b8cf6568d8a7))
+* 修复compilerScript部分无法测试代码 ([d3d5122](https://github.com/docabs/docue/commit/d3d51223733a4a5fb30eacc57cb03ed097831742))
+* 支持devtools ([afe2fec](https://github.com/docabs/docue/commit/afe2fecf969b8b9f6959bde54357f9343a57e738))
+
+
+
+## [0.0.4](https://github.com/docabs/docue/compare/v0.0.2...v0.0.4) (2023-12-24)
+
+
+### Features
+
+* 触发release ([24e4b14](https://github.com/docabs/docue/commit/24e4b140604d20042ad9adeedb9e5a2cdb6e3366))
+* 放开部分__DEV__标记 ([7c93172](https://github.com/docabs/docue/commit/7c931726227997bfdf2b37eb3294b8cf6568d8a7))
+* 修复compilerScript部分无法测试代码 ([d3d5122](https://github.com/docabs/docue/commit/d3d51223733a4a5fb30eacc57cb03ed097831742))
+* 支持devtools ([afe2fec](https://github.com/docabs/docue/commit/afe2fecf969b8b9f6959bde54357f9343a57e738))
+
+
+
+## [0.0.4](https://github.com/docabs/docue/compare/v0.0.2...v0.0.4) (2023-12-24)
+
+
+### Features
+
+* 触发release ([24e4b14](https://github.com/docabs/docue/commit/24e4b140604d20042ad9adeedb9e5a2cdb6e3366))
+* 放开部分__DEV__标记 ([7c93172](https://github.com/docabs/docue/commit/7c931726227997bfdf2b37eb3294b8cf6568d8a7))
+* 修复compilerScript部分无法测试代码 ([d3d5122](https://github.com/docabs/docue/commit/d3d51223733a4a5fb30eacc57cb03ed097831742))
+* 支持devtools ([afe2fec](https://github.com/docabs/docue/commit/afe2fecf969b8b9f6959bde54357f9343a57e738))
+
+
+
+## [0.0.4](https://github.com/docabs/docue/compare/v0.0.2...v0.0.4) (2023-12-24)
+
+
+### Features
+
 * 放开部分__DEV__标记 ([7c93172](https://github.com/docabs/docue/commit/7c931726227997bfdf2b37eb3294b8cf6568d8a7))
 * 修复compilerScript部分无法测试代码 ([d3d5122](https://github.com/docabs/docue/commit/d3d51223733a4a5fb30eacc57cb03ed097831742))
 * 支持devtools ([afe2fec](https://github.com/docabs/docue/commit/afe2fecf969b8b9f6959bde54357f9343a57e738))
