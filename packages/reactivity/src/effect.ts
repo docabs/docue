@@ -130,9 +130,9 @@ export class ReactiveEffect<T = any> {
     recordEffectScope(this, scope)
   }
   run() {
-    // if (!this.active) {
-    //   return this.fn()
-    // }
+    if (!this.active) {
+      return this.fn()
+    }
     let parent: ReactiveEffect | undefined = activeEffect
     let lastShouldTrack = shouldTrack
     while (parent) {
@@ -164,9 +164,9 @@ export class ReactiveEffect<T = any> {
       activeEffect = this.parent
       shouldTrack = lastShouldTrack
       this.parent = undefined
-      // if (this.deferStop) {
-      //   this.stop()
-      // }
+      if (this.deferStop) {
+        this.stop()
+      }
     }
   }
 

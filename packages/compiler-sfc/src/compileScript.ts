@@ -389,8 +389,8 @@ export function compileScript(
               p.key.type === 'Identifier' &&
               p.key.name === 'render'
             ) {
-              //               // TODO warn when we provide a better way to do it?
-              //               ctx.hasDefaultExportRender = true
+              // TODO warn when we provide a better way to do it?
+              ctx.hasDefaultExportRender = true
             }
           }
         }
@@ -406,10 +406,10 @@ export function compileScript(
           defaultExport = node
           // 1. remove specifier
           if (node.specifiers.length > 1) {
-            //             ctx.s.remove(
-            //               defaultSpecifier.start! + scriptStartOffset!,
-            //               defaultSpecifier.end! + scriptStartOffset!
-            //             )
+            ctx.s.remove(
+              defaultSpecifier.start! + scriptStartOffset!,
+              defaultSpecifier.end! + scriptStartOffset!
+            )
           } else {
             ctx.s.remove(
               node.start! + scriptStartOffset!,
@@ -417,12 +417,12 @@ export function compileScript(
             )
           }
           if (node.source) {
-            //             // export { x as default } from './x'
-            //             // rewrite to `import { x as __default__ } from './x'` and
-            //             // add to top
-            //             ctx.s.prepend(
-            //               `import { ${defaultSpecifier.local.name} as ${normalScriptDefaultVar} } from '${node.source.value}'\n`
-            //             )
+            // export { x as default } from './x'
+            // rewrite to `import { x as __default__ } from './x'` and
+            // add to top
+            ctx.s.prepend(
+              `import { ${defaultSpecifier.local.name} as ${normalScriptDefaultVar} } from '${node.source.value}'\n`
+            )
           } else {
             // export { x as default }
             // rewrite to `const __default__ = x` and move to end
@@ -776,11 +776,11 @@ export function compileScript(
       )
     }
   }
-  //   // inject temp variables for async context preservation
-  //   if (hasAwait) {
-  //     const any = ctx.isTS ? `: any` : ``
-  //     ctx.s.prependLeft(startOffset, `\nlet __temp${any}, __restore${any}\n`)
-  //   }
+  // inject temp variables for async context preservation
+  if (hasAwait) {
+    const any = ctx.isTS ? `: any` : ``
+    ctx.s.prependLeft(startOffset, `\nlet __temp${any}, __restore${any}\n`)
+  }
   const destructureElements =
     ctx.hasDefineExposeCall || !options.inlineTemplate
       ? [`expose: __expose`]
@@ -858,7 +858,7 @@ export function compileScript(
         }
       })
       if (tips.length) {
-        //         tips.forEach(warnOnce)
+        tips.forEach(warnOnce)
       }
       const err = errors[0]
       if (typeof err === 'string') {
@@ -885,7 +885,7 @@ export function compileScript(
       // as this may get injected by the render function preamble OR the
       // css vars codegen
       if (ast && ast.helpers.has(UNREF)) {
-        //         ctx.helperImports.delete('unref')
+        ctx.helperImports.delete('unref')
       }
       returned = code
     } else {
@@ -893,15 +893,15 @@ export function compileScript(
     }
   }
   if (!options.inlineTemplate && !__TEST__) {
-    //     // in non-inline mode, the `__isScriptSetup: true` flag is used by
-    //     // componentPublicInstance proxy to allow properties that start with $ or _
-    //     ctx.s.appendRight(
-    //       endOffset,
-    //       `\nconst __returned__ = ${returned}\n` +
-    //         `Object.defineProperty(__returned__, '__isScriptSetup', { enumerable: false, value: true })\n` +
-    //         `return __returned__` +
-    //         `\n}\n\n`
-    //     )
+    // in non-inline mode, the `__isScriptSetup: true` flag is used by
+    // componentPublicInstance proxy to allow properties that start with $ or _
+    ctx.s.appendRight(
+      endOffset,
+      `\nconst __returned__ = ${returned}\n` +
+        `Object.defineProperty(__returned__, '__isScriptSetup', { enumerable: false, value: true })\n` +
+        `return __returned__` +
+        `\n}\n\n`
+    )
   } else {
     ctx.s.appendRight(endOffset, `\nreturn ${returned}\n}\n\n`)
   }

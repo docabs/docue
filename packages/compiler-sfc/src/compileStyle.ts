@@ -147,11 +147,11 @@ export function doCompileStyle(
     from: filename
   }
   if (map) {
-    //   postCSSOptions.map = {
-    //     inline: false,
-    //     annotation: false,
-    //     prev: map
-    //   }
+    postCSSOptions.map = {
+      inline: false,
+      annotation: false,
+      prev: map
+    }
   }
 
   let result: LazyResult | undefined

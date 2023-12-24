@@ -12,7 +12,7 @@ import { TemplateCompiler } from './compileTemplate'
 import { parseCssVars } from './style/cssVars'
 import { createCache } from './cache'
 import { ImportBinding } from './compileScript'
-// import { isImportUsed } from './script/importUsageCheck'
+import { isImportUsed } from './script/importUsageCheck'
 
 export const DEFAULT_FILENAME = 'anonymous.docue'
 
@@ -85,7 +85,7 @@ export interface SFCDescriptor {
    * and only checks the special case where <script setup lang="ts"> unused import
    * pruning result changes due to template changes.
    */
-  // shouldForceReload: (prevImports: Record<string, ImportBinding>) => boolean
+  shouldForceReload: (prevImports: Record<string, ImportBinding>) => boolean
 }
 
 export interface SFCParseResult {
@@ -108,10 +108,10 @@ export function parse(
 ): SFCParseResult {
   const sourceKey =
     source + sourceMap + filename + sourceRoot + pad + compiler.parse
-  // const cache = parseCache.get(sourceKey)
-  // if (cache) {
-  //   return cache
-  // }
+  const cache = parseCache.get(sourceKey)
+  if (cache) {
+    return cache
+  }
 
   const descriptor: SFCDescriptor = {
     filename,
@@ -122,8 +122,8 @@ export function parse(
     styles: [],
     customBlocks: [],
     cssVars: [],
-    slotted: false
-    // shouldForceReload: prevImports => hmrShouldReload(prevImports, descriptor)
+    slotted: false,
+    shouldForceReload: prevImports => hmrShouldReload(prevImports, descriptor)
   }
 
   const errors: (CompilerError | SyntaxError)[] = []
@@ -235,24 +235,24 @@ export function parse(
   }
 
   if (descriptor.scriptSetup) {
-    //     if (descriptor.scriptSetup.src) {
-    //       errors.push(
-    //         new SyntaxError(
-    //           `<script setup> cannot use the "src" attribute because ` +
-    //             `its syntax will be ambiguous outside of the component.`
-    //         )
-    //       )
-    //       descriptor.scriptSetup = null
-    //     }
-    //     if (descriptor.script && descriptor.script.src) {
-    //       errors.push(
-    //         new SyntaxError(
-    //           `<script> cannot use the "src" attribute when <script setup> is ` +
-    //             `also present because they must be processed together.`
-    //         )
-    //       )
-    //       descriptor.script = null
-    //     }
+    if (descriptor.scriptSetup.src) {
+      errors.push(
+        new SyntaxError(
+          `<script setup> cannot use the "src" attribute because ` +
+            `its syntax will be ambiguous outside of the component.`
+        )
+      )
+      descriptor.scriptSetup = null
+    }
+    if (descriptor.script && descriptor.script.src) {
+      errors.push(
+        new SyntaxError(
+          `<script> cannot use the "src" attribute when <script setup> is ` +
+            `also present because they must be processed together.`
+        )
+      )
+      descriptor.script = null
+    }
   }
 
   if (sourceMap) {
@@ -378,27 +378,27 @@ function generateSourceMap(
     sourceRoot: sourceRoot.replace(/\\/g, '/')
   })
   map.setSourceContent(filename, source)
-  //   generated.split(splitRE).forEach((line, index) => {
-  //     if (!emptyRE.test(line)) {
-  //       const originalLine = index + 1 + lineOffset
-  //       const generatedLine = index + 1
-  //       for (let i = 0; i < line.length; i++) {
-  //         if (!/\s/.test(line[i])) {
-  //           map.addMapping({
-  //             source: filename,
-  //             original: {
-  //               line: originalLine,
-  //               column: i
-  //             },
-  //             generated: {
-  //               line: generatedLine,
-  //               column: i
-  //             }
-  //           })
-  //         }
-  //       }
-  //     }
-  //   })
+  generated.split(splitRE).forEach((line, index) => {
+    if (!emptyRE.test(line)) {
+      const originalLine = index + 1 + lineOffset
+      const generatedLine = index + 1
+      for (let i = 0; i < line.length; i++) {
+        if (!/\s/.test(line[i])) {
+          map.addMapping({
+            source: filename,
+            original: {
+              line: originalLine,
+              column: i
+            },
+            generated: {
+              line: generatedLine,
+              column: i
+            }
+          })
+        }
+      }
+    }
+  })
   return JSON.parse(map.toString())
 }
 
@@ -440,31 +440,31 @@ function isEmpty(node: ElementNode) {
   return true
 }
 
-// /**
-//  * Note: this comparison assumes the prev/next script are already identical,
-//  * and only checks the special case where <script setup lang="ts"> unused import
-//  * pruning result changes due to template changes.
-//  */
-// export function hmrShouldReload(
-//   prevImports: Record<string, ImportBinding>,
-//   next: SFCDescriptor
-// ): boolean {
-//   if (
-//     !next.scriptSetup ||
-//     (next.scriptSetup.lang !== 'ts' && next.scriptSetup.lang !== 'tsx')
-//   ) {
-//     return false
-//   }
+/**
+ * Note: this comparison assumes the prev/next script are already identical,
+ * and only checks the special case where <script setup lang="ts"> unused import
+ * pruning result changes due to template changes.
+ */
+export function hmrShouldReload(
+  prevImports: Record<string, ImportBinding>,
+  next: SFCDescriptor
+): boolean {
+  if (
+    !next.scriptSetup ||
+    (next.scriptSetup.lang !== 'ts' && next.scriptSetup.lang !== 'tsx')
+  ) {
+    return false
+  }
 
-//   // for each previous import, check if its used status remain the same based on
-//   // the next descriptor's template
-//   for (const key in prevImports) {
-//     // if an import was previous unused, but now is used, we need to force
-//     // reload so that the script now includes that import.
-//     if (!prevImports[key].isUsedInTemplate && isImportUsed(key, next)) {
-//       return true
-//     }
-//   }
+  // for each previous import, check if its used status remain the same based on
+  // the next descriptor's template
+  for (const key in prevImports) {
+    // if an import was previous unused, but now is used, we need to force
+    // reload so that the script now includes that import.
+    if (!prevImports[key].isUsedInTemplate && isImportUsed(key, next)) {
+      return true
+    }
+  }
 
-//   return false
-// }
+  return false
+}
