@@ -1,6 +1,12 @@
-name: Publish NPM Package
+name: Create Release
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   publish:
@@ -25,8 +31,6 @@ jobs:
           cache: "pnpm"
 
       - run: pnpm install
-      - run: pnpm build
-      - run: pnpm build-dts
-      - run: pnpm publish -r --force
+      - run: pnpm release
         env:
           NODE_AUTH_TOKEN: ${{secrets.DOCABS_NPM_TOKEN}}
